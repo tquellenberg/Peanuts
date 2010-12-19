@@ -1,0 +1,36 @@
+Must have
+=========
+
+- Momento weg
+
+- Category management (colors for categories)
+- Split edit within transaction detail (details button)
+- Folder for Navigation
+
+Nice to have
+============
+
+- Transaction detail always visible
+- Dash-board
+- Quick report for a single category
+- Export transactions (account or report) as CSV
+
+Maybe
+=====
+
+- Hide inactive Accounts
+- Direct add-button for transactions
+- Join categories and transfer
+- Smart Accounts (= Filter for Transactions)
+
+
+Tasks
+=====
+
+- automatic client build
+- License
+
+
+Other
+=====
+- iPhone web app

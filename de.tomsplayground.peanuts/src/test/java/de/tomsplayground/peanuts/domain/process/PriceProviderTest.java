@@ -1,0 +1,158 @@
+package de.tomsplayground.peanuts.domain.process;
+
+import static org.junit.Assert.*;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import de.tomsplayground.util.Day;
+
+
+public class PriceProviderTest {
+
+	private PriceProvider pp;
+	private Day c1;
+	private Day dateAfterC1;
+
+	@Before
+	public void setUp() {
+		pp = new PriceProvider() {
+			@Override
+			public String getName() {
+				return "";
+			}
+		};		
+		c1 = new Day(2008, 4, 1);
+		dateAfterC1 = new Day(2008, 4, 2);
+	}
+	
+	@Test
+	public void testGetPrice() throws Exception {
+		Price price1 = new Price(c1, BigDecimal.ZERO);
+		pp.setPrice(price1);
+
+		Price price = pp.getPrice(c1);
+		Assert.assertEquals(price1, price);
+
+		price = pp.getPrice(dateAfterC1);
+		Assert.assertEquals(price1, price);
+	}
+	
+	@Test
+	public void testSetPrice() throws Exception {
+		
+		pp.setPrice(new Price(c1, BigDecimal.ZERO));
+		pp.setPrice(new Price(dateAfterC1, BigDecimal.ZERO));
+		
+		Assert.assertTrue(pp.getMinDate().equals(c1));
+		Assert.assertTrue(pp.getMaxDate().equals(dateAfterC1));
+	}
+	
+	@Test
+	public void testSetPrices() {
+		final PropertyChangeEvent lastEvent[] = new PropertyChangeEvent[1];
+		pp.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				lastEvent[0] = evt;
+			}
+		});
+		pp.setPrice(new Price(c1, BigDecimal.ZERO));
+
+		List<Price> prices = new ArrayList<Price>();
+		prices.add(new Price(c1, BigDecimal.ZERO));
+		prices.add(new Price(dateAfterC1, BigDecimal.ZERO));
+		pp.setPrices(prices, true);
+		
+		Assert.assertTrue(pp.getMinDate().equals(c1));
+		Assert.assertTrue(pp.getMaxDate().equals(dateAfterC1));
+		Assert.assertEquals(2, pp.getPrices().size());
+		
+		assertEquals(pp, lastEvent[0].getSource());
+		assertEquals("prices", lastEvent[0].getPropertyName());
+	}
+	
+	@Test
+	public void testSetPriceReverse() throws Exception {		
+		pp.setPrice(new Price(dateAfterC1, BigDecimal.ZERO));
+		pp.setPrice(new Price(c1, BigDecimal.ZERO));
+		
+		Assert.assertTrue(pp.getMinDate().equals(c1));
+		Assert.assertTrue(pp.getMaxDate().equals(dateAfterC1));
+	}
+	
+	@Test
+	public void addPrice() throws Exception {
+		final PropertyChangeEvent lastEvent[] = new PropertyChangeEvent[1];
+		pp.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				lastEvent[0] = evt;
+			}
+		});
+
+		// Add price
+		Price price1 = new Price(c1, BigDecimal.ZERO);
+		pp.setPrice(price1);
+		
+		assertNotNull("Event expected", lastEvent[0]);
+		assertEquals(pp, lastEvent[0].getSource());
+		assertEquals("prices", lastEvent[0].getPropertyName());
+	}
+
+	@Test
+	public void changeExistingPrice() throws Exception {
+		Price price1 = new Price(c1, BigDecimal.ZERO);
+		pp.setPrice(price1);
+		final PropertyChangeEvent lastEvent[] = new PropertyChangeEvent[1];
+		pp.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				lastEvent[0] = evt;
+			}
+		});
+
+		// Change existing price via priceProvider
+		lastEvent[0] = null;
+		Price price2 = new Price(c1, new BigDecimal("2"));
+		pp.setPrice(price2, true);
+		
+		assertNotNull("Event expected", lastEvent[0]);
+		assertEquals(pp, lastEvent[0].getSource());
+		assertEquals("prices", lastEvent[0].getPropertyName());
+		assertEquals(price1, lastEvent[0].getOldValue());
+		assertEquals(price2, lastEvent[0].getNewValue());
+	}
+
+	@Test
+	public void replaceExistingPrice() throws Exception {
+		Price price1 = new Price(c1, BigDecimal.ZERO);
+		pp.setPrice(price1);
+		final PropertyChangeEvent lastEvent[] = new PropertyChangeEvent[1];
+		pp.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				lastEvent[0] = evt;
+			}
+		});
+
+		// Replace existing price via priceProvider
+		lastEvent[0] = null;
+		Price price2 = new Price(c1, new BigDecimal("2"));
+		pp.setPrice(price2, false);
+		
+		assertNotNull("Event expected", lastEvent[0]);
+		assertEquals(pp, lastEvent[0].getSource());
+		assertEquals("prices", lastEvent[0].getPropertyName());
+		assertEquals(price1, lastEvent[0].getOldValue());
+		assertEquals(price2, lastEvent[0].getNewValue());
+	}
+
+}

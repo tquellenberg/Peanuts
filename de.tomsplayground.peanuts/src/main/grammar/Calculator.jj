@@ -1,0 +1,107 @@
+options
+{
+	STATIC = false;
+}
+PARSER_BEGIN(Calculator)
+package de.tomsplayground.peanuts.calculator;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.text.NumberFormat;
+import java.text.DecimalFormat;
+
+public class Calculator
+{
+	private MathContext mc;
+	private NumberFormat numberFormat;
+
+	public Calculator() {
+		this(new StringReader(""));
+		this.mc = MathContext.DECIMAL128;
+		numberFormat = NumberFormat.getNumberInstance();
+		((DecimalFormat) numberFormat).setParseBigDecimal(true);
+	}
+
+	public void setMathContext(MathContext mc) {
+		this.mc = mc;
+	}
+
+	public void setNumberFormat(NumberFormat numberFormat) {
+		this.numberFormat = numberFormat;
+		((DecimalFormat) this.numberFormat).setParseBigDecimal(true);
+	}
+
+	public BigDecimal parse(String expr) {
+		this.ReInit(new StringReader(expr));
+		try {
+			return expr();
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
+}
+PARSER_END(Calculator)
+SKIP :
+{
+    " "
+|   "\r"
+|   "\t"
+}
+TOKEN:
+{
+    < NUMBER: (<DIGIT>)+ ( ("." | ",") (<DIGIT>)+ )? >
+|   < DIGIT: ["0"-"9"] >
+}
+BigDecimal expr():
+{
+    BigDecimal a;
+    BigDecimal b;
+}
+{
+    a=term()
+    (
+    	LOOKAHEAD(2)
+        "+" b=expr()    { a = a.add(b); }
+    |   "-" b=expr()    { a = a.subtract(b); }
+    )*
+                        { return a; }
+}
+BigDecimal term():
+{
+    BigDecimal a;
+    BigDecimal b;
+}
+{
+    a=unary()
+    (
+    	LOOKAHEAD(2)
+        "*" b=term()    { a = a.multiply(b, mc); }
+    |   "/" b=term()    { a = a.divide(b, mc); }
+    )*
+                        { return a; }
+}
+BigDecimal unary():
+{
+    BigDecimal a;
+}
+{
+    "-" a=element()     { return a.negate(); }
+|   a=element()         { return a; }
+}
+BigDecimal element():
+{
+    Token t;
+    BigDecimal a;
+}
+{
+    t=<NUMBER>          {
+    	try {
+    		return (BigDecimal) numberFormat.parse(t.toString());
+    	} catch (java.text.ParseException e) {
+    		throw generateParseException();
+    	}
+    					}
+|   "(" a=expr() ")"    { return a; }
+}
+

@@ -1,0 +1,3393 @@
+!Type:Cat
+NDividende
+DEinnahmen aus Dividenden
+T
+I
+^
+NGehalt
+DLohn und Gehalt
+B2,000.00
+B4,781.00
+B2,000.00
+B2,000.00
+B2,000.00
+B2,000.00
+B2,000.00
+B2,000.00
+B2,000.00
+B2,000.00
+B2,000.00
+B2,000.00
+I
+^
+NGehalt Partner
+DLohn/Gehalt des Partners
+B0.00
+B1,800.00
+B1,800.00
+B1,800.00
+B1,800.00
+B1,800.00
+B1,800.00
+B1,800.00
+B1,800.00
+B1,800.00
+B1,800.00
+B1,800.00
+I
+^
+NKindergeld
+DArbeitsamt Kindergeld
+B0.00
+B308.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+I
+^
+NPension
+DPension
+T
+R14768
+I
+^
+NPension Partner
+DPension
+T
+R14768
+I
+^
+NRückkaufswert
+DJährlicher Rückkaufswert Versicherungen
+B1,340.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+I
+^
+NRente
+DRente
+T
+R7840
+I
+^
+NRente Partner
+DRente
+T
+R7840
+I
+^
+NVerkäufe Halb
+DVerkäufe MwSt/halb
+T
+I
+^
+NVerkäufe Voll
+DVerkäufe MwSt/voll
+B1,069.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+T
+I
+^
+NWertpapierertrag
+DWertpapiereinkünfte
+T
+I
+^
+NZinseinkünfte
+DZinseinkünfte
+T
+I
+^
+NZinseinkünfte:Zinsabschlag
+DFreigestellte Zinsen
+T
+I
+^
+NZuwendungen
+DErhaltene Geschenke
+B0.00
+B1,830.00
+B4,611.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+I
+^
+N_DivEin
+DDividenden
+T
+I
+^
+N_DivEinSteuerFrei
+I
+^
+N_KF KursGew
+I
+^
+N_LF KursGew
+I
+^
+N_NrealGew
+DNicht real. Gewinn,Verl.
+T
+I
+^
+N_RealGew
+DRealisierter Gewinn,Verl.
+T
+I
+^
+N_ZinsEin
+DZinseinkünfte aus Wertp.
+T
+I
+^
+N_ZinsEinSteuerFrei
+I
+^
+NArbeitsmittel
+DArbeitsmittel Büro
+B0.00
+B-197.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+T
+E
+^
+NArbeitszimmer
+DArbeitszimmer zu Hause
+T
+E
+^
+NAusbildung
+DSeminare, Schulungen
+T
+E
+^
+NBürobedarf
+DBüroausgaben
+T
+E
+^
+NBankgebühren
+DKontoführungsgebühren
+T
+E
+^
+NBausparen
+DBauspar-Aufwendungen
+T
+E
+^
+NBerufskleidung
+DBerufskleidung
+T
+E
+^
+NBewirtung
+DBewirtungen
+T
+E
+^
+NComputer
+DPC und Software
+B0.00
+B-500.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B-59.00
+B0.00
+B0.00
+T
+E
+^
+NDepotgebühren
+DDepotgebühren
+T
+E
+^
+NDienstreise
+DFahrtkosten, Auslagen
+T
+E
+^
+NEssen
+DLebensmittel, Essen
+B-543.00
+B-840.00
+B-500.00
+B-500.00
+B-500.00
+B-500.00
+B-500.00
+B-500.00
+B-500.00
+B-573.00
+B-523.00
+B-639.00
+E
+^
+NEssen:Restaurant
+DAusgehen zum Essen
+B-62.00
+B0.00
+B-16.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B-20.00
+B0.00
+B0.00
+E
+^
+NFachliteratur
+DFachzeitschriften, Bücher
+B0.00
+B0.00
+B-70.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+T
+E
+^
+NFahrtkosten
+DFahrten zum Arbeitsplatz
+T
+E
+^
+NFahrzeuge
+DAusgaben für Fahrzeuge
+T
+E
+^
+NFahrzeuge:Autobahngebühr
+DStraßenbenutzungsgebühren
+T
+E
+^
+NFahrzeuge:Benzin
+DBenzin, Kraftstoffe
+B-91.00
+B-126.00
+B-68.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B-16.00
+B0.00
+B0.00
+T
+E
+^
+NFahrzeuge:Sonstiges
+DSonstige Fahrzeugausgaben
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B-28.00
+B0.00
+B0.00
+T
+E
+^
+NFahrzeuge:Steuer
+DKfz-Steuer
+T
+E
+^
+NFahrzeuge:Versicherung
+DKfz-Versicherung
+B-310.00
+B0.00
+B0.00
+B-310.00
+B0.00
+B0.00
+B-310.00
+B0.00
+B0.00
+B-310.00
+B0.00
+B0.00
+T
+E
+^
+NFahrzeuge:Wartung
+DWartungsarbeiten
+B0.00
+B-220.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+T
+E
+^
+NFreizeit
+DFreizeitaufwendungen
+B-50.00
+B0.00
+B0.00
+B-50.00
+B-50.00
+B-50.00
+B0.00
+B0.00
+B0.00
+B-20.00
+B0.00
+B0.00
+E
+^
+NFreizeit:Bücher
+DRomane, etc.
+B0.00
+B-32.00
+B-32.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B-8.00
+B0.00
+B0.00
+E
+^
+NFreizeit:Foto
+DFoto
+E
+^
+NFreizeit:Hobby
+B0.00
+B0.00
+B-33.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+E
+^
+NFreizeit:Kino
+E
+^
+NFreizeit:Motorrad
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B-53.00
+B0.00
+E
+^
+NFreizeit:Musik
+DCDs, Platten, Kassetten
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B-16.00
+B0.00
+B0.00
+E
+^
+NFreizeit:Sport
+DSport
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B-4.00
+B0.00
+B0.00
+E
+^
+NFreizeit:Tanzen
+E
+^
+NFreizeit:Tanzkurs
+DTanzschule Schwunghaft
+E
+^
+NFreizeit:Theater
+DTheater
+E
+^
+NGenussmittel
+E
+^
+NGeschenke
+DAusgaben für Geschenke
+B0.00
+B-40.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+T
+E
+^
+NGesundheitskosten
+E
+^
+NGesundheitskosten:Hygieneartikel
+E
+^
+NGesundheitskosten:Körperpflege
+E
+^
+NGesundheitskosten:Medikamente
+B-35.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B-11.00
+B0.00
+E
+^
+NGesundheitskosten:Nahrungsergänzung
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B-29.00
+E
+^
+NHaus
+E
+^
+NHaus:Einrichtung
+B0.00
+B0.00
+B-251.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+E
+^
+NHaus:Instandhaltung
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B-269.00
+B0.00
+E
+^
+NHaus:Renovierung
+E
+^
+NKleidung
+DKleidung
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B-44.00
+B0.00
+B0.00
+E
+^
+NKrankheitskost.
+DKrankheitskosten
+T
+E
+^
+NKrankheitskost.:Arzt
+DArztrechnungen
+B0.00
+B-10.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B-10.00
+B0.00
+B0.00
+T
+E
+^
+NKrankheitskost.:Krankenhaus
+DKrankenhaus
+T
+E
+^
+NKrankheitskost.:Medikamente
+DArzneien und Medikamente
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B-34.00
+B0.00
+B0.00
+T
+E
+^
+NLeasing
+DLeasingraten
+T
+E
+^
+NMaterial
+E
+^
+NMiete
+DMiete
+B-895.00
+B-1,745.00
+B-1,745.00
+B-895.00
+B-895.00
+B-895.00
+B-895.00
+B-895.00
+B-895.00
+B-895.00
+B-895.00
+B-895.00
+T
+E
+^
+NMiete:Miete Garten
+DMiete Schräbergarten
+B-25.00
+B-25.00
+B0.00
+B-25.00
+B-25.00
+B-25.00
+B-25.00
+B-25.00
+B-25.00
+B-25.00
+B-25.00
+B-25.00
+T
+E
+^
+NMiete Büro
+DMiete Büro Schopfheimer Str. 11
+E
+^
+NMobiltelefon
+DMobiltelefon
+E
+^
+NNebenk. Wohnung
+DNebenkosten Wohnung
+E
+^
+NNebenk. Wohnung:Gas,Öl
+DErdgas/Heizöl
+E
+^
+NNebenk. Wohnung:Rundfunkgeb.
+DRundfunkgebühren
+B0.00
+B-85.00
+B-85.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+E
+^
+NNebenk. Wohnung:Strom
+DStrom, Elektrizität
+B0.00
+B-1,000.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+E
+^
+NNebenk. Wohnung:Telefon
+DTelefon, Onlinedienste
+B0.00
+B-108.00
+B-108.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+E
+^
+NNebenk. Wohnung:Wasser
+DWasser
+E
+^
+NPorto
+DPorto, Postgebühren
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B-6.00
+B0.00
+B0.00
+T
+E
+^
+NPrivatentnahmen
+DEntnahmen Gesellschafter
+E
+^
+NRechtsberatung
+DRechts- und Fachberatung
+T
+E
+^
+NReise
+DReisekosten
+T
+E
+^
+NReise:Flug
+DFlugkosten
+T
+E
+^
+NReise:Hotelkosten
+DHotelkosten
+T
+E
+^
+NReise:Verpflegung
+DVerpflegung
+T
+E
+^
+NReise:Zugkosten
+DZugkosten
+T
+E
+^
+NRestaurant
+DRestaurant, Essen
+T
+E
+^
+NSonstiges
+DVerschiedene Ausgaben
+E
+^
+NSparen
+B-100.00
+B-100.00
+B-229.00
+B-100.00
+B-100.00
+B-100.00
+B-100.00
+B-100.00
+B-100.00
+B-100.00
+B-100.00
+B-100.00
+E
+^
+NSpende
+DSpenden, Wohltätigkeit
+T
+E
+^
+NSteuer
+DSteuern
+T
+E
+^
+NSteuer:Andere Steuer
+DSonstige Steuern
+T
+E
+^
+NSteuer:ESt
+DEinkommensteuer
+B0.00
+B-329.00
+B-329.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+B0.00
+T
+E
+^
+NSteuer:Kirchensteuer
+DGezahlte Kirchensteuer
+T
+E
+^
+NSteuer:Sozialvers.
+DSozialversicherung
+E
+^
+NSteuerberatung
+DSteuerberatungskosten
+T
+R2912
+E
+^
+NUmzugskosten
+DUmzugskosten
+T
+E
+^
+NUnterhaltszahlung
+DUnterhalt für geschiedene Frau
+T
+R2816
+E
+^
+NUrlaub, Ausflug
+DUrlaubsaufwendungen
+E
+^
+NUrlaub, Ausflug:Reise
+DAn- und Abreise
+E
+^
+NUrlaub, Ausflug:Unterkunft
+DHotel, Pension, Camping
+E
+^
+NVereinsbeitrag
+DMitgliedsbeiträge
+T
+E
+^
+NVers. Person
+DVersicherungsbeiträge
+T
+E
+^
+NVers. Person:Haftpflicht
+DHaftpflichtversicherung
+T
+E
+^
+NVers. Person:Krankenvers.
+DKrankenversicherung
+B-380.00
+B-380.00
+B-380.00
+B-380.00
+B-380.00
+B-380.00
+B-380.00
+B-380.00
+B-380.00
+B-380.00
+B-380.00
+B-380.00
+T
+E
+^
+NVers. Person:Lebensvers.
+DLebensversicherung
+T
+E
+^
+NVers. Person:Pflegevers.
+DPflegeversicherung
+T
+E
+^
+NVers. Person:priv. Rentenv.
+DPrivate Rentenvorsorge
+B-110.00
+B-110.00
+B0.00
+B-110.00
+B-110.00
+B-110.00
+B-110.00
+B-110.00
+B-110.00
+B-110.00
+B-110.00
+B-110.00
+T
+E
+^
+NVers. Person:Sonstige Vers.
+DSonstige Versicherungen
+T
+E
+^
+NVers. Person:Unfallvers.
+DUnfallversicherung
+T
+E
+^
+NWerbung
+DWerbungskosten
+T
+R8800
+E
+^
+NZinszahlung
+DZinsaufwendungen
+B-72.00
+B-71.00
+B-70.00
+B-81.00
+B-80.00
+B-79.00
+B-78.00
+B-77.00
+B-76.00
+B-75.00
+B-74.00
+B-73.00
+T
+E
+^
+N_ZinsAus
+DZinsausgaben für Wertp.
+T
+E
+^
+N_Zinsen
+DZinsaufwendungen
+T
+E
+^
+!Option:AutoSwitch
+!Account
+NFondsparkonto-Bank
+TBank
+DVerbundenes Bankkonto
+^
+NPostbank Hamburg
+TBank
+DÄndern klicken - Zusatz-Info lesen
+^
+NVolksbank Freiburg
+TBank
+DGirokonto
+^
+NWertpapier-Depot-Bank
+TBank
+DVerbundenes Bankkonto
+^
+NVISA-Card
+TCCard
+DKontonr. 562351
+L100.00
+^
+NBargeldkonto
+TCash
+DAusgaben in Bar
+^
+NAssekuranz Leben
+TOth E
+DLebensversicherung
+^
+NAssekuranz Rente
+TOth P
+DRentenversicherung
+^
+NOpel Astra Vermögen
+TOth A
+DVermögenswert PKW
+^
+NMehrwertsteuer
+TOth L
+DMwSt Zahlung/Einnahme
+^
+NOpel Astra Kredit
+TOth D
+DKreditkonto PKW
+^
+NFondsparkonto
+TMutual
+DFondssparen
+^
+NWertpapier-Depot
+TPort
+DGeldanlagen in Aktien
+^
+!Clear:AutoSwitch
+!Option:AutoSwitch
+!Account
+NFondsparkonto-Bank
+DVerbundenes Bankkonto
+TBank
+^
+!Type:Bank 
+D9.30.05
+U2,000.00
+T2,000.00
+N101
+PEröffnungssaldo
+L[Fondsparkonto-Bank]
+^
+!Account
+NPostbank Hamburg
+DÄndern klicken - Zusatz-Info lesen
+TBank
+^
+!Type:Bank 
+D1.1.06
+U393.59
+T393.59
+N101
+PEröffnungssaldo
+L[Postbank Hamburg]
+^
+D2.20.06
+U-580.06
+T-580.06
+N102
+PStadtwerke Musterstadt
+MSTROMKOSTEN KD.NR.1462347  JAHRESABRECHNUNG
+LNebenk. Wohnung:Strom
+SNebenk. Wohnung:Strom
+EStrom
+$-500.05
+S[Mehrwertsteuer]/_VATCode_N1_I
+$-80.01
+^
+D2.20.06
+U154.00
+T154.00
+N103
+PArbeitsamt Bonn
+MKINDERGELD                 KINDERGELD-NR. 1462347
+LKindergeld
+^
+D2.22.06
+U-125.80
+T-125.80
+N104
+PTelefon AG Köln
+MRECHNUNG 03121999          TELEFON AG KÖLN
+LNebenk. Wohnung:Telefon
+SNebenk. Wohnung:Telefon
+ETelefon
+$-108.45
+S[Mehrwertsteuer]/_VATCode_N1_I
+$-17.35
+^
+D2.24.06
+U-84.75
+T-84.75
+N105
+PGEZ
+MTEILNEHMERNR 1234567       RUNDFUNK 0103-1203
+LNebenk. Wohnung:Rundfunkgeb.
+^
+D2.26.06
+U-850.00
+T-850.00
+N106
+PMeinheim Eigenheim KG
+MMIETE 600+250 EUR OBJ22/328SCHULSTR.7, 12345 MEINHEIM
+LMiete
+^
+D2.27.06
+U-328.75
+T-328.75
+N109
+PFinanzkasse Köln-Süd
+M111111/1000000000/37050198 FINANZKASSE 3991234
+LSteuer:ESt
+^
+D2.27.06
+U-228.61
+T-228.61
+N110
+PPetra Pfiffig
+M111111/3299999999/20010020 ÜBERTRAG AUF SPARCARD
+LArbeitsmittel
+SArbeitsmittel
+$-197.08
+S[Mehrwertsteuer]/_VATCode_N1_I
+$-31.53
+^
+D2.27.06
+U2,780.70
+T2,780.70
+N111
+PPetra Pfiffig
+MBEZÜGE PERS.NR. 70600170/01ARBEITGEBER U. CO
+LGehalt
+^
+D2.27.06
+U-31.50
+T-31.50
+N112
+PVerlagshaus Scribere
+MDA 1000001                 VERLAGSHAUS SCRIBERE GMBH
+LFreizeit:Bücher
+^
+D2.27.06
+U1,830.00
+T1,830.00
+N113
+PPetra Pfiffig
+MEINGANG VORBEHALTEN        GUTBUCHUNG 12345
+LZuwendungen
+^
+D2.28.06
+U-580.06
+T-580.06
+N114
+PStadtwerke Musterstadt
+MSTROMKOSTEN KD.NR.1462347  JAHRESABRECHNUNG
+LNebenk. Wohnung:Strom
+SNebenk. Wohnung:Strom
+EStrom
+$-500.05
+S[Mehrwertsteuer]/_VATCode_N1_I
+$-80.01
+^
+D2.28.06
+U154.00
+T154.00
+N115
+PArbeitsamt Bonn
+MKINDERGELD                 KINDERGELD-NR. 1462347
+LKindergeld
+^
+D3.2.06
+U-125.80
+T-125.80
+N116
+PTelefon AG Köln
+MRECHNUNG 03121999          TELEFON AG KÖLN
+LNebenk. Wohnung:Telefon
+SNebenk. Wohnung:Telefon
+ETelefon
+$-108.45
+S[Mehrwertsteuer]/_VATCode_N1_I
+$-17.35
+^
+D3.4.06
+U-84.75
+T-84.75
+N117
+PGEZ
+MTEILNEHMERNR 1234567       RUNDFUNK 0103-1203
+LNebenk. Wohnung:Rundfunkgeb.
+^
+D3.6.06
+U-850.00
+T-850.00
+N118
+PMeinheim Eigenheim KG
+MMIETE 600+250 EUR OBJ22/328SCHULSTR.7, 12345 MEINHEIM
+LMiete
+^
+D3.6.06
+U-75.00
+T-75.00
+N119
+PPetra Pfiffig
+M2000123456789
+LFachliteratur
+SFachliteratur
+EFachbücher
+$-70.09
+S[Mehrwertsteuer]/_VATCode_H_I
+$-4.91
+^
+D3.7.06
+U-328.75
+T-328.75
+N120
+PFinanzkasse Köln-Süd
+M111111/1000000000/37050198 FINANZKASSE 3991234
+LSteuer:ESt
+^
+D3.7.06
+U-228.61
+T-228.61
+N121
+PPetra Pfiffig
+M111111/3299999999/20010020 ÜBERTRAG AUF SPARCARD
+LSparen
+^
+D3.7.06
+U2,780.70
+T2,780.70
+N122
+PPetra Pfiffig
+MBEZÜGE PERS.NR. 70600170/01ARBEITGEBER U. CO
+LZuwendungen
+^
+D3.7.06
+U-31.50
+T-31.50
+N123
+PVerlagshaus Scribere
+MDA 1000001                 VERLAGSHAUS SCRIBERE GMBH
+LFreizeit:Bücher
+^
+D3.7.06
+U1,830.00
+T1,830.00
+N124
+PPetra Pfiffig
+MEINGANG VORBEHALTEN        GUTBUCHUNG 12345
+LZuwendungen
+^
+D4.21.06
+U-120.00
+T-120.00
+NÜOnl
+PBit & Byte Computerschule
+MComputerkurs 04-10.06      Rechnung Nr.1245.1
+LComputer
+A
+A
+A
+A
+A
+ABit & Byte Computerschule
+^
+!Account
+NVolksbank Freiburg
+DGirokonto
+TBank
+^
+!Type:Bank 
+D1.1.05
+U1,800.00
+T1,800.00
+N1
+PEröffnungssaldo
+L[Volksbank Freiburg]
+^
+D1.2.05
+U1,800.00
+T1,800.00
+N2
+PErika Mustermann
+MMonatliche Gehaltszahlung
+LGehalt Partner
+^
+D1.3.05
+U-500.00
+T-500.00
+N3
+PEdeka Freiburg
+MLebensmittel
+LEssen
+^
+D1.4.05
+U2,000.00
+T2,000.00
+N4
+PMax Mustermann
+MMonatliche Gehaltszahlung
+LGehalt
+^
+D1.6.05
+U-380.00
+T-380.00
+N5
+PGothaer Versicherun
+Mprivate Krankenvversicherung
+LVers. Person:Krankenvers.
+^
+D1.8.05
+U-895.30
+T-895.30
+N6
+PHausverwaltung Meier
+MMiete Wohnung Talstr. 80
+LMiete
+^
+D1.15.05
+U-310.20
+T-310.20
+N7
+PHDI Versicheung
+MKfz Versicherung
+LFahrzeuge:Versicherung
+^
+D1.15.05
+U-25.00
+T-25.00
+N8
+PKleingartenverein Freiburg
+MMiete Schrebergarten
+LMiete:Miete Garten
+^
+D1.15.05
+U-100.00
+T-100.00
+N9
+PPostbank Freiburg
+MSparbuch Joern
+LSparen
+^
+D1.20.05
+U-110.00
+T-110.00
+N10
+PWWK Versicheung
+MRentenversicherung
+LVers. Person:priv. Rentenv.
+^
+D2.1.05
+U-322.10
+T-322.10
+N11
+PAutohaus Opel
+MAbzahlung Kredit Opel Astra
+L[Opel Astra Kredit]
+S[Opel Astra Kredit]
+$-238.77
+SZinszahlung
+$-83.33
+^
+D2.1.05
+U-50.00
+T-50.00
+N12
+PTanzschule Schwunghaft
+MTanzkurs Tanja
+LFreizeit
+^
+D2.3.05
+U-500.00
+T-500.00
+N13
+PEdeka Freiburg
+MLebensmittel
+LEssen
+^
+D2.4.05
+U2,000.00
+T2,000.00
+N14
+PMax Mustermann
+MMonatliche Gehaltszahlung
+LGehalt
+^
+D2.4.05
+U1,800.00
+T1,800.00
+N15
+PErika Mustermann
+MMonatliche Gehaltszahlung
+LGehalt Partner
+^
+D2.6.05
+U-380.00
+T-380.00
+N16
+PGothaer Versicherun
+Mprivate Krankenvversicherung
+LVers. Person:Krankenvers.
+^
+D2.8.05
+U-895.30
+T-895.30
+N17
+PHausverwaltung Meier
+MMiete Wohnung Talstr. 80
+LMiete
+^
+D2.15.05
+U-25.00
+T-25.00
+N18
+PKleingartenverein Freiburg
+MMiete Schrebergarten
+LMiete:Miete Garten
+^
+D2.15.05
+U-100.00
+T-100.00
+N19
+PPostbank Freiburg
+MSparbuch Joern
+LSparen
+^
+D2.20.05
+U-110.00
+T-110.00
+N20
+PWWK Versicheung
+MRentenversicherung
+LVers. Person:priv. Rentenv.
+^
+D3.1.05
+U-322.10
+T-322.10
+N21
+PAutohaus Opel
+MAbzahlung Kredit Opel Astra
+L[Opel Astra Kredit]
+S[Opel Astra Kredit]
+$-239.76
+SZinszahlung
+$-82.34
+^
+D3.1.05
+U-50.00
+T-50.00
+N22
+PTanzschule Schwunghaft
+MTanzkurs Tanja
+LFreizeit
+^
+D3.3.05
+U-500.00
+T-500.00
+N23
+PEdeka Freiburg
+MLebensmittel
+LEssen
+^
+D3.4.05
+U2,000.00
+T2,000.00
+N24
+PMax Mustermann
+MMonatliche Gehaltszahlung
+LGehalt
+^
+D3.4.05
+U1,800.00
+T1,800.00
+N25
+PErika Mustermann
+MMonatliche Gehaltszahlung
+LGehalt Partner
+^
+D3.6.05
+U-380.00
+T-380.00
+N26
+PGothaer Versicherun
+Mprivate Krankenvversicherung
+LVers. Person:Krankenvers.
+^
+D3.8.05
+U-895.30
+T-895.30
+N27
+PHausverwaltung Meier
+MMiete Wohnung Talstr. 80
+LMiete
+^
+D3.15.05
+U-25.00
+T-25.00
+N28
+PKleingartenverein Freiburg
+MMiete Schrebergarten
+LMiete:Miete Garten
+^
+D3.15.05
+U-100.00
+T-100.00
+N29
+PPostbank Freiburg
+MSparbuch Joern
+LSparen
+^
+D3.20.05
+U-110.00
+T-110.00
+N30
+PWWK Versicheung
+MRentenversicherung
+LVers. Person:priv. Rentenv.
+^
+D4.1.05
+U-322.10
+T-322.10
+N31
+PAutohaus Opel
+MAbzahlung Kredit Opel Astra
+L[Opel Astra Kredit]
+S[Opel Astra Kredit]
+$-240.76
+SZinszahlung
+$-81.34
+^
+D4.1.05
+U-50.00
+T-50.00
+N32
+PTanzschule Schwunghaft
+MTanzkurs Tanja
+LFreizeit
+^
+D4.3.05
+U-500.00
+T-500.00
+N33
+PEdeka Freiburg
+MLebensmittel
+LEssen
+^
+D4.4.05
+U2,000.00
+T2,000.00
+N34
+PMax Mustermann
+MMonatliche Gehaltszahlung
+LGehalt
+^
+D4.4.05
+U1,800.00
+T1,800.00
+N35
+PErika Mustermann
+MMonatliche Gehaltszahlung
+LGehalt Partner
+^
+D4.6.05
+U-380.00
+T-380.00
+N36
+PGothaer Versicherun
+Mprivate Krankenvversicherung
+LVers. Person:Krankenvers.
+^
+D4.8.05
+U-895.30
+T-895.30
+N37
+PHausverwaltung Meier
+MMiete Wohnung Talstr. 80
+LMiete
+^
+D4.15.05
+U-310.20
+T-310.20
+N38
+PHDI Versicheung
+MKfz Versicherung
+LFahrzeuge:Versicherung
+^
+D4.15.05
+U-25.00
+T-25.00
+N39
+PKleingartenverein Freiburg
+MMiete Schrebergarten
+LMiete:Miete Garten
+^
+D4.15.05
+U-100.00
+T-100.00
+N40
+PPostbank Freiburg
+MSparbuch Joern
+LSparen
+^
+D4.20.05
+U-110.00
+T-110.00
+N41
+PWWK Versicheung
+MRentenversicherung
+LVers. Person:priv. Rentenv.
+^
+D5.1.05
+U-322.10
+T-322.10
+N42
+PAutohaus Opel
+MAbzahlung Kredit Opel Astra
+L[Opel Astra Kredit]
+S[Opel Astra Kredit]
+$-241.76
+SZinszahlung
+$-80.34
+^
+D5.1.05
+U-50.00
+T-50.00
+N43
+PTanzschule Schwunghaft
+MTanzkurs Tanja
+LFreizeit
+^
+D5.3.05
+U-500.00
+T-500.00
+N44
+PEdeka Freiburg
+MLebensmittel
+LEssen
+^
+D5.4.05
+U2,000.00
+T2,000.00
+N45
+PMax Mustermann
+MMonatliche Gehaltszahlung
+LGehalt
+^
+D5.4.05
+U1,800.00
+T1,800.00
+N46
+PErika Mustermann
+MMonatliche Gehaltszahlung
+LGehalt Partner
+^
+D5.6.05
+U-380.00
+T-380.00
+N47
+PGothaer Versicherun
+Mprivate Krankenvversicherung
+LVers. Person:Krankenvers.
+^
+D5.8.05
+U-895.30
+T-895.30
+N48
+PHausverwaltung Meier
+MMiete Wohnung Talstr. 80
+LMiete
+^
+D5.15.05
+U-25.00
+T-25.00
+N49
+PKleingartenverein Freiburg
+MMiete Schrebergarten
+LMiete:Miete Garten
+^
+D5.15.05
+U-100.00
+T-100.00
+N50
+PPostbank Freiburg
+MSparbuch Joern
+LSparen
+^
+D5.20.05
+U-110.00
+T-110.00
+N51
+PWWK Versicheung
+MRentenversicherung
+LVers. Person:priv. Rentenv.
+^
+D6.1.05
+U-322.10
+T-322.10
+N52
+PAutohaus Opel
+MAbzahlung Kredit Opel Astra
+L[Opel Astra Kredit]
+S[Opel Astra Kredit]
+$-242.77
+SZinszahlung
+$-79.33
+^
+D6.1.05
+U-50.00
+T-50.00
+N53
+PTanzschule Schwunghaft
+MTanzkurs Tanja
+LFreizeit
+^
+D6.3.05
+U-500.00
+T-500.00
+N55
+PEdeka Freiburg
+MLebensmittel
+LEssen
+^
+D6.4.05
+U2,000.00
+T2,000.00
+N56
+PMax Mustermann
+MMonatliche Gehaltszahlung
+LGehalt
+^
+D6.4.05
+U1,800.00
+T1,800.00
+N57
+PErika Mustermann
+MMonatliche Gehaltszahlung
+LGehalt Partner
+^
+D6.6.05
+U-380.00
+T-380.00
+N58
+PGothaer Versicherun
+Mprivate Krankenvversicherung
+LVers. Person:Krankenvers.
+^
+D6.8.05
+U-895.30
+T-895.30
+N59
+PHausverwaltung Meier
+MMiete Wohnung Talstr. 80
+LMiete
+^
+D6.15.05
+U-25.00
+T-25.00
+N60
+PKleingartenverein Freiburg
+MSchrebergarten
+LMiete:Miete Garten
+^
+D6.15.05
+U-100.00
+T-100.00
+N61
+PPostbank Freiburg
+MSparbuch Joern
+LSparen
+^
+D6.20.05
+U-110.00
+T-110.00
+N62
+PWWK Versicheung
+MRentenversicherung
+LVers. Person:priv. Rentenv.
+^
+D7.1.05
+U-322.10
+T-322.10
+N63
+PAutohaus Opel
+MAbzahlung Kredit Opel Astra
+L[Opel Astra Kredit]
+S[Opel Astra Kredit]
+$-243.78
+SZinszahlung
+$-78.32
+^
+D7.3.05
+U-500.00
+T-500.00
+N64
+PEdeka Freiburg
+MLebensmittel
+LEssen
+^
+D7.4.05
+U2,000.00
+T2,000.00
+N65
+PMax Mustermann
+MMonatliche Gehaltszahlung
+LGehalt
+^
+D7.4.05
+U1,800.00
+T1,800.00
+N66
+PErika Mustermann
+MMonatliche Gehaltszahlung
+LGehalt Partner
+^
+D7.6.05
+U-380.00
+T-380.00
+N67
+PGothaer Versicherun
+Mprivate Krankenvversicherung
+LVers. Person:Krankenvers.
+^
+D7.8.05
+U-895.30
+T-895.30
+N68
+PHausverwaltung Meier
+MMiete Wohnung Talstr. 80
+LMiete
+^
+D7.15.05
+U-310.20
+T-310.20
+N69
+PHDI Versicheung
+MKfz Versicherung
+LFahrzeuge:Versicherung
+^
+D7.15.05
+U-25.00
+T-25.00
+N70
+PKleingartenverein Freiburg
+MMiete Schrebergarten
+LMiete:Miete Garten
+^
+D7.15.05
+U-100.00
+T-100.00
+N71
+PPostbank Freiburg
+MSparbuch Joern
+LSparen
+^
+D7.20.05
+U-110.00
+T-110.00
+N72
+PWWK Versicheung
+MRentenversicherung
+LVers. Person:priv. Rentenv.
+^
+D8.1.05
+U-322.10
+T-322.10
+N73
+PAutohaus Opel
+MAbzahlung Kredit Opel Astra
+L[Opel Astra Kredit]
+S[Opel Astra Kredit]
+$-244.80
+SZinszahlung
+$-77.30
+^
+D8.3.05
+U-500.00
+T-500.00
+N74
+PEdeka Freiburg
+MLebensmittel
+LEssen
+^
+D8.4.05
+U2,000.00
+T2,000.00
+N75
+PMax Mustermann
+MMonatliche Gehaltszahlung
+LGehalt
+^
+D8.4.05
+U1,800.00
+T1,800.00
+N76
+PErika Mustermann
+MMonatliche Gehaltszahlung
+LGehalt Partner
+^
+D8.6.05
+U-380.00
+T-380.00
+N77
+PGothaer Versicherun
+Mprivate Krankenvversicherung
+LVers. Person:Krankenvers.
+^
+D8.8.05
+U-895.30
+T-895.30
+N78
+PHausverwaltung Meier
+MMiete Wohnung Talstr. 80
+LMiete
+^
+D8.15.05
+U-25.00
+T-25.00
+N79
+PKleingartenverein Freiburg
+MMiete Schrebergarten
+LMiete:Miete Garten
+^
+D8.15.05
+U-100.00
+T-100.00
+N80
+PPostbank Freiburg
+MSparbuch Joern
+LSparen
+^
+D8.20.05
+U-110.00
+T-110.00
+N81
+PWWK Versicheung
+MRentenversicherung
+LVers. Person:priv. Rentenv.
+^
+D9.1.05
+U-322.10
+T-322.10
+N82
+PAutohaus Opel
+MAbzahlung Kredit Opel Astra
+L[Opel Astra Kredit]
+S[Opel Astra Kredit]
+$-245.82
+SZinszahlung
+$-76.28
+^
+D9.3.05
+U-500.00
+T-500.00
+N83
+PEdeka Freiburg
+MLebensmittel
+LEssen
+^
+D9.4.05
+U2,000.00
+T2,000.00
+N84
+PMax Mustermann
+MMonatliche Gehaltszahlung
+LGehalt
+^
+D9.4.05
+U1,800.00
+T1,800.00
+N85
+PErika Mustermann
+MMonatliche Gehaltszahlung
+LGehalt Partner
+^
+D9.6.05
+U-380.00
+T-380.00
+N86
+PGothaer Versicherun
+Mprivate Krankenvversicherung
+LVers. Person:Krankenvers.
+^
+D9.8.05
+U-895.30
+T-895.30
+N87
+PHausverwaltung Meier
+MMiete Wohnung Talstr. 80
+LMiete
+^
+D9.15.05
+U-25.00
+T-25.00
+N88
+PKleingartenverein Freiburg
+MSchrebergarten
+LMiete:Miete Garten
+^
+D9.15.05
+U-100.00
+T-100.00
+N89
+PPostbank Freiburg
+MSparbuch Joern
+LSparen
+^
+D9.20.05
+U-110.00
+T-110.00
+N90
+PWWK Versicheung
+MRentenversicherung
+LVers. Person:priv. Rentenv.
+^
+D10.1.05
+U-322.10
+T-322.10
+N91
+PAutohaus Opel
+MAbzahlung Kredit Opel Astra
+L[Opel Astra Kredit]
+S[Opel Astra Kredit]
+$-246.84
+SZinszahlung
+$-75.26
+^
+D10.3.05
+U-500.00
+T-500.00
+N93
+PEdeka Freiburg
+MLebensmittel
+LEssen
+^
+D10.4.05
+U2,000.00
+T2,000.00
+N94
+PMax Mustermann
+MMonatliche Gehaltszahlung
+LGehalt
+^
+D10.4.05
+U1,800.00
+T1,800.00
+N95
+PErika Mustermann
+MMonatliche Gehaltszahlung
+LGehalt Partner
+^
+D10.6.05
+U-380.00
+T-380.00
+N96
+PGothaer Versicherun
+Mprivate Krankenvversicherung
+LVers. Person:Krankenvers.
+^
+D10.8.05
+U-895.30
+T-895.30
+N97
+PHausverwaltung Meier
+MMiete Wohnung Talstr. 80
+LMiete
+^
+D10.15.05
+U-310.20
+T-310.20
+N98
+PHDI Versicheung
+MKfz Versicherung
+LFahrzeuge:Versicherung
+^
+D10.15.05
+U-25.00
+T-25.00
+N99
+PKleingartenverein Freiburg
+MSchrebergarten
+LMiete:Miete Garten
+^
+D10.15.05
+U-100.00
+T-100.00
+N100
+PPostbank Freiburg
+MSparbuch Joern
+LSparen
+^
+D10.20.05
+U-110.00
+T-110.00
+N101
+PWWK Versicheung
+MRentenversicherung
+LVers. Person:priv. Rentenv.
+^
+D11.1.05
+U-322.10
+T-322.10
+N102
+PAutohaus Opel
+MAbzahlung Kredit Opel Astra
+L[Opel Astra Kredit]
+S[Opel Astra Kredit]
+$-247.87
+SZinszahlung
+$-74.23
+^
+D11.3.05
+U-500.00
+T-500.00
+N103
+PEdeka Freiburg
+MLebensmittel
+LEssen
+^
+D11.4.05
+U2,000.00
+T2,000.00
+N104
+PMax Mustermann
+MMonatliche Gehaltszahlung
+LGehalt
+^
+D11.4.05
+U1,800.00
+T1,800.00
+N105
+PErika Mustermann
+MMonatliche Gehaltszahlung
+LGehalt Partner
+^
+D11.6.05
+U-380.00
+T-380.00
+N106
+PGothaer Versicherun
+Mprivate Krankenvversicherung
+LVers. Person:Krankenvers.
+^
+D11.8.05
+U-895.30
+T-895.30
+N107
+PHausverwaltung Meier
+MMiete Wohnung Talstr. 80
+LMiete
+^
+D11.15.05
+U-25.00
+T-25.00
+N108
+PKleingartenverein Freiburg
+MSchrebergarten
+LMiete:Miete Garten
+^
+D11.15.05
+U-100.00
+T-100.00
+N109
+PPostbank Freiburg
+MSparbuch Joern
+LSparen
+^
+D11.20.05
+U-110.00
+T-110.00
+N110
+PWWK Versicheung
+MRentenversicherung
+LVers. Person:priv. Rentenv.
+^
+D12.1.05
+U-322.10
+T-322.10
+N111
+PAutohaus Opel
+MAbzahlung Kredit Opel Astra
+L[Opel Astra Kredit]
+S[Opel Astra Kredit]
+$-248.90
+SZinszahlung
+$-73.20
+^
+D12.3.05
+U-500.00
+T-500.00
+N112
+PEdeka Freiburg
+MLebensmittel
+LEssen
+^
+D12.4.05
+U2,000.00
+T2,000.00
+N113
+PMax Mustermann
+MMonatliche Gehaltszahlung
+LGehalt
+^
+D12.4.05
+U1,800.00
+T1,800.00
+N114
+PErika Mustermann
+MMonatliche Gehaltszahlung
+LGehalt Partner
+^
+D12.6.05
+U-380.00
+T-380.00
+N115
+PGothaer Versicherun
+Mprivate Krankenvversicherung
+LVers. Person:Krankenvers.
+^
+D12.8.05
+U-895.30
+T-895.30
+N116
+PHausverwaltung Meier
+MMiete Wohnung Talstr. 80
+LMiete
+^
+D12.15.05
+U-25.00
+T-25.00
+N117
+PKleingartenverein Freiburg
+MSchrebergarten
+LMiete:Miete Garten
+^
+D12.15.05
+U-100.00
+T-100.00
+N118
+PPostbank Freiburg
+MSparbuch Joern
+LSparen
+^
+D12.20.05
+U-110.00
+T-110.00
+N119
+PWWK Versicheung
+MRentenversicherung
+LVers. Person:priv. Rentenv.
+^
+D1.1.06
+U-322.10
+T-322.10
+N120
+PAutohaus Opel
+MAbzahlung Kredit Opel Astra
+L[Opel Astra Kredit]
+S[Opel Astra Kredit]
+$-249.94
+SZinszahlung
+$-72.16
+^
+D1.1.06
+U-50.00
+T-50.00
+N121
+PTanzschule Schwunghaft
+MTanzkurs Tanja
+LFreizeit
+^
+D1.3.06
+U-500.00
+T-500.00
+N122
+PEdeka Freiburg
+MLebensmittel
+LEssen
+^
+D1.4.06
+U2,000.00
+T2,000.00
+N123
+PMax Mustermann
+MMonatliche Gehaltszahlung
+LGehalt
+^
+D1.6.06
+U-380.00
+T-380.00
+N124
+PGothaer Versicherun
+Mprivate Krankenvversicherung
+LVers. Person:Krankenvers.
+^
+D1.8.06
+U-895.30
+T-895.30
+N125
+PHausverwaltung Meier
+MMiete Wohnung Talstr. 80
+LMiete
+^
+D1.13.06
+U8,750.30
+T8,750.30
+N126
+PVolksbank Freiburg
+MSAMMELUEBERWEISUNG
+^
+D1.13.06
+U930.20
+T930.20
+N127
+PVolksbank Freiburg
+M747 VERR.SCHECK
+^
+D1.13.06
+U-4,500.00
+T-4,500.00
+N128
+PVolksbank Freiburg
+MGUTSCHRIFT
+^
+D1.13.06
+U-12,570.38
+T-12,570.38
+N129
+PVolksbank Freiburg
+MSCHECKEINLIEFERUNG
+^
+D1.15.06
+U-310.20
+T-310.20
+N130
+PHDI Versicheung
+MKfz Versicherung
+LFahrzeuge:Versicherung
+^
+D1.15.06
+U-25.00
+T-25.00
+N131
+PKleingartenverein Freiburg
+MSchrebergarten
+LMiete:Miete Garten
+^
+D1.15.06
+U-100.00
+T-100.00
+N132
+PPostbank Freiburg
+MSparbuch Joern
+LSparen
+^
+D1.20.06
+U-110.00
+T-110.00
+N133
+PWWK Versicheung
+MRentenversicherung
+LVers. Person:priv. Rentenv.
+^
+D1.25.06
+U1,240.00
+T1,240.00
+N134
+PMax Mustermann
+MMaterialverkauf
+LVerkäufe Voll
+SVerkäufe Voll
+$1,068.97
+S[Mehrwertsteuer]/_VATCode_N1_O
+$171.03
+^
+D2.1.06
+U-322.10
+T-322.10
+N135
+PAutohaus Opel
+MAbzahlung Kredit Opel Astra
+L[Opel Astra Kredit]
+S[Opel Astra Kredit]
+$-250.98
+SZinszahlung
+$-71.12
+^
+D2.3.06
+U-500.00
+T-500.00
+N136
+PEdeka Freiburg
+MLebensmittel
+LEssen
+^
+D2.4.06
+U2,000.00
+T2,000.00
+N137
+PMax Mustermann
+MMonatliche Gehaltszahlung
+LGehalt
+^
+D2.4.06
+U1,800.00
+T1,800.00
+N138
+PErika Mustermann
+MMonatliche Gehaltszahlung
+LGehalt Partner
+^
+D2.6.06
+U-380.00
+T-380.00
+N139
+PGothaer Versicherun
+Mprivate Krankenvversicherung
+LVers. Person:Krankenvers.
+^
+D2.8.06
+U-895.30
+T-895.30
+N140
+PHausverwaltung Meier
+MMiete Wohnung Talstr. 80
+LMiete
+^
+D2.15.06
+U-25.00
+T-25.00
+N141
+PKleingartenverein Freiburg
+MMiete Schrebergarten
+LMiete:Miete Garten
+^
+D2.15.06
+U-100.00
+T-100.00
+N142
+PPostbank Freiburg
+MSparbuch Joern
+LSparen
+^
+D2.20.06
+U-110.00
+T-110.00
+N143
+PWWK Versicheung
+MRentenversicherung
+LVers. Person:priv. Rentenv.
+^
+D2.26.06
+U75.00
+T75.00
+N144
+PVolksbank Freiburg
+M2000123456789
+L[Postbank Hamburg]
+^
+D2.27.06
+U-251.36
+T-251.36
+NÜO00001
+PAutohaus Opel
+MReparatur
+LFahrzeuge:Wartung
+SFahrzeuge:Wartung
+$-216.69
+S[Mehrwertsteuer]/_VATCode_N1_I
+$-34.67
+^
+D2.27.06
+U-10.00
+T-10.00
+NÜO00002
+PDr. Peters
+MPraxisgebühr
+LKrankheitskost.:Arzt
+^
+D2.27.06
+U-580.00
+T-580.00
+NED00001
+PFrancois Virenque
+MComputer
+LComputer
+SComputer
+EComputer
+$-500.00
+S[Mehrwertsteuer]/_VATCode_N1_I
+$-80.00
+^
+D2.27.06
+U-67.88
+T-67.88
+NSD00001
+PEsso, Sundgaualle
+MTanken
+LFahrzeuge:Benzin
+SFahrzeuge:Benzin
+ETanken
+$-58.52
+S[Mehrwertsteuer]/_VATCode_N1_I
+$-9.36
+^
+D3.1.06
+U-322.10
+T-322.10
+N145
+PAutohaus Opel
+MAbzahlung Kredit Opel Astra
+L[Opel Astra Kredit]
+S[Opel Astra Kredit]
+$-252.03
+SZinszahlung
+$-70.07
+^
+D3.3.06
+U-500.00
+T-500.00
+N146
+PEdeka Freiburg
+MLebensmittel
+LEssen
+^
+D3.4.06
+U2,000.00
+T2,000.00
+N147
+PMax Mustermann
+MMonatliche Gehaltszahlung
+LGehalt
+^
+D3.4.06
+U1,800.00
+T1,800.00
+N148
+PErika Mustermann
+MMonatliche Gehaltszahlung
+LGehalt Partner
+^
+D3.6.06
+U-380.00
+T-380.00
+N149
+PGothaer Versicherun
+Mprivate Krankenvversicherung
+LVers. Person:Krankenvers.
+^
+D3.8.06
+U-895.30
+T-895.30
+N150
+PHausverwaltung Meier
+MMiete Wohnung Talstr. 80
+LMiete
+^
+D4.1.06
+U-322.10
+T-322.10
+PAutohaus Opel
+MAbzahlung Kredit Opel Astra
+L[Opel Astra Kredit]
+S[Opel Astra Kredit]
+$-253.08
+SZinszahlung
+$-69.02
+^
+D4.21.06
+U-328.75
+T-328.75
+NÜDrk
+PFinanzkasse Köln-Süd
+M111111/1000000000/37050198 FINANZKASSE
+LSteuer:ESt
+A
+A
+A
+A
+A
+AFinanzkasse Köln-Süd
+^
+!Account
+NWertpapier-Depot-Bank
+DVerbundenes Bankkonto
+TBank
+^
+!Type:Bank 
+D2.20.04
+U41,000.00
+T41,000.00
+N101
+PEröffnungssaldo
+L[Wertpapier-Depot-Bank]
+^
+D3.10.06
+U4,337.50
+T4,337.50
+PSAP
+MSchätzpreis 10.03.06
+L[Wertpapier-Depot]
+^
+!Account
+NVISA-Card
+DKontonr. 562351
+TCCard
+^
+!Type:CCard
+D1.2.06
+U823.78
+T823.78
+N101
+PEröffnungssaldo
+L[VISA-Card]
+^
+D1.8.06
+U-98.00
+T-98.00
+N102
+PFreie Tankstelle
+MBenzin
+LFahrzeuge:Benzin
+SFahrzeuge:Benzin
+ETanken
+$-84.48
+S[Mehrwertsteuer]
+$-13.52
+^
+D1.15.06
+U-62.00
+T-62.00
+N103
+PGasthaus Löwen
+MAbendessen mit Freunden
+LEssen:Restaurant
+^
+D2.14.06
+U-40.20
+T-40.20
+N104
+PFleurop
+MValentinstag
+LGeschenke
+^
+D2.19.06
+U-67.88
+T-67.88
+N105
+PEsso, Sundgaualle
+MTanken
+LFahrzeuge:Benzin
+^
+D3.16.06
+U-250.62
+T-250.62
+N106
+PMöbelhaus Krüger
+Mneuer Garderobenschrank
+LHaus:Einrichtung
+^
+D3.19.06
+U-68.00
+T-68.00
+N107
+PFreie Tankstelle
+MBenzin
+LFahrzeuge:Benzin
+SFahrzeuge:Benzin
+ETanken
+$-68.00
+^
+!Account
+NBargeldkonto
+DAusgaben in Bar
+TCash
+^
+!Type:Cash 
+D9.30.05
+U0.00
+T0.00
+PKontoanlage
+^
+D10.1.05
+U2,000.00
+T2,000.00
+N1
+PKassenkonto
+L[Volksbank Freiburg]
+^
+D10.2.05
+U-24.00
+T-24.00
+N2
+PTankstelle
+MEssen unterwegs kummuliert
+LEssen
+^
+D10.6.05
+U-20.00
+T-20.00
+N3
+PNachtcafe
+MEssen + Eintritt
+LFreizeit
+^
+D10.8.05
+U-24.99
+T-24.99
+N4
+PArlt
+MLAN USB Adapter
+LComputer
+SComputer
+$-21.54
+S[Mehrwertsteuer]/_VATCode_N1_I
+$-3.45
+^
+D10.8.05
+U-3.95
+T-3.95
+N5
+PSport Arena
+MReflekto Band
+LFreizeit:Sport
+^
+D10.8.05
+U-48.87
+T-48.87
+N6
+PEssen
+MSammelbuchung
+LEssen
+^
+D10.9.05
+U-15.98
+T-15.98
+N7
+PMEDIA MARKT
+MCD
+LFreizeit:Musik
+^
+D10.11.05
+U-20.00
+T-20.00
+N8
+PKrone
+MPizza
+LEssen:Restaurant
+^
+D10.12.05
+U-18.14
+T-18.14
+N9
+PTankstelle
+MBenzin
+LFahrzeuge:Benzin
+SFahrzeuge:Benzin
+$-15.64
+S[Mehrwertsteuer]/_VATCode_N1_I
+$-2.50
+^
+D10.12.05
+U-32.50
+T-32.50
+N10
+PDEKRA
+MHauptuntersuchung PKW
+LFahrzeuge:Sonstiges
+SFahrzeuge:Sonstiges
+EHauptuntersuchung PKW
+$-28.02
+S[Mehrwertsteuer]/_VATCode_N1_I
+$-4.48
+^
+D10.14.05
+U-6.00
+T-6.00
+N11
+PPost
+MPorto
+LPorto
+^
+D10.20.05
+U-10.00
+T-10.00
+N12
+PDr. Peters
+MPraxisgebühr
+LKrankheitskost.:Arzt
+^
+D10.20.05
+U-7.65
+T-7.65
+N13
+PRombach
+MBuch
+LFreizeit:Bücher
+^
+D10.20.05
+U-44.00
+T-44.00
+N14
+PSecond - Hand
+MKleidung
+LKleidung
+^
+D10.27.05
+U-32.09
+T-32.09
+N15
+PApotheke
+MBasis, Echinachin, Halstabletten
+LKrankheitskost.:Medikamente
+^
+D10.27.05
+U-1.99
+T-1.99
+N16
+PDrogerie
+MVitamin-Präparat
+LKrankheitskost.:Medikamente
+^
+D10.29.05
+U-42.99
+T-42.99
+N17
+PMEDIA MARKT
+MUSB Stick 2.0 256 MB
+LComputer
+SComputer
+EUSB Stick 2.0 256 MB
+$-37.06
+S[Mehrwertsteuer]/_VATCode_N1_I
+$-5.93
+^
+D11.12.05
+U-11.07
+T-11.07
+N18
+PApotheke
+MArznei
+LGesundheitskosten:Medikamente
+^
+D11.12.05
+U-23.11
+T-23.11
+N19
+PEssen
+MEssen kummuliert
+LEssen
+^
+D11.12.05
+U-53.35
+T-53.35
+N20
+PHein Gericke
+MKettenmax, Kettenspray, Reinigungsmittel
+LFreizeit:Motorrad
+^
+D11.12.05
+U-269.00
+T-269.00
+N21
+PGebrüder Schlosser
+LHaus:Instandhaltung
+^
+D12.1.05
+U-139.46
+T-139.46
+N22
+PEdeka
+MEssen kummuliert
+LEssen
+^
+D12.1.05
+U-28.95
+T-28.95
+N23
+PDrogerie
+MBasica
+LGesundheitskosten:Nahrungsergänzung
+^
+D1.2.06
+U-3.65
+T-3.65
+N24
+PA&P Tengelmann
+MEssen
+LEssen
+^
+D1.3.06
+U-7.30
+T-7.30
+N25
+PShell Station
+MTanken
+LFahrzeuge:Benzin
+SFahrzeuge:Benzin
+EBenzin
+$-6.29
+S[Mehrwertsteuer]/_VATCode_N1_I
+$-1.01
+^
+D1.5.06
+U-7.76
+T-7.76
+N26
+PMorgenroth Obst und Gemüse
+MObstschale
+LEssen
+^
+D1.5.06
+U-31.26
+T-31.26
+N27
+PMetzgerei Heinzel
+MEinkauf
+LEssen
+^
+D1.12.06
+U-34.79
+T-34.79
+N28
+PApotheke
+MArznei
+LGesundheitskosten:Medikamente
+^
+D2.9.06
+U-340.29
+T-340.29
+N29
+PHaushaltskasse
+MEinzahlung für September
+LEssen
+^
+D2.9.06
+U-4.20
+T-4.20
+N30
+PTankstelle
+MAuto Waschanlage
+LFahrzeuge:Wartung
+SFahrzeuge:Wartung
+EWaschanlage
+$-3.62
+S[Mehrwertsteuer]/_VATCode_N1_I
+$-0.58
+^
+D3.11.06
+U-16.00
+T-16.00
+N31
+POrangeria
+MEssen
+LEssen:Restaurant
+^
+D3.12.06
+U-33.40
+T-33.40
+N32
+PFahrradladen
+MSchlauch u. Mantel
+LFreizeit:Hobby
+^
+D4.1.06
+U-17.00
+T-17.00
+N33
+PLago
+MEssen gehen mit Sukita
+LEssen:Restaurant
+^
+D4.2.06
+U-10.00
+T-10.00
+N34
+PMarkt
+MMittagessen
+LEssen:Restaurant
+^
+D4.2.06
+U-6.79
+T-6.79
+N35
+PDeutsche Post AG
+M10 Versandtaschen, Labelfreimachung
+LBürobedarf
+SBürobedarf
+E10 Versandtaschen
+$-2.41
+S[Mehrwertsteuer]/_VATCode_N1_I
+$-0.38
+SPorto
+EBriefmarken
+$-4.00
+^
+D4.11.06
+U-33.00
+T-33.00
+N36
+PEssen gehen
+MSammel Essen gehen
+LEssen:Restaurant
+^
+D4.11.06
+U-41.35
+T-41.35
+N37
+PEssen
+MSammel Essen kaufen
+LEssen
+^
+D4.12.06
+U-30.00
+T-30.00
+N38
+PCinemaxx Freiburg
+MTerminal
+LFreizeit:Kino
+^
+D4.12.06
+U-15.00
+T-15.00
+N39
+PEssen gehen
+MOsteria
+LEssen
+^
+D4.12.06
+U-25.85
+T-25.85
+N40
+PDer Club Bertelsmann
+MBücher
+LFreizeit:Bücher
+^
+!Account
+NAssekuranz Leben
+DLebensversicherung
+TOth E
+^
+!Type:Oth E
+D1.1.02
+U0.00
+T0.00
+N101
+PEröffnungssaldo
+L[Assekuranz Leben]
+^
+D1.1.03
+U150.00
+T150.00
+N102
+PAssekuranz Versicherung
+MJährlicher Wert für den Rückkauf Lebensversicherung
+LRückkaufswert
+^
+D1.1.04
+U200.00
+T200.00
+N103
+PAssekuranz Versicherung
+MJährlicher Wert für den Rückkauf Lebensversicherung
+LRückkaufswert
+^
+D1.1.05
+U350.00
+T350.00
+N104
+PAssekuranz Versicherung
+MJährlicher Wert für den Rückkauf Lebensversicherung
+LRückkaufswert
+^
+D1.1.06
+U520.00
+T520.00
+N105
+PAssekuranz Versicherung
+MJährlicher Wert für den Rückkauf Lebensversicherung
+LRückkaufswert
+^
+!Account
+NAssekuranz Rente
+DRentenversicherung
+TOth P
+^
+!Type:Oth P
+D1.1.02
+U0.00
+T0.00
+N101
+PEröffnungssaldo
+L[Assekuranz Rente]
+^
+D1.1.03
+U130.00
+T130.00
+N102
+PAssekuranz Versicherung
+MJährlicher Wert für den Rückkauf Rentenversicherung
+LRückkaufswert
+^
+D1.1.04
+U250.00
+T250.00
+N103
+PAssekuranz Versicherung
+MJährlicher Wert für den Rückkauf Rentenversicherung
+LRückkaufswert
+^
+D1.1.05
+U650.00
+T650.00
+N104
+PAssekuranz Versicherung
+MJährlicher Wert für den Rückkauf Rentenversicherung
+LRückkaufswert
+^
+D1.1.06
+U820.00
+T820.00
+N105
+PAssekuranz Versicherung
+MJährlicher Wert für den Rückkauf Rentenversicherung
+LRückkaufswert
+^
+!Account
+NOpel Astra Vermögen
+DVermögenswert PKW
+TOth A
+^
+!Type:Oth A
+D4.16.04
+U20,000.00
+T20,000.00
+PEröffnungssaldo
+L[Opel Astra Vermögen]
+^
+!Account
+NMehrwertsteuer
+DMwSt Zahlung/Einnahme
+TOth L
+^
+!Type:Oth L
+D12.14.01
+U0.00
+T0.00
+N101
+PEröffnungssaldo
+L[Mehrwertsteuer]
+^
+D1.13.05
+U135.25
+T135.25
+N110
+PFernmeldeamt
+MFERNMELDEGEB. 022800998877 FERNMELDEAMT
+^
+D1.13.05
+U1,480.00
+T1,480.00
+N111
+PStahl AG
+MRE.NR.1234                 STAHL AG
+^
+D1.13.05
+U15,674.48
+T15,674.48
+N112
+PThysen-Krupp AG
+MRE.NR.001-34               THYSSEN-KRUPP AG
+^
+D2.27.05
+U13.79
+T13.79
+N114
+PFrancois Virenque
+MBürostuhl
+^
+D3.7.05
+U5.93
+T5.93
+N115
+PMEDIA MARKT Freiburg
+MUSB Stick 2.0 256 MB
+^
+!Account
+NOpel Astra Kredit
+DKreditkonto PKW
+TOth D
+^
+!Type:Oth D
+D1.1.04
+U-20,000.00
+T-20,000.00
+CX
+N101
+PEröffnungssaldo
+L[Opel Astra Kredit]
+^
+!Account
+NFondsparkonto
+DFondssparen
+TInvst
+^
+!Type:Invst
+D10.1.05
+NKaufX
+YDEKA-INTERNET CF - (ANTEILE)
+I8,32
+Q12,019231
+U100.00
+T100.00
+L[Fondsparkonto-Bank]
+$100.00
+^
+D11.1.05
+NKaufX
+YDEKA-INTERNET CF - (ANTEILE)
+I7,13
+Q14,025245
+U100.00
+T100.00
+L[Fondsparkonto-Bank]
+$100.00
+^
+D12.1.05
+NKaufX
+YDEKA-INTERNET CF - (ANTEILE)
+I8,13
+Q12,300123
+U100.00
+T100.00
+L[Fondsparkonto-Bank]
+$100.00
+^
+D1.1.06
+NKaufX
+YDEKA-INTERNET CF - (ANTEILE)
+I7,50
+Q13,333333
+U100.00
+T100.00
+L[Fondsparkonto-Bank]
+$100.00
+^
+D2.1.06
+NKaufX
+YDEKA-INTERNET CF - (ANTEILE)
+I8,30
+Q12,048193
+U100.00
+T100.00
+L[Fondsparkonto-Bank]
+$100.00
+^
+D3.1.06
+NKaufX
+YDEKA-INTERNET CF - (ANTEILE)
+I8,50
+Q11,764706
+U100.00
+T100.00
+L[Fondsparkonto-Bank]
+$100.00
+^
+!Account
+NWertpapier-Depot
+DGeldanlagen in Aktien
+TInvst
+^
+!Type:Invst
+D10.28.05
+NKaufX
+YSAP
+I141,08
+Q100
+U14,108.00
+T14,108.00
+MSchätzpreis 28.10.05
+L[Wertpapier-Depot-Bank]
+$14,108.00
+^
+D1.27.06
+NKaufX
+YSAP
+I166,25
+Q50
+U8,312.50
+T8,312.50
+L[Wertpapier-Depot-Bank]
+$8,312.50
+^
+D1.27.06
+NKaufX
+YBMW (BAYRISCHE MOTORENWERKE AG
+I36,98
+Q12
+U443.76
+T443.76
+L[Wertpapier-Depot-Bank]
+$443.76
+^
+D2.17.06
+NKaufX
+YCOMPUTERLINKS AG
+I14,50
+Q120
+U1,740.00
+T1,740.00
+MSchätzpreis 24.02.06
+L[Wertpapier-Depot-Bank]
+$1,740.00
+^
+D2.24.06
+NKaufX
+YINFINEON TECH.AG NA O.N.
+I7,92
+Q120
+U950.40
+T950.40
+L[Wertpapier-Depot-Bank]
+$950.40
+^
+D3.10.06
+NVerkaufX
+YSAP
+I173,50
+Q25
+U4,337.50
+T4,337.50
+MSchätzpreis 10.03.06
+L[Wertpapier-Depot-Bank]
+$4,337.50
+^
+D3.10.06
+NKaufX
+YBMW (BAYRISCHE MOTORENWERKE AG
+I40,65
+Q120
+U4,878.00
+T4,878.00
+MSchätzpreis 10.03.06
+L[Wertpapier-Depot-Bank]
+$4,878.00
+^
