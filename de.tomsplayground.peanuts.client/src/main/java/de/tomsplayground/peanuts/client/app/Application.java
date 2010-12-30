@@ -14,8 +14,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
-import de.tomsplayground.peanuts.domain.reporting.investment.AvgPriceAnalizerTest;
-
 /**
  * This class controls all aspects of the application's execution
  */
