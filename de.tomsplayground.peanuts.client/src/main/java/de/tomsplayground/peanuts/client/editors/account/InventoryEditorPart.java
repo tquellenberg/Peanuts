@@ -453,6 +453,7 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 			}
 		});
 		tree.setMenu(menuMgr.createContextMenu(tree));
+		getSite().setSelectionProvider(treeViewer);
 		getSite().registerContextMenu(menuMgr, getSite().getSelectionProvider());
 		updateAll();
 	}

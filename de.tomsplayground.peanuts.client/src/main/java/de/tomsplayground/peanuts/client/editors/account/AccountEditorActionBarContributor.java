@@ -5,9 +5,8 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.ui.dialogs.PropertyDialogAction;
 import org.eclipse.ui.part.MultiPageEditorActionBarContributor;
-
-import de.tomsplayground.peanuts.client.util.EditorInputPropertyDialogAction;
 
 public class AccountEditorActionBarContributor extends MultiPageEditorActionBarContributor {
 
@@ -34,7 +33,8 @@ public class AccountEditorActionBarContributor extends MultiPageEditorActionBarC
 		super.setActiveEditor(part);
 		IActionBars actionBars = part.getEditorSite().getActionBars();
 		actionBars.setGlobalActionHandler(ActionFactory.PROPERTIES.getId(), 
-			new EditorInputPropertyDialogAction(part.getSite(), part.getEditorInput()));
+				new PropertyDialogAction(part.getSite(), part.getSite().getSelectionProvider()));
+		
 	}
 
 }

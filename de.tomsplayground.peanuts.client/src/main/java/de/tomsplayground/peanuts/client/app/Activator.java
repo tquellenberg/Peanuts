@@ -38,6 +38,7 @@ import de.tomsplayground.peanuts.app.quicken.QifReader;
 import de.tomsplayground.peanuts.client.util.PeanutsAdapterFactory;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
+import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.persistence.Persistence;
 import de.tomsplayground.peanuts.persistence.xstream.PersistenceService;
@@ -93,6 +94,7 @@ public class Activator extends AbstractUIPlugin {
 		
 		Platform.getAdapterManager().registerAdapters(new PeanutsAdapterFactory(), INamedElement.class);
 		Platform.getAdapterManager().registerAdapters(new PeanutsAdapterFactory(), IEditorInput.class);
+		Platform.getAdapterManager().registerAdapters(new PeanutsAdapterFactory(), InventoryEntry.class);
 		
 		File dir = getStateLocation().append("securityprices").toFile();
 		if (! dir.exists()) {

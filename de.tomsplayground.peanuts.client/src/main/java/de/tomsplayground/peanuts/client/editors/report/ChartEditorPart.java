@@ -45,9 +45,9 @@ import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.chart.TimeChart;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.reporting.forecast.Forecast;
+import de.tomsplayground.peanuts.domain.reporting.transaction.DateIterator;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 import de.tomsplayground.peanuts.domain.reporting.transaction.TimeIntervalReport;
-import de.tomsplayground.peanuts.domain.reporting.transaction.TimeIntervalReport.DateIterator;
 import de.tomsplayground.peanuts.domain.reporting.transaction.TimeIntervalReport.Interval;
 
 public class ChartEditorPart extends EditorPart {

@@ -8,6 +8,7 @@ import org.eclipse.ui.model.IWorkbenchAdapter;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
+import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.process.ICredit;
@@ -62,6 +63,8 @@ public class PeanutsAdapterFactory implements IAdapterFactory {
 		} else if ((adapterType == Security.class || adapterType == Credit.class)
 			&& adaptableObject instanceof IAdaptable) {
 			return ((IAdaptable) adaptableObject).getAdapter(adapterType);
+		} else if ((adapterType == Security.class) && adaptableObject instanceof InventoryEntry) {
+			return ((InventoryEntry)adaptableObject).getSecurity();
 		}
 		return null;
 	}

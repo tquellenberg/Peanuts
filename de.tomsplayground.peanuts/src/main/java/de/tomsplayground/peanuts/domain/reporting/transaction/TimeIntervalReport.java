@@ -22,44 +22,6 @@ public class TimeIntervalReport extends ObservableModelObject {
 		DAY, MONTH, QUARTER, YEAR, DECADE
 	}
 
-	public static class DateIterator {
-		private final Calendar pointer;
-		private final Interval interval;
-		private final Day end;
-		
-		public DateIterator(Day start, Day end, Interval interval) {
-			this.interval = interval;
-			this.pointer = start.toCalendar();
-			this.end = end;
-		}
-
-		public Day next() {
-			if (pointer == null)
-				return null;
-			Day result = Day.fromCalendar(pointer);
-			if (result.after(end))
-				return null;
-			switch (interval) {
-				case DAY:
-					pointer.add(Calendar.DAY_OF_MONTH, 1);
-					break;
-				case MONTH:
-					pointer.add(Calendar.MONTH, 1);
-					break;
-				case QUARTER:
-					pointer.add(Calendar.MONTH, 3);
-					break;
-				case YEAR:
-					pointer.add(Calendar.YEAR, 1);
-					break;
-				case DECADE:
-					pointer.add(Calendar.YEAR, 10);
-					break;
-			}
-			return result;
-		}		
-	}
-	
 	final private Interval interval;
 	final private List<ITransaction> transactions;
 	final private Inventory inventory;
@@ -131,14 +93,14 @@ public class TimeIntervalReport extends ObservableModelObject {
 			DateIterator dateIterator = dateIterator();
 			values.clear();
 			inventoryValues.clear();
-			Day from = dateIterator.next();
-			Day to = dateIterator.next();
 			Iterator<? extends ITransaction> iterator = transactions.iterator();
 			ITransaction transaction = iterator.hasNext()?iterator.next():null;
-			BigDecimal sum = BigDecimal.ZERO;
 			BigDecimal investedSum = BigDecimal.ZERO;
-			while (from != null) {
-				while (transaction != null && (to == null || transaction.getDay().before(to))) {
+			while (dateIterator.hasNext()) {
+				BigDecimal sum = BigDecimal.ZERO;
+				dateIterator.next();
+				Day to = dateIterator.currentRangeEnd();
+				while (transaction != null && transaction.getDay().before(to)) {
 					// total amount
 					sum = sum.add(transaction.getAmount());
 					// investment account: adding and leaving
@@ -157,12 +119,8 @@ public class TimeIntervalReport extends ObservableModelObject {
 				}
 				values.add(sum);
 				investmentValues.add(investedSum);
-				inventory.setDate((to!=null)?to.addDays(-1):new Day());
+				inventory.setDate(to.addDays(-1));
 				inventoryValues.add(inventory.getMarketValue());
-
-				sum = BigDecimal.ZERO;
-				from = to;
-				to = dateIterator.next();
 			}
 		}
 	}

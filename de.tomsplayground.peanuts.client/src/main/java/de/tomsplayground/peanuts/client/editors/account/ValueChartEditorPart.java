@@ -38,8 +38,8 @@ import de.tomsplayground.peanuts.client.chart.TimeChart;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
+import de.tomsplayground.peanuts.domain.reporting.transaction.DateIterator;
 import de.tomsplayground.peanuts.domain.reporting.transaction.TimeIntervalReport;
-import de.tomsplayground.peanuts.domain.reporting.transaction.TimeIntervalReport.DateIterator;
 
 public class ValueChartEditorPart extends EditorPart {
 	

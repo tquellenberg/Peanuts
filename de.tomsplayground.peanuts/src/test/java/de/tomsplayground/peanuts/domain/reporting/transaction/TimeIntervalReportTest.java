@@ -20,7 +20,6 @@ import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProvider;
 import de.tomsplayground.peanuts.domain.process.Transaction;
-import de.tomsplayground.peanuts.domain.reporting.transaction.TimeIntervalReport.DateIterator;
 import de.tomsplayground.util.Day;
 
 public class TimeIntervalReportTest {
@@ -71,8 +70,7 @@ public class TimeIntervalReportTest {
 		date = new Day();
 		assertEquals(new Day(date.getYear(), date.getMonth(), 1), d);
 		assertEquals(0, values.get(3).compareTo(BigDecimal.ZERO));
-		d = dateIterator.next();
-		assertNull(d);
+		assertFalse(dateIterator.hasNext());
 	}
 
 	@Test
@@ -131,6 +129,32 @@ public class TimeIntervalReportTest {
 		Helper.assertEquals(new BigDecimal("11"), inventoryValues.get(0));
 	}
 	
+	@Test
+	public void futureTransactionInventoryValues() throws Exception {
+		final SimplePriceProvider priceProvider = new SimplePriceProvider();
+		// Today
+		Day today = new Day();
+		investmmentAccount.addTransaction(new InvestmentTransaction(today, new Security("Apple"), BigDecimal.ONE,
+				BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY));
+		priceProvider.addPrice(new Price(today, BigDecimal.TEN));
+		// Tomorrow
+		Day tomorrow = new Day().addDays(1);
+		investmmentAccount.addTransaction(new Transaction(tomorrow, BigDecimal.ONE));
+		priceProvider.addPrice(new Price(tomorrow, new BigDecimal("11")));
+		TimeIntervalReport timeIntervalReport = new TimeIntervalReport(investmmentAccount, 
+				TimeIntervalReport.Interval.DAY, new IPriceProviderFactory(){
+			@Override
+			public IPriceProvider getPriceProvider(Security security) {
+				return priceProvider;
+			}
+		});
+		
+		List<BigDecimal> inventoryValues = timeIntervalReport.getInventoryValues();
+		assertEquals(2, inventoryValues.size());
+		Helper.assertEquals(BigDecimal.TEN, inventoryValues.get(0));
+		Helper.assertEquals(new BigDecimal("11"), inventoryValues.get(1));
+	}
+
 	@Test
 	public void propertyChanged() throws Exception {
 		Day now = new Day();
