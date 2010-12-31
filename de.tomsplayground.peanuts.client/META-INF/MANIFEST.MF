@@ -72,10 +72,6 @@ Export-Package: META-INF,
  org.apache.log4j.xml
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.update.core,
- org.eclipse.update.configurator,
- org.eclipse.update.ui,
- org.eclipse.update.scheduler,
  org.eclipse.ui.forms
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Tom's Playground
