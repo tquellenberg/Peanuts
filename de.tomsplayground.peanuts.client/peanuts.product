@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Peanuts" id="de.tomsplayground.peanuts.client.product" application="de.tomsplayground.peanuts.client.application" useFeatures="true" includeLaunchers="true">
+<product name="Peanuts" id="de.tomsplayground.peanuts.client.product" application="de.tomsplayground.peanuts.client.application" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="product_lg.gif"/>
@@ -11,16 +11,14 @@
    </aboutInfo>
 
    <configIni use="default">
-      <linux>/de.tomsplayground.peanuts.client/config.ini</linux>
-      <macosx>/de.tomsplayground.peanuts.client/config.ini</macosx>
-      <solaris>/de.tomsplayground.peanuts.client/config.ini</solaris>
-      <win32>/de.tomsplayground.peanuts.client/config.ini</win32>
    </configIni>
 
    <launcherArgs>
+      <vmArgs>-Xms512M -Xmx512M -XX:MaxPermSize=128M</vmArgs>
    </launcherArgs>
 
    <windowImages/>
+
 
    <launcher name="Peanuts">
       <solaris/>
@@ -29,9 +27,11 @@
       </win>
    </launcher>
 
+
    <vm>
       <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6</windows>
    </vm>
+
 
    <plugins>
       <plugin id="com.ibm.icu"/>
@@ -78,7 +78,7 @@
 
    <features>
       <feature id="de.tomsplayground.peanuts.feature" version="1.0.0"/>
-      <feature id="org.eclipse.rcp" version="3.6.0.v20100519-9OArFKvFtsd7WLUKh-DcYTS"/>
+      <feature id="org.eclipse.rcp" version="3.6.1.r361_v20100827-9OArFLdFjY-ThSQXmKvKz0_T"/>
    </features>
 
 
