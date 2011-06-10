@@ -2,6 +2,8 @@ package de.tomsplayground.peanuts.persistence;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
@@ -68,4 +70,17 @@ public class PersistenceTest {
 		assertEquals(account.getTransactions().size(), accountToCheck.getTransactions().size());
 	}
 
+	@Test
+	public void testPersistenceFromFile() {
+		Reader in = new InputStreamReader(PersistenceTest.class.getResourceAsStream("/persistence.xml"));
+		IPersistenceService persistenceService = new PersistenceService();
+		Persistence persistence = new Persistence();
+		persistence.setPersistenceService(persistenceService);
+		
+		AccountManager accountManager2 = persistence.read(in);
+		
+		assertEquals(2, accountManager2.getAccounts().size());
+		
+	}
+	
 }

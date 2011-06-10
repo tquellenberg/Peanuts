@@ -56,19 +56,19 @@ public class TimeIntervalReportTest {
 		DateIterator dateIterator = timeIntervalReport.dateIterator();
 		Day d = dateIterator.next();
 		date = new Day().addMonth(-3);
-		assertEquals(new Day(date.getYear(), date.getMonth(), 1), d);
+		assertEquals(new Day(date.year, date.month, 1), d);
 		assertEquals(0, values.get(0).compareTo(BigDecimal.TEN));
 		d = dateIterator.next();
 		date = new Day().addMonth(-2);
-		assertEquals(new Day(date.getYear(), date.getMonth(), 1), d);
+		assertEquals(new Day(date.year, date.month, 1), d);
 		assertEquals(0, values.get(1).compareTo(BigDecimal.ZERO));
 		d = dateIterator.next();
 		date = new Day().addMonth(-1);
-		assertEquals(new Day(date.getYear(), date.getMonth(), 1), d);
+		assertEquals(new Day(date.year, date.month, 1), d);
 		assertEquals(0, values.get(2).compareTo(BigDecimal.ONE));
 		d = dateIterator.next();
 		date = new Day();
-		assertEquals(new Day(date.getYear(), date.getMonth(), 1), d);
+		assertEquals(new Day(date.year, date.month, 1), d);
 		assertEquals(0, values.get(3).compareTo(BigDecimal.ZERO));
 		assertFalse(dateIterator.hasNext());
 	}

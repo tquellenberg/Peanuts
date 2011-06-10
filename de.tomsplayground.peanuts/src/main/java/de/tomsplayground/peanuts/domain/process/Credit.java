@@ -5,10 +5,10 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+import de.tomsplayground.peanuts.config.ConfigurableSupport;
 import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.util.Day;
@@ -28,7 +28,7 @@ public class Credit implements ICredit, IConfigurable {
 	private Day end;
 	private BigDecimal paymentAmount;
 	private PaymentInterval paymentInterval;
-	private Map<String, String> displayConfiguration = new ConcurrentHashMap<String, String>();
+	private Map<String, String> displayConfiguration = new HashMap<String, String>();
 
 	private Account connection;
 	
@@ -54,12 +54,12 @@ public class Credit implements ICredit, IConfigurable {
 		BigDecimal a;
 		BigDecimal paymentInterest = BigDecimal.ZERO;
 		if (paymentInterval == PaymentInterval.MONTHLY) {
-			if (day.getYear() == start.getYear()) {
+			if (day.year == start.year) {
 				a = amount;
-				month = day.getMonth() - start.getMonth() + 1;
+				month = day.month - start.month + 1;
 			} else {
-				a  = amount(new Day(day.getYear(), 0, 1));
-				month = day.getMonth() + 1;
+				a  = amount(new Day(day.year, 0, 1));
+				month = day.month + 1;
 			}
 			BigDecimal p = BigDecimal.ZERO;
 			for (int i = 0; i < month-1; i++) {
@@ -67,13 +67,13 @@ public class Credit implements ICredit, IConfigurable {
 				paymentInterest = paymentInterest.add(p.multiply(interestRate).divide(new BigDecimal(1200), new MathContext(10, RoundingMode.HALF_EVEN)));
 			}
 		} else {
-			if (day.getYear() == start.getYear()) {
+			if (day.year == start.year) {
 				a = amount;
-				month = day.getMonth() - start.getMonth() + 1;
+				month = day.month - start.month + 1;
 			} else {
-				a  = amount(new Day(day.getYear(), 0, 1));
-				month = day.getMonth() + 1;
-				int paymentMonth = month - start.getMonth();
+				a  = amount(new Day(day.year, 0, 1));
+				month = day.month + 1;
+				int paymentMonth = month - start.month;
 				if (paymentMonth > 0) {
 					paymentInterest = paymentAmount.multiply(interestRate).multiply(new BigDecimal(paymentMonth)).divide(new BigDecimal(1200), new MathContext(10, RoundingMode.HALF_EVEN));
 				}
@@ -94,22 +94,22 @@ public class Credit implements ICredit, IConfigurable {
 		BigDecimal a;
 		if (paymentInterval == PaymentInterval.MONTHLY) {
 			int month;
-			if (day.getYear() == start.getYear()) {
+			if (day.year == start.year) {
 				a = amount;
-				month = day.getMonth() - start.getMonth();
+				month = day.month - start.month;
 			} else {
-				Day endOfLastYear = new Day(day.getYear() - 1, 11, 31);
+				Day endOfLastYear = new Day(day.year - 1, 11, 31);
 				a = amount(endOfLastYear).add(getInterest(endOfLastYear));
-				month = day.getMonth() + 1;
+				month = day.month + 1;
 			}
 			a = a.subtract(paymentAmount.multiply(new BigDecimal(month)));
 		} else {
-			if (day.getYear() == start.getYear()) {
+			if (day.year == start.year) {
 				a = amount;
 			} else {
-				Day endOfLastYear = new Day(day.getYear() - 1, 11, 31);
+				Day endOfLastYear = new Day(day.year - 1, 11, 31);
 				a = amount(endOfLastYear).add(getInterest(endOfLastYear));
-				if (day.getMonth() > start.getMonth() || (day.getMonth() == start.getMonth() && day.getDay() >= start.getDay()))
+				if (day.month > start.month || (day.month == start.month && day.day >= start.day))
 					a = a.subtract(paymentAmount);
 			}
 		}
@@ -185,8 +185,22 @@ public class Credit implements ICredit, IConfigurable {
 			displayConfiguration = new HashMap<String, String>();
 	}
 
+	private transient ConfigurableSupport configurableSupport;
+	
+	private ConfigurableSupport getConfigurableSupport() {
+		if (configurableSupport == null) {
+			configurableSupport = new ConfigurableSupport(displayConfiguration, null);
+		}
+		return configurableSupport;
+	}
+	
 	@Override
-	public Map<String, String> getDisplayConfiguration() {
-		return displayConfiguration;
+	public String getConfigurationValue(String key) {
+		return getConfigurableSupport().getConfigurationValue(key);
+	}
+
+	@Override
+	public void putConfigurationValue(String key, String value) {
+		getConfigurableSupport().putConfigurationValue(key, value);
 	}
 }

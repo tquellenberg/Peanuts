@@ -12,6 +12,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -48,6 +50,12 @@ public class SecurityCategoryEditWizardPage extends WizardPage {
 	private Button removeButton;
 	private ListViewer listViewer1;
 	private ListViewer listViewer2;
+	private static final ViewerSorter SECURITY_SORTER = new ViewerSorter() {
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			return ((Security)e1).getName().compareToIgnoreCase(((Security)e2).getName());
+		}
+	};
 
 	protected SecurityCategoryEditWizardPage(String pageName, SecurityCategoryMapping mapping, String category) {
 		super(pageName);
@@ -136,7 +144,9 @@ public class SecurityCategoryEditWizardPage extends WizardPage {
 			selectedSecurities = new ArrayList<Security>();
 		securities.removeAll(selectedSecurities);		
 		listViewer1.setInput(securities);
+		listViewer1.setSorter(SECURITY_SORTER);
 		listViewer2.setInput(selectedSecurities);
+		listViewer2.setSorter(SECURITY_SORTER);
 
 		setControl(contents);
 	}

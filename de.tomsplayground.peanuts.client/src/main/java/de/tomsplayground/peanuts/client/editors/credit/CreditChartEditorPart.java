@@ -2,8 +2,8 @@ package de.tomsplayground.peanuts.client.editors.credit;
 
 import java.awt.Color;
 import java.text.SimpleDateFormat;
-import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -31,7 +31,6 @@ import org.jfree.ui.RectangleInsets;
 
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.chart.TimeChart;
-import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.process.ICredit;
 
@@ -57,15 +56,6 @@ public class CreditChartEditorPart extends EditorPart {
 		return (Credit) input.getAdapter(Credit.class);
 	}
 	
-	protected Map<String, String> getDisplayConfiguration() {
-		IEditorInput input = getEditorInput();
-		if (input instanceof IConfigurable) {
-			IConfigurable config = (IConfigurable) input;
-			return config.getDisplayConfiguration();
-		}
-		return null;
-	}
-	
 	@Override
 	public void createPartControl(Composite parent) {
 		Composite body = new Composite(parent, SWT.NONE);
@@ -84,10 +74,7 @@ public class CreditChartEditorPart extends EditorPart {
 		displayType.add("this year");
 		displayType.add("6 month");
 		displayType.add("1 month");
-		Map<String, String> displayConfiguration = getDisplayConfiguration();
-		String chartType = "all";
-		if (displayConfiguration != null && displayConfiguration.containsKey(CHART_TYPE))
-			chartType = displayConfiguration.get(CHART_TYPE);
+		String chartType = StringUtils.defaultString(getCredit().getConfigurationValue(CHART_TYPE), "all");
 		displayType.setText(chartType);
 		timeChart.setChartType(chartType);
 		displayType.addSelectionListener(new SelectionAdapter(){
@@ -133,8 +120,8 @@ public class CreditChartEditorPart extends EditorPart {
 	private TimeSeriesCollection createTotalDataset() {
 		TimeSeriesCollection dataset = new TimeSeriesCollection();
 		ICredit credit = getCredit();
-		Month month = new Month(credit.getStart().getMonth() + 1, credit.getStart().getYear());
-		Month endMonth = new Month(credit.getEnd().getMonth() + 1, credit.getEnd().getYear());
+		Month month = new Month(credit.getStart().month + 1, credit.getStart().year);
+		Month endMonth = new Month(credit.getEnd().month + 1, credit.getEnd().year);
 		TimeSeries s1 = new TimeSeries(getCredit().getName(), Month.class);
 		TimeSeries s2 = new TimeSeries(getCredit().getName(), Month.class);
 		for (; month.compareTo(endMonth) <= 0; month = (Month)month.next()) {
@@ -154,11 +141,8 @@ public class CreditChartEditorPart extends EditorPart {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		Map<String, String> displayConfiguration = getDisplayConfiguration();
-		if (displayConfiguration != null) {
-			String type = displayType.getItem(displayType.getSelectionIndex());
-			displayConfiguration.put(CHART_TYPE, type);
-		}
+		String type = displayType.getItem(displayType.getSelectionIndex());
+		getCredit().putConfigurationValue(CHART_TYPE, type);
 		dirty = false;
 	}
 

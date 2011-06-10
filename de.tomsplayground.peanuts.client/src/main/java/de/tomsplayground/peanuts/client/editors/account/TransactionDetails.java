@@ -96,7 +96,7 @@ public class TransactionDetails implements ITransactionDetail {
 
 		categoryComposite = new CategoryComposite(composite, SWT.NONE);
 		categoryComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		accountComposite = new AccountComposite(composite, SWT.NONE);
+		accountComposite = new AccountComposite(composite, SWT.NONE, account);
 		accountComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 
 		@SuppressWarnings("unused")

@@ -43,6 +43,8 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.eclipse.ui.part.EditorPart;
 
+import com.google.common.collect.ImmutableList;
+
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.widgets.CategoryContentProvider;
 import de.tomsplayground.peanuts.client.widgets.CategoryLabelProvider;
@@ -167,7 +169,7 @@ public class MetaEditorPart extends EditorPart {
 		accountListViewer.getTable().setLayoutData(new GridData(SWT.TOP, SWT.FILL, true, true));
 		accountListViewer.setLabelProvider(new AccountListLabelProvider());
 		accountListViewer.setContentProvider(new ArrayContentProvider());
-		List<Account> accounts = Activator.getDefault().getAccountManager().getAccounts();
+		ImmutableList<Account> accounts = Activator.getDefault().getAccountManager().getAccounts();
 		accountListViewer.setInput(accounts);
 		accountListViewer.getTable().addListener(SWT.Selection, new Listener() {
 			@Override

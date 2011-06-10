@@ -8,10 +8,8 @@ import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Currency;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -30,6 +28,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYAnnotation;
+import org.jfree.chart.annotations.XYPointerAnnotation;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
@@ -38,12 +38,13 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.experimental.chart.swt.ChartComposite;
 import org.jfree.ui.LengthAdjustmentType;
 import org.jfree.ui.RectangleAnchor;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.ui.TextAnchor;
+
+import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
@@ -53,6 +54,7 @@ import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
+import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.statistics.Signal;
@@ -79,30 +81,67 @@ public class ChartEditorPart extends EditorPart {
 					if (! chartComposite.isDisposed()) {
 						if (evt.getOldValue() instanceof Price) {
 							Price priceOld = (Price) evt.getOldValue();
-							de.tomsplayground.util.Day day = priceOld.getDay();
-							priceTimeSeries.delete(new Day(day.getDay(), day.getMonth()+1, day.getYear()));
+							Day day = new Day(priceOld.getDay().day, priceOld.getDay().month+1, priceOld.getDay().year);
+							priceTimeSeries.delete(day);
+							if (isShowAvg()) {
+								average20Days.delete(day);
+								average100Days.delete(day);
+							}
 						}
 						if (evt.getNewValue() instanceof Price) {
 							Price priceNew = (Price) evt.getNewValue();
 							de.tomsplayground.util.Day day = priceNew.getDay();
-							priceTimeSeries.add(new Day(day.getDay(), day.getMonth()+1, day.getYear()), priceNew.getValue());
+							priceTimeSeries.add(new Day(day.day, day.month+1, day.year), priceNew.getValue());
 						} else  if (evt.getNewValue() != null) {
 							// Full update
 							for (Price p : priceProvider.getPrices()) {
 								de.tomsplayground.util.Day day = p.getDay();
-								priceTimeSeries.addOrUpdate(new Day(day.getDay(), day.getMonth()+1, day.getYear()), p.getValue());
+								priceTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), p.getValue());
 							}					
 						}
-						createMovingAverage(average20Days, 20);
-						createMovingAverage(average100Days, 100);
+						if (isShowAvg()) {
+							createMovingAverage(average20Days, 20);
+							createMovingAverage(average100Days, 100);
+						}
 					}
 				}
 			});
 		}
 	};
+	
+	private PropertyChangeListener securityPropertyChangeListener = new PropertyChangeListener() {	
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			if (evt.getPropertyName().equals("SHOW_AVG")) {
+				if (isShowAvg()) {
+					createMovingAverage(average20Days, 20);
+					createMovingAverage(average100Days, 100);
+					dataset.addSeries(average20Days);
+					dataset.addSeries(average100Days);
+				} else {
+					dataset.removeSeries(average20Days);
+					dataset.removeSeries(average100Days);
+				}				
+			}
+			if (evt.getPropertyName().equals("SHOW_SIGNALS")) {
+				if (isShowSignals()) {
+					signalAnnotations = timeChart.addSignals(createSignals());
+				} else {
+					timeChart.removeAnnotations(signalAnnotations);
+				}
+			}
+			if (evt.getPropertyName().equals("STOPLOSS")) {
+				updateStopLossMarker();
+			}
+		}
+	};
+	
 	private TimeSeries average20Days;
 	private TimeSeries average100Days;
-	private List<Signal> signals = new ArrayList<Signal>();
+	private TimeSeriesCollection dataset;
+	private ImmutableList<XYAnnotation> signalAnnotations;
+	private TimeChart timeChart;
+	private ValueMarker stopLossMarker;
 	
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -122,32 +161,20 @@ public class ChartEditorPart extends EditorPart {
 		body.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
 		body.setLayout(new GridLayout());
 
-		TimeSeriesCollection dataset = createDataset();
-		final JFreeChart chart = createChart(dataset);
+		createDataset();
+		final JFreeChart chart = createChart();
 		chartComposite = new ChartComposite(body, SWT.NONE, chart, true);
 		chartComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		final TimeChart timeChart = new TimeChart(chart, dataset);
-		timeChart.addSignals(signals);
-		
-		Map<String, String> displayConfiguration = ((SecurityEditorInput) getEditorInput()).getSecurity().getDisplayConfiguration();
-		
-		String stopLossValue = displayConfiguration.get("STOPLOSS");
-		if (StringUtils.isNotEmpty(stopLossValue)) {
-			try {
-				ValueMarker marker = new ValueMarker(PeanutsUtil.parseQuantity(stopLossValue).doubleValue());
-				marker.setPaint(Color.red);
-				marker.setLabelPaint(Color.red);
-				marker.setLabel("Stop Loss");
-				marker.setLabelFont(new Font("SansSerif", Font.PLAIN, 10));
-				marker.setLabelOffsetType(LengthAdjustmentType.EXPAND);
-				marker.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
-				marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
-
-				((XYPlot)chart.getPlot()).addRangeMarker(marker);
-			} catch (ParseException e) {
-				// Okay
-			}
+		timeChart = new TimeChart(chart, dataset);
+		if (isShowSignals()) {
+			signalAnnotations = timeChart.addSignals(createSignals());
 		}
+		
+		addOrderAnnotations(chart);
+
+		updateStopLossMarker();
+
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		
 		BigDecimal avgPrice = getAvgPrice();
 		if (avgPrice != null) {
@@ -170,9 +197,7 @@ public class ChartEditorPart extends EditorPart {
 		displayType.add("this year");
 		displayType.add("6 month");
 		displayType.add("1 month");
-		String chartType = "all";
-		if (displayConfiguration.containsKey(CHART_TYPE))
-			chartType = displayConfiguration.get(CHART_TYPE);
+		String chartType = StringUtils.defaultString(security.getConfigurationValue(CHART_TYPE), "all");
 		displayType.setText(chartType);
 		timeChart.setChartType(chartType);
 		displayType.addSelectionListener(new SelectionAdapter(){
@@ -185,19 +210,92 @@ public class ChartEditorPart extends EditorPart {
 				firePropertyChange(IEditorPart.PROP_DIRTY);
 			}
 		});
+		
+		security.addPropertyChangeListener(securityPropertyChangeListener);
+	}
+
+	protected void updateStopLossMarker() {
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		String stopLossValue = security.getConfigurationValue("STOPLOSS");
+		if (stopLossMarker != null) {
+			timeChart.getPlot().removeRangeMarker(stopLossMarker);
+			stopLossMarker = null;
+		}
+		if (StringUtils.isNotEmpty(stopLossValue)) {
+			try {
+				stopLossMarker = new ValueMarker(PeanutsUtil.parseQuantity(stopLossValue).doubleValue());
+				stopLossMarker.setPaint(Color.red);
+				stopLossMarker.setLabelPaint(Color.red);
+				stopLossMarker.setLabel("Stop Loss");
+				stopLossMarker.setLabelFont(new Font("SansSerif", Font.PLAIN, 10));
+				stopLossMarker.setLabelOffsetType(LengthAdjustmentType.EXPAND);
+				stopLossMarker.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
+				stopLossMarker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
+
+				timeChart.getPlot().addRangeMarker(stopLossMarker);
+			} catch (ParseException e) {
+				// Okay
+			}
+		}
+	}
+
+	protected void addOrderAnnotations(final JFreeChart chart) {
+		ImmutableList<InvestmentTransaction> transactions = getOrders();
+		for (InvestmentTransaction investmentTransaction : transactions) {
+			de.tomsplayground.util.Day day = investmentTransaction.getDay();
+			long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
+			double y = priceProvider.getPrice(day).getClose().doubleValue();
+			
+			XYPointerAnnotation pointerAnnotation = null;
+			String t = "";
+			Color c = Color.BLACK;
+			switch (investmentTransaction.getType()) {
+			case BUY:
+				t = "+"+investmentTransaction.getQuantity();
+				pointerAnnotation = new XYPointerAnnotation(t, x, y, Math.PI / 2);
+				c = Color.GREEN;
+				break;
+			case SELL:
+				t = "-"+investmentTransaction.getQuantity();
+				pointerAnnotation = new XYPointerAnnotation(t, x, y, 3* Math.PI / 2);
+				c = Color.RED;
+				break;
+			case INCOME:
+				t = " +"+PeanutsUtil.formatCurrency(investmentTransaction.getAmount(), Currency.getInstance("EUR"));
+				pointerAnnotation = new XYPointerAnnotation(t, x, y, Math.PI / 2);
+				c = Color.GREEN;
+				break;
+			case EXPENSE:
+				t = " -"+PeanutsUtil.formatCurrency(investmentTransaction.getAmount(), Currency.getInstance("EUR"));
+				pointerAnnotation = new XYPointerAnnotation(t, x, y, 3* Math.PI / 2);
+				c = Color.RED;
+				break;
+			}
+			if (pointerAnnotation != null) {
+				pointerAnnotation.setPaint(c);
+				pointerAnnotation.setArrowPaint(c);
+				pointerAnnotation.setToolTipText(PeanutsUtil.formatDate(day) + " " + t);
+				pointerAnnotation.setArrowWidth(5);
+				((XYPlot)chart.getPlot()).addAnnotation(pointerAnnotation);
+			}
+		}
+	}
+	
+	private ImmutableList<InvestmentTransaction> getOrders() {
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
+		InventoryEntry inventoryEntry = inventory.getEntry(security);
+		if (inventoryEntry != null)
+			return inventoryEntry.getTransactions();
+		else
+			return ImmutableList.of();
 	}
 	
 	private BigDecimal getAvgPrice() {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();		
 		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
 		if (inventory.getSecurities().contains(security)) {
-			Collection<InventoryEntry> entries = inventory.getEntries();
-			for (InventoryEntry inventoryEntry : entries) {
-				if (inventoryEntry.getSecurity().equals(security)) {
-					return inventoryEntry.getAvgPrice();
-				}
-			}
+			return inventory.getEntry(security).getAvgPrice();
 		}
 		return null;
 	}
@@ -209,7 +307,7 @@ public class ChartEditorPart extends EditorPart {
 	 *
 	 * @return A chart.
 	 */
-	private JFreeChart createChart(XYDataset dataset) {
+	private JFreeChart createChart() {
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(getEditorInput().getName(), // title
 			"Date", // x-axis label
@@ -242,31 +340,40 @@ public class ChartEditorPart extends EditorPart {
 		return chart;
 	}
 
-	private TimeSeriesCollection createDataset() {
+	private void createDataset() {
 		priceTimeSeries = new TimeSeries(getEditorInput().getName(), Day.class);
 		for (Price price : priceProvider.getPrices()) {
 			de.tomsplayground.util.Day day = price.getDay();
-			priceTimeSeries.add(new Day(day.getDay(), day.getMonth()+1, day.getYear()), price.getValue());
+			priceTimeSeries.add(new Day(day.day, day.month+1, day.year), price.getValue());
 		}
-		TimeSeriesCollection dataset = new TimeSeriesCollection();
+		dataset = new TimeSeriesCollection();
 		dataset.addSeries(priceTimeSeries);
 
 		average20Days = new TimeSeries("Moving Average: 20 days", Day.class);
-		createMovingAverage(average20Days, 20);
-		dataset.addSeries(average20Days);
-		
 		average100Days = new TimeSeries("Moving Average: 100 days", Day.class);
-		createMovingAverage(average100Days, 100);
-		dataset.addSeries(average100Days);
+
+		if (isShowAvg()) {
+			createMovingAverage(average20Days, 20);
+			dataset.addSeries(average20Days);			
+			createMovingAverage(average100Days, 100);
+			dataset.addSeries(average100Days);
+		}
 		
 		((ObservableModelObject) priceProvider).addPropertyChangeListener(priceProviderChangeListener);
+	}
 
-		return dataset;
+	private boolean isShowAvg() {
+		return Boolean.parseBoolean(((SecurityEditorInput)getEditorInput()).getSecurity().getConfigurationValue("SHOW_AVG"));
+	}
+	
+	private boolean isShowSignals() {
+		return Boolean.parseBoolean(((SecurityEditorInput)getEditorInput()).getSecurity().getConfigurationValue("SHOW_SIGNALS"));
 	}
 
 	@Override
 	public void dispose() {
 		((ObservableModelObject) priceProvider).removePropertyChangeListener(priceProviderChangeListener);
+		((SecurityEditorInput)getEditorInput()).getSecurity().removePropertyChangeListener(securityPropertyChangeListener);
 		super.dispose();
 	}
 	
@@ -275,12 +382,16 @@ public class ChartEditorPart extends EditorPart {
 		List<Price> sma = simpleMovingAverage.calculate(priceProvider.getPrices());
 		for (Price price : sma) {
 			de.tomsplayground.util.Day day = price.getDay();
-			a1.addOrUpdate(new Day(day.getDay(), day.getMonth()+1, day.getYear()), price.getValue());
+			a1.addOrUpdate(new Day(day.day, day.month+1, day.year), price.getValue());
 		}
-		if (days == 20)
-			signals.addAll(simpleMovingAverage.getSignals());
 	}
 
+	private ImmutableList<Signal> createSignals() {
+		SimpleMovingAverage simpleMovingAverage = new SimpleMovingAverage(20);
+		simpleMovingAverage.calculate(priceProvider.getPrices());
+		return simpleMovingAverage.getSignals();
+	}
+	
 	@Override
 	public boolean isDirty() {
 		return dirty;
@@ -294,7 +405,7 @@ public class ChartEditorPart extends EditorPart {
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		security.getDisplayConfiguration().put(CHART_TYPE, displayType.getItem(displayType.getSelectionIndex()));
+		security.putConfigurationValue(CHART_TYPE, displayType.getItem(displayType.getSelectionIndex()));
 		dirty = false;
 	}
 

@@ -81,7 +81,7 @@ public class CreditPropertyPage extends PropertyPage {
 		
 		label = new Label(top, SWT.NONE);
 		label.setText("Account:");
-		account = new AccountComposite(top, SWT.NONE);
+		account = new AccountComposite(top, SWT.NONE, null);
 		
 		setValues();
 		

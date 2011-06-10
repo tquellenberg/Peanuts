@@ -3,16 +3,18 @@ package de.tomsplayground.peanuts.domain.base;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Currency;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+import de.tomsplayground.peanuts.config.ConfigurableSupport;
 import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
@@ -38,7 +40,9 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	private BigDecimal startBalance;
 	private Type type;
 	private String description;
-	final private Map<String, String> displayConfiguration = new ConcurrentHashMap<String, String>();
+	private boolean active;
+
+	final private Map<String, String> displayConfiguration = new HashMap<String, String>();
 
 	// Process
 	final private List<Transaction> transactions = new LinkedList<Transaction>();
@@ -74,6 +78,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 		this.startBalance = startBalance;
 		this.type = accountType;
 		this.description = description;
+		this.active = true;
 	}
 
 	public void reset() {
@@ -133,6 +138,16 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 		firePropertyChange("name", oldName, name);
 	}
 
+	public boolean isActive() {
+		return active;
+	}
+	
+	public void setActive(boolean active) {
+		boolean oldActive = this.active;
+		this.active = active;
+		firePropertyChange("active", Boolean.valueOf(oldActive), Boolean.valueOf(active));
+	}
+	
 	@Override
 	public Currency getCurrency() {
 		return currency;
@@ -195,8 +210,8 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	}
 
 	@Override
-	public List<ITransaction> getTransactions() {
-		return new ArrayList<ITransaction>(transactions);
+	public ImmutableList<ITransaction> getTransactions() {
+		return ImmutableList.<ITransaction>copyOf(transactions);
 	}
 
 	/**
@@ -204,7 +219,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	 * 
 	 */
 	@Override
-	public List<ITransaction> getTransactionsByDate(Day date) {
+	public ImmutableList<ITransaction> getTransactionsByDate(Day date) {
 		return getTransactionsByDate(date, date);
 	}
 
@@ -215,8 +230,22 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	 * 
 	 */
 	@Override
-	public List<ITransaction> getTransactionsByDate(Day from, Day to) {
+	public ImmutableList<ITransaction> getTransactionsByDate(Day from, Day to) {
 		return TransactionProviderUtil.getTransactionsByDate(this, from, to);
+	}
+	
+	@Override
+	public Day getMaxDate() {
+		if (transactions.isEmpty())
+			return null;
+		return Iterables.getLast(transactions).getDay();
+	}
+	
+	@Override
+	public Day getMinDate() {
+		if (transactions.isEmpty())
+			return null;
+		return transactions.get(0).getDay();
 	}
 	
 	public String getDescription() {
@@ -259,9 +288,22 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 		return null;
 	}
 
+	private transient ConfigurableSupport configurableSupport;
+	
+	private ConfigurableSupport getConfigurableSupport() {
+		if (configurableSupport == null) {
+			configurableSupport = new ConfigurableSupport(displayConfiguration, getPropertyChangeSupport());
+		}
+		return configurableSupport;
+	}
+	
 	@Override
-	public Map<String, String> getDisplayConfiguration() {
-		return displayConfiguration;
+	public String getConfigurationValue(String key) {
+		return getConfigurableSupport().getConfigurationValue(key);
 	}
 
+	@Override
+	public void putConfigurationValue(String key, String value) {
+		getConfigurableSupport().putConfigurationValue(key, value);
+	}
 }

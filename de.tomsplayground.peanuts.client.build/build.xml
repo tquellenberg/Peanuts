@@ -1,76 +1,163 @@
-<!--
-	This program and the accompanying materials are made available
-	under the terms of the Eclipse Public License v1.0 which
-	accompanies this distribution, and is available at
-  	http://www.eclipse.org/legal/epl-v10.html
-	
-	This build script creates a build directory containing the plugins
-	and features to be built, and then kicks off the PDE build process.
-	You could just as easily do this from a shell script or cron job.
-	
-	Also, the script can be run inside the Eclipse IDE by choosing 
-	Run As -> Ant Build from the context menu. It could obviously be
-	run outside of the IDE if you have ANT installed on your path.
-	
-	If you have any questions about this build, feel free to contact me
-	at patrick@rcpquickstart.com.
--->
-<project name="peanuts.build" default="build">
-	<property file="build.properties" />
-	
+<project name="Product Build" default="publish">
+	<property name="eclipse.home" value="C:/Programme/eclipse"/>
+	<property name="buildDirectory" value="${user.home}/Entwicklung/eclipse.build"/>
+	<property name="baseLocation" value="${user.home}/Entwicklung/target_361/eclipse"/>
 
-	<!--
-		PDE Build expects that the build directory contains a "plugins" 
-		directory and a "features" directory. These directories should contain
-		the various plug-ins and features to be built.
-		
-		It's possible to use the CVS checkout process that is built into 
-		PDE Build. This is done with map files and is beyond the scope of 
-		this tutorial. 
-		
-		This tutorial simply copies the projects directly from your workspace
-		into the appropriate build directory folders.
-	-->
-	<target name="init">
+	<available file="${buildDirectory}/label.properties" property="label.properties.exists" />
+	<property file="${buildDirectory}/label.properties" />
+
+	<target name="create.label.properties" unless="label.properties.exists">
 		<mkdir dir="${buildDirectory}" />
-		<mkdir dir="${buildDirectory}/plugins" />
-		<mkdir dir="${buildDirectory}/features" />
-		<copy todir="${buildDirectory}/plugins">
-			<fileset dir="../">
-				<include name="de.tomsplayground.peanuts.client/**" />
-			</fileset>
-		</copy>
-		<copy todir="${buildDirectory}/features">
-			<fileset dir="../">
-				<include name="de.tomsplayground.peanuts.feature/**" />
-			</fileset>
-		</copy>
-	</target>
-	
-	<!--
-		This target actually executes the PDE Build process by launching the 
-		Eclipse antRunner application.
 		
-		NOTE: If you are using Eclipse 3.2, switch out the pathelement below
-		with the one that is commented out.
-	-->
-	<target name="pde-build">
-		<java classname="org.eclipse.equinox.launcher.Main" fork="true" failonerror="true">
-			<arg value="-application" />
-			<arg value="org.eclipse.ant.core.antRunner" />
-			<arg value="-buildfile" />
-			<arg value="${eclipseLocation}/plugins/org.eclipse.pde.build_${pdeBuildPluginVersion}/scripts/productBuild/productBuild.xml" />
-			<arg value="-Dtimestamp=${timestamp}" />
-			<classpath>
-				<pathelement location="${eclipseLocation}/plugins/org.eclipse.equinox.launcher_${equinoxLauncherPluginVersion}.jar" />
-				<!--<pathelement location="${eclipseLocation}/startup.jar" />-->
-			</classpath>
+		<tstamp>
+		   <format property="timestamp" pattern="yyyyMMddHHmm"/>
+		</tstamp>
+		<property name="buildType" value="N"/>
+		<property name="buildId" value="${buildType}${timestamp}"/>
+		<property name="buildLabel" value="${buildType}${timestamp}"/>
+
+		<echo file="${buildDirectory}/label.properties">timestamp=${timestamp}
+buildType=${buildType}
+buildId=${buildId}
+buildLabel=${buildLabel}</echo>
+	</target>
+
+	<target name="pde.build.init">
+		<path id="eclipse.launcher.id">
+		    <fileset dir="${eclipse.home}/plugins">
+			<include name="org.eclipse.equinox.launcher_*.jar"/>
+		    </fileset>
+	    </path>
+	    <property name="eclipse.launcher" refid="eclipse.launcher.id"/>
+	    <echo message="Launcher ${eclipse.launcher}"/>
+
+	    <path id="eclipse.pde.build.id">
+		    <dirset dir="${eclipse.home}/plugins">
+			<include name="org.eclipse.pde.build_*"/>
+		    </dirset>
+	    </path>
+	    <property name="eclipse.pde.build" refid="eclipse.pde.build.id"/>
+	    <echo message="PDE Build ${eclipse.pde.build}"/>
+		
+		<mkdir dir="${buildDirectory}/features" />
+		<copy todir="${buildDirectory}/features">
+			<fileset dir="${basedir}/..">
+				<include name="*.feature/**/*" />
+			</fileset>
+		</copy>
+		
+		<mkdir dir="${buildDirectory}/plugins" />
+		<copy todir="${buildDirectory}/plugins/de.tomsplayground.peanuts.client">
+			<fileset dir="${basedir}/../de.tomsplayground.peanuts.client"/>
+		</copy>
+
+	</target>
+
+	<target name="build" depends="create.label.properties,pde.build.init">
+		<echo message="basedir ${basedir}"/>
+		<echo message="baseLocation ${baseLocation}"/>
+		<echo message="basedir ${eclipse.pde.build}/scripts/productBuild/productBuild.xml"/>
+	
+		<java jar="${eclipse.launcher}" fork="true" dir="${basedir}">
+			<arg value="-application"/>
+			<arg value="org.eclipse.ant.core.antRunner"/>
+			<arg value="-buildfile"/>
+			<arg value="${eclipse.pde.build}/scripts/productBuild/productBuild.xml"/>
+			<arg value="-DbaseLocation=${baseLocation}"/>
+			<arg value="-Dproduct=../de.tomsplayground.peanuts.client/peanuts.product"/>
+			<arg value="-DbuildType=${buildType}"/>
+			<arg value="-DbuildId=${buildId}"/>
+			<arg value="-DbuildLabel=updates"/>
+			<arg value="-Dtimestamp=${timestamp}"/>
+			<arg value="-DbuildDirectory=${buildDirectory}"/>
+			<arg value="-Dp2.gathering=true"/>
+			<arg value="-Dp2.build.repo=file:${buildDirectory}/updates"/>
+			<arg value="-Dp2.compress=true"/>
+			<arg value="-Dp2.flavor=tooling"/>
+			<arg value="-Dp2.publish.artifacts=true"/>
+			<arg value="-DskipDirector=true"/>
+		</java>
+
+		<java jar="${eclipse.launcher}" fork="true" dir="${basedir}">
+			<arg line="-application" />
+			<arg line="org.eclipse.equinox.p2.publisher.CategoryPublisher" />
+			<arg line="-metadataRepository file:${buildDirectory}/updates" />
+			<arg line="-categoryDefinition file:${basedir}/category.xml"/>
+			<arg line="-categoryQualifier" />
+			<arg line="-compress" />
 		</java>
 	</target>
-		
-	<target name="clean">
-		<delete dir="${buildDirectory}" />
+
+	<target name="publish" depends="build">
+		<mkdir dir="${buildDirectory}/${buildLabel}" />
+		<delete dir="${buildDirectory}/tmp" />
+
+		<antcall target="director">
+			<param name="os" value="linux" />
+			<param name="ws" value="gtk" />
+			<param name="arch" value="x86" />
+		</antcall>
+		<tar destfile="${buildDirectory}/${buildLabel}/peanuts-${buildLabel}-linux.gtk.x86.tar.gz"
+			basedir="${buildDirectory}/tmp"
+			compression="gzip">
+		</tar>
+		<delete dir="${buildDirectory}/tmp" />
+
+		<antcall target="director">
+			<param name="os" value="win32" />
+			<param name="ws" value="win32" />
+			<param name="arch" value="x86" />
+		</antcall>
+		<zip destfile="${buildDirectory}/${buildLabel}/peanuts-${buildLabel}-win32.win32.x86.zip"
+			basedir="${buildDirectory}/tmp">
+		</zip>
+		<delete dir="${buildDirectory}/tmp" />
+
+		<antcall target="director">
+			<param name="os" value="macosx" />
+			<param name="ws" value="cocoa" />
+			<param name="arch" value="x86_64" />
+		</antcall>
+		<zip destfile="${buildDirectory}/${buildLabel}/peanuts-${buildLabel}-macosx.cocoa.x86_64.zip"
+			basedir="${buildDirectory}/tmp">
+		</zip>
+		<delete dir="${buildDirectory}/tmp" />
 	</target>
 
-	<target name="build" depends="clean, init, pde-build" />
+	<target name="director">
+		<java jar="${eclipse.launcher}" fork="true" dir="${basedir}" failonerror="true">
+			<arg line="-application" />
+			<arg line="org.eclipse.equinox.p2.director" />
+			<arg line="-flavor tooling" />
+			<arg line="-installIU de.tomsplayground.peanuts.client.product" />
+			<arg line="-p2.os ${os}" />
+			<arg line="-p2.ws ${ws}" />
+			<arg line="-p2.arch ${arch}" />
+			<arg line="-roaming" />
+			<arg line="-profile SDKProfile" />
+			<arg line="-profileProperties org.eclipse.update.install.features=true" />
+			<arg line="-metadataRepository file:${buildDirectory}/updates" />
+			<arg line="-artifactRepository file:${buildDirectory}/updates" />
+			<arg line="-destination ${buildDirectory}/tmp/peanuts" />
+			<arg line="-bundlepool ${buildDirectory}/tmp/peanuts" />
+			<arg line="-profileProperties org.eclipse.update.install.features=true" />
+			<arg line="-vmargs" />
+			<arg line="-Declipse.p2.data.area=${buildDirectory}/tmp/peanuts/p2" />
+		</java>
+
+	</target>
+
+	<target name="clean">
+		<delete dir="${buildDirectory}/plugins"/>
+		<delete dir="${buildDirectory}/updates"/>
+		<delete dir="${buildDirectory}/artifact"/>
+		<delete dir="${buildDirectory}/repo"/>
+		<delete file="${buildDirectory}/label.properties"/>
+		<delete>
+			<fileset dir="${buildDirectory}" includes="assemble.*"/>
+			<fileset dir="${buildDirectory}" includes="package.*"/>
+			<fileset dir="${buildDirectory}" includes="final*"/>
+		</delete>
+	</target>
+
 </project>

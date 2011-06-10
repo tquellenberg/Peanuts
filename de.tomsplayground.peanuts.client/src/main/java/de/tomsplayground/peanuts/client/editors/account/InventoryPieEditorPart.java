@@ -135,12 +135,12 @@ public class InventoryPieEditorPart extends EditorPart {
 		Collections.sort(entries, new Comparator<InventoryEntry>() {
 			@Override
 			public int compare(InventoryEntry o1, InventoryEntry o2) {
-				return o2.getMarketValue().compareTo(o1.getMarketValue());
+				return o2.getMarketValue(date).compareTo(o1.getMarketValue(date));
 			}
 		});        
         for (InventoryEntry entry : entries) {
         	if (entry.getQuantity().intValue() != 0)
-        		dataset.setValue(entry.getSecurity().getName(), entry.getMarketValue());
+        		dataset.setValue(entry.getSecurity().getName(), entry.getMarketValue(date));
         }
 	}
 

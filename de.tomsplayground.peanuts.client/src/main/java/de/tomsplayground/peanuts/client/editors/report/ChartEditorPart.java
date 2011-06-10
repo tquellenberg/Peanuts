@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -93,14 +93,7 @@ public class ChartEditorPart extends EditorPart {
 		body.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
 		body.setLayout(new GridLayout());
 
-		String chartType = "in total";
-		String timerange = "all";
-		final Map<String, String> displayConfiguration = ((ReportEditorInput)getEditorInput()).getReport().getDisplayConfiguration();
-		if (displayConfiguration.containsKey(CHART_TYPE))
-			chartType = displayConfiguration.get(CHART_TYPE);
-		if (displayConfiguration.containsKey(TIMERANGE))
-			timerange = displayConfiguration.get(TIMERANGE);
-
+		String chartType = StringUtils.defaultString(getReport().getConfigurationValue(CHART_TYPE), "in total");
 		JFreeChart chart = createChart(chartType);
 		chartFrame = new ChartComposite(body, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -123,6 +116,8 @@ public class ChartEditorPart extends EditorPart {
 				firePropertyChange(IEditorPart.PROP_DIRTY);
 			}
 		});
+		
+		String timerange = StringUtils.defaultString(getReport().getConfigurationValue(TIMERANGE), "all");
 		displayTimerange = new Combo(body, SWT.READ_ONLY);
 		displayTimerange.add("all");
 		displayTimerange.add("one year");
@@ -143,13 +138,17 @@ public class ChartEditorPart extends EditorPart {
 			}
 		});		
 		
-		Report report = ((ReportEditorInput)getEditorInput()).getReport();
+		Report report = getReport();
 		report.addPropertyChangeListener(reportChangeListener);
+	}
+
+	private Report getReport() {
+		return ((ReportEditorInput)getEditorInput()).getReport();
 	}
 
 	@Override
 	public void dispose() {
-		Report report = ((ReportEditorInput)getEditorInput()).getReport();
+		Report report = getReport();
 		report.removePropertyChangeListener(reportChangeListener);		
 		super.dispose();
 	}
@@ -215,7 +214,7 @@ public class ChartEditorPart extends EditorPart {
 	}
 
 	private TimeSeriesCollection createTotalDataset() {
-		Report report = ((ReportEditorInput)getEditorInput()).getReport();
+		Report report = getReport();
 		TimeIntervalReport intervalReport = new TimeIntervalReport(report, TimeIntervalReport.Interval.DAY, PriceProviderFactory.getInstance());
 		List<BigDecimal> values = intervalReport.getValues();
 		List<BigDecimal> inventoryValues = intervalReport.getInventoryValues();
@@ -239,7 +238,7 @@ public class ChartEditorPart extends EditorPart {
 			sum = sum.add(v);
 			BigDecimal inventoryValue = iterator.next();
 			de.tomsplayground.util.Day d = dateIterator.next();
-			Day day = new Day(d.getDay(), d.getMonth()+1, d.getYear());
+			Day day = new Day(d.day, d.month+1, d.year);
 			s1.add(day, sum.add(inventoryValue));
 			int j = 0;
 			for (Forecast forecast : forecasts) {
@@ -257,7 +256,7 @@ public class ChartEditorPart extends EditorPart {
 	}
 	
 	private TimeSeriesCollection createDeltaDataset(Interval interval, Class<? extends RegularTimePeriod> intervalClass) {
-		Report report = ((ReportEditorInput)getEditorInput()).getReport();
+		Report report = getReport();
 		TimeIntervalReport intervalReport = new TimeIntervalReport(report, interval, PriceProviderFactory.getInstance());
 		List<BigDecimal> values = intervalReport.getValues();
 		List<BigDecimal> inventoryValues = intervalReport.getInventoryValues();
@@ -285,9 +284,8 @@ public class ChartEditorPart extends EditorPart {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		Map<String, String> displayConfiguration = ((ReportEditorInput)getEditorInput()).getReport().getDisplayConfiguration();
 		String type = displayType.getItem(displayType.getSelectionIndex());
-		displayConfiguration.put(CHART_TYPE, type);
+		getReport().putConfigurationValue(CHART_TYPE, type);
 		dirty = false;
 	}
 

@@ -108,6 +108,27 @@ public class PriceProviderTest {
 	}
 
 	@Test
+	public void removePrice() throws Exception {
+		final PropertyChangeEvent lastEvent[] = new PropertyChangeEvent[1];
+		pp.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				lastEvent[0] = evt;
+			}
+		});
+		pp.setPrice(new Price(c1, BigDecimal.ZERO));
+		pp.setPrice(new Price(c1.addDays(1), BigDecimal.ZERO));
+		pp.setPrice(new Price(c1.addDays(2), BigDecimal.ZERO));
+		
+		pp.removePrice(c1.addDays(1));
+		
+		assertEquals(2, pp.getPrices().size());
+		assertNotNull("Event expected", lastEvent[0]);
+		assertEquals(pp, lastEvent[0].getSource());
+		assertEquals("prices", lastEvent[0].getPropertyName());
+	}
+
+	@Test
 	public void changeExistingPrice() throws Exception {
 		Price price1 = new Price(c1, BigDecimal.ZERO);
 		pp.setPrice(price1);

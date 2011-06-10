@@ -8,6 +8,8 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
@@ -23,7 +25,7 @@ public class TimeIntervalReport extends ObservableModelObject {
 	}
 
 	final private Interval interval;
-	final private List<ITransaction> transactions;
+	final private ImmutableList<ITransaction> transactions;
 	final private Inventory inventory;
 	
 	final private Day start;

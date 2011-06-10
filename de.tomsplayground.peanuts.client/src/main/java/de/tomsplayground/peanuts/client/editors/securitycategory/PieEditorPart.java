@@ -3,7 +3,6 @@ package de.tomsplayground.peanuts.client.editors.securitycategory;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
-import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,7 +30,6 @@ import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.client.widgets.DateComposite;
-import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
@@ -93,7 +91,7 @@ public class PieEditorPart extends EditorPart {
 		final DateComposite dateChooser = new DateComposite(banner, SWT.NONE);
 		
 		Report report = new Report("temp");
-		report.setAccounts(new HashSet<Account>(Activator.getDefault().getAccountManager().getAccounts()));
+		report.setAccounts(Activator.getDefault().getAccountManager().getAccounts());
 		inventory = new Inventory(report, PriceProviderFactory.getInstance(), date, new AnalyzerFactory());
 		inventory.addPropertyChangeListener(inventoryChangeListener);
 		

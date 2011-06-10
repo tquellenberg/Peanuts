@@ -78,6 +78,10 @@ public class SecurityCategoryMapping implements INamedElement {
 		}
 	}
 	
+	public Set<Security> getAllSecurities() {
+		return new HashSet<Security>(mapping.keySet());
+	}
+	
 	public Map<String, BigDecimal> calculateCategoryValues(Inventory inventory) {
 		Map<String, BigDecimal> values = new HashMap<String, BigDecimal>();
 		for (String category : categories) {
@@ -96,7 +100,7 @@ public class SecurityCategoryMapping implements INamedElement {
 		for (Security security : securities) {
 			for (InventoryEntry inventoryEntry : entries) {
 				if (inventoryEntry.getSecurity().equals(security)) {
-					result = result.add(inventoryEntry.getMarketValue());
+					result = result.add(inventoryEntry.getMarketValue(inventory.getDay()));
 				}
 			}
 		}		

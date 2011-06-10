@@ -108,9 +108,9 @@ public class DateComposite extends Composite {
 	}
 
 	public void setDay(Day day) {
-		date.setYear(day.getYear());
-		date.setMonth(day.getMonth());
-		date.setDay(day.getDay());
+		date.setYear(day.year);
+		date.setMonth(day.month);
+		date.setDay(day.day);
 	}
 
 	public void setDate(Calendar calendar) {

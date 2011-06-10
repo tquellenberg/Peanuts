@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -26,9 +27,21 @@ public class SaveAction extends Action {
 	@Override
 	public void run() {
 		FileDialog openDialog = new FileDialog(window.getShell(), SWT.SAVE);
-		openDialog.setFilterExtensions(new String[] { "BPX" });
+		openDialog.setFilterExtensions(Activator.ALL_FILE_PATTERN);
 		String filename = openDialog.open();
 		if (filename != null) {
+			if (filename.endsWith("."+Activator.FILE_EXTENSION_SECURE)) {
+				PasswordDialog passowordDialog = new PasswordDialog(window.getShell(), "New password", "Insert new passsword");
+				int open;
+				do {
+					open = passowordDialog.open();
+					if (open == Window.CANCEL) {
+						return;
+					}
+				} while (open != Window.OK);
+				Activator.getDefault().setPassPhrase(passowordDialog.getPassword());
+			}
+			
 			try {
 				Activator.getDefault().save(filename);
 			} catch (IOException e) {

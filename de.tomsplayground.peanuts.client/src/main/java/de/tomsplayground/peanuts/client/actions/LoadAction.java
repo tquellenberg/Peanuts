@@ -26,7 +26,7 @@ public class LoadAction extends Action {
 	@Override
 	public void run() {
 		FileDialog openDialog = new FileDialog(window.getShell(), SWT.OPEN);
-		openDialog.setFilterExtensions(new String[] { "BPX" });
+		openDialog.setFilterExtensions(Activator.ALL_FILE_PATTERN);
 		String filename = openDialog.open();
 		if (filename != null) {
 			try {

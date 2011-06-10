@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Currency;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -23,6 +22,8 @@ import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -44,6 +45,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
+import com.google.common.collect.ImmutableList;
+
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.app.ColorProvider;
 import de.tomsplayground.peanuts.client.editors.account.AccountEditor;
@@ -62,6 +65,15 @@ public class AccountListView extends ViewPart {
 	public static final String ID = "de.tomsplayground.peanuts.client.accountListView";
 
 	private TableViewer accountListViewer;
+
+	private static final FilterActiveAccounts FILTER_ACTIVE_ACCOUNTS = new FilterActiveAccounts();
+
+	private static final class FilterActiveAccounts extends ViewerFilter {
+		@Override
+		public boolean select(Viewer viewer, Object parentElement, Object element) {
+			return ((Account)element).isActive();
+		}
+	}
 
 	private class AccountListLabelProvider extends LabelProvider implements
 		ITableLabelProvider, ITableColorProvider {
@@ -148,7 +160,7 @@ public class AccountListView extends ViewPart {
 		}
 	};
 
-	private List<Account> accounts;
+	private ImmutableList<Account> accounts;
 	private Map<Account, Inventory> inventories = new HashMap<Account, Inventory>();
 
 	@Override
@@ -237,6 +249,7 @@ public class AccountListView extends ViewPart {
 			inventories.put(account, inventory);
 		}
 		accountListViewer.setInput(accounts);
+		accountListViewer.addFilter(FILTER_ACTIVE_ACCOUNTS);
 		accountListViewer.addDoubleClickListener(new IDoubleClickListener() {
 
 			@Override

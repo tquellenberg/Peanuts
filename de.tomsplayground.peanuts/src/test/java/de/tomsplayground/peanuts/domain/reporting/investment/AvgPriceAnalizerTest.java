@@ -1,12 +1,13 @@
 package de.tomsplayground.peanuts.domain.reporting.investment;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.Helper;
 import de.tomsplayground.peanuts.domain.base.Security;
@@ -24,14 +25,16 @@ public class AvgPriceAnalizerTest {
 
 	@Test
 	public void multiBuyWithCommission() throws Exception {
-		List<InvestmentTransaction> trans = new ArrayList<InvestmentTransaction>();
-		trans.add(buildTrade(BigDecimal.TEN, new BigDecimal("2"), BigDecimal.ONE,
-				InvestmentTransaction.Type.BUY));
-		trans.add(buildTrade(new BigDecimal("12"), new BigDecimal("2"), BigDecimal.ONE,
-				InvestmentTransaction.Type.BUY));
-		IAnalyzer avgPrices = new AvgPriceAnalyzer(trans);
+		ImmutableList<InvestmentTransaction> trans = ImmutableList.of(
+			buildTrade(BigDecimal.TEN, new BigDecimal("2"), BigDecimal.ONE,
+				InvestmentTransaction.Type.BUY),
+			buildTrade(new BigDecimal("12"), new BigDecimal("2"), BigDecimal.ONE,
+				InvestmentTransaction.Type.BUY)
+		);
+		IAnalyzer avgPrices = new AvgPriceAnalyzer();
 		
-		List<AnalyzedInvestmentTransaction> analyzedTransactions = avgPrices.getAnalyzedTransactions();
+		List<AnalyzedInvestmentTransaction> analyzedTransactions = ImmutableList.copyOf(avgPrices.getAnalyzedTransactions(trans));
+
 		assertEquals(trans.size(), analyzedTransactions.size());
 		AnalyzedInvestmentTransaction at = analyzedTransactions.get(0);
 		Helper.assertEquals(new BigDecimal("10.50"), at.getAvgPrice());
@@ -41,13 +44,16 @@ public class AvgPriceAnalizerTest {
 	
 	@Test
 	public void buyAndSellPartial() throws Exception {
-		List<InvestmentTransaction> trans = new ArrayList<InvestmentTransaction>();
-		trans.add(buildTrade(BigDecimal.TEN, new BigDecimal("2"), BigDecimal.ONE,
-			InvestmentTransaction.Type.BUY));
-		trans.add(buildTrade(new BigDecimal("11"), BigDecimal.ONE, BigDecimal.ONE, InvestmentTransaction.Type.SELL));
-		IAnalyzer avgPrices = new AvgPriceAnalyzer(trans);
+		ImmutableList<InvestmentTransaction> trans = ImmutableList.of(
+			buildTrade(BigDecimal.TEN, new BigDecimal("2"), BigDecimal.ONE,
+					InvestmentTransaction.Type.BUY),
+			buildTrade(new BigDecimal("11"), BigDecimal.ONE, BigDecimal.ONE, 
+					InvestmentTransaction.Type.SELL)
+		);
+		IAnalyzer avgPrices = new AvgPriceAnalyzer();
 		
-		List<AnalyzedInvestmentTransaction> analyzedTransactions = avgPrices.getAnalyzedTransactions();
+		List<AnalyzedInvestmentTransaction> analyzedTransactions = ImmutableList.copyOf(avgPrices.getAnalyzedTransactions(trans));
+
 		assertEquals(trans.size(), analyzedTransactions.size());
 		AnalyzedInvestmentTransaction at = analyzedTransactions.get(0);
 		Helper.assertEquals(new BigDecimal("10.50"), at.getAvgPrice());
@@ -57,13 +63,16 @@ public class AvgPriceAnalizerTest {
 	
 	@Test
 	public void buyAndSellAll() throws Exception {
-		List<InvestmentTransaction> trans = new ArrayList<InvestmentTransaction>();
-		trans.add(buildTrade(BigDecimal.TEN, BigDecimal.ONE, BigDecimal.ONE,
-			InvestmentTransaction.Type.BUY));
-		trans.add(buildTrade(new BigDecimal("11"), BigDecimal.ONE, BigDecimal.ONE, InvestmentTransaction.Type.SELL));
-		IAnalyzer avgPrices = new AvgPriceAnalyzer(trans);
+		ImmutableList<InvestmentTransaction> trans = ImmutableList.of(
+			buildTrade(BigDecimal.TEN, BigDecimal.ONE, BigDecimal.ONE,
+					InvestmentTransaction.Type.BUY),
+			buildTrade(new BigDecimal("11"), BigDecimal.ONE, BigDecimal.ONE, 
+					InvestmentTransaction.Type.SELL)
+		);
+		IAnalyzer avgPrices = new AvgPriceAnalyzer();
 
-		List<AnalyzedInvestmentTransaction> analyzedTransactions = avgPrices.getAnalyzedTransactions();
+		List<AnalyzedInvestmentTransaction> analyzedTransactions = ImmutableList.copyOf(avgPrices.getAnalyzedTransactions(trans));
+
 		assertEquals(trans.size(), analyzedTransactions.size());
 		AnalyzedInvestmentTransaction at = analyzedTransactions.get(0);
 		Helper.assertEquals(new BigDecimal("11.00"), at.getAvgPrice());

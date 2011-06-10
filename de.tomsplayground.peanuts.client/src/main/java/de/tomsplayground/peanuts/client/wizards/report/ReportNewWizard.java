@@ -1,6 +1,5 @@
 package de.tomsplayground.peanuts.client.wizards.report;
 
-import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -14,7 +13,6 @@ import org.eclipse.ui.PartInitException;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.editors.report.ReportEditor;
 import de.tomsplayground.peanuts.client.editors.report.ReportEditorInput;
-import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.Category;
 import de.tomsplayground.peanuts.domain.query.CategoryQuery;
 import de.tomsplayground.peanuts.domain.query.DateQuery;
@@ -48,8 +46,7 @@ public class ReportNewWizard extends Wizard implements INewWizard {
 	@Override
 	public boolean performFinish() {
 		Report report = new Report(datesPage.getReportName());
-		List<Account> accounts = accountsPage.getAccounts();
-		report.setAccounts(new HashSet<Account>(accounts));
+		report.setAccounts(accountsPage.getAccounts());
 
 		List<Category> categories = categoriesPage.getCategories();
 		if (categories != null)

@@ -42,7 +42,7 @@ public class ReportTest {
 	@Test
 	public void testAccounts() {
 		Report report = new Report("report1");
-		report.setAccounts(new HashSet<Account>(accountManager.getAccounts()));
+		report.setAccounts(accountManager.getAccounts());
 
 		assertFalse(report.allAccounts());
 		assertEquals(2, report.getAccounts().size());

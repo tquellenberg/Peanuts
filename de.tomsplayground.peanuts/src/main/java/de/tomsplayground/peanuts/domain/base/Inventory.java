@@ -3,13 +3,12 @@ package de.tomsplayground.peanuts.domain.base;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
@@ -83,9 +82,6 @@ public class Inventory extends ObservableModelObject {
 			Day startDay = this.day.addDays(1);
 			synchronized (entryMap) {
 				this.day = day;
-				for (InventoryEntry entry : entryMap.values()) {
-					entry.setDate(day);
-				}
 				setTransactions(account.getTransactionsByDate(startDay, day));
 			}
 		} else {
@@ -97,19 +93,29 @@ public class Inventory extends ObservableModelObject {
 		}
 	}
 	
-	public Set<Security> getSecurities() {
+	public Day getDay() {
+		return day;
+	}
+	
+	public ImmutableSet<Security> getSecurities() {
 		synchronized (entryMap) {
-			return new HashSet<Security>(entryMap.keySet());
+			return ImmutableSet.copyOf(entryMap.keySet());
 		}
 	}
 
-	public Collection<InventoryEntry> getEntries() {
+	public ImmutableSet<InventoryEntry> getEntries() {
 		synchronized (entryMap) {
-			return new HashSet<InventoryEntry>(entryMap.values());
+			return ImmutableSet.copyOf(entryMap.values());
+		}
+	}
+	
+	public InventoryEntry getEntry(Security security) {
+		synchronized (entryMap) {
+			return entryMap.get(security);
 		}
 	}
 
-	private void setTransactions(List<? extends ITransaction> transactions) {
+	private void setTransactions(ImmutableList<? extends ITransaction> transactions) {
 		for (ITransaction transaction : transactions) {		
 			if (transaction instanceof InvestmentTransaction) {
 				InvestmentTransaction invTrans = (InvestmentTransaction) transaction;
@@ -131,11 +137,12 @@ public class Inventory extends ObservableModelObject {
 		if (type == InvestmentTransaction.Type.BUY ||
 			type == InvestmentTransaction.Type.SELL) {
 			if (analizerFactory != null) {
-				List<InvestmentTransaction> transations = new ArrayList<InvestmentTransaction>(inventoryEntry.getTransations());
-				transations.add(invTrans);
-				IAnalyzer analizer = analizerFactory.getAnalizer(transations);
-				List<AnalyzedInvestmentTransaction> analyzedTransactions = analizer.getAnalyzedTransactions();
-				invTrans = analyzedTransactions.get(analyzedTransactions.size() - 1);
+				Iterable<InvestmentTransaction> transations = Iterables.concat(
+						inventoryEntry.getTransactions(),
+						ImmutableList.of(invTrans));
+				IAnalyzer analizer = analizerFactory.getAnalizer();
+				Iterable<AnalyzedInvestmentTransaction> analyzedTransactions = analizer.getAnalyzedTransactions(transations);
+				invTrans = Iterables.getLast(analyzedTransactions);
 			}
 			inventoryEntry.add(invTrans);
 		} else {
@@ -143,7 +150,7 @@ public class Inventory extends ObservableModelObject {
 		}
 	}
 	
-	private InventoryEntry getInventoryEntry(Security security) {
+	public InventoryEntry getInventoryEntry(Security security) {
 		InventoryEntry inventoryEntry;
 		if ( !entryMap.containsKey(security)) {
 			IPriceProvider priceprovider = null;
@@ -154,16 +161,18 @@ public class Inventory extends ObservableModelObject {
 					ob.addPropertyChangeListener(priceProviderChangeListener);
 				}
 			}
-			inventoryEntry = new InventoryEntry(security, priceprovider, day);
+			inventoryEntry = new InventoryEntry(security, priceprovider);
 			entryMap.put(security, inventoryEntry);
 		}
-		return entryMap.get(security);		
+		return entryMap.get(security);
 	}
 
 	public BigDecimal getGainings() {
 		BigDecimal gainings = BigDecimal.ZERO;
-		for (InventoryEntry entry : getEntries()) {
-			gainings = gainings.add(entry.getGaining());
+		synchronized (entryMap) {
+			for (InventoryEntry entry : entryMap.values()) {
+				gainings = gainings.add(entry.getGaining());
+			}
 		}
 		return gainings;
 	}
@@ -172,7 +181,18 @@ public class Inventory extends ObservableModelObject {
 		BigDecimal sum = BigDecimal.ZERO;
 		synchronized (entryMap) {
 			for (InventoryEntry entry : entryMap.values()) {
-				sum = sum.add(entry.getMarketValue());
+				sum = sum.add(entry.getMarketValue(day));
+			}
+		}
+		return sum;
+	}
+	
+	public BigDecimal getDayChange() {
+		BigDecimal sum = BigDecimal.ZERO;
+		Day fromDay = day.addDays(-1);
+		synchronized (entryMap) {
+			for (InventoryEntry entry : entryMap.values()) {
+				sum = sum.add(entry.getChange(fromDay, day));
 			}
 		}
 		return sum;

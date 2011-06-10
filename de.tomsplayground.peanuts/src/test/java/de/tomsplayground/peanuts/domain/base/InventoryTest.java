@@ -90,7 +90,7 @@ public class InventoryTest {
 		InventoryEntry entry = quantityMap.iterator().next();
 		assertEquals(SECURITY_NAME, entry.getSecurity().getName());
 		assertEquals(QUANTITY, entry.getQuantity());
-		assertEquals(1, entry.getTransations().size());
+		assertEquals(1, entry.getTransactions().size());
 	}
 
 	@Test
@@ -115,7 +115,7 @@ public class InventoryTest {
 		InventoryEntry entry = quantityMap.iterator().next();
 		assertEquals(SECURITY_NAME, entry.getSecurity().getName());
 		assertEquals(BigDecimal.ZERO, entry.getQuantity());
-		assertEquals(2, entry.getTransations().size());
+		assertEquals(2, entry.getTransactions().size());
 	}
 	
 	@Test
@@ -133,7 +133,7 @@ public class InventoryTest {
 		InventoryEntry entry = quantityMap.iterator().next();
 		assertEquals(SECURITY_NAME, entry.getSecurity().getName());
 		assertEquals(BigDecimal.ZERO, entry.getQuantity());
-		assertEquals(2, entry.getTransations().size());
+		assertEquals(2, entry.getTransactions().size());
 	}
 	
 	private static class SimplePriceProvider extends PriceProvider {
@@ -201,7 +201,7 @@ public class InventoryTest {
 		assertEquals(1, entries.size());
 		InventoryEntry entry = entries.iterator().next();
 		assertEquals(0, entry.getGaining().compareTo(BigDecimal.ZERO));
-		Helper.assertEquals(new BigDecimal("12"), entry.getMarketValue());
+		Helper.assertEquals(new BigDecimal("12"), entry.getMarketValue(now));
 		Helper.assertEquals(BigDecimal.ONE, entry.getQuantity());
 		Helper.assertEquals(BigDecimal.TEN, entry.getInvestedAmount());
 	}

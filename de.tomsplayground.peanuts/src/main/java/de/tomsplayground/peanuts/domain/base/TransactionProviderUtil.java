@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.domain.base;
 
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
@@ -14,9 +14,9 @@ public class TransactionProviderUtil {
 	 * Both date can be null.
 	 * 
 	 */
-	public static List<ITransaction> getTransactionsByDate(ITransactionProvider provider, Day from, Day to) {
+	public static ImmutableList<ITransaction> getTransactionsByDate(ITransactionProvider provider, Day from, Day to) {
 		int fromIndex;
-		List<ITransaction> transactions = provider.getTransactions();
+		ImmutableList<ITransaction> transactions = provider.getTransactions();
 		if (from != null) {
 			fromIndex = PeanutsUtil.binarySearch(transactions, from);
 			if (fromIndex >= 0) {

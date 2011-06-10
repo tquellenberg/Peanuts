@@ -83,6 +83,25 @@ public class AccountManagerTest {
 	}
 
 	@Test
+	public void testTrimSecurityName() throws Exception {
+		AccountManager securityManager = new AccountManager();
+		Security security = securityManager.getOrCreateSecurity(SECURITY_NAME);
+		
+		Security security2 = securityManager.getOrCreateSecurity(SECURITY_NAME+"\n");
+		
+		assertTrue("same security", security == security2);
+	}
+	
+	@Test
+	public void testTrimInSecurityName2() throws Exception {
+		AccountManager securityManager = new AccountManager();
+
+		Security security = securityManager.getOrCreateSecurity(SECURITY_NAME+"\n");
+		
+		assertEquals(SECURITY_NAME, security.getName());
+	}
+	
+	@Test
 	public void testGetOrCreateCategory() {
 		AccountManager cm = new AccountManager();
 		Category cat = cm.getOrCreateCategory("test");

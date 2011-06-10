@@ -1,16 +1,17 @@
 package de.tomsplayground.peanuts.domain.reporting.investment;
 
-import java.util.List;
+import com.google.common.collect.Iterables;
 
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 
+
 public abstract class Analyzer implements IAnalyzer {
 
-	protected final List<? extends InvestmentTransaction> trans;
 	protected final Strategy strategy = new Fifo();
-	
-	public Analyzer(List<? extends InvestmentTransaction> trans) {
-		this.trans = trans;
+		
+	@Override
+	public Iterable<AnalyzedInvestmentTransaction> getAnalyzedTransactions(Iterable<? extends InvestmentTransaction> trans) {
+		return Iterables.transform(trans, getFunction());
 	}
 
 }

@@ -10,6 +10,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -52,6 +53,8 @@ public class MetaEditorPart extends EditorPart {
 	private AccountEditor editor;
 
 	private IManagedForm managedForm;
+
+	private Button active;
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -107,6 +110,14 @@ public class MetaEditorPart extends EditorPart {
 				sectionPart.markDirty();
 			}});
 
+		toolkit.createLabel(sectionClient, "Active");
+		active = new Button(sectionClient, SWT.CHECK);
+		active.addSelectionListener(new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				sectionPart.markDirty();
+			}});
+		
 		section.setClient(sectionClient);
 
 		setValues();
@@ -126,6 +137,7 @@ public class MetaEditorPart extends EditorPart {
 		accountName.setText(account.getName());
 		currency.setText(account.getCurrency().toString());
 		accountType.setText(account.getType().toString());
+		active.setSelection(account.isActive());
 	}
 
 	@Override
@@ -145,6 +157,7 @@ public class MetaEditorPart extends EditorPart {
 		account.setType(Account.Type.valueOf(typeName));
 		String currencyName = currency.getItem(currency.getSelectionIndex());
 		account.setCurrency(Currency.getInstance(currencyName));
+		account.setActive(active.getSelection());
 		managedForm.commit(true);
 	}
 

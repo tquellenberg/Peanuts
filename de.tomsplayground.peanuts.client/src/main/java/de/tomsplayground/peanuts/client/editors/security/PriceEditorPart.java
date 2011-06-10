@@ -4,8 +4,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.Collections;
-import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
@@ -36,6 +34,8 @@ import org.eclipse.ui.IPersistableEditor;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+import com.google.common.collect.ImmutableList;
+
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.client.widgets.DateCellEditor;
 import de.tomsplayground.peanuts.domain.base.Security;
@@ -59,9 +59,8 @@ public class PriceEditorPart extends EditorPart implements IPersistableEditor {
 		public void doit(PropertyChangeEvent evt, Display display) {
 			if (! tableViewer.getControl().isDisposed()) {
 				// Full update
-				List<Price> list = priceProvider.getPrices();
-				Collections.reverse(list);
-				tableViewer.setInput(list);						
+				ImmutableList<Price> list = priceProvider.getPrices();
+				tableViewer.setInput(list.reverse());
 			}
 		}
 
@@ -220,19 +219,20 @@ public class PriceEditorPart extends EditorPart implements IPersistableEditor {
 
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
-		List<Price> list = priceProvider.getPrices();
-		Collections.reverse(list);
-		tableViewer.setInput(list);
+		ImmutableList<Price> list = priceProvider.getPrices();
+		tableViewer.setInput(list.reverse());
 
-		MenuManager menu = new MenuManager();
-		menu.setRemoveAllWhenShown(true);
-		menu.addMenuListener(new IMenuListener() {
+		MenuManager menuManager = new MenuManager();
+		menuManager.setRemoveAllWhenShown(true);
+		menuManager.addMenuListener(new IMenuListener() {
 			@Override
 			public void menuAboutToShow(IMenuManager manager) {
 				fillContextMenu(manager);
 			}
 		});
-		table.setMenu(menu.createContextMenu(table));
+		table.setMenu(menuManager.createContextMenu(table));
+		getSite().registerContextMenu(menuManager, tableViewer);
+		getSite().setSelectionProvider(tableViewer);
 		
 		((ObservableModelObject) priceProvider).addPropertyChangeListener(priceProviderChangeListener);
 	}

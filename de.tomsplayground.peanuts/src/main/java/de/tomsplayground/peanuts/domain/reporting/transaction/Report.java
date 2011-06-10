@@ -3,17 +3,21 @@ package de.tomsplayground.peanuts.domain.reporting.transaction;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+import de.tomsplayground.peanuts.config.ConfigurableSupport;
 import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
@@ -31,14 +35,15 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	private String name;
 	final private Set<Account> accounts = new HashSet<Account>();
 	final private Set<IQuery> queries = new HashSet<IQuery>();
-	final private Map<String, String> displayConfiguration = new ConcurrentHashMap<String, String>();
+	final private Map<String, String> displayConfiguration = new HashMap<String, String>();
 	
-	private transient List<ITransaction> result;
+	private transient ImmutableList<ITransaction> result;
 	
 	private PropertyChangeListener accountChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(java.beans.PropertyChangeEvent evt) {
 			result = null;
+			getPropertyChangeSupport().firePropertyChange(evt);
 		}
 	};
 
@@ -51,7 +56,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 		return accounts.isEmpty();
 	}
 
-	public void setAccounts(Set<Account> accounts) {
+	public void setAccounts(Collection<Account> accounts) {
 		if (CollectionUtils.isEqualCollection(this.accounts, accounts))
 			return;
 		Set<Account> oldAccounts = new HashSet<Account>(this.accounts);
@@ -60,7 +65,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 		}
 		this.accounts.clear();
 		this.accounts.addAll(accounts);
-		for (Account account : accounts) {
+		for (Account account : this.accounts) {
 			account.addPropertyChangeListener(accountChangeListener);
 		}
 		firePropertyChange("accounts", oldAccounts, accounts);
@@ -100,9 +105,9 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	}
 
 	@Override
-	public List<ITransaction> getTransactions() {
+	public ImmutableList<ITransaction> getTransactions() {
 		if (result == null) {
-			List<ITransaction> transactions = new ArrayList<ITransaction>();
+			Collection<ITransaction> transactions = new ArrayList<ITransaction>();
 			for (ITransaction transaction : AccountManager.getTransactions(accounts)) {
 				List<ITransaction> splits = transaction.getSplits();
 				if (! splits.isEmpty()) {
@@ -112,11 +117,39 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 				}
 			}
 			for (IQuery query : queries) {
-				transactions = query.filter(transactions);
+				transactions = Collections2.filter(transactions, query.getPredicate());
 			}
-			result = transactions;
+			result = ImmutableList.copyOf(transactions);
 		}
 		return result;
+	}
+	
+	@Override
+	public Day getMaxDate() {
+		Day maxDay = null;
+		for (Account account : accounts) {
+			Day date = account.getMaxDate();
+			if (date != null) {
+				if (maxDay == null || date.after(maxDay)) {
+					maxDay = date;
+				}
+			}
+		}
+		return maxDay;
+	}
+	
+	@Override
+	public Day getMinDate() {
+		Day minDay = null;
+		for (Account account : accounts) {
+			Day date = account.getMaxDate();
+			if (date != null) {
+				if (minDay == null || date.before(minDay)) {
+					minDay = date;
+				}
+			}
+		}
+		return minDay;
 	}
 	
 	public BigDecimal getBalance(ITransaction t) {
@@ -130,12 +163,12 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 		throw new IllegalArgumentException("Transaction does not belong to report:" + t);
 	}
 
-	public List<ITransaction> getTransactionsByDate(Day date) {
+	public ImmutableList<ITransaction> getTransactionsByDate(Day date) {
 		return TransactionProviderUtil.getTransactionsByDate(this, date, date);
 	}
 
 	@Override
-	public List<ITransaction> getTransactionsByDate(Day from, Day to) {
+	public ImmutableList<ITransaction> getTransactionsByDate(Day from, Day to) {
 		return TransactionProviderUtil.getTransactionsByDate(this, from, to);
 	}
 	
@@ -143,8 +176,22 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 		// not used
 	}
 
+	private transient ConfigurableSupport configurableSupport;
+	
+	private ConfigurableSupport getConfigurableSupport() {
+		if (configurableSupport == null) {
+			configurableSupport = new ConfigurableSupport(displayConfiguration, getPropertyChangeSupport());
+		}
+		return configurableSupport;
+	}
+	
 	@Override
-	public Map<String, String> getDisplayConfiguration() {
-		return displayConfiguration;
+	public String getConfigurationValue(String key) {
+		return getConfigurableSupport().getConfigurationValue(key);
+	}
+
+	@Override
+	public void putConfigurationValue(String key, String value) {
+		getConfigurableSupport().putConfigurationValue(key, value);
 	}
 }

@@ -5,7 +5,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -20,10 +19,9 @@ import de.tomsplayground.util.Day;
 public class YahooCsvReaderTest extends TestCase {
 
 	@Test
-	public void testRead() throws IOException, ParseException {
+	public void testRead() throws IOException {
 		Reader in = new InputStreamReader(QifReaderTest.class.getResourceAsStream("/Yahoo.csv"));
 		YahooCsvReader reader = new YahooCsvReader(in);
-		reader.read();
 		IOUtils.closeQuietly(in);
 
 		List<Price> prices = reader.getPrices();
@@ -39,45 +37,29 @@ public class YahooCsvReaderTest extends TestCase {
 	}
 	
 	@Test
-	public void testEmpty() throws IOException, ParseException {
+	public void testEmpty() throws IOException {
 		Reader in = new StringReader("");
 		YahooCsvReader reader = new YahooCsvReader(in, YahooCsvReader.Type.CURRENT);
-		reader.read();
 		
 		List<Price> prices = reader.getPrices();
 		assertEquals(0, prices.size());
 	}
 	
 	@Test
-	public void testReadCurrent() throws IOException, ParseException {
-		Reader in = new InputStreamReader(QifReaderTest.class.getResourceAsStream("/Yahoo_current.csv"));
-		YahooCsvReader reader = new YahooCsvReader(in, YahooCsvReader.Type.CURRENT);
-		reader.read();
-		IOUtils.closeQuietly(in);
-
-		List<Price> prices = reader.getPrices();
-		assertEquals(1, prices.size());
-		assertEquals(new BigDecimal("129.24"), prices.get(0).getValue());
-		Day date = prices.get(0).getDay();
-		assertEquals(new Day(2008, 0, 4), date);
-	}
-	
-	@Test
-	public void testReadCurrent2() throws IOException, ParseException {
+	public void testReadCurrent2() throws IOException {
 		Reader in = new InputStreamReader(QifReaderTest.class.getResourceAsStream("/Yahoo_current2.csv"));
 		YahooCsvReader reader = new YahooCsvReader(in, YahooCsvReader.Type.CURRENT);
-		reader.read();
 		IOUtils.closeQuietly(in);
 
 		List<Price> prices = reader.getPrices();
 		assertEquals(1, prices.size());
-		assertEquals(new BigDecimal("5.61"), prices.get(0).getValue());
-		assertEquals(new BigDecimal("5.65"), prices.get(0).getOpen());
-		assertEquals(new BigDecimal("5.66"), prices.get(0).getHigh());
-		assertEquals(new BigDecimal("5.56"), prices.get(0).getLow());
-		assertEquals(new BigDecimal("5.61"), prices.get(0).getClose());
+		assertEquals(new BigDecimal("106.25"), prices.get(0).getValue());
+		assertEquals(new BigDecimal("101.90"), prices.get(0).getOpen());
+		assertEquals(new BigDecimal("106.20"), prices.get(0).getHigh());
+		assertEquals(new BigDecimal("101.75"), prices.get(0).getLow());
+		assertEquals(new BigDecimal("106.25"), prices.get(0).getClose());
 		Day date = prices.get(0).getDay();
-		assertEquals(new Day(2008, 0, 7), date);
+		assertEquals(new Day(2011, 1, 1), date);
 	}
 
 }

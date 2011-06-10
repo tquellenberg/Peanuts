@@ -1,8 +1,9 @@
 package de.tomsplayground.peanuts.domain.base;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Calendar;
+
+import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
@@ -13,16 +14,13 @@ import de.tomsplayground.util.Day;
 public class InventoryEntry {
 
 	private final Security security;
-	private final List<InvestmentTransaction> transactions = new ArrayList<InvestmentTransaction>();
 	private final IPriceProvider priceprovider;
-	private Day day;
 
-	public InventoryEntry(Security security, IPriceProvider priceprovider, Day day) {
+	private ImmutableList<InvestmentTransaction> transactions = ImmutableList.of();
+
+	public InventoryEntry(Security security, IPriceProvider priceprovider) {
 		this.security = security;
 		this.priceprovider = priceprovider;
-		this.day = day;
-		if (priceprovider != null && day == null)
-			throw new IllegalArgumentException("day");
 	}
 
 	public Security getSecurity() {
@@ -46,11 +44,11 @@ public class InventoryEntry {
 			throw new IllegalArgumentException("S:" + security.getName() + " != " +
 				t.getSecurity().getName());
 		}
-		transactions.add(t);
+		transactions = new ImmutableList.Builder<InvestmentTransaction>().addAll(transactions).add(t).build();
 	}
 
-	public List<InvestmentTransaction> getTransations() {
-		return new ArrayList<InvestmentTransaction>(transactions);
+	public ImmutableList<InvestmentTransaction> getTransactions() {
+		return transactions;
 	}
 
 	public BigDecimal getGaining() {
@@ -63,23 +61,30 @@ public class InventoryEntry {
 		}
 		return gaining;
 	}
+	
+	private Day adjustWorkday(Day d) {
+		int i = d.toCalendar().get(Calendar.DAY_OF_WEEK);
+		if (i == Calendar.SUNDAY)
+			return d.addDays(-2);
+		if (i == Calendar.SATURDAY)
+			return d.addDays(-1);
+		return d;
+	}
+	
+	public BigDecimal getChange(Day from, Day to) {
+		return getMarketValue(to).subtract(getMarketValue(adjustWorkday(from)));
+	}
 
-	public Price getPrice() {
+	public Price getPrice(Day day) {
 		if (priceprovider != null)
 			return priceprovider.getPrice(day);
 		return null;
 	}
 	
-	public BigDecimal getMarketValue() {
+	public BigDecimal getMarketValue(Day day) {
 		if (priceprovider != null && getQuantity().compareTo(BigDecimal.ZERO) != 0)
-			return getPrice().getValue().multiply(getQuantity());
+			return getPrice(day).getValue().multiply(getQuantity());
 		return BigDecimal.ZERO;
-	}
-
-	public void setDate(Day day) {
-		if (priceprovider != null && day == null)
-			throw new IllegalArgumentException("day");
-		this.day = day;
 	}
 
 	public IPriceProvider getPriceprovider() {
@@ -87,13 +92,12 @@ public class InventoryEntry {
 	}
 
 	private AnalyzedInvestmentTransaction getLastAnalyzedInvestmentTransaction() {
-		AnalyzedInvestmentTransaction result = null;
-		for (InvestmentTransaction t : transactions) {
+		for (InvestmentTransaction t : transactions.reverse()) {
 			if (t instanceof AnalyzedInvestmentTransaction) {
-				result = (AnalyzedInvestmentTransaction) t;
+				return (AnalyzedInvestmentTransaction) t;
 			}
 		}
-		return result;
+		return null;
 	}
 	
 	public BigDecimal getAvgPrice() {

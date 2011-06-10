@@ -1,11 +1,11 @@
 package de.tomsplayground.peanuts.domain.query;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Predicate;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.base.Category;
@@ -39,14 +39,13 @@ public class CategoryQuery implements IQuery {
 	}
 
 	@Override
-	public List<ITransaction> filter(List<ITransaction> trans) {
-		List<ITransaction> result = new ArrayList<ITransaction>();
-		for (ITransaction transaction : trans) {
-			if (isOkay(transaction.getCategory())) {
-				result.add(transaction);
+	public Predicate<ITransaction> getPredicate() {
+		return new Predicate<ITransaction>() {
+			@Override
+			public boolean apply(ITransaction input) {
+				return isOkay(input.getCategory());
 			}
-		}
-		return result;
+		};
 	}
-
+	
 }

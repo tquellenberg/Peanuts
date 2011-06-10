@@ -1,7 +1,8 @@
 package de.tomsplayground.peanuts.domain.process;
 
 import java.util.Currency;
-import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.util.Day;
 
@@ -9,7 +10,7 @@ public interface ITransferLocation {
 
 	Currency getCurrency();
 
-	List<ITransaction> getTransactionsByDate(Day date);
+	ImmutableList<ITransaction> getTransactionsByDate(Day date);
 
 	String getName();
 

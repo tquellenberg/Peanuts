@@ -3,7 +3,6 @@ package de.tomsplayground.peanuts.client.editors.account;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Calendar;
-import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -23,6 +22,10 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.widgets.CalculatorText;
@@ -85,6 +88,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 			}
 		}
 	};
+	private AutoCompleteField autoCompleteSecurity;
 	
 	public InvestmentTransactionDetails(Account account) {
 		this.account = account;
@@ -100,15 +104,8 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		group.setLayout(new GridLayout(2, true));
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
-		List<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
-		String securityNames[] = new String[securities.size()];
-		int i = 0;
-		for (Security sec : securities) {
-			securityNames[i++] = sec.getName();
-		}
 		security = new Text(group, SWT.SINGLE | SWT.BORDER);
-		@SuppressWarnings("unused")
-		AutoCompleteField autoCompleteSecurity = new AutoCompleteField(security, new TextContentAdapter(), securityNames);
+		autoCompleteSecurity = new AutoCompleteField(security, new TextContentAdapter(), new String[0]);
 		security.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 		date = new DateComposite(group, SWT.NONE);
@@ -177,6 +174,16 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		return detailComposit;
 	}
 
+	private String[] getSecurityNames() {
+		ImmutableList<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
+		return Collections2.transform(securities, new Function<Security, String>() {
+			@Override
+			public String apply(Security input) {
+				return input.getName();
+			}
+		}).toArray(new String[securities.size()]);
+	}
+
 	protected void readForm() {
 		try {
 			String securityName = security.getText();
@@ -227,6 +234,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 	@Override
 	public void setInput(Transaction transaction, Transaction parentTransaction) {
 		internalUpdate = true;
+		autoCompleteSecurity.setProposals(getSecurityNames());
 		this.transaction = (InvestmentTransaction) transaction;
 		this.parentTransaction = parentTransaction;
 		if (transaction == null) {

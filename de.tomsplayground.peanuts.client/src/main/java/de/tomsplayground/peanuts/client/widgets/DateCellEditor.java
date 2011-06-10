@@ -79,9 +79,9 @@ public class DateCellEditor extends CellEditor {
 	@Override
 	protected void doSetValue(Object value) {
 		Day cal = (Day)value;
-		dateTime.setYear(cal.getYear());
-		dateTime.setMonth(cal.getMonth());
-		dateTime.setDay(cal.getDay());
+		dateTime.setYear(cal.year);
+		dateTime.setMonth(cal.month);
+		dateTime.setDay(cal.day);
 	}
 
 	/**

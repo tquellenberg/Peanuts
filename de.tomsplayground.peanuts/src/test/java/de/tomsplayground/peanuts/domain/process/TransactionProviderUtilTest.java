@@ -1,13 +1,14 @@
 package de.tomsplayground.peanuts.domain.process;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.base.TransactionProviderUtil;
@@ -18,18 +19,26 @@ public class TransactionProviderUtilTest {
 
 	ITransactionProvider defaultprovider = new ITransactionProvider() {
 		@Override
-		public List<ITransaction> getTransactions() {
-			List<ITransaction> trList = new ArrayList<ITransaction>();
-			trList.add(new BankTransaction(new Day(2008, 0, 2), BigDecimal.ZERO, ""));
-			trList.add(new BankTransaction(new Day(2008, 0, 4), BigDecimal.ZERO, ""));
-			trList.add(new BankTransaction(new Day(2008, 0, 4), BigDecimal.ZERO, ""));
-			trList.add(new BankTransaction(new Day(2008, 0, 6), BigDecimal.ZERO, ""));
-			trList.add(new BankTransaction(new Day(2008, 0, 6), BigDecimal.ZERO, ""));
+		public ImmutableList<ITransaction> getTransactions() {
+			ImmutableList<ITransaction> trList = ImmutableList.<ITransaction>of(
+				new BankTransaction(new Day(2008, 0, 2), BigDecimal.ZERO, ""),
+				new BankTransaction(new Day(2008, 0, 4), BigDecimal.ZERO, ""),
+				new BankTransaction(new Day(2008, 0, 4), BigDecimal.ZERO, ""),
+				new BankTransaction(new Day(2008, 0, 6), BigDecimal.ZERO, ""),
+				new BankTransaction(new Day(2008, 0, 6), BigDecimal.ZERO, ""));
 			return trList;
 		}
 		@Override
-		public List<ITransaction> getTransactionsByDate(Day from, Day to) {
+		public ImmutableList<ITransaction> getTransactionsByDate(Day from, Day to) {
 			return null;
+		}
+		@Override
+		public Day getMaxDate() {
+			return new Day(2008, 0, 6);
+		}
+		@Override
+		public Day getMinDate() {
+			return new Day(2008, 0, 2);
 		}
 	};
 	
@@ -37,11 +46,19 @@ public class TransactionProviderUtilTest {
 	public void emptylist() throws Exception {
 		ITransactionProvider provider = new ITransactionProvider() {
 			@Override
-			public List<ITransaction> getTransactions() {
-				return Collections.emptyList();
+			public ImmutableList<ITransaction> getTransactions() {
+				return ImmutableList.of();
 			}
 			@Override
-			public List<ITransaction> getTransactionsByDate(Day from, Day to) {
+			public ImmutableList<ITransaction> getTransactionsByDate(Day from, Day to) {
+				return null;
+			}
+			@Override
+			public Day getMaxDate() {
+				return null;
+			}
+			@Override
+			public Day getMinDate() {
 				return null;
 			}
 		};

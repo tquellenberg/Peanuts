@@ -11,17 +11,17 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 
+import com.google.common.collect.ImmutableList;
+
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.Account;
 
 public class AccountComposite extends Composite {
 
-	@SuppressWarnings("unused")
-	private Account account;
 	private Button accountButton;
 	private Combo accountCombo;
 
-	public AccountComposite(Composite parent, int style) {
+	public AccountComposite(Composite parent, int style, Account disabledAccount) {
 		super(parent, style);
 		GridLayout gridLayout = new GridLayout(2, false);
 		gridLayout.horizontalSpacing = 0;
@@ -38,13 +38,13 @@ public class AccountComposite extends Composite {
 		accountCombo.add("");
 		List<Account> accounts = Activator.getDefault().getAccountManager().getAccounts();
 		for (Account acc : accounts) {
-			accountCombo.add(acc.getName());
+			if (acc != disabledAccount)
+				accountCombo.add(acc.getName());
 		}
 		accountCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 	}
 
 	public void setAccount(Account account) {
-		this.account = account;
 		if (account == null) {
 			accountCombo.setText("");
 		} else {
@@ -53,7 +53,7 @@ public class AccountComposite extends Composite {
 	}
 
 	public Account getAccount() {
-		List<Account> accounts = Activator.getDefault().getAccountManager().getAccounts();
+		ImmutableList<Account> accounts = Activator.getDefault().getAccountManager().getAccounts();
 		String accountName = accountCombo.getText();
 		for (Account acc : accounts) {
 			if (acc.getName().equals(accountName))
@@ -69,4 +69,5 @@ public class AccountComposite extends Composite {
 	public void removeSelectionListener(SelectionListener listener) {
 		accountCombo.removeSelectionListener(listener);
 	}
+
 }

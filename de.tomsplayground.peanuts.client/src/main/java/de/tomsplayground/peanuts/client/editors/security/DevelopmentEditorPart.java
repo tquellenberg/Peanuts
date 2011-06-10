@@ -7,7 +7,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -135,8 +134,7 @@ public class DevelopmentEditorPart extends EditorPart implements IPersistableEdi
 		development(result, prices, Calendar.YEAR, -3, "Three years");
 		development(result, prices, Calendar.YEAR, -5, "Five years");
 		
-		Map<String, String> displayConfiguration = ((SecurityEditorInput) getEditorInput()).getSecurity().getDisplayConfiguration();
-		String stopLossValue = displayConfiguration.get("STOPLOSS");
+		String stopLossValue = security.getConfigurationValue("STOPLOSS");
 		if (StringUtils.isNotEmpty(stopLossValue)) {
 			try {
 				BigDecimal stopLoss = PeanutsUtil.parseQuantity(stopLossValue);

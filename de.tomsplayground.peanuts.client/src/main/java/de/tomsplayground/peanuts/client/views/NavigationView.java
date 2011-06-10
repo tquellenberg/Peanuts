@@ -58,6 +58,7 @@ import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.reporting.forecast.Forecast;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
@@ -67,8 +68,16 @@ public class NavigationView extends ViewPart {
 	public static final String ID = "de.tomsplayground.peanuts.client.navigationView";
 
 	private TreeViewer viewer;
+	private TreeParent root = new TreeParent("");
 
-	private PropertyChangeListener propertyChangeListener;
+
+	private PropertyChangeListener nameChangesListener = new PropertyChangeListener() {
+		
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			viewer.update(evt.getSource(), null);
+		}
+	};
 
 	IWorkbenchAdapter workbenchAdapter = new IWorkbenchAdapter() {
 
@@ -92,6 +101,8 @@ public class NavigationView extends ViewPart {
 			return ((TreeObject) o).getParent();
 		}
 	};
+
+	private PropertyChangeListener propertyChangeListener;
 	
 	class TreeObject {
 		private String name;
@@ -213,12 +224,25 @@ public class NavigationView extends ViewPart {
 			return false;
 		}
 	}
+	
+	private void destroyModel(TreeObject element) {
+		if (element.getBaseObject() != null && element.getBaseObject() instanceof ObservableModelObject) {
+			((ObservableModelObject)element.getBaseObject()).removePropertyChangeListener(nameChangesListener);
+		}
+		if (element instanceof TreeParent) {
+			TreeParent parent = (TreeParent)element;
+			TreeObject[] children = parent.getChildren();
+			for (TreeObject treeObject : children) {
+				destroyModel(treeObject);
+				parent.removeChild(treeObject);
+			}
+		}
+	}
 
 	private TreeObject createModel() {
-		TreeParent root = new TreeParent("");
-
+		destroyModel(root);
+		
 		AccountManager accountManager = Activator.getDefault().getAccountManager();
-
 		addElements(root, "Accounts", accountManager.getAccounts());
 		addElements(root, "Securities", accountManager.getSecurities());
 		addElements(root, "Reports", accountManager.getReports());
@@ -229,12 +253,15 @@ public class NavigationView extends ViewPart {
 		return root;
 	}
 
-	private void addElements(TreeParent root, String name, List<? extends INamedElement> elements) {
-		TreeParent parent = new TreeParent(name);
+	private void addElements(TreeParent parent, String groupName, List<? extends INamedElement> elements) {
+		TreeParent group = new TreeParent(groupName);
 		for (INamedElement element : elements) {
-			parent.addChild(new TreeObject(element.getName(), element));
+			group.addChild(new TreeObject(element.getName(), element));
+			if (element instanceof ObservableModelObject) {
+				((ObservableModelObject) element).addPropertyChangeListener("name", nameChangesListener);
+			}
 		}
-		root.addChild(parent);		
+		parent.addChild(group);		
 	}
 	
 	@Override
@@ -380,6 +407,7 @@ public class NavigationView extends ViewPart {
 
 	@Override
 	public void dispose() {
+		destroyModel(root);
 		Activator.getDefault().getAccountManager().removePropertyChangeListener(propertyChangeListener);
 		super.dispose();
 	}

@@ -4,11 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
-import java.net.URL;
-import java.text.ParseException;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -19,17 +15,21 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import au.com.bytecode.opencsv.CSVWriter;
+import de.tomsplayground.peanuts.app.csv.GoogleCsvPriceProvider;
 import de.tomsplayground.peanuts.app.csv.YahooCsvReader;
+import de.tomsplayground.peanuts.app.csv.YahooCsvReader.Type;
 import de.tomsplayground.peanuts.domain.base.Security;
 
 public class PriceProviderFactory implements IPriceProviderFactory {
+
+	private static final String GOOGLE_PREFIX = "Google:";
 
 	final static Logger log = Logger.getLogger(PriceProviderFactory.class);
 	
 	private static String localPriceStorePath = ".";
 	private static PriceProviderFactory priceProviderFactory;
 	
-	private Map<Security, IPriceProvider> priceProviderMap = new HashMap<Security, IPriceProvider>();
+	private final Map<Security, IPriceProvider> priceProviderMap = new HashMap<Security, IPriceProvider>();
 	
 	private PriceProviderFactory() {
 		// private constructor
@@ -57,13 +57,21 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 	public void refresh(Security security) {
 		if (StringUtils.isNotBlank(security.getTicker())) {
 			IPriceProvider localPriceProvider = getPriceProvider(security);
-			IPriceProvider remotePriceProvider = readHistoricalPricesFromYahoo(security);
-			if (remotePriceProvider != null) {
-				mergePrices(localPriceProvider, remotePriceProvider);
-			}
-			IPriceProvider remotePriceProvider2 = readLastPricesFromYahoo(security);
-			if (remotePriceProvider2 != null) {
-				mergePrices(localPriceProvider, remotePriceProvider2);
+			if (security.getTicker().startsWith(GOOGLE_PREFIX)) {
+				String ticker = StringUtils.removeStart(security.getTicker(), GOOGLE_PREFIX);
+				IPriceProvider remotePriceProvider = readHistoricalPricesFromGoogle(ticker);
+				if (remotePriceProvider != null) {
+					mergePrices(localPriceProvider, remotePriceProvider);
+				}
+			} else {
+				IPriceProvider remotePriceProvider = readHistoricalPricesFromYahoo(security);
+				if (remotePriceProvider != null) {
+					mergePrices(localPriceProvider, remotePriceProvider);
+				}
+				IPriceProvider remotePriceProvider2 = readLastPricesFromYahoo(security);
+				if (remotePriceProvider2 != null) {
+					mergePrices(localPriceProvider, remotePriceProvider2);
+				}
 			}
 			saveToLocal(security, localPriceProvider);
 		}		
@@ -79,12 +87,10 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 	}
 	
 	protected IPriceProvider buildPriceProvider(String csv) {
-		YahooCsvReader reader = new YahooCsvReader(new StringReader(csv));
+		IPriceProvider reader;
 		try {
-			reader.read();
+			reader = new YahooCsvReader(new StringReader(csv));
 		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} catch (ParseException e) {
 			throw new RuntimeException(e);
 		}
 		return reader;
@@ -140,39 +146,30 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		}
 	}
 	
-	protected IPriceProvider readHistoricalPricesFromYahoo(Security security) {
-		Calendar today = Calendar.getInstance();
-		InputStream stream = null;
+	protected IPriceProvider readHistoricalPricesFromGoogle(String ticker) {
 		try {
-			URL url = new URL("http://ichart.finance.yahoo.com/table.csv?g=d&a=0&b=3&c=2000" +
-				"&d=" + today.get(Calendar.MONTH) + "&e=" + today.get(Calendar.DAY_OF_MONTH) +
-				"&f=" + today.get(Calendar.YEAR) + "&s=" + security.getTicker());
-			stream = url.openStream();
-			return buildPriceProvider(IOUtils.toString(stream));
+			return new GoogleCsvPriceProvider(ticker);
 		} catch (IOException e) {
 			log.error("", e);
 			return null;
-		} finally {
-			IOUtils.closeQuietly(stream);
+		}
+	}
+
+	protected IPriceProvider readHistoricalPricesFromYahoo(Security security) {
+		try {
+			return YahooCsvReader.forTicker(security.getTicker(), Type.HISTORICAL);
+		} catch (IOException e) {
+			log.error("", e);
+			return null;
 		}
 	}
 
 	protected IPriceProvider readLastPricesFromYahoo(Security security) {
-		InputStream stream = null;
 		try {
-			URL url = new URL("http://de.old.finance.yahoo.com/d/quotes.csv?f=sl1d1t1c1ohgv" +
-				"&s=" + security.getTicker());
-			stream = url.openStream();
-			String str = IOUtils.toString(stream);
-			YahooCsvReader yahooCsvReader = new YahooCsvReader(new StringReader(str), YahooCsvReader.Type.CURRENT);
-			yahooCsvReader.read();
-			return yahooCsvReader;
+			return YahooCsvReader.forTicker(security.getTicker(), Type.CURRENT);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} catch (ParseException e) {
-			throw new RuntimeException(e);
-		} finally {
-			IOUtils.closeQuietly(stream);
+			log.error("", e);
+			return null;
 		}
 	}
 

@@ -2,6 +2,8 @@ package de.tomsplayground.peanuts.domain.process;
 
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 import de.tomsplayground.util.Day;
 
 
@@ -9,9 +11,9 @@ public interface IPriceProvider {
 
 	String getName();
 
-	List<Price> getPrices();
+	ImmutableList<Price> getPrices();
 
-	List<Price> getPrices(Day from, Day to);
+	ImmutableList<Price> getPrices(Day from, Day to);
 	
 	Price getPrice(Day date);
 	

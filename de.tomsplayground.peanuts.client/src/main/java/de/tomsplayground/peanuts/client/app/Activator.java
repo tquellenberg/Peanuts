@@ -11,7 +11,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.net.URL;
 import java.security.GeneralSecurityException;
 
 import javax.crypto.Cipher;
@@ -24,6 +23,7 @@ import javax.crypto.spec.PBEParameterSpec;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -34,7 +34,6 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import de.tomsplayground.peanuts.app.quicken.QifReader;
 import de.tomsplayground.peanuts.client.util.PeanutsAdapterFactory;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
@@ -48,6 +47,13 @@ import de.tomsplayground.peanuts.persistence.xstream.PersistenceService;
  */
 public class Activator extends AbstractUIPlugin {
 
+	private static final String EXAMPLE_FILENAME = "example.bpx";
+	private static final String EXAMPLE = "<EXAMPLE>";
+	
+	public static final String FILE_EXTENSION_XML = "bpx";
+	public static final String FILE_EXTENSION_SECURE = "bps";
+	public static final String[] ALL_FILE_PATTERN = new String[]{"*."+FILE_EXTENSION_SECURE, "*."+FILE_EXTENSION_XML};
+	
 	public static final String IMAGE_SECURITY = "security";
 	public static final String IMAGE_SECURITYCATEGORY = "security_category";
 	public static final String IMAGE_ACCOUNT = "account";
@@ -58,9 +64,12 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_REPORT = "report";
 	public static final String IMAGE_FORECAST = "forecast";
 	public static final String IMAGE_CREDIT = "credit";
+	public static final String IMAGE_LOAD_FILE = "load_file";
 
-	private static final String COM_TQ_FILENAME = "com.tq.filename";
+	public static final String FILENAME_PROPERTY = "com.tq.filename";
+	private static final String SECURITYPRICEPATH_PROPERTY = "securitypricepath";
 
+	private static final int ITERATIONS = 20;
 	private static final String ALGORITHM = "PBEWithMD5AndDES";
 	private static final byte[] SALT = new byte[]{0x3f, 0x5e, 0x7a, 0x56, 0x35, 0x57, 0x71, 0x59};
 
@@ -71,10 +80,10 @@ public class Activator extends AbstractUIPlugin {
 
 	// The shared instance
 	private static Activator plugin;
+	private static ColorProvider colorProvider;
 
 	private AccountManager accountManager;
 	private String passphrase;
-	private static ColorProvider colorProvider;
 
 	/**
 	 * The constructor
@@ -100,22 +109,22 @@ public class Activator extends AbstractUIPlugin {
 		if (! dir.exists()) {
 			dir.mkdir();
 		}
-		getPreferenceStore().setDefault("securitypricepath", dir.getAbsolutePath());
+		getPreferenceStore().setDefault(SECURITYPRICEPATH_PROPERTY, dir.getAbsolutePath());
 
-		PriceProviderFactory.setLocalPriceStorePath(getPreferenceStore().getString("securitypricepath"));
+		PriceProviderFactory.setLocalPriceStorePath(getPreferenceStore().getString(SECURITYPRICEPATH_PROPERTY));
 		
 		getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {			
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				System.out
-						.println("Activator.start(...).new IPropertyChangeListener() {...}.propertyChange()" + event);
-				System.out.println(event.getProperty());
-				System.out.println(event.getNewValue());
-				if (event.getProperty().equals("securitypricepath")) {
+				if (event.getProperty().equals(SECURITYPRICEPATH_PROPERTY)) {
 					PriceProviderFactory.setLocalPriceStorePath((String)event.getNewValue());
 				}
 			}
 		});
+
+		if (StringUtils.isBlank(getFilename())) {
+			setFilename(EXAMPLE);
+		}
 	}
 
 	@Override
@@ -130,6 +139,7 @@ public class Activator extends AbstractUIPlugin {
 		getImageRegistry().put(IMAGE_REPORT, getImageDescriptor("icons/book.png"));
 		getImageRegistry().put(IMAGE_FORECAST, getImageDescriptor("icons/weather_cloudy.png"));
 		getImageRegistry().put(IMAGE_CREDIT, getImageDescriptor("icons/script.png"));
+		getImageRegistry().put(IMAGE_LOAD_FILE, getImageDescriptor("icons/database_go.png"));
 	}
 
 	public synchronized ColorProvider getColorProvider() {
@@ -138,13 +148,12 @@ public class Activator extends AbstractUIPlugin {
 		return colorProvider;
 	}
 	
-	private OutputStream writeSecure(String passphrase, File file) {
+	private OutputStream writeSecure(File file) {
 		try {
-			int iterations = 20;
 			PBEKeySpec keySpec = new PBEKeySpec(passphrase.toCharArray());
 			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(ALGORITHM);
 			SecretKey secret = keyFactory.generateSecret(keySpec);
-			PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(SALT, iterations);
+			PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(SALT, ITERATIONS);
 			
 			Cipher cipher = Cipher.getInstance(ALGORITHM);
 			cipher.init(Cipher.ENCRYPT_MODE, secret, pbeParameterSpec);
@@ -157,13 +166,12 @@ public class Activator extends AbstractUIPlugin {
 		}
 	}
 	
-	private InputStream readSecure(String passphrase, File file) {
+	private InputStream readSecure(File file) {
 		try {
-			int iterations = 20;
 			PBEKeySpec keySpec = new PBEKeySpec(passphrase.toCharArray());
 			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(ALGORITHM);
 			SecretKey secret = keyFactory.generateSecret(keySpec);
-			PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(SALT, iterations);
+			PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(SALT, ITERATIONS);
 			
 			Cipher cipher = Cipher.getInstance(ALGORITHM);
 			cipher.init(Cipher.DECRYPT_MODE, secret, pbeParameterSpec);
@@ -177,40 +185,56 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	public void load(String filename) throws IOException {
-		// Load file
-		Persistence persistence = new Persistence();
-		persistence.setPersistenceService(new PersistenceService());
 		Reader reader;
-		if (new File(filename+"s").canRead()) {
-			System.out.println("Activator.load() SECURE");
-			reader = new InputStreamReader(readSecure(passphrase, new File(filename+"s")), "UTF-8");			
+		if (filename.equals(EXAMPLE)) {
+			reader = new InputStreamReader(AccountManager.class.getResourceAsStream("/"+EXAMPLE_FILENAME), "UTF-8");
 		} else {
-			System.out.println("Activator.load() UNSECURE");
-			reader = new InputStreamReader(new FileInputStream(new File(filename)), "UTF-8");
+			File file = new File(filename);
+			if (! file.exists()) {
+				setFilename(filename);				
+				accountManager = new AccountManager();
+				return;
+			}
+			if (filename.endsWith("."+FILE_EXTENSION_SECURE)) {
+				reader = new InputStreamReader(readSecure(file), "UTF-8");
+			} else {
+				reader = new InputStreamReader(new FileInputStream(file), "UTF-8");
+			}
 		}
-		accountManager = persistence.read(reader);
-		IOUtils.closeQuietly(reader);
-		// Save filename in pref store
-		getPreferenceStore().setValue(COM_TQ_FILENAME, filename);
-		((IPersistentPreferenceStore) getPreferenceStore()).save();
+		try {
+			Persistence persistence = new Persistence();
+			persistence.setPersistenceService(new PersistenceService());
+			accountManager = persistence.read(reader);
+			if (filename.equals(EXAMPLE)) {
+				setFilename(System.getProperty("user.home") + File.separator + EXAMPLE_FILENAME);
+			} else {
+				setFilename(filename);				
+			}
+		} finally {
+			IOUtils.closeQuietly(reader);
+		}
 	}
 	
 	public void save(String filename) throws IOException {
 		// Save copy of old file
-		if (new File(filename+"s").exists()) {
-			File bakFile = new File(filename+"s.bak");
+		File file = new File(filename);
+		if (file.exists()) {
+			File bakFile = new File(filename+".bak");
 			bakFile.delete();
-			FileUtils.copyFile(new File(filename+"s"), bakFile);
+			FileUtils.copyFile(file, bakFile);
+		}
+		Writer writer;
+		if (filename.endsWith("."+FILE_EXTENSION_SECURE)) {
+			writer = new OutputStreamWriter(writeSecure(file), "UTF-8");
+		} else {
+			writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
 		}
 		// Save data
 		Persistence persistence = new Persistence();
 		persistence.setPersistenceService(new PersistenceService());
-		Writer securewriter = new OutputStreamWriter(writeSecure(passphrase, new File(filename+"s")), "UTF-8");
-		persistence.write(securewriter, accountManager);
-		IOUtils.closeQuietly(securewriter);
-		// Save filename in pref store
-		getPreferenceStore().setValue(COM_TQ_FILENAME, filename);
-		((IPersistentPreferenceStore) getPreferenceStore()).save();
+		persistence.write(writer, accountManager);
+		IOUtils.closeQuietly(writer);
+		setFilename(filename);
 	}
 
 	/*
@@ -222,7 +246,9 @@ public class Activator extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		if (colorProvider != null)
 			colorProvider.dispose();
-		save(getPreferenceStore().getString(COM_TQ_FILENAME));
+		if (accountManager != null) {
+			save(getFilename());
+		}
 		plugin = null;
 		super.stop(context);
 	}
@@ -247,35 +273,6 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	public AccountManager getAccountManager() {
-		if (accountManager == null) {
-			System.out.println("Activator.getAccountManager()");
-			String filename = getPreferenceStore().getString(COM_TQ_FILENAME);
-			System.out.println("Activator.getAccountManager()" + filename);
-			if (filename.length() > 0) {
-				try {
-					load(filename);
-				} catch (Exception e) {
-					e.printStackTrace();
-					accountManager = new AccountManager();
-				}
-			} else {
-				accountManager = new AccountManager();
-				URL url = AccountManager.class.getResource("/example.QIF");
-				InputStream inStream = null;
-				try {
-					inStream = url.openStream();
-					QifReader reader = new QifReader();
-					reader.setAccountManager(accountManager);
-					reader.read(new InputStreamReader(inStream, "ISO-8859-1"));
-					getPreferenceStore().setValue(COM_TQ_FILENAME, "example.bpx");
-					((IPersistentPreferenceStore) getPreferenceStore()).save();
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				} finally {
-					IOUtils.closeQuietly(inStream);
-				}
-			}
-		}
 		return accountManager;
 	}
 
@@ -289,5 +286,14 @@ public class Activator extends AbstractUIPlugin {
 
 	public void setPassPhrase(String password) {
 		this.passphrase = password;
+	}
+
+	private void setFilename(String filename) throws IOException {
+		getPreferenceStore().setValue(FILENAME_PROPERTY, filename);
+		((IPersistentPreferenceStore) getPreferenceStore()).save();
+	}
+	
+	public String getFilename() {
+		return getPreferenceStore().getString(FILENAME_PROPERTY);
 	}
 }

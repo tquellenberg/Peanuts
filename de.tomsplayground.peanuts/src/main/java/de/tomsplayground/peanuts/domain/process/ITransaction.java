@@ -1,7 +1,8 @@
 package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
-import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.domain.base.Category;
 
@@ -13,7 +14,7 @@ public interface ITransaction extends ITimedElement {
 
 	String getMemo();
 
-	List<ITransaction> getSplits();
+	ImmutableList<ITransaction> getSplits();
 
 	void setCategory(Category categoryTo);
 

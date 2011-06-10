@@ -5,6 +5,8 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
@@ -14,7 +16,7 @@ import de.tomsplayground.util.Day;
 
 public class PerformanceAnalyzer {
 
-	private List<Value> values = new ArrayList<Value>();
+	private ImmutableList<Value> values = ImmutableList.of();
 	private final IPriceProviderFactory priceProviderFactory;
 	private final Account account;
 
@@ -81,16 +83,16 @@ public class PerformanceAnalyzer {
 	}
 	
 	private void buidMarketValues() {
-		values.clear();
-		if (account.getTransactions().isEmpty())
+		if (account.getMinDate() == null)
 			return;
-		int year = account.getTransactions().get(0).getDay().getYear();
-		int endYear = account.getTransactions().get(account.getTransactions().size() - 1).getDay().getYear();
+		int year = account.getMinDate().year;
+		int endYear = account.getMaxDate().year;
 		Day now = new Day();
-		if (endYear < now.getYear()) {
-			endYear = now.getYear();
+		if (endYear < now.year) {
+			endYear = now.year;
 		}
 		Inventory inventory = new Inventory(account, priceProviderFactory);
+		List<Value> elements = new ArrayList<PerformanceAnalyzer.Value>();
 		for (; year <= endYear; year++) {
 			Day r1 = new Day(year-1, 11, 31);
 			Day r2 = new Day(year, 11, 31);
@@ -100,15 +102,16 @@ public class PerformanceAnalyzer {
 			BigDecimal marketValue2 = inventory.getMarketValue().add(account.getBalance(r2));
 			Value value = new Value(year, marketValue1, marketValue2);
 			calculateAdditionLeaving(r1, r2,  value);
-			values.add(value);
+			elements.add(value);
 		}
+		values = ImmutableList.copyOf(elements);
 	}
 
 	private void calculateAdditionLeaving(Day from, Day to, Value value) {
-		List<ITransaction> list = account.getTransactionsByDate(from, to);
+		ImmutableList<ITransaction> list = account.getTransactionsByDate(from, to);
 		for (ITransaction transaction : list) {
-			if (! transaction.getSplits().isEmpty()) {
-				List<ITransaction> splits = transaction.getSplits();
+			ImmutableList<ITransaction> splits = transaction.getSplits();
+			if (! splits.isEmpty()) {
 				for (ITransaction transaction2 : splits) {
 					if (transaction2 instanceof TransferTransaction) {
 						value.add(transaction2.getDay(), transaction2.getAmount());
@@ -121,7 +124,7 @@ public class PerformanceAnalyzer {
 		value.add(to, BigDecimal.ZERO);
 	}
 
-	public List<Value> getValues() {
+	public ImmutableList<Value> getValues() {
 		return values;
 	}
 }

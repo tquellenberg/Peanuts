@@ -33,6 +33,7 @@ public class SecurityEditor extends MultiPageEditorPart implements IPersistableE
 	protected void createPages() {
 		createEditorPage(new ChartEditorPart(), "Chart");
 		createEditorPage(new PriceEditorPart(), "Prices");
+		createEditorPage(new ScrapingEditorPart(), "Scraping");
 		createEditorPage(new DevelopmentEditorPart(), "Development");
 	}
 

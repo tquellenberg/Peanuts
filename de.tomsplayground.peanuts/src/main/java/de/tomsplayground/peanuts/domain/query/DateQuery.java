@@ -1,9 +1,9 @@
 package de.tomsplayground.peanuts.domain.query;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.process.ITransaction;
@@ -71,18 +71,17 @@ public class DateQuery implements IQuery {
 	}
 
 	@Override
-	public List<ITransaction> filter(List<ITransaction> trans) {
+	public Predicate<ITransaction> getPredicate() {
 		if (timeRange == TimeRange.ALL) {
-			return trans;
+			return Predicates.alwaysTrue();
 		}
 		calculateDates();
-		List<ITransaction> result = new ArrayList<ITransaction>();
-		for (ITransaction transaction : trans) {
-			if (isOkay(transaction)) {
-				result.add(transaction);
+		return new Predicate<ITransaction>() {
+			@Override
+			public boolean apply(ITransaction input) {
+				return isOkay(input);
 			}
-		}
-		return result;
+		};
 	}
-
+	
 }

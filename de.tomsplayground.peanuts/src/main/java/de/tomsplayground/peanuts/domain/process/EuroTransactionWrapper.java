@@ -3,9 +3,11 @@ package de.tomsplayground.peanuts.domain.process;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.Currency;
-import java.util.List;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.domain.base.Category;
 import de.tomsplayground.peanuts.domain.base.CurrencyManager;
@@ -13,8 +15,8 @@ import de.tomsplayground.util.Day;
 
 public class EuroTransactionWrapper implements ITransaction {
 
-	private ITransaction transaction;
-	private Currency currency;
+	private final ITransaction transaction;
+	private final Currency currency;
 	private BigDecimal euroAmount;
 
 	public EuroTransactionWrapper(ITransaction transaction, Currency currency) {
@@ -47,12 +49,13 @@ public class EuroTransactionWrapper implements ITransaction {
 	}
 
 	@Override
-	public List<ITransaction> getSplits() {
-		List<ITransaction> wrapped = new ArrayList<ITransaction>();
-		for (ITransaction t :transaction.getSplits()) {
-			wrapped.add(new EuroTransactionWrapper(t, currency));
-		}
-		return wrapped;
+	public ImmutableList<ITransaction> getSplits() {
+		return ImmutableList.<ITransaction>copyOf(Collections2.transform(transaction.getSplits(), new Function<ITransaction, EuroTransactionWrapper>() {
+			@Override
+			public EuroTransactionWrapper apply(ITransaction input) {
+				return new EuroTransactionWrapper(input, currency);
+			}
+		}));
 	}
 
 	@Override

@@ -20,6 +20,7 @@ import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 
 import de.tomsplayground.peanuts.client.actions.LoadAction;
+import de.tomsplayground.peanuts.client.actions.SaveAction;
 import de.tomsplayground.peanuts.client.quicken.QifImportAction;
 
 
@@ -37,6 +38,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	private RetargetAction refreshAction;
 	private IWorkbenchAction closeAction;
 	private IWorkbenchAction saveAction;
+	private Action saveAsAction;
 	private Action loadAction;
 	private IWorkbenchAction quitAction;
 	private IWorkbenchAction propertiesAction;
@@ -72,9 +74,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		qifImportAction.setText("QIF Import");
 		register(qifImportAction);
 
-//		saveAction = new SaveAction(window);
-//		saveAction.setText("Save");
-//		register(saveAction);
+		saveAsAction = new SaveAction(window);
+		saveAsAction.setText("Save as");
+		register(saveAsAction);
 
 		loadAction = new LoadAction(window);
 		loadAction.setText("Load");
@@ -107,6 +109,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		// File
 		fileMenu.add(loadAction);
 		fileMenu.add(saveAction);
+		fileMenu.add(saveAsAction);
 		fileMenu.add(new Separator());
 		fileMenu.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
 		fileMenu.add(closeAction);

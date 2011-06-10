@@ -2,7 +2,6 @@ package de.tomsplayground.peanuts.client.views;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.HashSet;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -42,7 +41,6 @@ import de.tomsplayground.peanuts.client.editors.report.ReportEditor;
 import de.tomsplayground.peanuts.client.editors.report.ReportEditorInput;
 import de.tomsplayground.peanuts.client.widgets.CategoryContentProvider;
 import de.tomsplayground.peanuts.client.widgets.CategoryLabelProvider;
-import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.Category;
 import de.tomsplayground.peanuts.domain.base.Category.Type;
 import de.tomsplayground.peanuts.domain.query.CategoryQuery;
@@ -134,7 +132,7 @@ public class CategoryTreeView extends ViewPart {
 			public void open(OpenEvent event) {
 				Category cat = (Category) ((IStructuredSelection) event.getSelection()).getFirstElement();
 				Report report = new Report(cat.getName());
-				report.setAccounts(new HashSet<Account>(Activator.getDefault().getAccountManager().getAccounts()));
+				report.setAccounts(Activator.getDefault().getAccountManager().getAccounts());
 				report.addQuery(new CategoryQuery(cat));
 				ReportEditorInput input = new ReportEditorInput(report);
 				IWorkbenchWindow activeWorkbenchWindow = getSite().getWorkbenchWindow();

@@ -13,9 +13,9 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 
 	public final static Day ZERO = new Day(0, 0, 1);
 	
-	private final int day;
-	private final int month;
-	private final int year;
+	public final int day;
+	public final int month;
+	public final int year;
 
 	public static Day fromCalendar(Calendar cal) {
 		return new Day(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
@@ -57,18 +57,6 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 		this.year = year;
 	}
 
-	public int getDay() {
-		return day;
-	}
-
-	public int getMonth() {
-		return month;
-	}
-
-	public int getYear() {
-		return year;
-	}
-
 	public Calendar toCalendar() {
 		Calendar cal = Calendar.getInstance();
 		cal.clear();
@@ -82,7 +70,7 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 			return true;
 		if (obj instanceof Day) {
 			Day d = (Day) obj;
-			return year == d.year && month == d.month && day == d.day;
+			return day == d.day && month == d.month && year == d.year;
 		}
 		return false;
 	}

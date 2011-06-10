@@ -4,13 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 
 import org.eclipse.jface.dialogs.IPageChangingListener;
 import org.eclipse.jface.dialogs.PageChangingEvent;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
+
+import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.app.quicken.QifReader;
 import de.tomsplayground.peanuts.client.app.Activator;
@@ -58,7 +59,7 @@ public class QifWizard extends Wizard implements IPageChangingListener {
 		AccountManager accountManager = Activator.getDefault().getAccountManager();
 		accountManager.reset();
 
-		List<Account> accounts = dummyAccountManager.getAccounts();
+		ImmutableList<Account> accounts = dummyAccountManager.getAccounts();
 		for (Account account : accounts) {
 			Account a = accountManager.getOrCreateAccount(account.getName(), account.getType());
 			a.setCurrency(account.getCurrency());

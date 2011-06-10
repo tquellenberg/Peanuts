@@ -2,6 +2,7 @@ package de.tomsplayground.peanuts.persistence.xstream;
 
 import java.io.StringWriter;
 
+import com.google.common.collect.ImmutableList;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.extended.ISO8601GregorianCalendarConverter;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
@@ -29,7 +30,10 @@ public class PersistenceService implements IPersistenceService {
 
 	public PersistenceService() {
 		stream = new XStream();
+		stream.aliasType("immutableList", ImmutableList.class);
 		stream.setMode(XStream.ID_REFERENCES);
+		stream.addDefaultImplementation(DummyImmutableList.class, ImmutableList.class);
+		stream.registerConverter(new ImmutableListConverter(stream.getMapper()));
 		stream.registerConverter(new ISO8601GregorianCalendarConverter());
 		stream.processAnnotations(new Class[]{
 				Account.class,

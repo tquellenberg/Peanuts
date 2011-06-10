@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.Currency;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -15,6 +16,7 @@ import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
@@ -42,6 +44,7 @@ import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
+import de.tomsplayground.util.Day;
 
 public class DetailPart extends EditorPart implements IPersistableEditor {
 
@@ -65,7 +68,7 @@ public class DetailPart extends EditorPart implements IPersistableEditor {
 					for (InventoryEntry inventoryEntry : entries) {
 						if (inventoryEntry.getSecurity().equals(element)) {
 							// FIXME: Reports und Inventories brauchen eine Währung
-							return PeanutsUtil.formatCurrency(inventoryEntry.getMarketValue(), Currency.getInstance("EUR"));
+							return PeanutsUtil.formatCurrency(inventoryEntry.getMarketValue(new Day()), Currency.getInstance("EUR"));
 						}
 					}
 				}
@@ -79,9 +82,10 @@ public class DetailPart extends EditorPart implements IPersistableEditor {
 		}
 	}
 
-	public static class ContentProvider implements ITreeContentProvider {
+	public class ContentProvider implements ITreeContentProvider {
 
-		private SecurityCategoryMapping mapping;
+		private static final String WITHOUT_CATEGORY = "Without category";
+		private SecurityCategoryMapping content;
 
 		@Override
 		public void dispose() {
@@ -95,15 +99,26 @@ public class DetailPart extends EditorPart implements IPersistableEditor {
 
 		@Override
 		public Object[] getElements(Object inputElement) {
-			mapping = (SecurityCategoryMapping)inputElement;
-			return mapping.getCategories().toArray(new String[0]);
+			content = (SecurityCategoryMapping)inputElement;
+			List<String> categories = content.getCategories();
+			if (CollectionUtils.isSubCollection(inventory.getSecurities(), content.getAllSecurities())) {
+				categories.add(WITHOUT_CATEGORY);
+			}
+			return categories.toArray(new String[0]);
 		}
 
 		@Override
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof String) {
 				String category = (String) parentElement;
-				List<Security> securities = new ArrayList<Security>(mapping.getSecuritiesByCategory(category));
+				List<Security> securities;
+				if (category.equals(WITHOUT_CATEGORY)) {
+					securities = new ArrayList<Security>(inventory.getSecurities());
+					securities.removeAll(content.getAllSecurities());
+				} else {
+					securities = new ArrayList<Security>(content.getSecuritiesByCategory(category));
+					securities.retainAll(inventory.getSecurities());
+				}
 				Collections.sort(securities, new Comparator<Security>() {
 					@Override
 					public int compare(Security o1, Security o2) {
@@ -174,6 +189,16 @@ public class DetailPart extends EditorPart implements IPersistableEditor {
 					editButton.setEnabled(false);
 					removeButton.setEnabled(false);
 				}
+			}
+		});
+		treeViewer.addFilter(new ViewerFilter() {
+			@Override
+			public boolean select(Viewer viewer, Object parentElement, Object element) {
+				if (element instanceof Security) {
+					InventoryEntry entry = inventory.getEntry((Security)element);
+					return (entry != null && entry.getQuantity().intValue() > 0);
+				}
+				return true;
 			}
 		});
 

@@ -30,6 +30,7 @@ public class PeanutsUtil {
 		percentFormat.setMinimumFractionDigits(2);
 	}
 
+	
 	public static String formatCurrency(BigDecimal amount, Currency currency) {
 		if (amount == null)
 			return "";

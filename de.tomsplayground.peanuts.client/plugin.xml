@@ -50,9 +50,8 @@
             name="Category-Tree">
       </view>
       <view
-            allowMultiple="false"
             category="de.tomsplayground.peanuts.client.category1"
-            class="de.tomsplayground.peanuts.client.views.SecurityWatchlistView"
+            class="de.tomsplayground.peanuts.client.watchlist.SecurityWatchlistView"
             icon="icons/eye.png"
             id="de.tomsplayground.peanuts.client.securityWatchListView"
             name="Watchlist">
@@ -65,11 +64,17 @@
             id="de.tomsplayground.peanuts.client.AllAccountsPieView"
             name="Account Pie">
       </view>
+      <view
+            category="org.eclipse.ui"
+            class="org.eclipse.ui.ExtensionFactory:progressView"
+            id="org.eclipse.ui.views.ProgressView"
+            name="Progress View">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
       <category
-            name="Mail"
+            name="Peanuts Category"
             id="de.tomsplayground.peanuts.client.category">
       </category>
       <command
@@ -83,12 +88,31 @@
             name="Save">
       </command>
       <command
+            categoryId="de.tomsplayground.peanuts.client.category"
             id="de.tomsplayground.peanuts.client.import.qif"
             name="Import QIF">
       </command>
       <command
+            categoryId="de.tomsplayground.peanuts.client.category"
             id="de.tomsplayground.peanuts.client.import.csv"
             name="Import CSV">
+      </command>
+      <command
+            categoryId="de.tomsplayground.peanuts.client.category"
+            defaultHandler="de.tomsplayground.peanuts.client.watchlist.AddWatchlistHandler"
+            id="de.tomsplayground.peanuts.client.addWatchlist"
+            name="Add Watchlist">
+      </command>
+      <command
+            categoryId="de.tomsplayground.peanuts.client.category"
+            defaultHandler="de.tomsplayground.peanuts.client.watchlist.SwitchWatchlistHandler"
+            id="de.tomsplayground.peanuts.client.switchWatchlist.cmd"
+            name="Switch Watchlist">
+         <commandParameter
+               id="de.tomsplayground.peanuts.client.switchWatchlist.watchListName"
+               name="watchlistName"
+               optional="true">
+         </commandParameter>
       </command>
    </extension>
    <extension
@@ -217,6 +241,60 @@
                style="push">
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:de.tomsplayground.peanuts.client.securityWatchListView">
+         <command
+               commandId="de.tomsplayground.peanuts.client.addWatchlist"
+               icon="icons/add.png"
+               label="Add Watchlist"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:de.tomsplayground.peanuts.client.securityWatchListView">
+         <command
+               commandId="de.tomsplayground.peanuts.client.addWatchlist"
+               label="Add Watchlist"
+               style="push">
+         </command>
+         <dynamic
+               class="de.tomsplayground.peanuts.client.watchlist.SwitchWatchlistItems"
+               id="de.tomsplayground.peanuts.client.dynamic1">
+         </dynamic>
+         <menu
+               label="Select Watch list">
+         </menu>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:de.tomsplayground.peanuts.client.securityEditor">
+         <command
+               commandId="org.eclipse.ui.edit.delete"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.eclipse.ui.main.menu">
+         <menu
+               id="file"
+               label="File">
+            <command
+                  commandId="org.eclipse.ui.edit.delete"
+                  style="push">
+            </command>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:de.tomsplayground.peanuts.client.securityWatchListView">
+         <command
+               commandId="org.eclipse.ui.edit.delete"
+               style="push">
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -324,6 +402,16 @@
             </adapt>
          </enabledWhen>
       </page>
+      <page
+            class="de.tomsplayground.peanuts.client.editors.security.properties.ChartPropertyPage"
+            id="de.tomsplayground.peanuts.client.security.chart"
+            name="Chart">
+         <enabledWhen>
+            <adapt
+                  type="de.tomsplayground.peanuts.domain.base.Security">
+            </adapt>
+         </enabledWhen>
+      </page>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
@@ -332,6 +420,37 @@
             id="de.tomsplayground.peanuts.client.prefpage1"
             name="Peanuts">
       </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="de.tomsplayground.peanuts.client.editors.security.DeletePriceHandler"
+            commandId="org.eclipse.ui.edit.delete">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <instanceof
+                        value="de.tomsplayground.peanuts.domain.process.Price">
+                  </instanceof>
+               </iterate>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.tomsplayground.peanuts.client.watchlist.DeleteFromWatchlistHandler"
+            commandId="org.eclipse.ui.edit.delete">
+         <activeWhen>
+            <with
+                  variable="activePartId">
+               <equals
+                     value="de.tomsplayground.peanuts.client.securityWatchListView">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
    </extension>
 
 </plugin>

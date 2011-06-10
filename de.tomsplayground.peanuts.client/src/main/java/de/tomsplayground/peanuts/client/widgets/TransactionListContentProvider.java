@@ -6,6 +6,8 @@ import java.util.List;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
+import com.google.common.collect.ImmutableList;
+
 import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.Transaction;
@@ -24,24 +26,19 @@ public class TransactionListContentProvider implements ITreeContentProvider {
 		public Day getDate() {
 			return date;
 		}
-		public List<ITransaction> getTransactions() {
-			return provider.getTransactionsByDate(new Day(date.getYear(), 0, 1), new Day(date.getYear(), 11, 31));
+		public ImmutableList<ITransaction> getTransactions() {
+			return provider.getTransactionsByDate(new Day(date.year, 0, 1), new Day(date.year, 11, 31));
 		}
 	}
 	
 	@Override
 	public Object[] getElements(Object inputElement) {
 		ITransactionProvider provider = (ITransactionProvider) inputElement;
-		List<ITransaction> transactions = provider.getTransactions();
 		List<TransactionListContentProvider.TimeTreeNode> nodes = new ArrayList<TransactionListContentProvider.TimeTreeNode>();
 		Day start, end;
-		if (transactions.isEmpty()) {
-			start = end = new Day();
-		} else {
-			start = transactions.get(0).getDay();
-			end = transactions.get(transactions.size() -1).getDay();
-		}
-		for (int year = start.getYear(); year <= end.getYear(); year++) {
+		start = provider.getMinDate()!=null?provider.getMinDate():new Day();
+		end = provider.getMaxDate()!=null?provider.getMaxDate():new Day();
+		for (int year = start.year; year <= end.year; year++) {
 			Day d = new Day(year, 0, 1);
 			TimeTreeNode treeNode = new TransactionListContentProvider.TimeTreeNode(d, provider);
 			nodes.add(treeNode);

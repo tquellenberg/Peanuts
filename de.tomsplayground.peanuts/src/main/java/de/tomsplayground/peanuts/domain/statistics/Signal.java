@@ -5,9 +5,9 @@ import de.tomsplayground.util.Day;
 
 public class Signal {
 
-	private final Day day;
-	private final Type type;
-	private final Price price;
+	public final Day day;
+	public final Type type;
+	public final Price price;
 
 	public enum Type {
 		BUY,
@@ -19,16 +19,5 @@ public class Signal {
 		this.type = type;
 		this.price = price;
 	}
-	
-	public Day getDay() {
-		return day;
-	}
-	
-	public Type getType() {
-		return type;
-	}
-	
-	public Price getPrice() {
-		return price;
-	}
+
 }

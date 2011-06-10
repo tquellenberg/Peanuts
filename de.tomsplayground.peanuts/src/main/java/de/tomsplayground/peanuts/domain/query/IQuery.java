@@ -1,11 +1,11 @@
 package de.tomsplayground.peanuts.domain.query;
 
-import java.util.List;
+import com.google.common.base.Predicate;
 
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 
 public interface IQuery {
 
-	List<ITransaction> filter(List<ITransaction> trans);
+	Predicate<ITransaction> getPredicate();
 
 }

@@ -4,11 +4,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.google.common.collect.ImmutableList;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.base.AccountManager;
@@ -154,10 +154,8 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 	}
 
 	@Override
-	public List<ITransaction> getSplits() {
-		if (splits.isEmpty())
-			return Collections.emptyList();
-		return new ArrayList<ITransaction>(splits);
+	public ImmutableList<ITransaction> getSplits() {
+		return ImmutableList.<ITransaction>copyOf(splits);
 	}
 
 	@Override

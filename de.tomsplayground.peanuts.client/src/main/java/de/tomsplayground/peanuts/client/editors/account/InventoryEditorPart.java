@@ -6,11 +6,8 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Currency;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
@@ -20,16 +17,22 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -48,11 +51,16 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+import com.google.common.collect.ImmutableList;
+
+import de.tomsplayground.peanuts.client.editors.security.SecurityEditor;
+import de.tomsplayground.peanuts.client.editors.security.SecurityEditorInput;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.client.widgets.DateComposite;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
+import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction.Type;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
@@ -64,14 +72,89 @@ import de.tomsplayground.util.Day;
 public class InventoryEditorPart extends EditorPart implements IPersistableEditor {
 
 	private static final String SHOW_ALL_SECURITIES = "inventoryShowAllSecurities";
-	private int colWidth[] = new int[9];
+	private int colWidth[] = new int[10];
 	private TreeViewer treeViewer;
 	private Label gainingLabel;
 	private Label marketValueLabel;
+	private Label changeLabel;
 	private Day date = new Day();
 
 	private boolean showAllSecurities;
 	private Inventory inventory;
+	
+	abstract private static class InventoryComparator extends ViewerComparator {
+		enum SORT {
+			UP, DOWN
+		}
+		
+		private SORT sort = SORT.UP;
+		
+		abstract int compareInventoryEntry(Viewer viewer, InventoryEntry e1, InventoryEntry e2); 
+		
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			if (e1 instanceof InventoryEntry && e2 instanceof InventoryEntry) {
+				int compare = compareInventoryEntry(viewer, (InventoryEntry)e1, (InventoryEntry)e2);
+				return (sort == SORT.DOWN) ? compare : -compare;
+			}
+			if (e1 instanceof InvestmentTransaction && e2 instanceof InvestmentTransaction) {
+				InvestmentTransaction i1 = (InvestmentTransaction)e1;
+				InvestmentTransaction i2 = (InvestmentTransaction)e2;
+				return i2.getDay().compareTo(i1.getDay());
+			}
+			return 0;
+		}
+		public void setSortDirection(SORT sort) {
+			this.sort = sort;
+		}
+	}
+
+	private final InventoryComparator investmentSumComparator = new InventoryComparator() {
+		@Override
+		public int compareInventoryEntry(Viewer viewer, InventoryEntry i1, InventoryEntry i2) {
+			return i1.getInvestedAmount().compareTo(i2.getInvestedAmount());
+		}
+	};
+
+	private final InventoryComparator marketValueComparator = new InventoryComparator() {
+		@Override
+		public int compareInventoryEntry(Viewer viewer, InventoryEntry i1, InventoryEntry i2) {
+			return i1.getMarketValue(date).compareTo(i2.getMarketValue(date));
+		}
+	};
+	
+	private final InventoryComparator securityNameComparator = new InventoryComparator() {
+		@Override
+		public int compareInventoryEntry(Viewer viewer, InventoryEntry i1, InventoryEntry i2) {
+			return i2.getSecurity().getName().compareToIgnoreCase(i1.getSecurity().getName());
+		}
+	};
+
+	private final InventoryComparator gainingComparator = new InventoryComparator() {
+		private BigDecimal gaining(InventoryEntry entry) {
+			return entry.getMarketValue(date).subtract(entry.getInvestedAmount());
+		}
+		@Override
+		public int compareInventoryEntry(Viewer viewer, InventoryEntry i1, InventoryEntry i2) {
+			return gaining(i1).compareTo(gaining(i2));
+		}
+	};
+
+	private final InventoryComparator gainingPercentComparator = new InventoryComparator() {
+		private BigDecimal gainingPercent(InventoryEntry entry) {
+			if (entry.getInvestedAmount().compareTo(BigDecimal.ZERO) != 0) {
+				BigDecimal gain = entry.getMarketValue(date).subtract(entry.getInvestedAmount());
+				return gain.divide(entry.getInvestedAmount(), new MathContext(10, RoundingMode.HALF_EVEN));
+			}
+			return BigDecimal.ZERO;
+		}
+
+		@Override
+		public int compareInventoryEntry(Viewer viewer, InventoryEntry i1, InventoryEntry i2) {
+			return gainingPercent(i1).compareTo(gainingPercent(i2));
+		}
+	};
+	
 	
 	private final PropertyChangeListener inventoryChangeListener = new UniqueAsyncExecution() {
 
@@ -94,8 +177,7 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof InventoryEntry) {
 				InventoryEntry entry = (InventoryEntry) parentElement;
-				List<InvestmentTransaction> transations = entry.getTransations();
-				Collections.reverse(transations);
+				ImmutableList<InvestmentTransaction> transations = entry.getTransactions();
 				return transations.toArray();
 			}
 			return null;
@@ -115,13 +197,6 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		public Object[] getElements(Object inputElement) {
 			Inventory inventory = (Inventory) inputElement;
 			List<InventoryEntry> entries = new ArrayList<InventoryEntry>(inventory.getEntries());
-			Collections.sort(entries, new Comparator<InventoryEntry>() {
-				@Override
-				public int compare(InventoryEntry o1, InventoryEntry o2) {
-					return o1.getSecurity().getName().compareToIgnoreCase(
-						o2.getSecurity().getName());
-				}
-			});
 			return entries.toArray();
 		}
 
@@ -141,19 +216,20 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		private static final int INVENTRY_POS_NAME = 0;
 		private static final int TRANSACTION_POS_DATE = 0;
 		private static final int TRANSACTION_POS_QUANTITY = 1;
-		private static final int INVENTRY_POS_QUANTITY = 2;
+		private static final int INVENTORY_POS_QUANTITY = 2;
 		private static final int TRANSACTION_POS_QUANTITY_SUM = 2;
-		private static final int INVENTRY_POS_PRICE = 3;
+		private static final int INVENTORY_POS_PRICE = 3;
 		private static final int TRANSACTION_POS_PRICE = 3;
-		private static final int INVENTRY_POS_MARKETVALUE = 4;
+		private static final int INVENTORY_POS_MARKETVALUE = 4;
 		private static final int TRANSACTION_POS_AMOUNT = 4;
-		private static final int INVENTRY_POS_AVG_PRICE = 5;
+		private static final int INVENTORY_POS_AVG_PRICE = 5;
 		private static final int TRANSACTION_POS_AVG_PRICE = 5;
-		private static final int INVENTRY_POS_INVESTED_SUM = 6;
+		private static final int INVENTORY_POS_INVESTED_SUM = 6;
 		private static final int TRANSACTION_POS_INVESTED_SUM = 6;
 		private static final int TRANSACTION_POS_GAIN = 7;
-		private static final int INVENTRY_POS_GAIN = 7;
+		private static final int INVENTORY_POS_GAIN = 7;
 		private static final int INVENTORY_POS_GAIN_PERCENT = 8;
+		private static final int INVENTORY_POS_DAY_CHANGE = 9;
 		
 		private final Currency currency;
 		private final Color red;
@@ -175,29 +251,32 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 				if (columnIndex == INVENTRY_POS_NAME) {
 					return entry.getSecurity().getName();
 				}
-				if (columnIndex == INVENTRY_POS_PRICE) {
-					return PeanutsUtil.formatCurrency(entry.getPrice().getValue(), currency);
+				if (columnIndex == INVENTORY_POS_PRICE) {
+					return PeanutsUtil.formatCurrency(entry.getPrice(date).getValue(), currency);
 				}
-				if (columnIndex == INVENTRY_POS_MARKETVALUE) {
-					return PeanutsUtil.formatCurrency(entry.getMarketValue(), currency);
+				if (columnIndex == INVENTORY_POS_MARKETVALUE) {
+					return PeanutsUtil.formatCurrency(entry.getMarketValue(date), currency);
 				}
-				if (columnIndex == INVENTRY_POS_GAIN) {
-					return PeanutsUtil.formatCurrency(entry.getMarketValue().subtract(entry.getInvestedAmount()), currency);
+				if (columnIndex == INVENTORY_POS_GAIN) {
+					return PeanutsUtil.formatCurrency(entry.getMarketValue(date).subtract(entry.getInvestedAmount()), currency);
 				}
 				if (columnIndex == INVENTORY_POS_GAIN_PERCENT) {
 					if (entry.getInvestedAmount().compareTo(BigDecimal.ZERO) != 0) {
-						BigDecimal gain = entry.getMarketValue().subtract(entry.getInvestedAmount());
+						BigDecimal gain = entry.getMarketValue(date).subtract(entry.getInvestedAmount());
 						BigDecimal gainPercent = gain.divide(entry.getInvestedAmount(), new MathContext(10, RoundingMode.HALF_EVEN));
 						return PeanutsUtil.formatPercent(gainPercent);
 					}
 				}
-				if (columnIndex == INVENTRY_POS_QUANTITY) {
+				if (columnIndex == INVENTORY_POS_DAY_CHANGE) {
+					return PeanutsUtil.formatCurrency(entry.getChange(date.addDays(-1), date), currency);
+				}
+				if (columnIndex == INVENTORY_POS_QUANTITY) {
 					return PeanutsUtil.formatQuantity(entry.getQuantity());
 				}
-				if (columnIndex == INVENTRY_POS_AVG_PRICE) {
+				if (columnIndex == INVENTORY_POS_AVG_PRICE) {
 					return PeanutsUtil.formatCurrency(entry.getAvgPrice(), currency);
 				}
-				if (columnIndex == INVENTRY_POS_INVESTED_SUM) {
+				if (columnIndex == INVENTORY_POS_INVESTED_SUM) {
 					return PeanutsUtil.formatCurrency(entry.getInvestedAmount(), currency);
 				}
 			} else if (element instanceof AnalyzedInvestmentTransaction) {
@@ -279,8 +358,12 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		public Color getForeground(Object element, int columnIndex) {
 			if (element instanceof InventoryEntry) {
 				InventoryEntry entry = (InventoryEntry) element;
-				if (columnIndex == INVENTRY_POS_GAIN || columnIndex == INVENTORY_POS_GAIN_PERCENT) {
-					if (entry.getMarketValue().subtract(entry.getInvestedAmount()).signum() == -1)
+				if (columnIndex == INVENTORY_POS_GAIN || columnIndex == INVENTORY_POS_GAIN_PERCENT) {
+					if (entry.getMarketValue(date).subtract(entry.getInvestedAmount()).signum() == -1)
+						return red;
+				}
+				if (columnIndex == INVENTORY_POS_DAY_CHANGE) {
+					if (entry.getChange(date.addDays(-1), date).signum() == -1)
 						return red;
 				}
 			} else if (element instanceof AnalyzedInvestmentTransaction) {
@@ -341,14 +424,18 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		l = new Label(banner, SWT.NONE);
 		l.setFont(boldFont);
 		l.setText("Market value:");
-		marketValueLabel =  new Label(banner, SWT.NONE);
+		marketValueLabel = new Label(banner, SWT.NONE);
 		marketValueLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+
+		l = new Label(banner, SWT.NONE);
+		l.setFont(boldFont);
+		l.setText("Change:");
+		changeLabel = new Label(banner, SWT.NONE);
+		changeLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		
-		Account account = ((AccountEditorInput) getEditorInput()).getAccount();
-		showAllSecurities = false;
-		final Map<String, String> displayConfiguration = account.getDisplayConfiguration();
-		if (displayConfiguration.containsKey(SHOW_ALL_SECURITIES))
-			showAllSecurities = Boolean.parseBoolean(displayConfiguration.get(SHOW_ALL_SECURITIES));
+		
+		Account account = getAccount();
+		showAllSecurities = Boolean.parseBoolean(account.getConfigurationValue(SHOW_ALL_SECURITIES));
 
 		treeViewer = new TreeViewer(top);
 		Tree tree = treeViewer.getTree();
@@ -371,10 +458,20 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 			}
 		});
 
+		treeViewer.setComparator(securityNameComparator);
+		
 		TreeColumn col = new TreeColumn(tree, SWT.LEFT);
 		col.setText("Name");
 		col.setResizable(true);
 		col.setWidth((colWidth[0] > 0) ? colWidth[0] : 200);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TreeColumn)e.widget, securityNameComparator);
+			}
+		});
+		treeViewer.getTree().setSortColumn(col);
+		treeViewer.getTree().setSortDirection(SWT.UP);
 
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Quantity change");
@@ -395,6 +492,12 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		col.setText("Market value");
 		col.setResizable(true);
 		col.setWidth((colWidth[4] > 0) ? colWidth[4] : 100);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TreeColumn)e.widget, marketValueComparator);
+			}
+		});
 		
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Avg Price");
@@ -405,16 +508,56 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		col.setText("Investment Sum");
 		col.setResizable(true);
 		col.setWidth((colWidth[6] > 0) ? colWidth[6] : 100);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TreeColumn)e.widget, investmentSumComparator);
+			}
+		});
 
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Gain/Lost");
 		col.setResizable(true);
 		col.setWidth((colWidth[7] > 0) ? colWidth[7] : 100);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TreeColumn)e.widget, gainingComparator);
+			}
+		});
 
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Gain/Lost (%)");
 		col.setResizable(true);
 		col.setWidth((colWidth[8] > 0) ? colWidth[8] : 100);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TreeColumn)e.widget, gainingPercentComparator);
+			}
+		});
+		
+		col = new TreeColumn(tree, SWT.RIGHT);
+		col.setText("Change");
+		col.setResizable(true);
+		col.setWidth((colWidth[9] > 0) ? colWidth[9] : 100);
+		
+		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
+				if (sel.getFirstElement() instanceof InventoryEntry) {
+					Security security = ((InventoryEntry) sel.getFirstElement()).getSecurity();
+					IEditorInput input = new SecurityEditorInput(security);
+					try {
+						getSite().getWorkbenchWindow().getActivePage().openEditor(input,
+							SecurityEditor.ID);
+					} catch (PartInitException e) {
+						e.printStackTrace();
+					}					
+				}
+			}
+		});
 
 		inventory = new Inventory(account, PriceProviderFactory.getInstance(), date, new AnalyzerFactory());
 		inventory.setDate(date);
@@ -442,7 +585,7 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 					@Override
 					public void run() {
 						showAllSecurities = ! showAllSecurities;
-						displayConfiguration.put(SHOW_ALL_SECURITIES, Boolean.valueOf(showAllSecurities).toString());
+						getAccount().putConfigurationValue(SHOW_ALL_SECURITIES, Boolean.valueOf(showAllSecurities).toString());
 						treeViewer.refresh();
 					}
 					@Override
@@ -459,11 +602,16 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 	}
 
 	protected void updateAll() {
-		Account account = ((AccountEditorInput) getEditorInput()).getAccount();
+		Account account = getAccount();
 		treeViewer.refresh(true);
 		gainingLabel.setText(PeanutsUtil.formatCurrency(inventory.getGainings(), account.getCurrency()));
 		marketValueLabel.setText(PeanutsUtil.formatCurrency(inventory.getMarketValue(), account.getCurrency()));
+		changeLabel.setText(PeanutsUtil.formatCurrency(inventory.getDayChange(), account.getCurrency()));
 		marketValueLabel.getParent().layout();
+	}
+
+	private Account getAccount() {
+		return ((AccountEditorInput) getEditorInput()).getAccount();
 	}
 
 	@Override
@@ -513,6 +661,21 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		for (int i = 0; i < columns.length; i++ ) {
 			TreeColumn tableColumn = columns[i];
 			memento.putInteger("col" + i, tableColumn.getWidth());
+		}
+	}
+
+	protected void setSorting(TreeColumn column, InventoryComparator newComparator) {
+		Tree tree2 = treeViewer.getTree();
+		if (treeViewer.getComparator() == newComparator) {
+			int currentSortDirection = tree2.getSortDirection();
+			tree2.setSortDirection(currentSortDirection==SWT.UP?SWT.DOWN:SWT.UP);
+			newComparator.setSortDirection(currentSortDirection==SWT.UP?InventoryComparator.SORT.DOWN:InventoryComparator.SORT.UP);
+			treeViewer.refresh();
+		} else {
+			tree2.setSortColumn(column);
+			tree2.setSortDirection(SWT.UP);	
+			newComparator.setSortDirection(InventoryComparator.SORT.UP);
+			treeViewer.setComparator(newComparator);
 		}
 	}
 

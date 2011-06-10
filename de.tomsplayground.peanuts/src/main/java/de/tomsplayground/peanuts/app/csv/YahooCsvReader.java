@@ -2,13 +2,17 @@ package de.tomsplayground.peanuts.app.csv;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -25,23 +29,39 @@ public class YahooCsvReader extends PriceProvider {
 		HISTORICAL
 	}
 	
-	private final DateFormat dateFormat2 = new SimpleDateFormat("dd/MM/yyyy");
+	private final DateFormat dateFormat2 = new SimpleDateFormat("MM/dd/yyyy");
 	private final CSVReader csvReader;
 	private final Type type;
 
-	public YahooCsvReader(Reader reader) {
+	public static YahooCsvReader forTicker(String ticker, Type type) throws IOException {
+		URL url;
+		if (type == Type.CURRENT) {
+			url = new URL("http://download.finance.yahoo.com/d/quotes.csv?f=sl1d1t1c1ohgv&s=" + 
+					ticker);
+		} else {
+			Calendar today = Calendar.getInstance();
+			url = new URL("http://ichart.finance.yahoo.com/table.csv?g=d&a=0&b=3&c=2000" +
+				"&d=" + today.get(Calendar.MONTH) + "&e=" + today.get(Calendar.DAY_OF_MONTH) +
+				"&f=" + today.get(Calendar.YEAR) + "&s=" + ticker);
+		}
+		String str = IOUtils.toString(url.openStream());
+		return new YahooCsvReader(new StringReader(str), type);
+	}
+	
+	public YahooCsvReader(Reader reader) throws IOException {
 		this(reader, Type.HISTORICAL);
 	}
 	
-	public YahooCsvReader(Reader reader, Type type) {
+	public YahooCsvReader(Reader reader, Type type) throws IOException {
 		if (type == Type.HISTORICAL)
 			csvReader = new CSVReader(reader, ',', '"');
 		else
-			csvReader = new CSVReader(reader, ';', '"');
+			csvReader = new CSVReader(reader, ',', '"');
 		this.type = type;
+		read();
 	}
 
-	public void read() throws IOException, ParseException {
+	private void read() throws IOException {
 		String values[];
 		if (type == Type.HISTORICAL) {
 			// Skip header
@@ -55,28 +75,27 @@ public class YahooCsvReader extends PriceProvider {
 					BigDecimal close = values[4].length()==0?null:new BigDecimal(values[4]);
 					setPrice(new Price(d, open, close, high, low));
 				} catch (NumberFormatException e) {
-					System.err.println("Value: " + Arrays.toString(values));
+					log.error("Value: " + Arrays.toString(values));
 					throw e;
 				} catch (IllegalArgumentException e) {
-					System.err.println("Value: " + Arrays.toString(values));
+					log.error("Value: " + Arrays.toString(values));
 					throw e;
 				}
 			}
 		} else {
 			values = csvReader.readNext();
-			if (values != null && values.length >= 7) {
-				int startPos;
-				if (values[2].equals("N/A")) {
-					startPos = 4;
-				} else {
-					startPos = 3;
+			if (values != null && values.length >= 7 && !values[2].equals("N/A")) {
+				int startPos = 5;
+				try {
+					Date d = dateFormat2.parse(values[2]);
+					BigDecimal close = readDecimal(values[1]);
+					BigDecimal open = readDecimal(values[startPos]);
+					BigDecimal high = readDecimal(values[startPos+1]);
+					BigDecimal low = readDecimal(values[startPos+2]);
+					setPrice(new Price(Day.fromDate(d), open, close, high, low));
+				} catch (ParseException e) {
+					log.error(e.getMessage()+ " Value: " + Arrays.toString(values), e);
 				}
-				Date d = dateFormat2.parse(values[startPos]);
-				BigDecimal close = readDecimal(values[1]);
-				BigDecimal open = readDecimal(values[startPos+2]);
-				BigDecimal high = readDecimal(values[startPos+3]);
-				BigDecimal low = readDecimal(values[startPos+4]);
-				setPrice(new Price(Day.fromDate(d), open, close, high, low));
 			} else {
 				log.error("Invalid input: " + Arrays.toString(values));
 			}

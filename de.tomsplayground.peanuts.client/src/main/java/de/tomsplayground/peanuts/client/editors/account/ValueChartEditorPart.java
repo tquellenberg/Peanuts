@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -85,15 +85,11 @@ public class ValueChartEditorPart extends EditorPart {
 		body.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
 		body.setLayout(new GridLayout());
 
-		Account account = ((AccountEditorInput)getEditorInput()).getAccount();
+		Account account = getAccount();
 		intervalReport = new TimeIntervalReport(account, TimeIntervalReport.Interval.DAY, PriceProviderFactory.getInstance());
 		intervalReport.addPropertyChangeListener(changeListener);
 
-		Map<String, String> displayConfiguration = ((AccountEditorInput) getEditorInput()).getAccount().getDisplayConfiguration();
-		String chartType = "all";
-		if (displayConfiguration.containsKey(CHART_TYPE))
-			chartType = displayConfiguration.get(CHART_TYPE);
-
+		String chartType = StringUtils.defaultString(account.getConfigurationValue(CHART_TYPE), "all");
 		JFreeChart chart = createChart(chartType);
 		chartFrame = new ChartComposite(body, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -116,6 +112,10 @@ public class ValueChartEditorPart extends EditorPart {
 				firePropertyChange(IEditorPart.PROP_DIRTY);
 			}
 		});		
+	}
+
+	private Account getAccount() {
+		return ((AccountEditorInput) getEditorInput()).getAccount();
 	}
 	
 	@Override
@@ -169,7 +169,7 @@ public class ValueChartEditorPart extends EditorPart {
 		for (BigDecimal v : values) {
 			sum = sum.add(v);
 			de.tomsplayground.util.Day d = dateIterator.next();
-			Day day = new Day(d.getDay(), d.getMonth()+1, d.getYear());
+			Day day = new Day(d.day, d.month+1, d.year);
 			s1.add(day, sum.add(iterator1.next()));
 			s2.add(day, iterator2.next());
 		}
@@ -182,9 +182,8 @@ public class ValueChartEditorPart extends EditorPart {
 	
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		Map<String, String> displayConfiguration = ((AccountEditorInput)getEditorInput()).getAccount().getDisplayConfiguration();
 		String type = displayType.getItem(displayType.getSelectionIndex());
-		displayConfiguration.put(CHART_TYPE, type);
+		getAccount().putConfigurationValue(CHART_TYPE, type);
 		dirty = false;
 	}
 

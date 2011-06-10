@@ -81,7 +81,7 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 						Transaction transaction = (Transaction)evt.getSource();
 						if (evt.getPropertyName().equals("date")) {
 							Day oldDay = (Day) evt.getOldValue();
-							if (transaction.getDay().getYear() != oldDay.getYear())
+							if (transaction.getDay().year != oldDay.year)
 								update(oldDay);
 						}
 						update(transaction);
@@ -117,7 +117,7 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 			for (int i = 0; i < items.length; i++) {
 				TreeItem treeItem = items[i];
 				TimeTreeNode time = (TimeTreeNode)treeItem.getData();
-				if (time.getDate().getYear() == year.getYear()) {
+				if (time.getDate().year == year.year) {
 					transactionTree.refresh(time, true);
 					return;
 				}
@@ -157,7 +157,7 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 			if (element instanceof TransactionListContentProvider.TimeTreeNode) {
 				TransactionListContentProvider.TimeTreeNode node = (TransactionListContentProvider.TimeTreeNode) element;
 				if (columnIndex == 0)
-					return String.valueOf(node.getDate().getYear());
+					return String.valueOf(node.getDate().year);
 				return "";
 			}
 			Transaction trans = (Transaction) element;
@@ -486,7 +486,7 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 		TreeItem[] yearItems = tree.getItems();
 		for (TreeItem yearItem : yearItems) {
 			TimeTreeNode data = (TimeTreeNode)yearItem.getData();
-			if (data.getDate().getYear() == trans.getDay().getYear()) {
+			if (data.getDate().year == trans.getDay().year) {
 				TreeItem[] treeItems = yearItem.getItems();
 				for (TreeItem treeItem : treeItems) {
 					if (treeItem.getData() == trans) {

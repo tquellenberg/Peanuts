@@ -1,12 +1,13 @@
 package de.tomsplayground.peanuts.domain.statistics;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.Helper;
 import de.tomsplayground.peanuts.domain.process.Price;
@@ -18,13 +19,13 @@ public class SimpleMovingAverageTest {
 	@Test
 	public void testMovingAverage() throws Exception {
 		SimpleMovingAverage movingAverage = new SimpleMovingAverage(3);
-		List<Price> prices = new ArrayList<Price>();
 		
 		Day day = new Day(2008, 9, 18);
-		prices.add(new Price(day, new BigDecimal("5")));	day = day.addDays(1);
-		prices.add(new Price(day, new BigDecimal("10")));	day = day.addDays(1);
-		prices.add(new Price(day, new BigDecimal("15")));	day = day.addDays(1);
-		prices.add(new Price(day, new BigDecimal("20")));	day = day.addDays(1);
+		ImmutableList<Price> prices = ImmutableList.of(
+			new Price(day, new BigDecimal("5")),
+			new Price(day.addDays(1), new BigDecimal("10")),
+			new Price(day.addDays(2), new BigDecimal("15")),
+			new Price(day.addDays(3), new BigDecimal("20")));
 		List<Price> sma = movingAverage.calculate(prices);
 		
 		assertEquals(2, sma.size());
@@ -39,13 +40,13 @@ public class SimpleMovingAverageTest {
 	@Test
 	public void testNoSignals() throws Exception {
 		SimpleMovingAverage movingAverage = new SimpleMovingAverage(3);
-		List<Price> prices = new ArrayList<Price>();
 		
 		Day day = new Day(2008, 9, 18);
-		prices.add(new Price(day, new BigDecimal("5")));	day = day.addDays(1);
-		prices.add(new Price(day, new BigDecimal("10")));	day = day.addDays(1);
-		prices.add(new Price(day, new BigDecimal("15")));	day = day.addDays(1);
-		prices.add(new Price(day, new BigDecimal("20")));	day = day.addDays(1);
+		ImmutableList<Price> prices = ImmutableList.of(
+				new Price(day, new BigDecimal("5")),
+				new Price(day.addDays(1), new BigDecimal("10")),
+				new Price(day.addDays(2), new BigDecimal("15")),
+				new Price(day.addDays(3), new BigDecimal("20")));
 		movingAverage.calculate(prices);
 
 		List<Signal> signals = movingAverage.getSignals();
@@ -55,14 +56,13 @@ public class SimpleMovingAverageTest {
 	@Test
 	public void testEqualValues() throws Exception {
 		SimpleMovingAverage movingAverage = new SimpleMovingAverage(3);
-		List<Price> prices = new ArrayList<Price>();
-		
 		Day day = new Day(2008, 9, 18);
-		prices.add(new Price(day, new BigDecimal("5")));	day = day.addDays(1);
-		prices.add(new Price(day, new BigDecimal("10")));	day = day.addDays(1);
-		prices.add(new Price(day, new BigDecimal("14")));	day = day.addDays(1);
-		// (Price == Avg) => no signal
-		prices.add(new Price(day, new BigDecimal("12")));	day = day.addDays(1);
+		ImmutableList<Price> prices = ImmutableList.of(
+				new Price(day, new BigDecimal("5")),
+				new Price(day.addDays(1), new BigDecimal("10")),
+				new Price(day.addDays(2), new BigDecimal("14")),
+				// (Price == Avg) => no signal
+				new Price(day.addDays(3), new BigDecimal("12")));
 		movingAverage.calculate(prices);
 		
 		List<Signal> signals = movingAverage.getSignals();

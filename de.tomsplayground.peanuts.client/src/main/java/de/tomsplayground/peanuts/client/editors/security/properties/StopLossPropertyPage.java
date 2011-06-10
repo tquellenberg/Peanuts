@@ -1,5 +1,6 @@
 package de.tomsplayground.peanuts.client.editors.security.properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -29,11 +30,8 @@ public class StopLossPropertyPage extends PropertyPage {
 		
 		IAdaptable adapter = getElement();
 		Security security = (Security)adapter.getAdapter(Security.class);
-		String stopLossValue = security.getDisplayConfiguration().get("STOPLOSS");
-		if (stopLossValue != null)
-			stop.setText(stopLossValue);
-		else
-			stop.setText("");
+		String stopLossValue = StringUtils.defaultString(security.getConfigurationValue("STOPLOSS"));
+		stop.setText(stopLossValue);
 		
 		return composite;
 	}
@@ -53,7 +51,7 @@ public class StopLossPropertyPage extends PropertyPage {
 	public boolean performOk() {
 		IAdaptable adapter = getElement();
 		Security security = (Security)adapter.getAdapter(Security.class);
-		security.getDisplayConfiguration().put("STOPLOSS", stop.getText());
+		security.putConfigurationValue("STOPLOSS", stop.getText());
 		return super.performOk();
 	}
 

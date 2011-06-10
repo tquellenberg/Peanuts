@@ -7,21 +7,23 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import com.google.common.collect.ImmutableList;
+
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.statistics.Signal.Type;
 
 public class SimpleMovingAverage {
 
 	private final int days;
-	private final List<Signal> signals;
+	private ImmutableList<Signal> signals = ImmutableList.of();
 
 	public SimpleMovingAverage(int days) {
 		this.days = days;
-		this.signals = new ArrayList<Signal>();
 	}
 
-	public List<Price> calculate(List<Price> prices) {
-		signals.clear();
+	public ImmutableList<Price> calculate(ImmutableList<Price> prices) {
+		List<Signal> s = new ArrayList<Signal>();
+		s.clear();
 		BigDecimal d = new BigDecimal(days);
 		List<Price> result = new ArrayList<Price>();
 		Queue<BigDecimal> queue = new LinkedList<BigDecimal>();
@@ -38,15 +40,16 @@ public class SimpleMovingAverage {
 				int newCompare = average.compareTo(value);
 				if (newCompare != 0 && newCompare != compare) {
 					if (compare != 0)
-						signals.add(new Signal(price.getDay(), newCompare < 0? Type.BUY:Type.SELL, price));
+						s.add(new Signal(price.getDay(), newCompare < 0? Type.BUY:Type.SELL, price));
 					compare = newCompare;
 				}
 			}
 		}
-		return result;
+		signals = ImmutableList.copyOf(s);
+		return ImmutableList.copyOf(result);
 	}
 	
-	public List<Signal> getSignals() {
-		return new ArrayList<Signal>(signals);
+	public ImmutableList<Signal> getSignals() {
+		return signals;
 	}
 }

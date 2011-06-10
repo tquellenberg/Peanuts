@@ -15,6 +15,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
 
+import com.google.common.collect.ImmutableList;
+
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.Account;
 
@@ -40,7 +42,7 @@ public class AccountsPage extends WizardPage {
 		listViewer.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		listViewer.setLabelProvider(new AccountListLabelProvider());
 		listViewer.setContentProvider(new ArrayContentProvider());
-		List<Account> accounts = Activator.getDefault().getAccountManager().getAccounts();
+		ImmutableList<Account> accounts = Activator.getDefault().getAccountManager().getAccounts();
 		listViewer.setInput(accounts);
 		listViewer.getTable().addSelectionListener(new SelectionAdapter() {
 			@Override

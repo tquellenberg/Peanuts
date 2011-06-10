@@ -67,8 +67,12 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 				case 7:
 					return PeanutsUtil.formatCurrency(value.getInvestedAvg(), currency);
 				case 8:
-					BigDecimal gainPercent = value.getGainings().divide(value.getInvestedAvg(), new MathContext(10, RoundingMode.HALF_EVEN));
-					return PeanutsUtil.formatPercent(gainPercent);
+					if (value.getInvestedAvg().signum() != 0) {
+						BigDecimal gainPercent = value.getGainings().divide(value.getInvestedAvg(), new MathContext(10, RoundingMode.HALF_EVEN));
+						return PeanutsUtil.formatPercent(gainPercent);
+					} else {
+						return "NaN";
+					}
 				}
 			} else if (element instanceof BigDecimal[]) {
 				BigDecimal[] sum = (BigDecimal[]) element;

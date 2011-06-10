@@ -1,12 +1,13 @@
 package de.tomsplayground.peanuts.domain.base;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+import de.tomsplayground.peanuts.config.ConfigurableSupport;
 import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 
@@ -21,7 +22,7 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	private String WKN;
 	private String ticker;
 	
-	final private Map<String, String> displayConfiguration = new ConcurrentHashMap<String, String>();
+	final private Map<String, String> displayConfiguration = new HashMap<String, String>();
 
 	public Security(String name) {
 		this.name = name;
@@ -77,9 +78,23 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 		// Not used
 	}
 
+
+	private transient ConfigurableSupport configurableSupport;
+	
+	private ConfigurableSupport getConfigurableSupport() {
+		if (configurableSupport == null) {
+			configurableSupport = new ConfigurableSupport(displayConfiguration, getPropertyChangeSupport());
+		}
+		return configurableSupport;
+	}
+	
 	@Override
-	public Map<String, String> getDisplayConfiguration() {
-		return displayConfiguration;
+	public String getConfigurationValue(String key) {
+		return getConfigurableSupport().getConfigurationValue(key);
 	}
 
+	@Override
+	public void putConfigurationValue(String key, String value) {
+		getConfigurableSupport().putConfigurationValue(key, value);
+	}
 }

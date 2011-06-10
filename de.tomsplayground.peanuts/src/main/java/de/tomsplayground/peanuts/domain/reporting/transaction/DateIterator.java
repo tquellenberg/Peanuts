@@ -8,6 +8,7 @@ import de.tomsplayground.peanuts.domain.reporting.transaction.TimeIntervalReport
 import de.tomsplayground.util.Day;
 
 public class DateIterator implements Iterator<Day> {
+	
 	private final Calendar pointer;
 	private final Interval interval;
 	private final Day end;

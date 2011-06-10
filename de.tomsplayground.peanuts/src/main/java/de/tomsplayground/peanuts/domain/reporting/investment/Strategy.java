@@ -13,7 +13,7 @@ public abstract class Strategy {
 
 	public static final class Buy {
 		private BigDecimal remainingQuantity;
-		private BigDecimal avgPrice;
+		private final BigDecimal avgPrice;
 	
 		Buy(InvestmentTransaction transaction) {
 			this.remainingQuantity = transaction.getQuantity();

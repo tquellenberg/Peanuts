@@ -10,6 +10,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Iterables;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.base.Category.Type;
@@ -30,9 +35,9 @@ import de.tomsplayground.util.Day;
 @XStreamAlias("accountmanager")
 public class AccountManager extends ObservableModelObject {
 
-	final private List<Account> accounts = new ArrayList<Account>();
+	private ImmutableList<Account> accounts = ImmutableList.of();
 
-	final private List<Security> securities = new ArrayList<Security>();
+	private ImmutableList<Security> securities = ImmutableList.of();
 
 	// FIXME: Do not use HashSet with mutable objects. 
 	final private Set<Category> categories = new HashSet<Category>();
@@ -81,8 +86,10 @@ public class AccountManager extends ObservableModelObject {
 			}
 		}
 		Account account = new Account(name, Currency.getInstance("EUR"), BigDecimal.ZERO, type, "");
-		accounts.add(account);
-		Collections.sort(accounts, NAMED_COMPARATOR);
+		List<Account> l = new ArrayList<Account>(accounts);
+		l.add(account);
+		Collections.sort(l, NAMED_COMPARATOR);
+		accounts = ImmutableList.copyOf(l);
 		firePropertyChange("account", null, account);
 		return account;
 	}
@@ -91,14 +98,14 @@ public class AccountManager extends ObservableModelObject {
 	 *
 	 * @return List of all accounts.
 	 */
-	public List<Account> getAccounts() {
-		return Collections.unmodifiableList(accounts);
+	public ImmutableList<Account> getAccounts() {
+		return accounts;
 	}
 
 	/**
 	 * @return Transactions of given accounts, sorted by date.
 	 */
-	public static List<ITransaction> getTransactions(Set<Account> accountList) {
+	public static ImmutableList<ITransaction> getTransactions(Set<Account> accountList) {
 		List<ITransaction> result = new ArrayList<ITransaction>();
 		for (Account account : accountList) {
 			if (account.getCurrency().getCurrencyCode().equals("DEM")) {
@@ -110,28 +117,30 @@ public class AccountManager extends ObservableModelObject {
 				result.addAll(account.getTransactions());
 		}
 		Collections.sort(result, DAY_COMPARATOR);
-		return result;
+		return ImmutableList.copyOf(result);
 	}
 
 	public Security getOrCreateSecurity(String name) {
 		if (name == null) {
 			throw new IllegalArgumentException("name");
 		}
-
+		name = name.trim();
 		for (Security security : securities) {
-			if (security.getName().equals(name)) {
+			if (security.getName().trim().equals(name)) {
 				return security;
 			}
 		}
 		Security security = new Security(name);
-		securities.add(security);
-		Collections.sort(securities, NAMED_COMPARATOR);
+		List<Security> l = new ArrayList<Security>(securities);
+		l.add(security);
+		Collections.sort(l, NAMED_COMPARATOR);
+		securities = ImmutableList.copyOf(l);
 		firePropertyChange("security", null, security);
 		return security;
 	}
 
-	public List<Security> getSecurities() {
-		return Collections.unmodifiableList(securities);
+	public ImmutableList<Security> getSecurities() {
+		return securities;
 	}
 
 	public Category getOrCreateCategory(String name) {
@@ -145,12 +154,7 @@ public class AccountManager extends ObservableModelObject {
 	}
 
 	public Category getCategory(String name) {
-		for (Category cat : categories) {
-			if (cat.getName().equals(name)) {
-				return cat;
-			}
-		}
-		return null;
+		return getByName(categories, name);
 	}
 
 	public Set<Category> getCategories() {
@@ -231,17 +235,18 @@ public class AccountManager extends ObservableModelObject {
 		return getByName(credits, name);
 	}
 	
-	private <T extends INamedElement> T getByName(List<T> elements, String name) {
-		for (T element : elements) {
-			if (element.getName().equals(name))
-				return element;
-		}
-		return null;
+	private <T extends INamedElement> T getByName(Iterable<T> elements, final String name) {
+		return Iterables.find(elements, new Predicate<T>() {
+			@Override
+			public boolean apply(T element) {
+				return element.getName().equals(name);
+			}
+		}, null);
 	}
 
 	public void reset() {
-		accounts.clear();
-		securities.clear();
+		accounts = ImmutableList.of();
+		securities = ImmutableList.of();
 		categories.clear();
 		reports.clear();
 		forecasts.clear();
@@ -257,8 +262,6 @@ public class AccountManager extends ObservableModelObject {
 		if (securityCategoryMappings == null) {
 			securityCategoryMappings = new ArrayList<SecurityCategoryMapping>();
 		}
-		Collections.sort(accounts, NAMED_COMPARATOR);
-		Collections.sort(securities, NAMED_COMPARATOR);
 		for (Account account : accounts) {
 			account.reconfigureAfterDeserialization(this);
 		}
@@ -290,14 +293,13 @@ public class AccountManager extends ObservableModelObject {
 		return cat;
 	}
 
-	public Set<Category> getCategories(Type type) {
-		Set<Category> result = new HashSet<Category>();
-		for (Category c : categories) {
-			if (c.getType() == type) {
-				result.add(c);
+	public ImmutableSet<Category> getCategories(final Type type) {
+		return ImmutableSet.copyOf(Iterables.filter(categories, new Predicate<Category>() {
+			@Override
+			public boolean apply(Category c) {
+				return (c.getType() == type);
 			}
-		}
-		return result;
+		}));
 	}
 
 	public void removeCategory(Category categoryToRemove) {
@@ -352,15 +354,15 @@ public class AccountManager extends ObservableModelObject {
 	 * The splits are ordered by date.
 	 * 
 	 */
-	public List<StockSplit> getStockSplits(Security security) {
-		List<StockSplit> result = new ArrayList<StockSplit>();
-		for (StockSplit stockSplit : stockSplits) {
-			if (stockSplit.getSecurity().equals(security)) {
-				result.add(stockSplit);
+	public List<StockSplit> getStockSplits(final Security security) {
+		return ImmutableSortedSet.copyOf(DAY_COMPARATOR, 
+			Iterables.filter(stockSplits, new Predicate<StockSplit>() {
+				@Override
+				public boolean apply(StockSplit stockSplit) {
+					return stockSplit.getSecurity().equals(security);
+				}
 			}
-		}
-		Collections.sort(result, DAY_COMPARATOR);
-		return result;
+		)).asList();
 	}
 	
 	public void addStockSplit(StockSplit stockSplit) {
@@ -385,8 +387,7 @@ public class AccountManager extends ObservableModelObject {
 		synchronized (this) {
 			if (fullInventory == null) {
 				Report report = new Report("temp");
-				HashSet<Account> accounts = new HashSet<Account>(getAccounts());
-				report.setAccounts(accounts);
+				report.setAccounts(getAccounts());
 				
 				fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new Day(), new AnalyzerFactory());
 			}			

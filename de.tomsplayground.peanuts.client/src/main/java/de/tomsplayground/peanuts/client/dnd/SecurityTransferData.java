@@ -1,7 +1,8 @@
 package de.tomsplayground.peanuts.client.dnd;
 
 import java.io.Serializable;
-import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.Security;
@@ -19,7 +20,7 @@ public class SecurityTransferData implements IPeanutsTransferData, Serializable 
 	}	
 	
 	public Security getSecurity() {
-		List<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
+		ImmutableList<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
 		for (Security security : securities) {
 			if (isin.equals(security.getISIN()))
 				return security;

@@ -1,9 +1,11 @@
 package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
@@ -12,7 +14,7 @@ import de.tomsplayground.util.Day;
 
 public abstract class PriceProvider extends ObservableModelObject implements IPriceProvider {
 
-	final private List<Price> prices = new ArrayList<Price>();
+	private ImmutableList<Price> prices = ImmutableList.of();
 	
 	public PriceProvider() {
 		super();
@@ -20,63 +22,57 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 
 	@Override
 	public Day getMaxDate() {
-		synchronized (prices) {
-			if (prices.isEmpty())
-				return null;
-			return prices.get(prices.size() - 1).getDay();
-		}
+		ImmutableList<Price> lp = prices;
+		if (lp.isEmpty())
+			return null;
+		return lp.get(lp.size() - 1).getDay();
 	}
 
 	@Override
 	public Day getMinDate() {
-		synchronized (prices) {
-			if (prices.isEmpty())
-				return null;
-			return prices.get(0).getDay();
-		}
+		ImmutableList<Price> lp = prices;
+		if (lp.isEmpty())
+			return null;
+		return lp.get(0).getDay();
 	}
 
 	@Override
-	public List<Price> getPrices() {
-		synchronized (prices) {
-			return new ArrayList<Price>(prices);
-		}
+	public ImmutableList<Price> getPrices() {
+		return prices;
 	}
 
 	@Override
-	public List<Price> getPrices(Day from, Day to) {
+	public ImmutableList<Price> getPrices(Day from, Day to) {
 		if (from.after(to)) {
 			throw new IllegalArgumentException("'from' after 'to'" + from + "->" + to);
 		}
 		int start = 0;
 		int end = 0;
-		synchronized (prices) {
-			for (Price p : prices) {
-				if (p.getDay().compareTo(from) < 0) {
-					start++ ;
-				}
-				if (p.getDay().compareTo(to) <= 0) {
-					end++ ;
-				}
+		ImmutableList<Price> lp = prices;
+		for (Price p : lp) {
+			if (p.getDay().compareTo(from) < 0) {
+				start++ ;
 			}
-			return new ArrayList<Price>(prices.subList(start, end));
+			if (p.getDay().compareTo(to) <= 0) {
+				end++ ;
+			}
 		}
+		return lp.subList(start, end);
 	}
 
 	@Override
 	public Price getPrice(Day date) {
-		synchronized (prices) {
-			if (prices.isEmpty())
-				return new Price(date, BigDecimal.ZERO);
-			int pos = PeanutsUtil.binarySearch(prices, date);
-			if (pos >= 0) {
-				return prices.get(pos);
-			} else {
-				pos = -pos - 1;
-				if (pos >= prices.size())
-					pos --;
-				return prices.get(pos);
-			}
+		ImmutableList<Price> lp = prices;
+		if (lp.isEmpty())
+			return new Price(date, BigDecimal.ZERO);
+		int pos = PeanutsUtil.binarySearch(lp, date);
+		if (pos >= 0) {
+			return lp.get(pos);
+		} else {
+			pos = -pos - 1;
+			if (pos >= lp.size())
+				pos --;
+			return lp.get(pos);
 		}
 	}
 	
@@ -103,57 +99,55 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 	}
 	
 	public Price setPriceInternal(Price newPrice, boolean updateExistingPrice) {
-		Day newPriceDate = newPrice.getDay();
-		synchronized (prices) {
-			ListIterator<Price> iterator = prices.listIterator();
-			while (iterator.hasNext()) {
-				Price p = iterator.next();
-				int compareTo = p.getDay().compareTo(newPriceDate);
-				if (compareTo == 0) {
-					if (! p.equals(newPrice)) {
-						if (updateExistingPrice) {
-							// Update existing price with better values
-							BigDecimal open = newPrice.getOpen() != null ? newPrice.getOpen() : p.getOpen();
-							BigDecimal close = newPrice.getClose() != null ? newPrice.getClose() : p.getClose();
-							BigDecimal high = newPrice.getHigh() != null ? newPrice.getHigh() : p.getHigh();
-							BigDecimal low = newPrice.getLow() != null ? newPrice.getLow() : p.getLow();
-							newPrice = new Price(p.getDay(), open, close, high, low);
-							iterator.set(newPrice);
-						} else {
-							// replace existing
-							iterator.set(newPrice);
-						}
-					}
-					return p;
-				}
-				if (compareTo > 0) {
-					// insert in between
-					iterator.previous();
-					iterator.add(newPrice);
-					return null;
-				}
+		ImmutableList<Price> lp = prices;
+		
+		int binarySearch = PeanutsUtil.binarySearch(lp, newPrice.getDay());
+		int s1, s2;
+		Price oldPrice = null;
+		if (binarySearch >= 0) {
+			oldPrice = lp.get(binarySearch);
+			if (updateExistingPrice) {
+				// Update existing price with better values
+				BigDecimal open = newPrice.getOpen() != null ? newPrice.getOpen() : oldPrice.getOpen();
+				BigDecimal close = newPrice.getClose() != null ? newPrice.getClose() : oldPrice.getClose();
+				BigDecimal high = newPrice.getHigh() != null ? newPrice.getHigh() : oldPrice.getHigh();
+				BigDecimal low = newPrice.getLow() != null ? newPrice.getLow() : oldPrice.getLow();
+				newPrice = new Price(oldPrice.getDay(), open, close, high, low);				
 			}
-			// add to end
-			prices.add(newPrice);
-			return null;
+			s1 = binarySearch;
+			s2 = binarySearch +1;
+		} else {
+			s1 = s2 = -binarySearch -1;
 		}
+
+		ImmutableList<Price> subList1 = lp.subList(0, s1);
+		ImmutableList<Price> subList2 = lp.subList(s2, lp.size());
+		prices = ImmutableList.copyOf(Iterables.concat(
+			subList1,
+			ImmutableList.of(newPrice),
+			subList2));
+		
+		return oldPrice;
 	}
 
 	@Override
-	public void removePrice(Day date) {
-		synchronized (prices) {
-			ListIterator<Price> iterator = prices.listIterator();
-			while (iterator.hasNext()) {
-				Price p = iterator.next();
-				int compareTo = p.getDay().compareTo(date);
-				if (compareTo == 0) {
-					iterator.remove();
-					firePropertyChange("prices", p, null);
-					return;
-				} else if (compareTo > 0) {
-					return;
+	public void removePrice(final Day date) {
+		final Price[] removed = new Price[1];
+		ImmutableList<Price> lp = ImmutableList.copyOf(
+			Iterables.filter(prices, new Predicate<Price>() {
+				@Override
+				public boolean apply(Price input) {
+					if (input.getDay().equals(date)) {
+						removed[0] = input;
+						return false;
+					}
+					return true;
 				}
-			}
+			})
+		);
+		if (removed[0] != null) {
+			prices = lp;
+			firePropertyChange("prices", removed[0], null);
 		}
 	}
 }
