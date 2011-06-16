@@ -19,6 +19,9 @@ public class Price implements ITimedElement, IPrice {
 
 	public Price(Day date, BigDecimal open, BigDecimal close, BigDecimal high, BigDecimal low) {
 		if (date == null) throw new IllegalArgumentException("date");
+		if (open == null && close == null) {
+			close = BigDecimal.ZERO;
+		}
 		this.date = date;
 		this.open = open;
 		this.close = close;
