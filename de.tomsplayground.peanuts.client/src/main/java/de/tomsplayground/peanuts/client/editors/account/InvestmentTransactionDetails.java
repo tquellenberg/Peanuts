@@ -7,7 +7,8 @@ import java.util.Calendar;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.fieldassist.AutoCompleteField;
+import org.eclipse.jface.fieldassist.ContentProposalAdapter;
+import org.eclipse.jface.fieldassist.SimpleContentProposalProvider;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -88,7 +89,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 			}
 		}
 	};
-	private AutoCompleteField autoCompleteSecurity;
+	private ContentProposalAdapter autoCompleteSecurityAdapter;
 	
 	public InvestmentTransactionDetails(Account account) {
 		this.account = account;
@@ -104,8 +105,13 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		group.setLayout(new GridLayout(2, true));
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
-		security = new Text(group, SWT.SINGLE | SWT.BORDER);
-		autoCompleteSecurity = new AutoCompleteField(security, new TextContentAdapter(), new String[0]);
+		security = new Text(group, SWT.SINGLE | SWT.BORDER);	
+		SimpleContentProposalProvider proposalProvider = new SimpleContentProposalProvider(getSecurityNames());
+		proposalProvider.setFiltering(true);
+		autoCompleteSecurityAdapter = new ContentProposalAdapter(security, new TextContentAdapter(),
+				proposalProvider, null, null);
+		autoCompleteSecurityAdapter.setPropagateKeys(true);
+		autoCompleteSecurityAdapter.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
 		security.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 		date = new DateComposite(group, SWT.NONE);
@@ -234,7 +240,6 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 	@Override
 	public void setInput(Transaction transaction, Transaction parentTransaction) {
 		internalUpdate = true;
-		autoCompleteSecurity.setProposals(getSecurityNames());
 		this.transaction = (InvestmentTransaction) transaction;
 		this.parentTransaction = parentTransaction;
 		if (transaction == null) {
@@ -252,6 +257,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 			memo.setText(transaction.getMemo() != null ? transaction.getMemo() : "");
 			categoryComposite.setCategory(transaction.getCategory());
 			if (this.transaction.getSecurity() != null) {
+				security.setText("");
 				security.setText(this.transaction.getSecurity().getName());
 			} else {
 				security.setText("");
