@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Currency;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -18,6 +19,7 @@ public class PeanutsUtil {
 	final static Logger log = Logger.getLogger(PeanutsUtil.class);
 
 	private static final DateFormat dateFormat = DateFormat.getDateInstance();
+	private static final DateFormat dateTimeFormat = DateFormat.getDateTimeInstance();
 	private static final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 	private static final NumberFormat currencyValueFormat = NumberFormat.getNumberInstance();
 	private static final NumberFormat quantityFormat = NumberFormat.getNumberInstance();	
@@ -87,6 +89,12 @@ public class PeanutsUtil {
 		} catch (IllegalArgumentException e) {
 			log.error("date:" + date);
 			throw e;
+		}
+	}
+	
+	public static String formatDateTime(Date date) {
+		synchronized (dateTimeFormat) {
+			return dateTimeFormat.format(date);
 		}
 	}
 
