@@ -25,6 +25,7 @@ import de.tomsplayground.peanuts.domain.process.ICredit;
 import de.tomsplayground.peanuts.domain.process.ITimedElement;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
+import de.tomsplayground.peanuts.domain.process.SavedTransaction;
 import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.domain.reporting.forecast.Forecast;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
@@ -47,6 +48,8 @@ public class AccountManager extends ObservableModelObject {
 	final private List<Forecast> forecasts = new ArrayList<Forecast>();
 
 	final private List<ICredit> credits = new ArrayList<ICredit>();
+	
+	private ImmutableList<SavedTransaction> savedTransactions = ImmutableList.of();
 	
 	private Set<StockSplit> stockSplits = new HashSet<StockSplit>();
 
@@ -193,6 +196,22 @@ public class AccountManager extends ObservableModelObject {
 		return getByName(reports, name);
 	}
 
+	public void addSavedTransaction(SavedTransaction savedTransaction) {
+		List<SavedTransaction> list = new ArrayList<SavedTransaction>(savedTransactions);
+		list.add(savedTransaction);
+		Collections.sort(savedTransactions, NAMED_COMPARATOR);
+		savedTransactions = ImmutableList.copyOf(list);
+		firePropertyChange("savedTransaction", null, savedTransaction);
+	}
+
+	public ImmutableList<SavedTransaction> getSavedTransactions() {
+		return savedTransactions;
+	}
+
+	public SavedTransaction getSavedTransaction(String name) {
+		return getByName(savedTransactions, name);
+	}
+
 	public void addSecurityCategoryMapping(SecurityCategoryMapping securityCategoryMapping) {
 		securityCategoryMappings.add(securityCategoryMapping);
 		Collections.sort(securityCategoryMappings, NAMED_COMPARATOR);
@@ -252,6 +271,7 @@ public class AccountManager extends ObservableModelObject {
 		forecasts.clear();
 		credits.clear();
 		stockSplits.clear();
+		savedTransactions = ImmutableList.of();
 		securityCategoryMappings.clear();
 	}
 
@@ -261,6 +281,9 @@ public class AccountManager extends ObservableModelObject {
 		}
 		if (securityCategoryMappings == null) {
 			securityCategoryMappings = new ArrayList<SecurityCategoryMapping>();
+		}
+		if (savedTransactions == null) {
+			savedTransactions = ImmutableList.of();
 		}
 		for (Account account : accounts) {
 			account.reconfigureAfterDeserialization(this);

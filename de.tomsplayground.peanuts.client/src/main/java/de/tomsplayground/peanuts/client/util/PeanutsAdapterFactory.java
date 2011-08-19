@@ -12,6 +12,7 @@ import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.process.ICredit;
+import de.tomsplayground.peanuts.domain.process.SavedTransaction;
 import de.tomsplayground.peanuts.domain.reporting.forecast.Forecast;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
@@ -39,6 +40,8 @@ public class PeanutsAdapterFactory implements IAdapterFactory {
 				return Activator.getDefault().getImageRegistry().getDescriptor(Activator.IMAGE_SECURITY);
 			} else if (obj instanceof SecurityCategoryMapping) {
 				return Activator.getDefault().getImageRegistry().getDescriptor(Activator.IMAGE_SECURITYCATEGORY);
+			} else if (obj instanceof SavedTransaction) {
+				return Activator.getDefault().getImageRegistry().getDescriptor(Activator.IMAGE_SAVED_TRANSACTION);
 			}
 			return null;
 		}

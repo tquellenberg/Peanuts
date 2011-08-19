@@ -463,6 +463,7 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 		});
 		table.setMenu(menuMgr.createContextMenu(table));
 		getSite().registerContextMenu(menuMgr, getSite().getSelectionProvider());
+		getSite().setSelectionProvider(transactionTree);
 		account.addPropertyChangeListener(propertyChangeListener);
 		
 //		List<Transaction> transactions = account.getTransactions();

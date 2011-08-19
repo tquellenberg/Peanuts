@@ -249,6 +249,7 @@ public class NavigationView extends ViewPart {
 		addElements(root, "Forecasts", accountManager.getForecasts());
 		addElements(root, "Credits", accountManager.getCredits());
 		addElements(root, "Security Categories", accountManager.getSecurityCategoryMappings());
+		addElements(root, "Saved Transactions", accountManager.getSavedTransactions());
 		
 		return root;
 	}

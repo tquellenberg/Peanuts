@@ -114,6 +114,11 @@
                optional="true">
          </commandParameter>
       </command>
+      <command
+            categoryId="de.tomsplayground.peanuts.client.category"
+            id="de.tomsplayground.peanuts.client.saveTransaction"
+            name="Save Transaction">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -295,6 +300,15 @@
                style="push">
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:de.tomsplayground.peanuts.client.accountEditor">
+         <command
+               commandId="de.tomsplayground.peanuts.client.saveTransaction"
+               icon="icons/date_add.png"
+               style="push">
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -450,6 +464,22 @@
                </equals>
             </with>
          </activeWhen>
+      </handler>
+      <handler
+            class="de.tomsplayground.peanuts.client.savedtransaction.SaveTransactionHandler"
+            commandId="de.tomsplayground.peanuts.client.saveTransaction">
+        <activeWhen>
+           <with
+                 variable="selection">
+              <iterate
+                    ifEmpty="false"
+                    operator="and">
+                 <instanceof
+                       value="de.tomsplayground.peanuts.domain.process.Transaction">
+                 </instanceof>
+              </iterate>
+           </with>
+        </activeWhen>
       </handler>
    </extension>
 
