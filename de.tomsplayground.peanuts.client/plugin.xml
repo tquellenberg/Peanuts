@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.2"?>
+<?eclipse version="3.4"?>
 <plugin>
 
    <extension
@@ -69,6 +69,14 @@
             class="org.eclipse.ui.ExtensionFactory:progressView"
             id="org.eclipse.ui.views.ProgressView"
             name="Progress View">
+      </view>
+      <view
+            category="de.tomsplayground.peanuts.client.category1"
+            class="de.tomsplayground.peanuts.client.rss.RssView"
+            icon="icons/feed.png"
+            id="de.tomsplayground.peanuts.client.rssview"
+            name="RSS View"
+            restorable="true">
       </view>
    </extension>
    <extension

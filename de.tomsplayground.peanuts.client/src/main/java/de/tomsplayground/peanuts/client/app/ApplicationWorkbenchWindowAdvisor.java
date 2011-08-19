@@ -6,6 +6,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IStatusLineManager;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
@@ -48,8 +50,12 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		statusline.add(new ContributionItem() {
 			@Override
 			public void fill(Composite parent) {
-				Label label = new Label(parent, SWT.NONE);
+				Composite composite = new Composite(parent, SWT.None);
+				GridLayoutFactory.fillDefaults().spacing(0, 0).applyTo(composite);
+				
+				Label label = new Label(composite, SWT.NONE);
 			    label.setText(Activator.getDefault().getFilename());
+			    GridDataFactory.fillDefaults().grab(false, true).align(SWT.CENTER, SWT.CENTER).applyTo(label);
 			}
 		});
 		Activator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {			

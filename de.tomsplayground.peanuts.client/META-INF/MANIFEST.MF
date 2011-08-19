@@ -26,7 +26,8 @@ Bundle-ClassPath: .,
  lib/guava-r08.jar,
  lib/htmlcleaner-2.2.jar,
  lib/jdom-1.1.1.jar,
- lib/groovy-all-1.8.0.jar
+ lib/groovy-all-1.8.0.jar,
+ lib/rome-1.0.0.jar
 Export-Package: META-INF,
  de.tomsplayground.peanuts.client,
  de.tomsplayground.peanuts.client.actions,

@@ -26,10 +26,16 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -91,7 +97,41 @@ public class Activator extends AbstractUIPlugin {
 	public Activator() {
 		plugin = this;
 	}
+	
+	private ResourceManager resourceManager;
+	private FontDescriptor h1FontDescriptor;
+	private FontDescriptor h2FontDescriptor;
 
+	public Font getHeaderFont() {
+		if (resourceManager == null) {
+			resourceManager = JFaceResources.getResources();
+		}
+		if (h1FontDescriptor == null) {
+			h1FontDescriptor = createFontDescriptor(SWT.BOLD, 1.35f);
+		}
+		return resourceManager.createFont(h1FontDescriptor);
+	}
+	
+	public Font getSmallFont() {
+		if (resourceManager == null) {
+			resourceManager = JFaceResources.getResources();
+		}
+		if (h2FontDescriptor == null) {
+			h2FontDescriptor = createFontDescriptor(SWT.NORMAL, 0.8f);
+		}
+		return resourceManager.createFont(h2FontDescriptor);
+	}
+
+	private FontDescriptor createFontDescriptor(int style, float heightMultiplier) {
+		Font baseFont = JFaceResources.getDialogFont();
+		FontData[] fontData = baseFont.getFontData();
+		FontData[] newFontData = new FontData[fontData.length];
+		for (int i = 0; i < newFontData.length; i++) {
+			newFontData[i] = new FontData(fontData[i].getName(), (int) (fontData[i].getHeight() * heightMultiplier), fontData[i].getStyle() | style);
+		}
+		return FontDescriptor.createFrom(newFontData);
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 *
