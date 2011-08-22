@@ -75,7 +75,7 @@
 
    <features>
       <feature id="de.tomsplayground.peanuts.feature" version="1.0.0"/>
-      <feature id="org.eclipse.rcp" version="3.6.1.r361_v20100827-9OArFLdFjY-ThSQXmKvKz0_T"/>
+      <feature id="org.eclipse.rcp"/>
    </features>
 
 
