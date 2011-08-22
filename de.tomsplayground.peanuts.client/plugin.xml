@@ -119,6 +119,16 @@
             id="de.tomsplayground.peanuts.client.saveTransaction"
             name="Save Transaction">
       </command>
+      <command
+            defaultHandler="de.tomsplayground.peanuts.client.savedtransaction.InsertTransactionHandler"
+            id="de.tomsplayground.peanuts.client.insertTransaction.cmd"
+            name="Insert Transaction">
+         <commandParameter
+               id="de.tomsplayground.peanuts.client.insertSavedTransaction.name"
+               name="savedTransaction"
+               optional="true">
+         </commandParameter>
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -308,6 +318,17 @@
                icon="icons/date_add.png"
                style="push">
          </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:de.tomsplayground.peanuts.client.accountEditor">
+         <menu
+               label="Insert transaction">
+            <dynamic
+                  class="de.tomsplayground.peanuts.client.savedtransaction.InsertSavedTransactionItems"
+                  id="de.tomsplayground.peanuts.client.inserTransactionItems">
+            </dynamic>
+         </menu>
       </menuContribution>
    </extension>
    <extension
