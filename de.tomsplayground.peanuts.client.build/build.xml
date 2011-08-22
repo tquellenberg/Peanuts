@@ -1,7 +1,7 @@
 <project name="Product Build" default="publish">
-	<property name="eclipse.home" value="C:/Programme/eclipse"/>
-	<property name="buildDirectory" value="${user.home}/Entwicklung/eclipse.build"/>
-	<property name="baseLocation" value="${user.home}/Entwicklung/target_361/eclipse"/>
+	<property name="eclipse.home" value="${user.home}/targetplatform_3.7/eclipse"/>
+	<property name="buildDirectory" value="${user.home}/eclipse.build"/>
+	<property name="baseLocation" value="${user.home}/targetplatform_3.7/eclipse"/>
 
 	<available file="${buildDirectory}/label.properties" property="label.properties.exists" />
 	<property file="${buildDirectory}/label.properties" />
