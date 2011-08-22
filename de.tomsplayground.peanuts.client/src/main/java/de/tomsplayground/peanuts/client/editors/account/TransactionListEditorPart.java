@@ -26,6 +26,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
@@ -43,6 +44,8 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistableEditor;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.dialogs.FilteredTree;
+import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.part.EditorPart;
 
 import de.tomsplayground.peanuts.client.app.Activator;
@@ -246,7 +249,32 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 		l.setFont(boldFont);
 		saldo = new Label(banner, SWT.NONE);
 
-		transactionTree = new TreeViewer(top, SWT.MULTI | SWT.FULL_SELECTION);
+		PatternFilter filter = new PatternFilter() {
+			 @Override
+			protected boolean isLeafMatch(Viewer viewer, Object element) {
+				 if (element instanceof Transaction) {
+					 Transaction t = (Transaction) element;
+					 StringBuffer text = new StringBuffer();
+					 if (t.getCategory() != null)
+						 text.append(t.getCategory().getName()).append(' ');
+					 text.append(t.getMemo()).append(' ');
+					 if (element instanceof LabeledTransaction) {
+						 LabeledTransaction t2 = (LabeledTransaction) element;
+						 text.append(t2.getLabel()).append(' ');
+					 }
+					 if (element instanceof InvestmentTransaction) {
+						 InvestmentTransaction t2 = (InvestmentTransaction) element;
+						 if (t2.getSecurity() != null)
+							 text.append(t2.getSecurity().getName());
+					 }
+					 return wordMatches(text.toString());
+				 }
+				 return true;
+			}
+		};
+		FilteredTree filteredTree = new FilteredTree(top, SWT.MULTI | SWT.FULL_SELECTION, filter, true);
+		transactionTree = filteredTree.getViewer();
+		
 		transactionTree.addOpenListener(new IOpenListener() {
 			@Override
 			public void open(OpenEvent event) {
