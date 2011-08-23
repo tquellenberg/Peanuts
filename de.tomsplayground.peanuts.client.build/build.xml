@@ -118,8 +118,14 @@ buildLabel=${buildLabel}</echo>
 			<param name="ws" value="cocoa" />
 			<param name="arch" value="x86_64" />
 		</antcall>
-		<zip destfile="${buildDirectory}/${buildLabel}/peanuts-${buildLabel}-macosx.cocoa.x86_64.zip"
-			basedir="${buildDirectory}/tmp">
+		<zip destfile="${buildDirectory}/${buildLabel}/peanuts-${buildLabel}-macosx.cocoa.x86_64.zip">
+			<zipfileset dir="${buildDirectory}/tmp">
+				<include name="**"/>
+				<exclude name="peanuts/Peanuts.app/Contents/MacOS/Peanuts"/>
+			</zipfileset>
+			<zipfileset dir="${buildDirectory}/tmp" filemode="755">
+				<include name="peanuts/Peanuts.app/Contents/MacOS/Peanuts"/>
+			</zipfileset>
 		</zip>
 		<delete dir="${buildDirectory}/tmp" />
 	</target>
