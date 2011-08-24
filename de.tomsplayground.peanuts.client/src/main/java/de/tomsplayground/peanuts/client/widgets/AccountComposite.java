@@ -62,6 +62,13 @@ public class AccountComposite extends Composite {
 		return null;
 	}
 
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		accountButton.setEnabled(enabled);
+		accountCombo.setEnabled(enabled);
+	}
+
 	public void addSelectionListener(SelectionListener listener) {
 		accountCombo.addSelectionListener(listener);
 	}

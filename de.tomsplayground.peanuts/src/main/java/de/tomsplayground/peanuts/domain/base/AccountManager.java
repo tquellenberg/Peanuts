@@ -196,6 +196,17 @@ public class AccountManager extends ObservableModelObject {
 		return getByName(reports, name);
 	}
 
+	public boolean removeSavedTransaction(String name) {
+		SavedTransaction toDelete = getByName(savedTransactions, name);
+		if (toDelete != null) {
+			List<SavedTransaction> list = new ArrayList<SavedTransaction>(savedTransactions);
+			list.remove(toDelete);
+			savedTransactions = ImmutableList.copyOf(list);
+			firePropertyChange("savedTransaction", toDelete, null);
+		}
+		return toDelete != null;
+	}
+	
 	public void addSavedTransaction(SavedTransaction savedTransaction) {
 		List<SavedTransaction> list = new ArrayList<SavedTransaction>(savedTransactions);
 		list.add(savedTransaction);
