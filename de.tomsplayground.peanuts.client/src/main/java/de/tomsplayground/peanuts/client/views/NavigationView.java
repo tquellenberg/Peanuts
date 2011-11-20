@@ -70,7 +70,6 @@ public class NavigationView extends ViewPart {
 	private TreeViewer viewer;
 	private TreeParent root = new TreeParent("");
 
-
 	private PropertyChangeListener nameChangesListener = new PropertyChangeListener() {
 		
 		@Override
@@ -148,15 +147,40 @@ public class NavigationView extends ViewPart {
 		public void addChild(TreeObject child) {
 			children.add(child);
 			child.setParent(this);
+			if (child.baseObject instanceof ObservableModelObject) {
+				((ObservableModelObject) child.baseObject).addPropertyChangeListener("name", nameChangesListener);
+			}				
 		}
 
 		public void removeChild(TreeObject child) {
 			children.remove(child);
 			child.setParent(null);
+			if (child.baseObject instanceof ObservableModelObject) {
+				((ObservableModelObject) child.baseObject).removePropertyChangeListener(nameChangesListener);
+			}				
+		}
+		
+		public void setChildren(List<TreeObject> newChildren) {
+			for (TreeObject o : children) {
+				o.setParent(null);
+			}
+			children.clear();
+			for (TreeObject o : newChildren) {
+				addChild(o);
+			}
 		}
 
 		public TreeObject[] getChildren() {
 			return children.toArray(new TreeObject[children.size()]);
+		}
+		
+		public TreeObject getChild(String name) {
+			for (TreeObject child : children) {
+				if (child.getName().equals(name)) {
+					return child;
+				}
+			}
+			return null;
 		}
 
 		public boolean hasChildren() {
@@ -226,9 +250,6 @@ public class NavigationView extends ViewPart {
 	}
 	
 	private void destroyModel(TreeObject element) {
-		if (element.getBaseObject() != null && element.getBaseObject() instanceof ObservableModelObject) {
-			((ObservableModelObject)element.getBaseObject()).removePropertyChangeListener(nameChangesListener);
-		}
 		if (element instanceof TreeParent) {
 			TreeParent parent = (TreeParent)element;
 			TreeObject[] children = parent.getChildren();
@@ -238,43 +259,48 @@ public class NavigationView extends ViewPart {
 			}
 		}
 	}
-
-	private TreeObject createModel() {
-		destroyModel(root);
-		
+	
+	private void updateModel() {
 		AccountManager accountManager = Activator.getDefault().getAccountManager();
-		addElements(root, "Accounts", accountManager.getAccounts());
-		addElements(root, "Securities", accountManager.getSecurities());
-		addElements(root, "Reports", accountManager.getReports());
-		addElements(root, "Forecasts", accountManager.getForecasts());
-		addElements(root, "Credits", accountManager.getCredits());
-		addElements(root, "Security Categories", accountManager.getSecurityCategoryMappings());
-		addElements(root, "Saved Transactions", accountManager.getSavedTransactions());
-		
-		return root;
+		updateElements(root, "Accounts", accountManager.getAccounts());
+		updateElements(root, "Securities", accountManager.getSecurities());
+		updateElements(root, "Reports", accountManager.getReports());
+		updateElements(root, "Forecasts", accountManager.getForecasts());
+		updateElements(root, "Credits", accountManager.getCredits());
+		updateElements(root, "Security Categories", accountManager.getSecurityCategoryMappings());
+		updateElements(root, "Saved Transactions", accountManager.getSavedTransactions());
 	}
 
-	private void addElements(TreeParent parent, String groupName, List<? extends INamedElement> elements) {
-		TreeParent group = new TreeParent(groupName);
+	private void updateElements(TreeParent parent, String groupName, List<? extends INamedElement> elements) {
+		TreeParent group = (TreeParent) parent.getChild(groupName);
+		if (group == null) {
+			group = new TreeParent(groupName);
+			parent.addChild(group);
+		}
+		List<TreeObject> newChildList = new ArrayList<NavigationView.TreeObject>();
 		for (INamedElement element : elements) {
-			group.addChild(new TreeObject(element.getName(), element));
-			if (element instanceof ObservableModelObject) {
-				((ObservableModelObject) element).addPropertyChangeListener("name", nameChangesListener);
+			TreeObject treeObject = group.getChild(element.getName());
+			if (treeObject != null && treeObject.getBaseObject() == element) {
+				newChildList.add(treeObject);
+			} else {
+				newChildList.add(new TreeObject(element.getName(), element));
 			}
 		}
-		parent.addChild(group);		
+		group.setChildren(newChildList);
 	}
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new WorkbenchLabelProvider());
-		viewer.setInput(createModel());
+		updateModel();
+		viewer.setInput(root);
 		propertyChangeListener = new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
-				viewer.setInput(createModel());
+				updateModel();
+				viewer.refresh();
 			}
 		};
 		Activator.getDefault().getAccountManager().addPropertyChangeListener(propertyChangeListener);
@@ -390,7 +416,8 @@ public class NavigationView extends ViewPart {
 		actionBars.setGlobalActionHandler(ActionFactory.REFRESH.getId(), new Action("Refresh") {
 			@Override
 			public void run() {
-				viewer.setInput(createModel());
+				updateModel();
+				viewer.refresh();
 			}
 		});
 		actionBars.setGlobalActionHandler(ActionFactory.PROPERTIES.getId(), new PropertyDialogAction(getSite(), viewer));

@@ -447,6 +447,16 @@
             </adapt>
          </enabledWhen>
       </page>
+      <page
+            class="de.tomsplayground.peanuts.client.savedtransaction.properties.SavedTransactionPropertyPage"
+            id="de.tomsplayground.peanuts.client.savedtransaction.page1"
+            name="Saved Transaction">
+         <enabledWhen>
+            <adapt
+                  type="de.tomsplayground.peanuts.domain.process.SavedTransaction">
+            </adapt>
+         </enabledWhen>
+      </page>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">

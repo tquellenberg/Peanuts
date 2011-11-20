@@ -11,10 +11,11 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import de.tomsplayground.peanuts.config.ConfigurableSupport;
 import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.base.Account;
+import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.util.Day;
 
 @XStreamAlias("credit")
-public class Credit implements ICredit, IConfigurable {
+public class Credit extends ObservableModelObject implements ICredit, IConfigurable {
 	
 	public enum PaymentInterval {
 		MONTHLY,
@@ -84,7 +85,9 @@ public class Credit implements ICredit, IConfigurable {
 	}
 
 	public void setPayment(BigDecimal payment) {
+		BigDecimal oldPaymentAmount = this.paymentAmount;
 		this.paymentAmount = payment;
+		firePropertyChange("payment", oldPaymentAmount, payment);
 	}
 
 	@Override
@@ -122,7 +125,9 @@ public class Credit implements ICredit, IConfigurable {
 	}
 	
 	public void setConnection(Account account) {
-		connection = account;
+		Account oldConnection = this.connection;
+		this.connection = account;
+		firePropertyChange("connection", oldConnection, connection);
 	}
 
 	@Override
@@ -131,7 +136,9 @@ public class Credit implements ICredit, IConfigurable {
 	}
 
 	public void setName(String name) {
+		String oldName = this.name;
 		this.name = name;
+		firePropertyChange("name", oldName, name);
 	}
 
 	public BigDecimal getInterestRate() {
@@ -139,7 +146,9 @@ public class Credit implements ICredit, IConfigurable {
 	}
 
 	public void setInterestRate(BigDecimal interestRate) {
+		BigDecimal oldInterestRate = this.interestRate;
 		this.interestRate = interestRate;
+		firePropertyChange("interestRate", oldInterestRate, interestRate);
 	}
 
 	public BigDecimal getAmount() {
@@ -147,7 +156,9 @@ public class Credit implements ICredit, IConfigurable {
 	}
 
 	public void setAmount(BigDecimal amount) {
+		BigDecimal oldAmount = this.amount;
 		this.amount = amount;
+		firePropertyChange("amount", oldAmount, amount);
 	}
 
 	@Override
@@ -156,7 +167,9 @@ public class Credit implements ICredit, IConfigurable {
 	}
 
 	public void setStart(Day start) {
+		Day oldStart = this.start;
 		this.start = start;
+		firePropertyChange("start", oldStart, start);
 	}
 
 	@Override
@@ -165,7 +178,9 @@ public class Credit implements ICredit, IConfigurable {
 	}
 
 	public void setEnd(Day end) {
+		Day oldEnd = this.end;
 		this.end = end;
+		firePropertyChange("end", oldEnd, end);
 	}
 
 	public BigDecimal getPaymentAmount() {
@@ -177,7 +192,9 @@ public class Credit implements ICredit, IConfigurable {
 	}
 
 	public void setPaymentInterval(PaymentInterval paymentInterval) {
+		PaymentInterval oldPaymentInterval = this.paymentInterval;
 		this.paymentInterval = paymentInterval;
+		firePropertyChange("paymentInterval", oldPaymentInterval, paymentInterval);
 	}
 
 	public void reconfigureAfterDeserialization() {
