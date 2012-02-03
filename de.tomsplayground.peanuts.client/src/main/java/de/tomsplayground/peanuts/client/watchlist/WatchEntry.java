@@ -82,6 +82,10 @@ public class WatchEntry {
 			
 			BigDecimal delta = price2.getClose().subtract(price1.getClose());
 			
+			if (price1.getClose().signum() == 0) {
+				return BigDecimal.ZERO;
+			}
+			
 			BigDecimal performance = delta.divide(price1.getClose(), new MathContext(10, RoundingMode.HALF_EVEN));
 			return performance;
 		}
