@@ -10,7 +10,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -69,11 +68,13 @@ public class YahooCsvReader extends PriceProvider {
 			while ((values = csvReader.readNext()) != null) {
 				try {
 					Day d = Day.fromString(values[0]);
-					BigDecimal open = values[1].length()==0?null:new BigDecimal(values[1]);
-					BigDecimal high = values[2].length()==0?null:new BigDecimal(values[2]);
-					BigDecimal low = values[3].length()==0?null:new BigDecimal(values[3]);
-					BigDecimal close = values[4].length()==0?null:new BigDecimal(values[4]);
-					setPrice(new Price(d, open, close, high, low));
+					if (d.year < 3000) {
+						BigDecimal open = values[1].length()==0?null:new BigDecimal(values[1]);
+						BigDecimal high = values[2].length()==0?null:new BigDecimal(values[2]);
+						BigDecimal low = values[3].length()==0?null:new BigDecimal(values[3]);
+						BigDecimal close = values[4].length()==0?null:new BigDecimal(values[4]);
+						setPrice(new Price(d, open, close, high, low));
+					}
 				} catch (NumberFormatException e) {
 					log.error("Value: " + Arrays.toString(values));
 					throw e;
@@ -87,12 +88,14 @@ public class YahooCsvReader extends PriceProvider {
 			if (values != null && values.length >= 7 && !values[2].equals("N/A")) {
 				int startPos = 5;
 				try {
-					Date d = dateFormat2.parse(values[2]);
-					BigDecimal close = readDecimal(values[1]);
-					BigDecimal open = readDecimal(values[startPos]);
-					BigDecimal high = readDecimal(values[startPos+1]);
-					BigDecimal low = readDecimal(values[startPos+2]);
-					setPrice(new Price(Day.fromDate(d), open, close, high, low));
+					Day d = Day.fromDate(dateFormat2.parse(values[2]));
+					if (d.year < 3000) {
+						BigDecimal close = readDecimal(values[1]);
+						BigDecimal open = readDecimal(values[startPos]);
+						BigDecimal high = readDecimal(values[startPos+1]);
+						BigDecimal low = readDecimal(values[startPos+2]);
+						setPrice(new Price(d, open, close, high, low));
+					}
 				} catch (ParseException e) {
 					log.error(e.getMessage()+ " Value: " + Arrays.toString(values), e);
 				}
