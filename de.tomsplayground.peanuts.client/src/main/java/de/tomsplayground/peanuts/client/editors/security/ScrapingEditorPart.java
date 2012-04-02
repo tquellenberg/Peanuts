@@ -168,50 +168,53 @@ public class ScrapingEditorPart extends EditorPart {
 		
 		PrettyXmlSerializer xmlSerializer = new PrettyXmlSerializer(htmlCleaner.getProperties());
 		String string = xmlSerializer.getAsString(tagNode);
-		
 		StringBuilder resultStr = new StringBuilder();
-		PriceBuilder priceBuilder = new PriceBuilder();
-		for (String key : new String[]{"open", "close", "high", "low", "date"}) {
-			String xpath = xpathMap.get(key).getText();
-			if (StringUtils.isNotEmpty(xpath)) {
-				XPather xPather = new XPather(xpath);
-				Object[] result = xPather.evaluateAgainstNode(tagNode);
-				for (Object object : result) {
-					resultStr.append('>').append(object).append('\n');
-				}		
-				if (result.length > 0) {
-					String value = result[0].toString().trim();
-					int i = StringUtils.indexOfAnyBut(value, "0123456789,.");
-					if (i != -1) {
-						value = value.substring(0, i);
-					}
-					if (value.indexOf(',') != -1 && value.indexOf('.') == -1) {
-						value = value.replace(',', '.');
-					}
-					resultStr.append(key).append(": ").append(value).append('\n');
-					if (key.endsWith("date")) {
-						SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-						priceBuilder.setDay(Day.fromDate((dateFormat.parse(value))));
-					} else {
-						BigDecimal p = new BigDecimal(value);
-						if (key.equals("open")) priceBuilder.setOpen(p);
-						if (key.equals("close")) priceBuilder.setClose(p);
-						if (key.equals("high")) priceBuilder.setHigh(p);
-						if (key.equals("low")) priceBuilder.setLow(p);
+		try {
+			PriceBuilder priceBuilder = new PriceBuilder();
+			for (String key : new String[]{"open", "close", "high", "low", "date"}) {
+				String xpath = xpathMap.get(key).getText();
+				if (StringUtils.isNotEmpty(xpath)) {
+					XPather xPather = new XPather(xpath);
+					Object[] result = xPather.evaluateAgainstNode(tagNode);
+					for (Object object : result) {
+						resultStr.append('>').append(object).append('\n');
+					}		
+					if (result.length > 0) {
+						String value = result[0].toString().trim();
+						int i = StringUtils.indexOfAnyBut(value, "0123456789,.");
+						if (i != -1) {
+							value = value.substring(0, i);
+						}
+						if (value.indexOf(',') != -1 && value.indexOf('.') == -1) {
+							value = value.replace(',', '.');
+						}
+						resultStr.append(key).append(": ").append(value).append('\n');
+						if (key.endsWith("date")) {
+							SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+							priceBuilder.setDay(Day.fromDate((dateFormat.parse(value))));
+						} else {
+							BigDecimal p = new BigDecimal(value);
+							if (key.equals("open")) priceBuilder.setOpen(p);
+							if (key.equals("close")) priceBuilder.setClose(p);
+							if (key.equals("high")) priceBuilder.setHigh(p);
+							if (key.equals("low")) priceBuilder.setLow(p);
+						}
 					}
 				}
 			}
-		}
-		Price price = (Price) priceBuilder.build();
-		resultStr.append("Price: ").append(price).append('\n');
-		resultStr.append('\n').append(string);
+			Price price = (Price) priceBuilder.build();
+			resultStr.append("Price: ").append(price).append('\n');
+			resultStr.append('\n').append(string);
 
-		if (!test) {
-			Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-			IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
-			priceProvider.setPrice(price);
-			dirty = true;
-			firePropertyChange(IEditorPart.PROP_DIRTY);
+			if (!test) {
+				Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+				IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
+				priceProvider.setPrice(price);
+				dirty = true;
+				firePropertyChange(IEditorPart.PROP_DIRTY);
+			}
+		} catch (RuntimeException e) {
+			resultStr.append(e.getMessage());
 		}
 		testResultText.setText(resultStr.toString());
 	}
