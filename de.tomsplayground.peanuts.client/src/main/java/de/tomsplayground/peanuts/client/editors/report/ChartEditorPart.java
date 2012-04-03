@@ -71,7 +71,8 @@ public class ChartEditorPart extends EditorPart {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				String type = displayType.getItem(displayType.getSelectionIndex());
-				chartFrame.setChart(createChart(type));
+				String timerange = displayTimerange.getItem(displayTimerange.getSelectionIndex());
+				chartFrame.setChart(createChart(type, timerange));
 				chartFrame.redraw();
 			}
 		};
@@ -94,7 +95,8 @@ public class ChartEditorPart extends EditorPart {
 		body.setLayout(new GridLayout());
 
 		String chartType = StringUtils.defaultString(getReport().getConfigurationValue(CHART_TYPE), "in total");
-		JFreeChart chart = createChart(chartType);
+		String timerange = StringUtils.defaultString(getReport().getConfigurationValue(TIMERANGE), "all");
+		JFreeChart chart = createChart(chartType, timerange);
 		chartFrame = new ChartComposite(body, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
@@ -109,17 +111,17 @@ public class ChartEditorPart extends EditorPart {
 			public void widgetSelected(SelectionEvent e) {
 				Combo c = (Combo)e.getSource();
 				String type = c.getItem(c.getSelectionIndex());
-				chartFrame.setChart(createChart(type));
+				String timerange = displayTimerange.getItem(displayTimerange.getSelectionIndex());
+				chartFrame.setChart(createChart(type, timerange));
 				chartFrame.redraw();
-				displayTimerange.setText("all");
 				dirty = true;
 				firePropertyChange(IEditorPart.PROP_DIRTY);
 			}
 		});
 		
-		String timerange = StringUtils.defaultString(getReport().getConfigurationValue(TIMERANGE), "all");
 		displayTimerange = new Combo(body, SWT.READ_ONLY);
 		displayTimerange.add("all");
+		displayTimerange.add("three years");
 		displayTimerange.add("one year");
 		displayTimerange.add("this year");
 		displayTimerange.add("6 month");
@@ -153,7 +155,7 @@ public class ChartEditorPart extends EditorPart {
 		super.dispose();
 	}
 	
-	private JFreeChart createChart(String type) {
+	private JFreeChart createChart(String type, String timerange) {
 		JFreeChart chart;
 		SimpleDateFormat axisDateFormat;
 		if (type.equals("in total")) {
@@ -168,6 +170,7 @@ public class ChartEditorPart extends EditorPart {
 					false // generate URLs?
 				);
 			timeChart = new TimeChart(chart, dataset);
+			timeChart.setChartType(timerange);
 			axisDateFormat = new SimpleDateFormat("MMM-yyyy");
 		} else {
 			// per month / year
@@ -286,6 +289,8 @@ public class ChartEditorPart extends EditorPart {
 	public void doSave(IProgressMonitor monitor) {
 		String type = displayType.getItem(displayType.getSelectionIndex());
 		getReport().putConfigurationValue(CHART_TYPE, type);
+		String timeRange = displayTimerange.getItem(displayTimerange.getSelectionIndex());
+		getReport().putConfigurationValue(TIMERANGE, timeRange);
 		dirty = false;
 	}
 
