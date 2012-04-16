@@ -27,6 +27,7 @@ import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.SavedTransaction;
 import de.tomsplayground.peanuts.domain.process.StockSplit;
+import de.tomsplayground.peanuts.domain.process.StopLoss;
 import de.tomsplayground.peanuts.domain.reporting.forecast.Forecast;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
@@ -52,6 +53,8 @@ public class AccountManager extends ObservableModelObject {
 	private ImmutableList<SavedTransaction> savedTransactions = ImmutableList.of();
 	
 	private Set<StockSplit> stockSplits = new HashSet<StockSplit>();
+
+	private Set<StopLoss> stopLosses = new HashSet<StopLoss>();
 
 	private List<SecurityCategoryMapping> securityCategoryMappings = new ArrayList<SecurityCategoryMapping>();
 
@@ -282,11 +285,15 @@ public class AccountManager extends ObservableModelObject {
 		forecasts.clear();
 		credits.clear();
 		stockSplits.clear();
+		stopLosses.clear();
 		savedTransactions = ImmutableList.of();
 		securityCategoryMappings.clear();
 	}
 
 	public void reconfigureAfterDeserialization() {
+		if (stopLosses == null) {
+			stopLosses = new HashSet<StopLoss>();
+		}
 		if (stockSplits == null) {
 			stockSplits = new HashSet<StockSplit>();
 		}
@@ -388,7 +395,7 @@ public class AccountManager extends ObservableModelObject {
 	 * The splits are ordered by date.
 	 * 
 	 */
-	public List<StockSplit> getStockSplits(final Security security) {
+	public ImmutableList<StockSplit> getStockSplits(final Security security) {
 		return ImmutableSortedSet.copyOf(DAY_COMPARATOR, 
 			Iterables.filter(stockSplits, new Predicate<StockSplit>() {
 				@Override
@@ -415,6 +422,33 @@ public class AccountManager extends ObservableModelObject {
 			}
 		}
 		stockSplits.addAll(splits);
+	}
+	
+	/**
+	 * Returns all stop loss objects for the given security.
+	 */
+	public ImmutableSet<StopLoss> getStopLosses(final Security security) {
+		return ImmutableSet.copyOf(
+			Iterables.filter(stopLosses, new Predicate<StopLoss>() {
+				@Override
+				public boolean apply(StopLoss stopLoss) {
+					return stopLoss.getSecurity().equals(security);
+				}
+			}
+		));
+	}
+	
+	public void addStopLoss(StopLoss stopLoss) {
+		stopLosses.add(stopLoss);
+		firePropertyChange("stopLoss", null, stopLoss);
+	}
+	
+	public boolean removeStopLoss(StopLoss stopLoss) {
+		boolean remove = stopLosses.remove(stopLoss);
+		if (remove) {
+			firePropertyChange("stopLoss", stopLoss, null);
+		}
+		return remove;
 	}
 	
 	public Inventory getFullInventory() {

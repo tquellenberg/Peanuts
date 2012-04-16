@@ -4,9 +4,9 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
-/*
- * Unmodifiable day.
- */
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public class Day implements Serializable, Cloneable, Comparable<Day>{
 
 	private static final long serialVersionUID = 817177201924284505L;
@@ -49,6 +49,12 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 		this.year = cal.get(Calendar.YEAR);
 	}
 	
+	/**
+	 * Create new Day object.
+	 * @param year
+	 * @param month 0..11
+	 * @param day 1..31
+	 */
 	public Day(int year, int month, int day) {
 		if (! (day > 0 && day <= 31)) throw new IllegalArgumentException("day: 1-31");
 		if (! (month >= 0 && month <= 11)) throw new IllegalArgumentException("month: 0-11");

@@ -24,11 +24,13 @@ public class PeanutsUtil {
 	private static final NumberFormat currencyValueFormat = NumberFormat.getNumberInstance();
 	private static final NumberFormat quantityFormat = NumberFormat.getNumberInstance();	
 	private static final NumberFormat percentFormat = NumberFormat.getPercentInstance();
+	private static final NumberFormat percentValueFormat = NumberFormat.getPercentInstance();
 
 	static {
 		((DecimalFormat) currencyValueFormat).setMinimumFractionDigits(2);
 		((DecimalFormat) currencyValueFormat).setParseBigDecimal(true);
 		((DecimalFormat) quantityFormat).setParseBigDecimal(true);
+		((DecimalFormat) percentValueFormat).setParseBigDecimal(true);
 		percentFormat.setMinimumFractionDigits(2);
 	}
 
@@ -105,6 +107,11 @@ public class PeanutsUtil {
 
 	public static BigDecimal parseCurrency(String str) throws ParseException {
 		BigDecimal amount = (BigDecimal) currencyValueFormat.parse(str);
+		return amount;
+	}
+
+	public static BigDecimal parsePercent(String str) throws ParseException {
+		BigDecimal amount = (BigDecimal) percentValueFormat.parse(str);
 		return amount;
 	}
 

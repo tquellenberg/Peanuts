@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Currency;
 import java.util.List;
@@ -45,6 +44,7 @@ import org.jfree.ui.RectangleInsets;
 import org.jfree.ui.TextAnchor;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
@@ -57,6 +57,7 @@ import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
+import de.tomsplayground.peanuts.domain.process.StopLoss;
 import de.tomsplayground.peanuts.domain.statistics.Signal;
 import de.tomsplayground.peanuts.domain.statistics.SimpleMovingAverage;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
@@ -103,6 +104,7 @@ public class ChartEditorPart extends EditorPart {
 							createMovingAverage(average20Days, 20);
 							createMovingAverage(average100Days, 100);
 						}
+						updateStopLoss();
 					}
 				}
 			});
@@ -130,18 +132,24 @@ public class ChartEditorPart extends EditorPart {
 					timeChart.removeAnnotations(signalAnnotations);
 				}
 			}
-			if (evt.getPropertyName().equals("STOPLOSS")) {
-				updateStopLossMarker();
-			}
 		}
 	};
 	
+	private PropertyChangeListener accountManagerChangeListener = new PropertyChangeListener() {	
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			if (evt.getPropertyName().equals("stopLoss")) {
+				updateStopLoss();
+			}
+		}
+	};
+
 	private TimeSeries average20Days;
 	private TimeSeries average100Days;
 	private TimeSeriesCollection dataset;
 	private ImmutableList<XYAnnotation> signalAnnotations;
 	private TimeChart timeChart;
-	private ValueMarker stopLossMarker;
+	private TimeSeries stopLoss;
 	
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -171,8 +179,6 @@ public class ChartEditorPart extends EditorPart {
 		}
 		
 		addOrderAnnotations(chart);
-
-		updateStopLossMarker();
 
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		
@@ -212,31 +218,8 @@ public class ChartEditorPart extends EditorPart {
 		});
 		
 		security.addPropertyChangeListener(securityPropertyChangeListener);
-	}
-
-	protected void updateStopLossMarker() {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		String stopLossValue = security.getConfigurationValue("STOPLOSS");
-		if (stopLossMarker != null) {
-			timeChart.getPlot().removeRangeMarker(stopLossMarker);
-			stopLossMarker = null;
-		}
-		if (StringUtils.isNotEmpty(stopLossValue)) {
-			try {
-				stopLossMarker = new ValueMarker(PeanutsUtil.parseQuantity(stopLossValue).doubleValue());
-				stopLossMarker.setPaint(Color.red);
-				stopLossMarker.setLabelPaint(Color.red);
-				stopLossMarker.setLabel("Stop Loss");
-				stopLossMarker.setLabelFont(new Font("SansSerif", Font.PLAIN, 10));
-				stopLossMarker.setLabelOffsetType(LengthAdjustmentType.EXPAND);
-				stopLossMarker.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
-				stopLossMarker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
-
-				timeChart.getPlot().addRangeMarker(stopLossMarker);
-			} catch (ParseException e) {
-				// Okay
-			}
-		}
+		
+		Activator.getDefault().getAccountManager().addPropertyChangeListener(accountManagerChangeListener);
 	}
 
 	protected void addOrderAnnotations(final JFreeChart chart) {
@@ -351,15 +334,27 @@ public class ChartEditorPart extends EditorPart {
 
 		average20Days = new TimeSeries("Moving Average: 20 days", Day.class);
 		average100Days = new TimeSeries("Moving Average: 100 days", Day.class);
-
+		
 		if (isShowAvg()) {
 			createMovingAverage(average20Days, 20);
 			dataset.addSeries(average20Days);			
 			createMovingAverage(average100Days, 100);
 			dataset.addSeries(average100Days);
 		}
-		
+
+		stopLoss = new TimeSeries("Stop Loss", Day.class);
+		updateStopLoss();
+		dataset.addSeries(stopLoss);			
+
 		((ObservableModelObject) priceProvider).addPropertyChangeListener(priceProviderChangeListener);
+	}
+	
+	private void updateStopLoss() {
+		Security security = ((SecurityEditorInput)getEditorInput()).getSecurity();
+		ImmutableSet<StopLoss> stopLosses = Activator.getDefault().getAccountManager().getStopLosses(security);
+		if (! stopLosses.isEmpty()) {
+			createStopLoss(stopLoss, stopLosses.iterator().next());
+		}
 	}
 
 	private boolean isShowAvg() {
@@ -374,6 +369,7 @@ public class ChartEditorPart extends EditorPart {
 	public void dispose() {
 		((ObservableModelObject) priceProvider).removePropertyChangeListener(priceProviderChangeListener);
 		((SecurityEditorInput)getEditorInput()).getSecurity().removePropertyChangeListener(securityPropertyChangeListener);
+		Activator.getDefault().getAccountManager().removePropertyChangeListener(accountManagerChangeListener);
 		super.dispose();
 	}
 	
@@ -381,6 +377,13 @@ public class ChartEditorPart extends EditorPart {
 		SimpleMovingAverage simpleMovingAverage = new SimpleMovingAverage(days);
 		List<Price> sma = simpleMovingAverage.calculate(priceProvider.getPrices());
 		for (Price price : sma) {
+			de.tomsplayground.util.Day day = price.getDay();
+			a1.addOrUpdate(new Day(day.day, day.month+1, day.year), price.getValue());
+		}
+	}
+
+	private void createStopLoss(TimeSeries a1, StopLoss stopLoss) {
+		for (Price price : stopLoss.getPrices(priceProvider)) {
 			de.tomsplayground.util.Day day = price.getDay();
 			a1.addOrUpdate(new Day(day.day, day.month+1, day.year), price.getValue());
 		}

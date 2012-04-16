@@ -15,6 +15,7 @@ import de.tomsplayground.peanuts.domain.process.BankTransaction;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.StockSplit;
+import de.tomsplayground.peanuts.domain.process.StopLoss;
 import de.tomsplayground.peanuts.domain.process.Transaction;
 import de.tomsplayground.peanuts.domain.process.TransferTransaction;
 import de.tomsplayground.peanuts.domain.query.CategoryQuery;
@@ -50,7 +51,8 @@ public class PersistenceService implements IPersistenceService {
 				CategoryQuery.class,
 				Credit.class,
 				StockSplit.class,
-				SecurityCategoryMapping.class
+				SecurityCategoryMapping.class,
+				StopLoss.class
 		});		
 	}
 
