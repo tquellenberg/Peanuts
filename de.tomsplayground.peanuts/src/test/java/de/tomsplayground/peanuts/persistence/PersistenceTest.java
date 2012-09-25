@@ -2,12 +2,14 @@ package de.tomsplayground.peanuts.persistence;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,6 +31,7 @@ public class PersistenceTest {
 		accountManager = new AccountManager();
 		account = accountManager.getOrCreateAccount("Test", Account.Type.BANK);
 		account.addTransaction(new Transaction(new Day(), new BigDecimal("12.34")));
+		account.putConfigurationValue("key123", "value456");
 		account2 = accountManager.getOrCreateAccount("Test2", Account.Type.BANK);
 		Transfer transfer = new Transfer(account, account2, new BigDecimal("1234.55"),
 			new Day());
@@ -71,16 +74,13 @@ public class PersistenceTest {
 	}
 
 	@Test
-	public void testPersistenceFromFile() {
-		Reader in = new InputStreamReader(PersistenceTest.class.getResourceAsStream("/persistence.xml"));
-		IPersistenceService persistenceService = new PersistenceService();
-		Persistence persistence = new Persistence();
-		persistence.setPersistenceService(persistenceService);
+	public void testUpdateConcurrentHashMap() throws IOException {
+		Reader in = new InputStreamReader(PersistenceTest.class.getResourceAsStream("/ConcurrentHashMap.xml"));
+		String xml = IOUtils.toString(in);
 		
-		AccountManager accountManager2 = persistence.read(in);
+		String result = Persistence.updateConcurrentHashMap(xml);
 		
-		assertEquals(2, accountManager2.getAccounts().size());
-		
-	}
+		assertEquals("klasj fajsfl ajslf jaslfj aslkjals<displayConfiguration id=\"7420\"><entry><string>de.tomsplayground.peanuts.client.dashboard.SecurityWatchlist</string><string>1</string></entry><entry><string>chartType</string><string>one year</string></entry></displayConfiguration>skaj kajsfkaj lfkjaslkj", result);
+	}	
 	
 }
