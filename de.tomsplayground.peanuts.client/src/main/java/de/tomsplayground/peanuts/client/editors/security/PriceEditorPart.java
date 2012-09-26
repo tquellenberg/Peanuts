@@ -205,8 +205,7 @@ public class PriceEditorPart extends EditorPart implements IPersistableEditor {
 					priceProvider.removePrice(p.getDay());
 					priceProvider.setPrice(newPrice);
 					((TableItem) element).setData(newPrice);
-					dirty = true;
-					firePropertyChange(IEditorPart.PROP_DIRTY);
+					markDirty();
 				}
 			}
 		});
@@ -254,8 +253,7 @@ public class PriceEditorPart extends EditorPart implements IPersistableEditor {
 					d = new Day();
 				Price price = new Price(d, BigDecimal.ZERO);
 				priceProvider.setPrice(price);
-				dirty = true;
-				PriceEditorPart.this.firePropertyChange(IEditorPart.PROP_DIRTY);
+				markDirty();
 			}
 		});
 	}
@@ -304,6 +302,11 @@ public class PriceEditorPart extends EditorPart implements IPersistableEditor {
 			TableColumn tableColumn = columns[i];
 			memento.putInteger("col" + i, tableColumn.getWidth());
 		}
+	}
+
+	public void markDirty() {
+		dirty = true;
+		firePropertyChange(IEditorPart.PROP_DIRTY);
 	}
 
 }
