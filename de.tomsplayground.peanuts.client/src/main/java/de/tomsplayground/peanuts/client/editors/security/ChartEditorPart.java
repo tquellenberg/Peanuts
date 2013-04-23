@@ -71,12 +71,12 @@ public class ChartEditorPart extends EditorPart {
 	private IPriceProvider priceProvider;
 	private ChartComposite chartComposite;
 	
-	private PropertyChangeListener priceProviderChangeListener = new PropertyChangeListener() {
+	private final PropertyChangeListener priceProviderChangeListener = new PropertyChangeListener() {
 
 		@Override
 		public void propertyChange(final PropertyChangeEvent evt) {
 			Display display = getSite().getWorkbenchWindow().getWorkbench().getDisplay();
-			display.asyncExec(new Runnable() {				
+			display.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					if (! chartComposite.isDisposed()) {
@@ -98,7 +98,7 @@ public class ChartEditorPart extends EditorPart {
 							for (Price p : priceProvider.getPrices()) {
 								de.tomsplayground.util.Day day = p.getDay();
 								priceTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), p.getValue());
-							}					
+							}
 						}
 						if (isShowAvg()) {
 							createMovingAverage(average20Days, 20);
@@ -111,7 +111,7 @@ public class ChartEditorPart extends EditorPart {
 		}
 	};
 	
-	private PropertyChangeListener securityPropertyChangeListener = new PropertyChangeListener() {	
+	private final PropertyChangeListener securityPropertyChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			if (evt.getPropertyName().equals("SHOW_AVG")) {
@@ -123,7 +123,7 @@ public class ChartEditorPart extends EditorPart {
 				} else {
 					dataset.removeSeries(average20Days);
 					dataset.removeSeries(average100Days);
-				}				
+				}
 			}
 			if (evt.getPropertyName().equals("SHOW_SIGNALS")) {
 				if (isShowSignals()) {
@@ -135,7 +135,7 @@ public class ChartEditorPart extends EditorPart {
 		}
 	};
 	
-	private PropertyChangeListener accountManagerChangeListener = new PropertyChangeListener() {	
+	private final PropertyChangeListener accountManagerChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			if (evt.getPropertyName().equals("stopLoss")) {
@@ -147,7 +147,7 @@ public class ChartEditorPart extends EditorPart {
 	private TimeSeries average20Days;
 	private TimeSeries average100Days;
 	private TimeSeriesCollection dataset;
-	private ImmutableList<XYAnnotation> signalAnnotations;
+	private ImmutableList<XYAnnotation> signalAnnotations = ImmutableList.of();
 	private TimeChart timeChart;
 	private TimeSeries stopLoss;
 	
@@ -268,14 +268,15 @@ public class ChartEditorPart extends EditorPart {
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
 		InventoryEntry inventoryEntry = inventory.getEntry(security);
-		if (inventoryEntry != null)
+		if (inventoryEntry != null) {
 			return inventoryEntry.getTransactions();
-		else
+		} else {
 			return ImmutableList.of();
+		}
 	}
 	
 	private BigDecimal getAvgPrice() {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();		
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
 		if (inventory.getSecurities().contains(security)) {
 			return inventory.getEntry(security).getAvgPrice();
@@ -310,7 +311,7 @@ public class ChartEditorPart extends EditorPart {
 		plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
 		plot.setDomainCrosshairVisible(true);
 		plot.setRangeCrosshairVisible(true);
-		plot.setDrawingSupplier(new PeanutsDrawingSupplier());		
+		plot.setDrawingSupplier(new PeanutsDrawingSupplier());
 		XYItemRenderer renderer = plot.getRenderer();
 		if (renderer instanceof XYLineAndShapeRenderer) {
 			renderer.setSeriesStroke(1, new BasicStroke(2.0f));
@@ -337,14 +338,14 @@ public class ChartEditorPart extends EditorPart {
 		
 		if (isShowAvg()) {
 			createMovingAverage(average20Days, 20);
-			dataset.addSeries(average20Days);			
+			dataset.addSeries(average20Days);
 			createMovingAverage(average100Days, 100);
 			dataset.addSeries(average100Days);
 		}
 
 		stopLoss = new TimeSeries("Stop Loss", Day.class);
 		updateStopLoss();
-		dataset.addSeries(stopLoss);			
+		dataset.addSeries(stopLoss);
 
 		((ObservableModelObject) priceProvider).addPropertyChangeListener(priceProviderChangeListener);
 	}
