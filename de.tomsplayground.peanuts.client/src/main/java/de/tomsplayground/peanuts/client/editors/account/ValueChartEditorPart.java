@@ -23,10 +23,13 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
+import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -53,7 +56,7 @@ public class ValueChartEditorPart extends EditorPart {
 
 	private ChartComposite chartFrame;
 
-	private PropertyChangeListener changeListener = new UniqueAsyncExecution() {
+	private final PropertyChangeListener changeListener = new UniqueAsyncExecution() {
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
 			if (!displayType.isDisposed()) {
@@ -111,7 +114,7 @@ public class ValueChartEditorPart extends EditorPart {
 				dirty = true;
 				firePropertyChange(IEditorPart.PROP_DIRTY);
 			}
-		});		
+		});
 	}
 
 	private Account getAccount() {
@@ -125,26 +128,23 @@ public class ValueChartEditorPart extends EditorPart {
 	}
 
 	private JFreeChart createChart(String chartType) {
-		TimeSeriesCollection dataset = createTotalDataset();
-		JFreeChart chart;
-			chart = ChartFactory.createTimeSeriesChart(
-					getEditorInput().getName(), // title
-					"Date", // x-axis label
-					"Value", // y-axis label
-					dataset, // data
-					false, // create legend?
-					true, // generate tooltips?
-					false // generate URLs?
-				);		
+        CombinedDomainXYPlot plot = new CombinedDomainXYPlot(new DateAxis("Date"));
+        JFreeChart chart = new JFreeChart(getEditorInput().getName(), plot);
 		chart.setBackgroundPaint(Color.white);
 
-		XYPlot plot = (XYPlot) chart.getPlot();
-		plot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);
-		plot.setDomainGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
-		plot.setRangeGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
-		plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
-		plot.setDomainCrosshairVisible(true);
-		plot.setRangeCrosshairVisible(true);
+		TimeSeriesCollection dataset = createTotalDataset();
+		XYPlot subplot1 = new XYPlot(dataset, null,  new NumberAxis("Value"), new StandardXYItemRenderer());
+		plot.add(subplot1, 70);
+		subplot1.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
+		subplot1.setDomainCrosshairVisible(true);
+		subplot1.setRangeCrosshairVisible(true);
+
+		XYPlot subplot2 = new XYPlot(createGainLossDataset(), null, new NumberAxis("Gain/Loss"), new XYAreaRenderer());
+		subplot2.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
+		subplot2.setDomainCrosshairVisible(true);
+		subplot2.setRangeCrosshairVisible(true);
+		plot.add(subplot2, 30);
+		
 		plot.setDrawingSupplier(new PeanutsDrawingSupplier());
 
 		DateAxis axis = (DateAxis) plot.getDomainAxis();
@@ -154,6 +154,29 @@ public class ValueChartEditorPart extends EditorPart {
 		timeChart.setChartType(chartType);
 		
 		return chart;
+	}
+
+	private TimeSeriesCollection createGainLossDataset() {
+		List<BigDecimal> values = intervalReport.getValues();
+		DateIterator dateIterator = intervalReport.dateIterator();
+		List<BigDecimal> inventoryValues = intervalReport.getInventoryValues();
+		List<BigDecimal> investmentValues = intervalReport.getInvestmentValues();
+		TimeSeries s3 = new TimeSeries("Saldo", Day.class);
+		BigDecimal sum = BigDecimal.ZERO;
+		Iterator<BigDecimal> iterator1 = inventoryValues.iterator();
+		Iterator<BigDecimal> iterator2 = investmentValues.iterator();
+		for (BigDecimal v : values) {
+			sum = sum.add(v);
+			de.tomsplayground.util.Day d = dateIterator.next();
+			Day day = new Day(d.day, d.month+1, d.year);
+			BigDecimal v1 = sum.add(iterator1.next());
+			BigDecimal v2 = iterator2.next();
+			s3.add(day, v1.subtract(v2));
+		}
+		TimeSeriesCollection dataset = new TimeSeriesCollection();
+		dataset.addSeries(s3);
+
+		return dataset;
 	}
 
 	private TimeSeriesCollection createTotalDataset() {
@@ -170,8 +193,10 @@ public class ValueChartEditorPart extends EditorPart {
 			sum = sum.add(v);
 			de.tomsplayground.util.Day d = dateIterator.next();
 			Day day = new Day(d.day, d.month+1, d.year);
-			s1.add(day, sum.add(iterator1.next()));
-			s2.add(day, iterator2.next());
+			BigDecimal v1 = sum.add(iterator1.next());
+			s1.add(day, v1);
+			BigDecimal v2 = iterator2.next();
+			s2.add(day, v2);
 		}
 		TimeSeriesCollection dataset = new TimeSeriesCollection();
 		dataset.addSeries(s1);

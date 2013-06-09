@@ -13,6 +13,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYDrawableAnnotation;
 import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.Range;
 import org.jfree.data.time.RegularTimePeriod;
@@ -77,7 +78,7 @@ public class TimeChart {
 			from.add(Calendar.MONTH, -1);
 			dateAxis.setRange(from.getTime(), to.getTime());
 		} else {
-			dateAxis.setAutoRange(true);					
+			dateAxis.setAutoRange(true);
 		}
 		adjustRangeAxis(plot, from, to);
 	}
@@ -89,10 +90,11 @@ public class TimeChart {
 			long timeInMillis = signal.day.toCalendar().getTimeInMillis();
 			double yValue = signal.price.getClose().doubleValue();
 			XYDrawableAnnotation annotation;
-			if (signal.type == Type.SELL)
+			if (signal.type == Type.SELL) {
 				annotation = new XYDrawableAnnotation(timeInMillis, yValue, 0, 0, sellDrawable);
-			else
+			} else {
 				annotation = new XYDrawableAnnotation(timeInMillis, yValue, 0, 0, buyDrawable);
+			}
 			annotation.setToolTipText(signal.price.getDay().toString());
 			plot.addAnnotation(annotation);
 			annotations.add(annotation);
@@ -115,26 +117,31 @@ public class TimeChart {
 					int start = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, from.getTime(), from.getTimeZone()));
 					if (start < 0) {
 						start = -start;
-						if (start == serie.getItemCount())
+						if (start == serie.getItemCount()) {
 							start = serie.getItemCount() - 1;
+						}
 					}
 					int end = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, to.getTime(), to.getTimeZone()));
 					if (end < 0) {
 						end = - end;
 					}
-					if (end >= serie.getItemCount())
+					if (end >= serie.getItemCount()) {
 						end = serie.getItemCount() - 1;
+					}
 					for (int i = start; i <= end; i++) {
 						double v = serie.getValue(i).doubleValue();
-						if (v < min)
+						if (v < min) {
 							min = v;
-						if (v > max)
+						}
+						if (v > max) {
 							max = v;
+						}
 					}
 				}
 			}
-			if (min < max)
+			if (min < max) {
 				plot.getRangeAxis().setRangeWithMargins(new Range(min, max));
+			}
 		}
 	}
 
@@ -146,6 +153,10 @@ public class TimeChart {
 	}
 
 	public XYPlot getPlot() {
-		return (XYPlot) chart.getPlot();
+		if (chart.getPlot() instanceof CombinedDomainXYPlot) {
+			return (XYPlot) ((CombinedDomainXYPlot)chart.getPlot()).getSubplots().get(0);
+		} else {
+			return chart.getXYPlot();
+		}
 	}
 }
