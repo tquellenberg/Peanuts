@@ -64,7 +64,7 @@ public class StopLossPropertyPage extends PropertyPage {
 		} else {
 			String stopLossValue = StringUtils.defaultString(security.getConfigurationValue("STOPLOSS"));
 			date.setDay(new Day(1970, 0, 1));
-			stop.setText(stopLossValue);			
+			stop.setText(stopLossValue);
 		}
 		return composite;
 	}
@@ -94,6 +94,13 @@ public class StopLossPropertyPage extends PropertyPage {
 	@Override
 	public boolean performOk() {
 		Security security = (Security)getElement().getAdapter(Security.class);
+
+		AccountManager accountManager = Activator.getDefault().getAccountManager();
+		ImmutableSet<StopLoss> stopLosses = accountManager.getStopLosses(security);
+		if (! stopLosses.isEmpty()) {
+			accountManager.removeStopLoss(stopLosses.iterator().next());
+		}
+		
 		Day startDate = date.getDay();
 		BigDecimal stopValue;
 		try {
@@ -113,14 +120,9 @@ public class StopLossPropertyPage extends PropertyPage {
 			}
 		}
 		StopLoss stopLoss = new StopLoss(security, startDate, stopValue, strategy);
-		
-		AccountManager accountManager = Activator.getDefault().getAccountManager();
-		ImmutableSet<StopLoss> stopLosses = accountManager.getStopLosses(security);
-		if (! stopLosses.isEmpty()) {
-			accountManager.removeStopLoss(stopLosses.iterator().next());
+		if (stopLoss.getStartPrice().compareTo(BigDecimal.ZERO) != 0) {
+			accountManager.addStopLoss(stopLoss);
 		}
-		accountManager.addStopLoss(stopLoss);
-		
 		return super.performOk();
 	}
 
