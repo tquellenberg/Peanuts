@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,7 +36,7 @@ public class YahooCsvReader extends PriceProvider {
 	public static YahooCsvReader forTicker(String ticker, Type type) throws IOException {
 		URL url;
 		if (type == Type.CURRENT) {
-			url = new URL("http://download.finance.yahoo.com/d/quotes.csv?f=sl1d1t1c1ohgv&s=" + 
+			url = new URL("http://download.finance.yahoo.com/d/quotes.csv?f=sl1d1t1c1ohgv&s=" +
 					ticker);
 		} else {
 			Calendar today = Calendar.getInstance();
@@ -43,7 +44,9 @@ public class YahooCsvReader extends PriceProvider {
 				"&d=" + today.get(Calendar.MONTH) + "&e=" + today.get(Calendar.DAY_OF_MONTH) +
 				"&f=" + today.get(Calendar.YEAR) + "&s=" + ticker);
 		}
-		String str = IOUtils.toString(url.openStream());
+		URLConnection connection = url.openConnection();
+		connection.setConnectTimeout(1000*10);
+		String str = IOUtils.toString(connection.getInputStream());
 		return new YahooCsvReader(new StringReader(str), type);
 	}
 	
@@ -52,10 +55,11 @@ public class YahooCsvReader extends PriceProvider {
 	}
 	
 	public YahooCsvReader(Reader reader, Type type) throws IOException {
-		if (type == Type.HISTORICAL)
+		if (type == Type.HISTORICAL) {
 			csvReader = new CSVReader(reader, ',', '"');
-		else
+		} else {
 			csvReader = new CSVReader(reader, ',', '"');
+		}
 		this.type = type;
 		read();
 	}
