@@ -12,7 +12,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/htmlcleaner-2.2.jar" sourcepath="lib/src/htmlcleaner-2.2-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jdom-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.16.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.1.jar" sourcepath="C:/Users/subshell/.m2/repository/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.1.jar" sourcepath="/Users/quelle/.m2/repository/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/opencsv-2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xpp3_min-1.1.4c.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/iText-2.1.1.jar"/>

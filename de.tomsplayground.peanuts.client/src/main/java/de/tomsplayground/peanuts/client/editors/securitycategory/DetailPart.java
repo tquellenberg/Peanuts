@@ -1,5 +1,7 @@
 package de.tomsplayground.peanuts.client.editors.securitycategory;
 
+import static com.google.common.collect.Collections2.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -7,7 +9,6 @@ import java.util.Comparator;
 import java.util.Currency;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -36,6 +37,9 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistableEditor;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
+
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.wizards.securitycategory.SecurityCategoryEditWizard;
@@ -101,10 +105,26 @@ public class DetailPart extends EditorPart implements IPersistableEditor {
 		public Object[] getElements(Object inputElement) {
 			content = (SecurityCategoryMapping)inputElement;
 			List<String> categories = content.getCategories();
-			if (CollectionUtils.isSubCollection(inventory.getSecurities(), content.getAllSecurities())) {
+			if (! content.getAllSecurities().containsAll(getSecuritiesInInventory())) {
+				List<Security> securities = new ArrayList<Security>(getSecuritiesInInventory());
+				securities.removeAll(content.getAllSecurities());
 				categories.add(WITHOUT_CATEGORY);
 			}
 			return categories.toArray(new String[0]);
+		}
+
+		private Collection<Security> getSecuritiesInInventory() {
+			return transform(filter(inventory.getEntries(), new Predicate<InventoryEntry>() {
+				@Override
+				public boolean apply(InventoryEntry entry) {
+					return entry.getQuantity().intValue() > 0;
+				}
+			}), new Function<InventoryEntry, Security>() {
+				@Override
+				public Security apply(InventoryEntry entry) {
+					return entry.getSecurity();
+				}
+			});
 		}
 
 		@Override
@@ -113,7 +133,7 @@ public class DetailPart extends EditorPart implements IPersistableEditor {
 				String category = (String) parentElement;
 				List<Security> securities;
 				if (category.equals(WITHOUT_CATEGORY)) {
-					securities = new ArrayList<Security>(inventory.getSecurities());
+					securities = new ArrayList<Security>(getSecuritiesInInventory());
 					securities.removeAll(content.getAllSecurities());
 				} else {
 					securities = new ArrayList<Security>(content.getSecuritiesByCategory(category));
@@ -142,7 +162,7 @@ public class DetailPart extends EditorPart implements IPersistableEditor {
 	}
 
 	private TreeViewer treeViewer;
-	private int colWidth[] = new int[2];
+	private final int colWidth[] = new int[2];
 	private Inventory inventory;
 	private Button editButton;
 	private Button newButton;
@@ -263,8 +283,8 @@ public class DetailPart extends EditorPart implements IPersistableEditor {
 	}
 
 	private boolean singleCategorySelected(ITreeSelection selection) {
-		return (!selection.isEmpty()) && 
-				(selection.getPaths().length == 1) && 
+		return (!selection.isEmpty()) &&
+				(selection.getPaths().length == 1) &&
 				(selection.getFirstElement() instanceof String);
 	}
 	
