@@ -65,10 +65,11 @@ public class Inventory extends ObservableModelObject {
 	public Inventory(ITransactionProvider account, IPriceProviderFactory priceProviderFactory, Day day, AnalyzerFactory analizerFactory) {
 		this.account = account;
 		this.priceProviderFactory = priceProviderFactory;
-		if (day == null)
+		if (day == null) {
 			this.day = new Day();
-		else
+		} else {
 			this.day = day;
+		}
 		this.analizerFactory = analizerFactory;
 		setTransactions(account.getTransactionsByDate(null, day));
 		if (account instanceof ObservableModelObject) {
@@ -116,7 +117,7 @@ public class Inventory extends ObservableModelObject {
 	}
 
 	private void setTransactions(ImmutableList<? extends ITransaction> transactions) {
-		for (ITransaction transaction : transactions) {		
+		for (ITransaction transaction : transactions) {
 			if (transaction instanceof InvestmentTransaction) {
 				InvestmentTransaction invTrans = (InvestmentTransaction) transaction;
 				addTransaction(invTrans);
@@ -125,7 +126,7 @@ public class Inventory extends ObservableModelObject {
 					if (t2 instanceof InvestmentTransaction) {
 						InvestmentTransaction invTrans = (InvestmentTransaction) t2;
 						addTransaction(invTrans);
-					}					
+					}
 				}
 			}
 		}
@@ -151,20 +152,20 @@ public class Inventory extends ObservableModelObject {
 	}
 	
 	public InventoryEntry getInventoryEntry(Security security) {
-		InventoryEntry inventoryEntry;
-		if ( !entryMap.containsKey(security)) {
-			IPriceProvider priceprovider = null;
-			if (priceProviderFactory != null) {
-				priceprovider = priceProviderFactory.getPriceProvider(security);
-				if (priceprovider instanceof ObservableModelObject) {
-					ObservableModelObject ob = (ObservableModelObject) priceprovider;
-					ob.addPropertyChangeListener(priceProviderChangeListener);
+		synchronized (entryMap) {
+			if ( !entryMap.containsKey(security)) {
+				IPriceProvider priceprovider = null;
+				if (priceProviderFactory != null) {
+					priceprovider = priceProviderFactory.getPriceProvider(security);
+					if (priceprovider instanceof ObservableModelObject) {
+						ObservableModelObject ob = (ObservableModelObject) priceprovider;
+						ob.addPropertyChangeListener(priceProviderChangeListener);
+					}
 				}
+				entryMap.put(security, new InventoryEntry(security, priceprovider));
 			}
-			inventoryEntry = new InventoryEntry(security, priceprovider);
-			entryMap.put(security, inventoryEntry);
+			return entryMap.get(security);
 		}
-		return entryMap.get(security);
 	}
 
 	public BigDecimal getGainings() {
