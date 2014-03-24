@@ -61,7 +61,13 @@ public class TimeChart {
 		DateAxis dateAxis = ((DateAxis)plot.getDomainAxis());
 		Calendar from = Calendar.getInstance();
 		Calendar to = Calendar.getInstance();
-		if (type.equals("three years")) {
+		if (type.equals("ten years")) {
+			from.add(Calendar.YEAR, -10);
+			dateAxis.setRange(from.getTime(), to.getTime());
+		} else if (type.equals("five years")) {
+			from.add(Calendar.YEAR, -5);
+			dateAxis.setRange(from.getTime(), to.getTime());
+		} else if (type.equals("three years")) {
 			from.add(Calendar.YEAR, -3);
 			dateAxis.setRange(from.getTime(), to.getTime());
 		} else if (type.equals("one year")) {

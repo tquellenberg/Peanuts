@@ -198,6 +198,8 @@ public class ChartEditorPart extends EditorPart {
 		
 		displayType = new Combo(body, SWT.READ_ONLY);
 		displayType.add("all");
+		displayType.add("ten years");
+		displayType.add("five years");
 		displayType.add("three years");
 		displayType.add("one year");
 		displayType.add("this year");
