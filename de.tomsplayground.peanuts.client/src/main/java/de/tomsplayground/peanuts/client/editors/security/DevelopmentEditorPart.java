@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ITableColorProvider;
@@ -40,11 +40,11 @@ import de.tomsplayground.util.Day;
 public class DevelopmentEditorPart extends EditorPart implements IPersistableEditor {
 
 	private TableViewer tableViewer;
-	private int colWidth[] = new int[3];
+	private final int colWidth[] = new int[3];
 
 	private static class StringTableLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 
-		private Color red;
+		private final Color red;
 
 		public StringTableLabelProvider(Color red) {
 			this.red = red;
@@ -69,8 +69,9 @@ public class DevelopmentEditorPart extends EditorPart implements IPersistableEdi
 		@Override
 		public Color getForeground(Object element, int columnIndex) {
 			String v = ((String[]) element)[columnIndex];
-			if (columnIndex > 0 && v.startsWith("-"))
+			if (columnIndex > 0 && v.startsWith("-")) {
 				return red;
+			}
 			return null;
 		}
 	}

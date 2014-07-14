@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
@@ -18,7 +18,7 @@ import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class CalculatorText {
 
-	private Text text;
+	private final Text text;
 
 	public CalculatorText(Composite parent, int style) {
 		text = new Text(parent, style);
@@ -31,8 +31,9 @@ public class CalculatorText {
 		text.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (e.keyCode == SWT.CR)
+				if (e.keyCode == SWT.CR) {
 					calculate();
+				}
 			}
 		});
 	}
@@ -45,8 +46,9 @@ public class CalculatorText {
 				calculator.setMathContext(new MathContext(10, RoundingMode.HALF_EVEN));
 				BigDecimal result = calculator.parse(t);
 				String resultStr = PeanutsUtil.formatCurrency(result, null);
-				if (! t.equals(resultStr))
+				if (! t.equals(resultStr)) {
 					text.setText(resultStr);
+				}
 			} catch (RuntimeException e) {
 				// Okay
 			}

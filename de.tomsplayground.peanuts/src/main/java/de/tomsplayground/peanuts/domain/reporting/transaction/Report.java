@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
@@ -39,7 +39,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	
 	private transient ImmutableList<ITransaction> result;
 	
-	private PropertyChangeListener accountChangeListener = new PropertyChangeListener() {
+	private final PropertyChangeListener accountChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(java.beans.PropertyChangeEvent evt) {
 			result = null;
@@ -57,8 +57,9 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	}
 
 	public void setAccounts(Collection<Account> accounts) {
-		if (CollectionUtils.isEqualCollection(this.accounts, accounts))
+		if (CollectionUtils.isEqualCollection(this.accounts, accounts)) {
 			return;
+		}
 		Set<Account> oldAccounts = new HashSet<Account>(this.accounts);
 		for (Account account : oldAccounts) {
 			account.removePropertyChangeListener(accountChangeListener);

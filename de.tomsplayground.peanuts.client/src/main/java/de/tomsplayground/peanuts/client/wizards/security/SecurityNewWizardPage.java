@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.client.wizards.security;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -16,7 +16,7 @@ public class SecurityNewWizardPage extends WizardPage {
 	private Text ticker;
 	private Text isin;
 	private Text name;
-	private ModifyListener checkNotEmptyListener = new ModifyListener() {
+	private final ModifyListener checkNotEmptyListener = new ModifyListener() {
 		@Override
 		public void modifyText(ModifyEvent e) {
 			Text t = (Text)e.getSource();

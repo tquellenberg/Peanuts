@@ -25,10 +25,14 @@ public class Scraping {
 
 		ClassLoader parent = getClass().getClassLoader();
 		GroovyClassLoader loader = new GroovyClassLoader(parent);
-		@SuppressWarnings("unchecked")
-		Class<IScraping> groovyClass = loader.parseClass(code);
-		IScraping scrapping = groovyClass.newInstance();
-		return scrapping.doit(node);
+		try {
+			@SuppressWarnings("unchecked")
+			Class<IScraping> groovyClass = loader.parseClass(code);
+			IScraping scrapping = groovyClass.newInstance();
+			return scrapping.doit(node);
+		} finally {
+			loader.close();
+		}
 	}
 
 }

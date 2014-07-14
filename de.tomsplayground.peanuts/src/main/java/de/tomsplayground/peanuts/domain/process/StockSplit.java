@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -21,8 +21,12 @@ public class StockSplit implements ITimedElement {
 	private final int to;
 	
 	public StockSplit(Security security, Day day, int from, int to) {
-		if (security == null) throw new IllegalArgumentException("security");
-		if (day == null) throw new IllegalArgumentException("day");
+		if (security == null) {
+			throw new IllegalArgumentException("security");
+		}
+		if (day == null) {
+			throw new IllegalArgumentException("day");
+		}
 		this.security = security;
 		this.day = day;
 		this.from = from;

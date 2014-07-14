@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import au.com.bytecode.opencsv.CSVReader;
 import de.tomsplayground.peanuts.domain.process.BankTransaction;
@@ -16,7 +16,7 @@ import de.tomsplayground.util.Day;
 
 public class StarMoneyCsvReader {
 
-	private CSVReader csvReader;
+	private final CSVReader csvReader;
 	private List<BankTransaction> transactions;
 
 	public StarMoneyCsvReader(Reader reader) {
@@ -36,7 +36,9 @@ public class StarMoneyCsvReader {
 			String memo = "";
 			for (int i = 27; i < 39; i++) {
 				if (StringUtils.isNotBlank(values[i])) {
-					if (memo.length() > 0) memo += "\n";
+					if (memo.length() > 0) {
+						memo += "\n";
+					}
 					memo += values[i];
 				}
 			}

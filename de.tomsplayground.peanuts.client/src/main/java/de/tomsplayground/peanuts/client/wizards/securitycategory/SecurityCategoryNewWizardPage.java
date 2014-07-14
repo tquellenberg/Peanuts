@@ -3,7 +3,7 @@ package de.tomsplayground.peanuts.client.wizards.securitycategory;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -19,7 +19,7 @@ public class SecurityCategoryNewWizardPage extends WizardPage {
 	private Text name;
 	private Text categories;
 	
-	private ModifyListener checkNotEmptyListener = new ModifyListener() {
+	private final ModifyListener checkNotEmptyListener = new ModifyListener() {
 		@Override
 		public void modifyText(ModifyEvent e) {
 			Text t = (Text)e.getSource();

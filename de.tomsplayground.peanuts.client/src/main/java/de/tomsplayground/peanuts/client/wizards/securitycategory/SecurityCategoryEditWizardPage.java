@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -37,7 +37,7 @@ public class SecurityCategoryEditWizardPage extends WizardPage {
 	private final SecurityCategoryMapping mapping;
 	private final String category;
 
-	private ModifyListener checkNotEmptyListener = new ModifyListener() {
+	private final ModifyListener checkNotEmptyListener = new ModifyListener() {
 		@Override
 		public void modifyText(ModifyEvent e) {
 			Text t = (Text)e.getSource();
@@ -138,10 +138,11 @@ public class SecurityCategoryEditWizardPage extends WizardPage {
 
 		// Content
 		securities = new ArrayList<Security>(Activator.getDefault().getAccountManager().getSecurities());
-		if (category != null)
+		if (category != null) {
 			selectedSecurities = new ArrayList<Security>(mapping.getSecuritiesByCategory(category));
-		else
+		} else {
 			selectedSecurities = new ArrayList<Security>();
+		}
 		securities.removeAll(selectedSecurities);		
 		listViewer1.setInput(securities);
 		listViewer1.setSorter(SECURITY_SORTER);

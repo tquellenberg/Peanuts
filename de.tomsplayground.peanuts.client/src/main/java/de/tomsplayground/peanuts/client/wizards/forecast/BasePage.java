@@ -3,7 +3,7 @@ package de.tomsplayground.peanuts.client.wizards.forecast;
 import java.math.BigDecimal;
 import java.text.ParseException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -76,15 +76,18 @@ public class BasePage extends WizardPage {
 	public Forecast getForecaste() {
 		try {
 			BigDecimal amount = BigDecimal.ZERO;
-			if (StringUtils.isNotBlank(startAmount.getText()))
+			if (StringUtils.isNotBlank(startAmount.getText())) {
 				amount = PeanutsUtil.parseCurrency(startAmount.getText());
+			}
 			BigDecimal increase = BigDecimal.ZERO;
-			if (StringUtils.isNotBlank(annualIncrease.getText()))
+			if (StringUtils.isNotBlank(annualIncrease.getText())) {
 				increase = PeanutsUtil.parseCurrency(annualIncrease.getText());
+			}
 			Forecast forecast = new Forecast(startDate.getDay(), amount, increase);
 			BigDecimal increasePercent = BigDecimal.ZERO;
-			if (StringUtils.isNotBlank(annualIncreasePercent.getText()))
+			if (StringUtils.isNotBlank(annualIncreasePercent.getText())) {
 				increasePercent = PeanutsUtil.parseCurrency(annualIncreasePercent.getText());
+			}
 			forecast.setAnnualPercent(increasePercent);
 			forecast.setName(forecastName.getText());
 			return forecast;

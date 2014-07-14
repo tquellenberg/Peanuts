@@ -2,7 +2,7 @@ package de.tomsplayground.peanuts.client.wizards.account;
 
 import java.util.Currency;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -20,7 +20,7 @@ import de.tomsplayground.peanuts.domain.base.Account.Type;
 
 public class AccountPage extends WizardPage {
 
-	private ModifyListener checkNotEmptyListener = new ModifyListener() {
+	private final ModifyListener checkNotEmptyListener = new ModifyListener() {
 		@Override
 		public void modifyText(ModifyEvent e) {
 			Text t = (Text)e.getSource();
@@ -59,8 +59,9 @@ public class AccountPage extends WizardPage {
 		label = new Label(contents, SWT.NONE);
 		label.setText("Type:");
 		type = new Combo(contents, SWT.READ_ONLY);
-		for (Type t : Account.Type.values())
+		for (Type t : Account.Type.values()) {
 			type.add(t.name());
+		}
 		
 		setControl(contents);
 	}

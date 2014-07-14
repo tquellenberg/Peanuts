@@ -15,11 +15,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class PropertyChangeSupport {
 
-	private Object source;
+	private final Object source;
 	
-	private Map<String, PropertyChangeSupport> children = new HashMap<String, PropertyChangeSupport>();
+	private final Map<String, PropertyChangeSupport> children = new HashMap<String, PropertyChangeSupport>();
 
-	private Set<PropertyChangeListener> listeners = new CopyOnWriteArraySet<PropertyChangeListener>();
+	private final Set<PropertyChangeListener> listeners = new CopyOnWriteArraySet<PropertyChangeListener>();
 
 	public PropertyChangeSupport(Object sourceBean) {
 		if (sourceBean == null) {
@@ -44,7 +44,7 @@ public class PropertyChangeSupport {
 		if (listener instanceof PropertyChangeListenerProxy) {
 			PropertyChangeListenerProxy proxy = (PropertyChangeListenerProxy) listener;
 			// Call two argument add method.
-			addPropertyChangeListener(proxy.getPropertyName(), (PropertyChangeListener) proxy.getListener());
+			addPropertyChangeListener(proxy.getPropertyName(), proxy.getListener());
 		} else {
 			listeners.add(listener);
 		}
@@ -66,7 +66,7 @@ public class PropertyChangeSupport {
 		if (listener instanceof PropertyChangeListenerProxy) {
 			PropertyChangeListenerProxy proxy = (PropertyChangeListenerProxy) listener;
 			// Call two argument remove method.
-			removePropertyChangeListener(proxy.getPropertyName(), (PropertyChangeListener) proxy.getListener());
+			removePropertyChangeListener(proxy.getPropertyName(), proxy.getListener());
 		} else {
 			listeners.remove(listener);
 		}

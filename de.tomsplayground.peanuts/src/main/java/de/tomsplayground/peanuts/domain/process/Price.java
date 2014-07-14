@@ -2,8 +2,8 @@ package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import de.tomsplayground.util.Day;
 
@@ -18,7 +18,9 @@ public class Price implements ITimedElement, IPrice {
 	private final BigDecimal low;
 
 	public Price(Day date, BigDecimal open, BigDecimal close, BigDecimal high, BigDecimal low) {
-		if (date == null) throw new IllegalArgumentException("date");
+		if (date == null) {
+			throw new IllegalArgumentException("date");
+		}
 		if (open == null && close == null) {
 			close = BigDecimal.ZERO;
 		}
@@ -123,10 +125,12 @@ public class Price implements ITimedElement, IPrice {
 	}
 	
 	private boolean equalsOrNull(Object o1, Object o2) {
-		if (o1 == o2)
+		if (o1 == o2) {
 			return true;
-		if (o1 == null || o2 == null)
+		}
+		if (o1 == null || o2 == null) {
 			return false;
+		}
 		return o1.equals(o2);
 	}
 

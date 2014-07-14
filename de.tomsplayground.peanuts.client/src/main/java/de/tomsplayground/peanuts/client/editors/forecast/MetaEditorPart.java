@@ -3,7 +3,7 @@ package de.tomsplayground.peanuts.client.editors.forecast;
 import java.math.BigDecimal;
 import java.text.ParseException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -203,12 +203,15 @@ public class MetaEditorPart extends EditorPart {
 			Forecast forecast = ((ForecastEditorInput)getEditorInput()).getForecast();
 			forecast.setName(forecastName.getText());
 			forecast.setStartDay(startDate.getDay());
-			if (StringUtils.isNotBlank(startAmount.getText()))
+			if (StringUtils.isNotBlank(startAmount.getText())) {
 				forecast.setStartAmount(PeanutsUtil.parseCurrency(startAmount.getText()));
-			if (StringUtils.isNotBlank(annualIncrease.getText()))
+			}
+			if (StringUtils.isNotBlank(annualIncrease.getText())) {
 				forecast.setAnnualIncrease(PeanutsUtil.parseCurrency(annualIncrease.getText()));
-			if (StringUtils.isNotBlank(annualIncreasePercent.getText()))
+			}
+			if (StringUtils.isNotBlank(annualIncreasePercent.getText())) {
 				forecast.setAnnualPercent(PeanutsUtil.parseCurrency(annualIncreasePercent.getText()));
+			}
 			managedForm.commit(true);
 		} catch (ParseException e) {
 			IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage());

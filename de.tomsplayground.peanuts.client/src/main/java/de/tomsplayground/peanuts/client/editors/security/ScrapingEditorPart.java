@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -194,10 +194,18 @@ public class ScrapingEditorPart extends EditorPart {
 							priceBuilder.setDay(Day.fromDate((dateFormat.parse(value))));
 						} else {
 							BigDecimal p = new BigDecimal(value);
-							if (key.equals("open")) priceBuilder.setOpen(p);
-							if (key.equals("close")) priceBuilder.setClose(p);
-							if (key.equals("high")) priceBuilder.setHigh(p);
-							if (key.equals("low")) priceBuilder.setLow(p);
+							if (key.equals("open")) {
+								priceBuilder.setOpen(p);
+							}
+							if (key.equals("close")) {
+								priceBuilder.setClose(p);
+							}
+							if (key.equals("high")) {
+								priceBuilder.setHigh(p);
+							}
+							if (key.equals("low")) {
+								priceBuilder.setLow(p);
+							}
 						}
 					}
 				}

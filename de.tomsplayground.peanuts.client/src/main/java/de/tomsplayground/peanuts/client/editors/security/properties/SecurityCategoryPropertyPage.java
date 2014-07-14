@@ -3,7 +3,7 @@ package de.tomsplayground.peanuts.client.editors.security.properties;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
@@ -20,7 +20,7 @@ import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 
 public class SecurityCategoryPropertyPage extends PropertyPage {
 	
-	private List<Combo> combos = new ArrayList<Combo>();
+	private final List<Combo> combos = new ArrayList<Combo>();
 	
 	public SecurityCategoryPropertyPage() {
 		noDefaultAndApplyButton();

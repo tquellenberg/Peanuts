@@ -11,7 +11,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import au.com.bytecode.opencsv.CSVWriter;
@@ -36,8 +36,9 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 	}
 
 	public static synchronized PriceProviderFactory getInstance() {
-		if (priceProviderFactory == null)
+		if (priceProviderFactory == null) {
 			priceProviderFactory = new PriceProviderFactory();
+		}
 		return priceProviderFactory;
 	}
 

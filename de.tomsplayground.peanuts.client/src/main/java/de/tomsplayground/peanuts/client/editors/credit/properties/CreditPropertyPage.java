@@ -2,7 +2,7 @@ package de.tomsplayground.peanuts.client.editors.credit.properties;
 
 import java.text.ParseException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -76,8 +76,9 @@ public class CreditPropertyPage extends PropertyPage {
 		label = new Label(top, SWT.NONE);
 		label.setText("Payment interval:");
 		paymentInterval = new Combo(top, SWT.READ_ONLY);
-		for (Credit.PaymentInterval t : Credit.PaymentInterval.values())
+		for (Credit.PaymentInterval t : Credit.PaymentInterval.values()) {
 			paymentInterval.add(t.toString());
+		}
 		
 		label = new Label(top, SWT.NONE);
 		label.setText("Account:");
@@ -113,12 +114,15 @@ public class CreditPropertyPage extends PropertyPage {
 			credit.setName(creditName.getText());
 			credit.setStart(startDate.getDay());
 			credit.setEnd(endDate.getDay());
-			if (StringUtils.isNotBlank(amount.getText()))
+			if (StringUtils.isNotBlank(amount.getText())) {
 				credit.setAmount(PeanutsUtil.parseCurrency(amount.getText()));
-			if (StringUtils.isNotBlank(interestRate.getText()))
+			}
+			if (StringUtils.isNotBlank(interestRate.getText())) {
 				credit.setInterestRate(PeanutsUtil.parseCurrency(interestRate.getText()));
-			if (StringUtils.isNotBlank(paymentAmount.getText()))
+			}
+			if (StringUtils.isNotBlank(paymentAmount.getText())) {
 				credit.setPayment(PeanutsUtil.parseCurrency(paymentAmount.getText()));
+			}
 			String typeName = paymentInterval.getItem(paymentInterval.getSelectionIndex());
 			credit.setPaymentInterval(Credit.PaymentInterval.valueOf(typeName));
 			credit.setConnection(account.getAccount());

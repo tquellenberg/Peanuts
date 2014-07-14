@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.client.editors.report;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ITableColorProvider;
@@ -31,8 +31,8 @@ public class TransactionListEditorPart extends EditorPart {
 	private static class TransactionTableLabelProvider extends LabelProvider implements
 		ITableLabelProvider, ITableColorProvider {
 
-		private Color red;
-		private Report report;
+		private final Color red;
+		private final Report report;
 
 		public TransactionTableLabelProvider(Color red, Report report) {
 			this.red = red;
@@ -89,7 +89,7 @@ public class TransactionListEditorPart extends EditorPart {
 		}
 	}
 
-	private int colWidth[] = new int[4];
+	private final int colWidth[] = new int[4];
 	private TableViewer tableViewer;
 
 	@Override

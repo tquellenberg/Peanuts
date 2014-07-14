@@ -18,7 +18,7 @@ public class SecurityEditor extends MultiPageEditorPart implements IPersistableE
 	public static final String ID = "de.tomsplayground.peanuts.client.securityEditor";
 
 	private IMemento mementoForRestore;
-	private List<IEditorPart> editors = new ArrayList<IEditorPart>();
+	private final List<IEditorPart> editors = new ArrayList<IEditorPart>();
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -33,6 +33,7 @@ public class SecurityEditor extends MultiPageEditorPart implements IPersistableE
 	protected void createPages() {
 		createEditorPage(new ChartEditorPart(), "Chart");
 		createEditorPage(new PriceEditorPart(), "Prices");
+		createEditorPage(new FundamentalDataEditorPart(), "Fundamentals");
 		createEditorPage(new ScrapingEditorPart(), "Scraping");
 		createEditorPage(new DevelopmentEditorPart(), "Development");
 	}
@@ -60,8 +61,9 @@ public class SecurityEditor extends MultiPageEditorPart implements IPersistableE
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		int pageCount = getPageCount();
-		for (int i = 0; i < pageCount; i++)
+		for (int i = 0; i < pageCount; i++) {
 			getEditor(i).doSave(monitor);
+		}
 		firePropertyChange(IEditorPart.PROP_DIRTY);
 	}
 

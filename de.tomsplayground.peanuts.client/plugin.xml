@@ -485,6 +485,20 @@
          </activeWhen>
       </handler>
       <handler
+            class="de.tomsplayground.peanuts.client.editors.security.DeleteFundamentalDataHandler"
+            commandId="org.eclipse.ui.edit.delete">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <iterate>
+                  <instanceof
+                        value="de.tomsplayground.peanuts.domain.fundamental.FundamentalData">
+                  </instanceof>
+               </iterate>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
             class="de.tomsplayground.peanuts.client.watchlist.DeleteFromWatchlistHandler"
             commandId="org.eclipse.ui.edit.delete">
          <activeWhen>

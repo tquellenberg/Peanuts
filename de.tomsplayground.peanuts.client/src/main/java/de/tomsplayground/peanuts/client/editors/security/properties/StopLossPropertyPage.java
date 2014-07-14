@@ -3,7 +3,7 @@ package de.tomsplayground.peanuts.client.editors.security.properties;
 import java.math.BigDecimal;
 import java.text.ParseException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;

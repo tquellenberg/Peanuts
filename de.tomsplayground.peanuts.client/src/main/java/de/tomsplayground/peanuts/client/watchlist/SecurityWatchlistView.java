@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableColorProvider;
@@ -92,8 +92,8 @@ public class SecurityWatchlistView extends ViewPart {
 	
 	private class SecurityListLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 
-		private Color red;
-		private Color green;
+		private final Color red;
+		private final Color green;
 		
 		public SecurityListLabelProvider(Color red, Color green) {
 			this.red = red;
@@ -113,18 +113,21 @@ public class SecurityWatchlistView extends ViewPart {
 				return watchEntry.getSecurity().getName();
 			case 1:
 					Price price = watchEntry.getPrice();
-					if (price == null)
+					if (price == null) {
 						return "";
+					}
 					return PeanutsUtil.formatDate(price.getDay());
 			case 2:
 					Price price2 = watchEntry.getPrice();
-					if (price2 == null)
+					if (price2 == null) {
 						return "";
+					}
 					return PeanutsUtil.formatCurrency(price2.getClose(), null);
 			case 3:
 				Signal signal = watchEntry.getSignal();
-				if (signal != null)
+				if (signal != null) {
 					return signal.type.toString() + " " + PeanutsUtil.formatDate(signal.price.getDay());
+				}
 				return "";
 			case 4:
 				return PeanutsUtil.formatCurrency(watchEntry.getDayChangeAbsolut(), null);
@@ -151,10 +154,12 @@ public class SecurityWatchlistView extends ViewPart {
 			if (columnIndex == 3) {
 				WatchEntry watchEntry = (WatchEntry) element;
 				if (watchEntry.getSignal() != null) {
-					if (watchEntry.getSignal().type == Type.BUY)
+					if (watchEntry.getSignal().type == Type.BUY) {
 						return green;
-					if (watchEntry.getSignal().type == Type.SELL)
+					}
+					if (watchEntry.getSignal().type == Type.SELL) {
 						return red;
+					}
 				}
 			}
 			return null;

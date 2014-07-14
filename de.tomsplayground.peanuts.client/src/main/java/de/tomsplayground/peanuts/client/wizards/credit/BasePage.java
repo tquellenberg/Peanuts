@@ -3,7 +3,7 @@ package de.tomsplayground.peanuts.client.wizards.credit;
 import java.math.BigDecimal;
 import java.text.ParseException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -82,14 +82,17 @@ public class BasePage extends WizardPage {
 	public ICredit getCredit() {
 		try {
 			BigDecimal a = BigDecimal.ZERO;
-			if (StringUtils.isNotBlank(amount.getText()))
+			if (StringUtils.isNotBlank(amount.getText())) {
 				a = PeanutsUtil.parseCurrency(amount.getText());
+			}
 			BigDecimal i = BigDecimal.ZERO;
-			if (StringUtils.isNotBlank(interestRate.getText()))
+			if (StringUtils.isNotBlank(interestRate.getText())) {
 				i = PeanutsUtil.parseCurrency(interestRate.getText());
+			}
 			BigDecimal p = BigDecimal.ZERO;
-			if (StringUtils.isNotBlank(payment.getText()))
+			if (StringUtils.isNotBlank(payment.getText())) {
 				p = PeanutsUtil.parseCurrency(payment.getText());
+			}
 
 			Credit credit = new Credit(startDate.getDay(), endDate.getDay(), a, i);
 			credit.setName(creditName.getText());

@@ -1,10 +1,8 @@
 package de.tomsplayground.peanuts.domain.process;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 
 import java.math.BigDecimal;
-
-import javax.annotation.concurrent.Immutable;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -13,7 +11,6 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.util.Day;
 
-@Immutable
 @XStreamAlias("stoploss")
 public class StopLoss {
 

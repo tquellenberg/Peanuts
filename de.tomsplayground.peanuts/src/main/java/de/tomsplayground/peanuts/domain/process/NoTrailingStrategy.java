@@ -2,9 +2,6 @@ package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
 
-import javax.annotation.concurrent.Immutable;
-
-@Immutable
 public class NoTrailingStrategy implements ITrailingStrategy {
 
 	@Override

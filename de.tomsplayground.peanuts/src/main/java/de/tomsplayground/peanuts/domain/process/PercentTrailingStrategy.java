@@ -1,12 +1,9 @@
 package de.tomsplayground.peanuts.domain.process;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.*;
 
 import java.math.BigDecimal;
 
-import javax.annotation.concurrent.Immutable;
-
-@Immutable
 public class PercentTrailingStrategy implements ITrailingStrategy {
 
 	private final BigDecimal percent;

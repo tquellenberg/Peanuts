@@ -1,15 +1,18 @@
 package de.tomsplayground.peanuts.domain.base;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.config.ConfigurableSupport;
 import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
+import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 
 @XStreamAlias("security")
 public class Security extends ObservableModelObject implements INamedElement, IConfigurable {
@@ -23,6 +26,8 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	private String ticker;
 	
 	final private Map<String, String> displayConfiguration = new HashMap<String, String>();
+	
+	private List<FundamentalData> fundamentalDatas = new ArrayList<FundamentalData>();
 
 	public Security(String name) {
 		this.name = name;
@@ -75,7 +80,17 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	}
 
 	public void reconfigureAfterDeserialization(@SuppressWarnings("unused")AccountManager accountManager) {
-		// Not used
+		if (fundamentalDatas == null) {
+			fundamentalDatas = new ArrayList<FundamentalData>();
+		}
+	}
+	
+	public List<FundamentalData> getFundamentalDatas() {
+		return fundamentalDatas;
+	}
+	
+	public void setFundamentalDatas(List<FundamentalData> fundamentalDatas) {
+		this.fundamentalDatas = fundamentalDatas;
 	}
 
 

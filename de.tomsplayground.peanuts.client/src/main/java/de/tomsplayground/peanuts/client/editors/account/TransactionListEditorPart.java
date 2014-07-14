@@ -5,7 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -72,7 +72,7 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 
 	private Composite top;
 
-	private int colWidth[] = new int[5];
+	private final int colWidth[] = new int[5];
 
 	protected PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
 		@Override
@@ -84,8 +84,9 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 						Transaction transaction = (Transaction)evt.getSource();
 						if (evt.getPropertyName().equals("date")) {
 							Day oldDay = (Day) evt.getOldValue();
-							if (transaction.getDay().year != oldDay.year)
+							if (transaction.getDay().year != oldDay.year) {
 								update(oldDay);
+							}
 						}
 						update(transaction);
 						if (evt.getPropertyName().equals("date")) {
@@ -99,26 +100,28 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 					}
 				}
 			} else  if (evt.getSource() instanceof Account) {
-				if (evt.getOldValue() instanceof Transaction)
+				if (evt.getOldValue() instanceof Transaction) {
 					update((Transaction)evt.getOldValue());
-				if (evt.getNewValue() instanceof Transaction)
+				}
+				if (evt.getNewValue() instanceof Transaction) {
 					update((Transaction)evt.getNewValue());
+				}
 				Account account = (Account) evt.getSource();
 				saldo.setText(PeanutsUtil.formatCurrency(account.getBalance(), account.getCurrency()));
 			}
 		}
 		
 		private void update(Transaction transaction) {
-			if (transaction == null)
+			if (transaction == null) {
 				return;
+			}
 			Day year = transaction.getDay();
 			update(year);
 		}
 
 		private void update(Day year) {
 			TreeItem[] items = transactionTree.getTree().getItems();
-			for (int i = 0; i < items.length; i++) {
-				TreeItem treeItem = items[i];
+			for (TreeItem treeItem : items) {
 				TimeTreeNode time = (TimeTreeNode)treeItem.getData();
 				if (time.getDate().year == year.year) {
 					transactionTree.refresh(time, true);
@@ -159,8 +162,9 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 		public String getColumnText(Object element, int columnIndex) {
 			if (element instanceof TransactionListContentProvider.TimeTreeNode) {
 				TransactionListContentProvider.TimeTreeNode node = (TransactionListContentProvider.TimeTreeNode) element;
-				if (columnIndex == 0)
+				if (columnIndex == 0) {
 					return String.valueOf(node.getDate().year);
+				}
 				return "";
 			}
 			Transaction trans = (Transaction) element;
@@ -255,8 +259,9 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 				 if (element instanceof Transaction) {
 					 Transaction t = (Transaction) element;
 					 StringBuffer text = new StringBuffer();
-					 if (t.getCategory() != null)
-						 text.append(t.getCategory().getName()).append(' ');
+					 if (t.getCategory() != null) {
+						text.append(t.getCategory().getName()).append(' ');
+					}
 					 text.append(t.getMemo()).append(' ');
 					 if (element instanceof LabeledTransaction) {
 						 LabeledTransaction t2 = (LabeledTransaction) element;
@@ -264,8 +269,9 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 					 }
 					 if (element instanceof InvestmentTransaction) {
 						 InvestmentTransaction t2 = (InvestmentTransaction) element;
-						 if (t2.getSecurity() != null)
-							 text.append(t2.getSecurity().getName());
+						 if (t2.getSecurity() != null) {
+							text.append(t2.getSecurity().getName());
+						}
 					 }
 					 return wordMatches(text.toString());
 				 }
@@ -475,8 +481,9 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 				boolean splitTransactionSelected = false;
 				if (transactionSelected) {
 					Transaction transaction = (Transaction) ((IStructuredSelection)transactionTree.getSelection()).getFirstElement();
-					if (! account.isSplitTransaction(transaction))
+					if (! account.isSplitTransaction(transaction)) {
 						splitTransactionSelected = true;
+					}
 				}
 				convertToSplitTransaction.setEnabled(splitTransactionSelected);
 				addSplitTransaction.setEnabled(splitTransactionSelected);

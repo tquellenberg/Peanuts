@@ -23,7 +23,7 @@ import javax.crypto.spec.PBEParameterSpec;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -145,8 +145,9 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	public synchronized ColorProvider getColorProvider() {
-		if (colorProvider == null)
+		if (colorProvider == null) {
 			colorProvider = new ColorProvider(getWorkbench().getDisplay());
+		}
 		return colorProvider;
 	}
 	
@@ -246,8 +247,9 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	@Override
 	public void stop(BundleContext context) throws Exception {
-		if (colorProvider != null)
+		if (colorProvider != null) {
 			colorProvider.dispose();
+		}
 		if (accountManager != null) {
 			save(getFilename());
 		}

@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.annotation.concurrent.Immutable;
-
-@Immutable
 public class Day implements Serializable, Cloneable, Comparable<Day>{
 
 	private static final long serialVersionUID = 817177201924284505L;
@@ -34,8 +31,9 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 	 */
 	public static Day fromString(String dayStr) {
 		String[] split = dayStr.split("-");
-		if (split.length != 3)
+		if (split.length != 3) {
 			throw new IllegalArgumentException("Format must be yyyy-MM-dd");
+		}
 		int year = Integer.parseInt(split[0]);
 		int month = Integer.parseInt(split[1]);
 		int day = Integer.parseInt(split[2]);
@@ -56,8 +54,12 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 	 * @param day 1..31
 	 */
 	public Day(int year, int month, int day) {
-		if (! (day > 0 && day <= 31)) throw new IllegalArgumentException("day: 1-31");
-		if (! (month >= 0 && month <= 11)) throw new IllegalArgumentException("month: 0-11");
+		if (! (day > 0 && day <= 31)) {
+			throw new IllegalArgumentException("day: 1-31");
+		}
+		if (! (month >= 0 && month <= 11)) {
+			throw new IllegalArgumentException("month: 0-11");
+		}
 		this.day = day;
 		this.month = month;
 		this.year = year;
@@ -72,8 +74,9 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
+		}
 		if (obj instanceof Day) {
 			Day d = (Day) obj;
 			return day == d.day && month == d.month && year == d.year;
@@ -93,8 +96,12 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 
 	@Override
 	public int compareTo(Day d) {
-		if (year != d.year) return year - d.year;
-		if (month != d.month) return month - d.month;
+		if (year != d.year) {
+			return year - d.year;
+		}
+		if (month != d.month) {
+			return month - d.month;
+		}
 		return day - d.day;
 	}
 

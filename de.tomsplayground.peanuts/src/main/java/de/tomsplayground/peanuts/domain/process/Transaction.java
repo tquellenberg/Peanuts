@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ImmutableList;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -100,8 +100,9 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 	public void setCategory(Category category) {
 		Category oldValue = this.category;
 		this.category = category;
-		if (oldValue != null || category != null)
+		if (oldValue != null || category != null) {
 			firePropertyChange("category", oldValue, category);
+		}
 	}
 
 	@Override
@@ -147,8 +148,9 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 	
 	public void removeSplit(Transaction t) {
 		List<Transaction> newSplits = new ArrayList<Transaction>(splits);
-		if (! newSplits.remove(t))
+		if (! newSplits.remove(t)) {
 			throw new IllegalArgumentException("Transaction " + t + " is not a split of " + this);
+		}
 		setSplits(newSplits);
 		firePropertyChange("split", t, null);
 	}

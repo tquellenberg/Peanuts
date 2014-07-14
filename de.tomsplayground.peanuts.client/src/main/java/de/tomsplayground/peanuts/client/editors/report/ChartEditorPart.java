@@ -10,7 +10,7 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -225,8 +225,9 @@ public class ChartEditorPart extends EditorPart {
 		List<Forecast> forecasts = new ArrayList<Forecast>(Activator.getDefault().getAccountManager().getForecasts());
 		for (Iterator<Forecast> iter = forecasts.iterator(); iter.hasNext(); ) {
 			Forecast f = iter.next();
-			if (! f.isConnected(report))
+			if (! f.isConnected(report)) {
 				iter.remove();
+			}
 		}
 		TimeSeries forecastSeries[] = new TimeSeries[forecasts.size()];
 		int i = 0;
@@ -245,8 +246,9 @@ public class ChartEditorPart extends EditorPart {
 			s1.add(day, sum.add(inventoryValue));
 			int j = 0;
 			for (Forecast forecast : forecasts) {
-				if (! d.before(forecast.getStartDay()))
+				if (! d.before(forecast.getStartDay())) {
 					forecastSeries[j].add(day, forecast.getValue(d));
+				}
 				j++;
 			}
 		}

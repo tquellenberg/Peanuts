@@ -11,6 +11,7 @@ import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Category;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.process.BankTransaction;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
@@ -27,7 +28,7 @@ import de.tomsplayground.peanuts.persistence.IPersistenceService;
 
 public class PersistenceService implements IPersistenceService {
 
-	private XStream stream;
+	private final XStream stream;
 
 	public PersistenceService() {
 		stream = new XStream();
@@ -45,6 +46,7 @@ public class PersistenceService implements IPersistenceService {
 				Category.class,
 				BankTransaction.class,
 				Security.class,
+				FundamentalData.class,
 				Report.class,
 				Forecast.class,
 				DateQuery.class,
