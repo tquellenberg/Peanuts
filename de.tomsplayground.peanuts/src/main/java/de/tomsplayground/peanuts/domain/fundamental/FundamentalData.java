@@ -1,8 +1,15 @@
 package de.tomsplayground.peanuts.domain.fundamental;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+import de.tomsplayground.peanuts.domain.base.InventoryEntry;
+import de.tomsplayground.peanuts.domain.process.IPriceProvider;
+import de.tomsplayground.peanuts.domain.process.Price;
+import de.tomsplayground.util.Day;
 
 @XStreamAlias("fundamental")
 public class FundamentalData {
@@ -42,4 +49,31 @@ public class FundamentalData {
 		this.earningsPerShare = earningsPerShare;
 	}
 
+	public BigDecimal calculatePeRatio(IPriceProvider priceProvider) {
+		Price price = priceProvider.getPrice(new Day(year, 11, 31));
+		BigDecimal close = price.getClose();
+		if (earningsPerShare.signum() == 0) {
+			return BigDecimal.ZERO;
+		}
+		return close.divide(earningsPerShare, new MathContext(10, RoundingMode.HALF_EVEN));
+	}
+
+	public BigDecimal calculateDivYield(IPriceProvider priceProvider) {
+		Price price = priceProvider.getPrice(new Day(year, 11, 31));
+		BigDecimal close = price.getClose();
+		if (close.signum() == 0) {
+			return BigDecimal.ZERO;
+		}
+		return dividende.divide(close, new MathContext(10, RoundingMode.HALF_EVEN));
+	}
+	
+	public BigDecimal calculateYOC(InventoryEntry inventoryEntry) {
+		if (inventoryEntry.getQuantity().signum() <= 0) {
+			return BigDecimal.ZERO;
+		}
+		if (inventoryEntry.getAvgPrice().signum() == 0) {
+			return BigDecimal.ZERO;
+		}		
+		return dividende.divide(inventoryEntry.getAvgPrice(), new MathContext(10, RoundingMode.HALF_EVEN));
+	}
 }

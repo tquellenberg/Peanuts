@@ -33,18 +33,28 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+import com.google.common.collect.Lists;
+
+import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.domain.base.Inventory;
+import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
+import de.tomsplayground.peanuts.domain.process.IPriceProvider;
+import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
+import de.tomsplayground.util.Day;
 
 public class FundamentalDataEditorPart extends EditorPart {
 
 	private TableViewer tableViewer;
-	private final int colWidth[] = new int[3];
+	private final int colWidth[] = new int[6];
 	private boolean dirty = false;
 	private List<FundamentalData> fundamentalDatas;
+	private IPriceProvider priceProvider;
+	private InventoryEntry inventoryEntry;
 
-	private static class PriceTableLabelProvider extends LabelProvider implements ITableLabelProvider {
+	private class FundamentalDataTableLabelProvider extends LabelProvider implements ITableLabelProvider {
 		@Override
 		public Image getColumnImage(Object element, int columnIndex) {
 			return null;
@@ -60,6 +70,16 @@ public class FundamentalDataEditorPart extends EditorPart {
 				return PeanutsUtil.formatCurrency(data.getDividende(), null);
 			case 2:
 				return PeanutsUtil.formatCurrency(data.getEarningsPerShare(), null);
+			case 3:
+				return PeanutsUtil.formatQuantity(data.calculatePeRatio(priceProvider));
+			case 4:
+				return PeanutsUtil.formatPercent(data.calculateDivYield(priceProvider));
+			case 5:
+				if (inventoryEntry != null && data.getYear() == (new Day()).year) {
+					return PeanutsUtil.formatPercent(data.calculateYOC(inventoryEntry));
+				} else {
+					return "";
+				}
 			default:
 				return "";
 			}
@@ -118,12 +138,27 @@ public class FundamentalDataEditorPart extends EditorPart {
 		col.setWidth((colWidth[2] > 0) ? colWidth[2] : 100);
 		col.setResizable(true);
 
-		tableViewer.setColumnProperties(new String[] { "year", "div", "EPS"});
+		col = new TableColumn(table, SWT.LEFT);
+		col.setText("P/E ratio");
+		col.setWidth((colWidth[3] > 0) ? colWidth[3] : 100);
+		col.setResizable(true);
+
+		col = new TableColumn(table, SWT.LEFT);
+		col.setText("Div yield");
+		col.setWidth((colWidth[4] > 0) ? colWidth[4] : 100);
+		col.setResizable(true);
+
+		col = new TableColumn(table, SWT.LEFT);
+		col.setText("YOC");
+		col.setWidth((colWidth[5] > 0) ? colWidth[5] : 100);
+		col.setResizable(true);
+
+		tableViewer.setColumnProperties(new String[] { "year", "div", "EPS", "peRatio", "divYield", "YOC"});
 		tableViewer.setCellModifier(new ICellModifier() {
 
 			@Override
 			public boolean canModify(Object element, String property) {
-				return true;
+				return Lists.newArrayList("year", "div", "EPS").contains(property);
 			}
 
 			@Override
@@ -173,11 +208,19 @@ public class FundamentalDataEditorPart extends EditorPart {
 		tableViewer.setCellEditors(new CellEditor[] {new TextCellEditor(table), new TextCellEditor(table),
 				new TextCellEditor(table)});
 
-		tableViewer.setLabelProvider(new PriceTableLabelProvider());
+		tableViewer.setLabelProvider(new FundamentalDataTableLabelProvider());
 		tableViewer.setContentProvider(new ArrayContentProvider());
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
+		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
+		for (InventoryEntry entry : inventory.getEntries()) {
+			if (entry.getSecurity().equals(security)) {
+				inventoryEntry = entry;
+			}
+		}
+		
 		fundamentalDatas = cloneFundamentalData(security.getFundamentalDatas());
 		tableViewer.setInput(fundamentalDatas);
 
