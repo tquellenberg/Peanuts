@@ -13,6 +13,7 @@ import de.tomsplayground.peanuts.config.ConfigurableSupport;
 import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
+import de.tomsplayground.util.Day;
 
 @XStreamAlias("security")
 public class Security extends ObservableModelObject implements INamedElement, IConfigurable {
@@ -87,6 +88,16 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	
 	public List<FundamentalData> getFundamentalDatas() {
 		return fundamentalDatas;
+	}
+	
+	public FundamentalData getCurrentFundamentalData() {
+		int currentYear = new Day().year;
+		for (FundamentalData data : fundamentalDatas) {
+			if (data.getYear() == currentYear) {
+				return data;
+			}
+		}
+		return null;
 	}
 	
 	public void setFundamentalDatas(List<FundamentalData> fundamentalDatas) {
