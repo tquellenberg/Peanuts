@@ -49,11 +49,11 @@ import de.tomsplayground.util.Day;
 public class PriceEditorPart extends EditorPart implements IPersistableEditor {
 
 	private TableViewer tableViewer;
-	private int colWidth[] = new int[5];
+	private final int colWidth[] = new int[5];
 	private boolean dirty = false;
 	private IPriceProvider priceProvider;
 
-	private PropertyChangeListener priceProviderChangeListener = new UniqueAsyncExecution() {
+	private final PropertyChangeListener priceProviderChangeListener = new UniqueAsyncExecution() {
 
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
@@ -155,30 +155,37 @@ public class PriceEditorPart extends EditorPart implements IPersistableEditor {
 
 			private BigDecimal getValueByProperty(Price p, String property) {
 				BigDecimal v = null;
-				if (property.equals("open"))
+				if (property.equals("open")) {
 					v = p.getOpen();
-				else if (property.equals("close"))
+				} else if (property.equals("close")) {
 					v = p.getClose();
-				else if (property.equals("low"))
+				} else if (property.equals("low")) {
 					v = p.getLow();
-				else if (property.equals("high"))
+				} else if (property.equals("high")) {
 					v = p.getHigh();
-				if (v == null)
+				}
+				if (v == null) {
 					v = BigDecimal.ZERO;
+				}
 				return v;
 			}
 
 			@Override
 			public Object getValue(Object element, String property) {
 				Price p = (Price) element;
-				if (property.equals("date"))
+				if (property.equals("date")) {
 					return p.getDay();
+				}
 				BigDecimal v = getValueByProperty(p, property);
 				return PeanutsUtil.formatCurrency(v, null);
 			}
 
 			@Override
 			public void modify(Object element, String property, Object value) {
+				if (element == null) {
+					System.out.println("modify "+property + " " +value);
+					return;
+				}
 				Price p = (Price) ((TableItem) element).getData();
 				Price newPrice = null;
 				if (property.equals("date")) {
@@ -188,14 +195,15 @@ public class PriceEditorPart extends EditorPart implements IPersistableEditor {
 						BigDecimal v = PeanutsUtil.parseCurrency((String) value);
 						BigDecimal oldV = getValueByProperty(p, property);
 						if (oldV.compareTo(v) != 0) {
-							if (property.equals("open"))
+							if (property.equals("open")) {
 								newPrice = new Price(p.getDay(), v, p.getClose(), p.getLow(), p.getHigh());
-							else if (property.equals("close"))
+							} else if (property.equals("close")) {
 								newPrice = new Price(p.getDay(), p.getOpen(), v, p.getLow(), p.getHigh());
-							else if (property.equals("low"))
+							} else if (property.equals("low")) {
 								newPrice = new Price(p.getDay(), p.getOpen(), p.getClose(), p.getHigh(), v);
-							else if (property.equals("high"))
+							} else if (property.equals("high")) {
 								newPrice = new Price(p.getDay(), p.getOpen(), p.getClose(), v, p.getLow());
+							}
 						}
 					} catch (ParseException e) {
 						// Okay
@@ -247,10 +255,11 @@ public class PriceEditorPart extends EditorPart implements IPersistableEditor {
 			@Override
 			public void run() {
 				Day d = priceProvider.getMaxDate();
-				if (d != null)
+				if (d != null) {
 					d = d.addDays(1);
-				else
+				} else {
 					d = new Day();
+				}
 				Price price = new Price(d, BigDecimal.ZERO);
 				priceProvider.setPrice(price);
 				markDirty();
