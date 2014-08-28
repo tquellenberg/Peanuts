@@ -51,6 +51,8 @@ import de.tomsplayground.peanuts.client.dnd.SecurityTransferData;
 import de.tomsplayground.peanuts.client.editors.security.SecurityEditor;
 import de.tomsplayground.peanuts.client.editors.security.SecurityEditorInput;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
+import de.tomsplayground.peanuts.domain.base.Inventory;
+import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
@@ -66,7 +68,7 @@ public class SecurityWatchlistView extends ViewPart {
 	
 	private TableViewer securityListViewer;
 	private Watchlist currentWatchList;
-	private final int colWidth[] = new int[13];
+	private final int colWidth[] = new int[14];
 
 	private static abstract class WatchEntryViewerComparator extends ViewerComparator {
 		enum SORT {
@@ -136,6 +138,26 @@ public class SecurityWatchlistView extends ViewPart {
 			return ObjectUtils.compare(divYield1, divYield2);
 		}
 	};
+	private final WatchEntryViewerComparator yocComparator = new WatchEntryViewerComparator() {
+		@Override
+		public int compare(WatchEntry w1, WatchEntry w2) {
+			Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
+			BigDecimal yoc1 = null;
+			BigDecimal yoc2 = null;
+			
+			FundamentalData data1 = w1.getSecurity().getCurrentFundamentalData();
+			if (data1 != null) {
+				InventoryEntry inventoryEntry = inventory.getEntry(w1.getSecurity());
+				yoc1 = data1.calculateYOC(inventoryEntry);
+			}
+			FundamentalData data2 = w2.getSecurity().getCurrentFundamentalData();
+			if (data2 != null) {
+				InventoryEntry inventoryEntry = inventory.getEntry(w2.getSecurity());
+				yoc2 = data2.calculateYOC(inventoryEntry);
+			}
+			return ObjectUtils.compare(yoc1, yoc2);
+		}
+	};
 
 	private final PropertyChangeListener watchlistChangeListener = new UniqueAsyncExecution() {
 		
@@ -191,9 +213,10 @@ public class SecurityWatchlistView extends ViewPart {
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
 			WatchEntry watchEntry = (WatchEntry) element;
+			Security security = watchEntry.getSecurity();
 			switch (columnIndex) {
 			case 0:
-				return watchEntry.getSecurity().getName();
+				return security.getName();
 			case 1:
 					Price price = watchEntry.getPrice();
 					if (price == null) {
@@ -207,38 +230,48 @@ public class SecurityWatchlistView extends ViewPart {
 					}
 					return PeanutsUtil.formatCurrency(price2.getClose(), null);
 			case 3:
-				FundamentalData data1 = watchEntry.getSecurity().getCurrentFundamentalData();
+				FundamentalData data1 = security.getCurrentFundamentalData();
 				if (data1 != null) {
-					IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(watchEntry.getSecurity());
+					IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
 					return PeanutsUtil.format(data1.calculatePeRatio(priceProvider), 1);
 				}
 				return "";
 			case 4:
-				FundamentalData data2 = watchEntry.getSecurity().getCurrentFundamentalData();
+				FundamentalData data2 = security.getCurrentFundamentalData();
 				if (data2 != null) {
-					IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(watchEntry.getSecurity());
+					IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
 					return PeanutsUtil.formatPercent(data2.calculateDivYield(priceProvider));
 				}
 				return "";
 			case 5:
+				FundamentalData data3 = security.getCurrentFundamentalData();
+				if (data3 != null) {
+					Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
+					InventoryEntry inventoryEntry = inventory.getEntry(security);
+					if (inventoryEntry != null) {
+						return PeanutsUtil.formatPercent(data3.calculateYOC(inventoryEntry));
+					}
+				}
+				return "";
+			case 6:
 				Signal signal = watchEntry.getSignal();
 				if (signal != null) {
 					return signal.type.toString() + " " + PeanutsUtil.formatDate(signal.price.getDay());
 				}
 				return "";
-			case 6:
-				return PeanutsUtil.formatCurrency(watchEntry.getDayChangeAbsolut(), null);
 			case 7:
-				return PeanutsUtil.formatPercent(watchEntry.getDayChange());
+				return PeanutsUtil.formatCurrency(watchEntry.getDayChangeAbsolut(), null);
 			case 8:
-				return PeanutsUtil.formatPercent(watchEntry.getPerformance(7, 0, 0));
+				return PeanutsUtil.formatPercent(watchEntry.getDayChange());
 			case 9:
-				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 1, 0));
+				return PeanutsUtil.formatPercent(watchEntry.getPerformance(7, 0, 0));
 			case 10:
-				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 6, 0));
+				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 1, 0));
 			case 11:
-				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 1));
+				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 6, 0));
 			case 12:
+				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 1));
+			case 13:
 				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 3));
 			default:
 				break;
@@ -248,7 +281,7 @@ public class SecurityWatchlistView extends ViewPart {
 
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
-			if (columnIndex == 5) {
+			if (columnIndex == 6) {
 				WatchEntry watchEntry = (WatchEntry) element;
 				if (watchEntry.getSignal() != null) {
 					if (watchEntry.getSignal().type == Type.BUY) {
@@ -265,17 +298,17 @@ public class SecurityWatchlistView extends ViewPart {
 		@Override
 		public Color getForeground(Object element, int columnIndex) {
 			WatchEntry watchEntry = (WatchEntry) element;
-			if (columnIndex == 6 || columnIndex == 7) {
+			if (columnIndex == 7 || columnIndex == 8) {
 				return (watchEntry.getDayChangeAbsolut().signum() == -1) ? red : green;
-			} else if (columnIndex == 8) {
-				return (watchEntry.getPerformance(7, 0, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 9) {
-				return (watchEntry.getPerformance(0, 1, 0).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(7, 0, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 10) {
-				return (watchEntry.getPerformance(0, 6, 0).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(0, 1, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 11) {
-				return (watchEntry.getPerformance(0, 0, 1).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(0, 6, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 12) {
+				return (watchEntry.getPerformance(0, 0, 1).signum() == -1) ? red : green;
+			} else if (columnIndex == 13) {
 				return (watchEntry.getPerformance(0, 0, 3).signum() == -1) ? red : green;
 			}
 			return null;
@@ -359,6 +392,18 @@ public class SecurityWatchlistView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				setSorting((TableColumn)e.widget, divYieldComparator);
+			}
+		});
+		colNum++;
+		
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("YOC");
+		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
+		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, yocComparator);
 			}
 		});
 		colNum++;
