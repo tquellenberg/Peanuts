@@ -30,4 +30,8 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		return PERSPECTIVE_ID;
 	}
 
+	@Override
+	public void postStartup() {
+		super.postStartup();
+	}
 }

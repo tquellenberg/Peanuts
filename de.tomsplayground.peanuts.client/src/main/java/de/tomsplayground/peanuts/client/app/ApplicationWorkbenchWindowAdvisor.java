@@ -19,8 +19,11 @@ import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
 import com.google.common.collect.ImmutableList;
 
+import de.tomsplayground.peanuts.client.editors.security.Scraping;
 import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.process.IPriceProvider;
+import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 
 public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
@@ -74,6 +77,13 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 						monitor.subTask("Refreshing " + security.getName());
 						priceProviderFactory.refresh(security, Boolean.valueOf(
 							security.getConfigurationValue(SecurityPropertyPage.OVERRIDE_EXISTING_PRICE_DATA)).booleanValue());
+						Scraping scraping = new Scraping(security);
+						Price price = scraping.execute();
+						if (price != null) {							
+							IPriceProvider priceProvider = priceProviderFactory.getPriceProvider(security);
+							priceProvider.setPrice(price);
+							priceProviderFactory.saveToLocal(security, priceProvider);
+						}
 						monitor.worked(1);
 						if (monitor.isCanceled()) {
 							return Status.CANCEL_STATUS;

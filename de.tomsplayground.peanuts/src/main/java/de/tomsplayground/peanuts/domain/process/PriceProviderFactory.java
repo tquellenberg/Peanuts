@@ -59,8 +59,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		if (StringUtils.isNotBlank(security.getTicker())) {
 			IPriceProvider localPriceProvider = getPriceProvider(security);
 			if (security.getTicker().startsWith(GOOGLE_PREFIX)) {
-				String ticker = StringUtils.removeStart(security.getTicker(), GOOGLE_PREFIX);
-				IPriceProvider remotePriceProvider = readHistoricalPricesFromGoogle(ticker);
+				IPriceProvider remotePriceProvider = readHistoricalPricesFromGoogle(security);
 				if (remotePriceProvider != null) {
 					mergePrices(localPriceProvider, remotePriceProvider, overideExistingData);
 				}
@@ -147,11 +146,12 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		}
 	}
 	
-	protected IPriceProvider readHistoricalPricesFromGoogle(String ticker) {
+	protected IPriceProvider readHistoricalPricesFromGoogle(Security security) {
+		String ticker = StringUtils.removeStart(security.getTicker(), GOOGLE_PREFIX);
 		try {
 			return new GoogleCsvPriceProvider(ticker);
 		} catch (IOException e) {
-			log.error("", e);
+			log.error("readHistoricalPricesFromGoogle " + security.getName(), e);
 			return null;
 		}
 	}
@@ -160,7 +160,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		try {
 			return YahooCsvReader.forTicker(security.getTicker(), Type.HISTORICAL);
 		} catch (IOException e) {
-			log.error("", e);
+			log.error("readHistoricalPricesFromYahoo " + security.getName(), e);
 			return null;
 		}
 	}
@@ -169,7 +169,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		try {
 			return YahooCsvReader.forTicker(security.getTicker(), Type.CURRENT);
 		} catch (IOException e) {
-			log.error("", e);
+			log.error("readLastPricesFromYahoo " + security.getName(), e);
 			return null;
 		}
 	}

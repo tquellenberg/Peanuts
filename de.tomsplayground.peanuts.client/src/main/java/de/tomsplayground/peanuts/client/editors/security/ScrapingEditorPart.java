@@ -1,10 +1,5 @@
 package de.tomsplayground.peanuts.client.editors.security;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,18 +31,11 @@ import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.eclipse.ui.part.EditorPart;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.PrettyXmlSerializer;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPather;
-import org.htmlcleaner.XPatherException;
 
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.Price;
-import de.tomsplayground.peanuts.domain.process.PriceBuilder;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
-import de.tomsplayground.util.Day;
 
 public class ScrapingEditorPart extends EditorPart {
 
@@ -97,7 +85,7 @@ public class ScrapingEditorPart extends EditorPart {
 		Security security = ((SecurityEditorInput)getEditorInput()).getSecurity();
 
 		toolkit.createLabel(sectionClient, "URL");
-		scrapingUrl = toolkit.createText(sectionClient, security.getConfigurationValue("scaping.url"));
+		scrapingUrl = toolkit.createText(sectionClient, security.getConfigurationValue(Scraping.SCRAPING_URL));
 		scrapingUrl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		scrapingUrl.addModifyListener(new ModifyListener() {
 			@Override
@@ -105,9 +93,9 @@ public class ScrapingEditorPart extends EditorPart {
 				sectionPart.markDirty();
 			}});
 
-		for (String value : new String[]{"open", "close", "high", "low", "date"}) {
+		for (String value : Scraping.XPATH_KEYS) {
 			toolkit.createLabel(sectionClient, "XPath "+value);
-			Text xpath = toolkit.createText(sectionClient, security.getConfigurationValue("scaping."+value));
+			Text xpath = toolkit.createText(sectionClient, security.getConfigurationValue(Scraping.SCRAPING_PREFIX+value));
 			xpath.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			xpath.addModifyListener(new ModifyListener() {
 				@Override
@@ -162,69 +150,17 @@ public class ScrapingEditorPart extends EditorPart {
 		managedForm.refresh();
 	}
 
-	protected void execute(boolean test) throws IOException, XPatherException, ParseException {
-		HtmlCleaner htmlCleaner = new HtmlCleaner();
-		TagNode tagNode = htmlCleaner.clean(new URL(scrapingUrl.getText()));
-		
-		PrettyXmlSerializer xmlSerializer = new PrettyXmlSerializer(htmlCleaner.getProperties());
-		String string = xmlSerializer.getAsString(tagNode);
-		StringBuilder resultStr = new StringBuilder();
-		try {
-			PriceBuilder priceBuilder = new PriceBuilder();
-			for (String key : new String[]{"open", "close", "high", "low", "date"}) {
-				String xpath = xpathMap.get(key).getText();
-				if (StringUtils.isNotEmpty(xpath)) {
-					XPather xPather = new XPather(xpath);
-					Object[] result = xPather.evaluateAgainstNode(tagNode);
-					for (Object object : result) {
-						resultStr.append('>').append(object).append('\n');
-					}		
-					if (result.length > 0) {
-						String value = result[0].toString().trim();
-						int i = StringUtils.indexOfAnyBut(value, "0123456789,.");
-						if (i != -1) {
-							value = value.substring(0, i);
-						}
-						if (value.indexOf(',') != -1 && value.indexOf('.') == -1) {
-							value = value.replace(',', '.');
-						}
-						resultStr.append(key).append(": ").append(value).append('\n');
-						if (key.endsWith("date")) {
-							SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-							priceBuilder.setDay(Day.fromDate((dateFormat.parse(value))));
-						} else {
-							BigDecimal p = new BigDecimal(value);
-							if (key.equals("open")) {
-								priceBuilder.setOpen(p);
-							}
-							if (key.equals("close")) {
-								priceBuilder.setClose(p);
-							}
-							if (key.equals("high")) {
-								priceBuilder.setHigh(p);
-							}
-							if (key.equals("low")) {
-								priceBuilder.setLow(p);
-							}
-						}
-					}
-				}
-			}
-			Price price = (Price) priceBuilder.build();
-			resultStr.append("Price: ").append(price).append('\n');
-			resultStr.append('\n').append(string);
-
-			if (!test) {
-				Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-				IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
-				priceProvider.setPrice(price);
-				dirty = true;
-				firePropertyChange(IEditorPart.PROP_DIRTY);
-			}
-		} catch (RuntimeException e) {
-			resultStr.append(e.getMessage());
+	protected void execute(boolean test) {
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		Scraping scraping = new Scraping(security);
+		Price price = scraping.execute();
+		if (!test && price != null) {
+			IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
+			priceProvider.setPrice(price);
+			dirty = true;
+			firePropertyChange(IEditorPart.PROP_DIRTY);
 		}
-		testResultText.setText(resultStr.toString());
+		testResultText.setText(scraping.getResult());
 	}
 
 	protected FormToolkit createToolkit(Display display) {
@@ -239,10 +175,10 @@ public class ScrapingEditorPart extends EditorPart {
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		Security security = ((SecurityEditorInput)getEditorInput()).getSecurity();
-		security.putConfigurationValue("scaping.url", scrapingUrl.getText());
+		security.putConfigurationValue(Scraping.SCRAPING_URL, scrapingUrl.getText());
 		for (String key : xpathMap.keySet()) {
 			String xpath = xpathMap.get(key).getText();
-			security.putConfigurationValue("scaping."+key, xpath);
+			security.putConfigurationValue(Scraping.SCRAPING_PREFIX+key, xpath);
 		}
 		dirty = false;
 		managedForm.commit(true);
@@ -251,7 +187,6 @@ public class ScrapingEditorPart extends EditorPart {
 	@Override
 	public void doSaveAs() {
 	}
-
 
 	@Override
 	public boolean isDirty() {
