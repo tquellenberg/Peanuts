@@ -153,7 +153,7 @@ public class PriceProviderTest {
 	}
 
 	@Test
-	public void replaceExistingPrice() throws Exception {
+	public void keepExistingPrice() throws Exception {
 		Price price1 = new Price(c1, BigDecimal.ZERO);
 		pp.setPrice(price1);
 		final PropertyChangeEvent lastEvent[] = new PropertyChangeEvent[1];
@@ -169,11 +169,8 @@ public class PriceProviderTest {
 		Price price2 = new Price(c1, new BigDecimal("2"));
 		pp.setPrice(price2, false);
 		
-		assertNotNull("Event expected", lastEvent[0]);
-		assertEquals(pp, lastEvent[0].getSource());
-		assertEquals("prices", lastEvent[0].getPropertyName());
-		assertEquals(price1, lastEvent[0].getOldValue());
-		assertEquals(price2, lastEvent[0].getNewValue());
+		assertNull("No Event expected", lastEvent[0]);
+		assertEquals(price1, pp.getPrices(c1, c1).get(0));
 	}
 
 }

@@ -19,9 +19,9 @@ public interface IPriceProvider {
 	
 	void setPrice(Price p);
 	
-	void setPrice(Price newPrice, boolean updateExistingPrice);
+	void setPrice(Price newPrice, boolean overideExistingData);
 
-	void setPrices(List<Price> prices, boolean updateExistingPrice);
+	void setPrices(List<Price> prices, boolean overideExistingData);
 	
 	void removePrice(Day date);
 

@@ -55,32 +55,32 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		return localPriceProvider;
 	}
 
-	public void refresh(Security security) {
+	public void refresh(Security security, boolean overideExistingData) {
 		if (StringUtils.isNotBlank(security.getTicker())) {
 			IPriceProvider localPriceProvider = getPriceProvider(security);
 			if (security.getTicker().startsWith(GOOGLE_PREFIX)) {
 				String ticker = StringUtils.removeStart(security.getTicker(), GOOGLE_PREFIX);
 				IPriceProvider remotePriceProvider = readHistoricalPricesFromGoogle(ticker);
 				if (remotePriceProvider != null) {
-					mergePrices(localPriceProvider, remotePriceProvider);
+					mergePrices(localPriceProvider, remotePriceProvider, overideExistingData);
 				}
 			} else {
 				IPriceProvider remotePriceProvider = readHistoricalPricesFromYahoo(security);
 				if (remotePriceProvider != null) {
-					mergePrices(localPriceProvider, remotePriceProvider);
+					mergePrices(localPriceProvider, remotePriceProvider, overideExistingData);
 				}
 				IPriceProvider remotePriceProvider2 = readLastPricesFromYahoo(security);
 				if (remotePriceProvider2 != null) {
-					mergePrices(localPriceProvider, remotePriceProvider2);
+					mergePrices(localPriceProvider, remotePriceProvider2, true);
 				}
 			}
 			saveToLocal(security, localPriceProvider);
 		}		
 	}
 
-	private void mergePrices(IPriceProvider localPriceProvider, IPriceProvider remotePriceProvider) {
+	private void mergePrices(IPriceProvider localPriceProvider, IPriceProvider remotePriceProvider, boolean overideExistingData) {
 		List<Price> prices = remotePriceProvider.getPrices();
-		localPriceProvider.setPrices(prices, true);
+		localPriceProvider.setPrices(prices, overideExistingData);
 	}
 
 	protected String localFilename(Security security) {

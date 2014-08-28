@@ -6,6 +6,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.MultiPageEditorActionBarContributor;
 
+import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
 import de.tomsplayground.peanuts.client.util.EditorInputPropertyDialogAction;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
@@ -25,7 +26,8 @@ public class SecurityEditorActionBarContributor extends MultiPageEditorActionBar
 			@Override
 			public void run() {
 				Security security = ((SecurityEditorInput) part.getEditorInput()).getSecurity();
-				PriceProviderFactory.getInstance().refresh(security);
+				PriceProviderFactory.getInstance().refresh(security, Boolean.valueOf(
+					security.getConfigurationValue(SecurityPropertyPage.OVERRIDE_EXISTING_PRICE_DATA)).booleanValue());
 			}
 		});
 			

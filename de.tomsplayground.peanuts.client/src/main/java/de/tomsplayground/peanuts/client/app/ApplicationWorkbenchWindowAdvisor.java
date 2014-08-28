@@ -19,6 +19,7 @@ import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
 import com.google.common.collect.ImmutableList;
 
+import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 
@@ -71,10 +72,12 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 					monitor.beginTask("Refresh investment prices", securities.size());
 					for (Security security : securities) {
 						monitor.subTask("Refreshing " + security.getName());
-						priceProviderFactory.refresh(security);
+						priceProviderFactory.refresh(security, Boolean.valueOf(
+							security.getConfigurationValue(SecurityPropertyPage.OVERRIDE_EXISTING_PRICE_DATA)).booleanValue());
 						monitor.worked(1);
-						if (monitor.isCanceled())
+						if (monitor.isCanceled()) {
 							return Status.CANCEL_STATUS;
+						}
 					}
 				} finally {
 					monitor.done();

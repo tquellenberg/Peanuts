@@ -23,16 +23,18 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 	@Override
 	public Day getMaxDate() {
 		ImmutableList<Price> lp = prices;
-		if (lp.isEmpty())
+		if (lp.isEmpty()) {
 			return null;
+		}
 		return lp.get(lp.size() - 1).getDay();
 	}
 
 	@Override
 	public Day getMinDate() {
 		ImmutableList<Price> lp = prices;
-		if (lp.isEmpty())
+		if (lp.isEmpty()) {
 			return null;
+		}
 		return lp.get(0).getDay();
 	}
 
@@ -63,42 +65,47 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 	@Override
 	public Price getPrice(Day date) {
 		ImmutableList<Price> lp = prices;
-		if (lp.isEmpty())
+		if (lp.isEmpty()) {
 			return new Price(date, BigDecimal.ZERO);
+		}
 		int pos = PeanutsUtil.binarySearch(lp, date);
 		if (pos >= 0) {
 			return lp.get(pos);
 		} else {
 			pos = -pos - 1;
-			if (pos >= lp.size())
+			if (pos >= lp.size()) {
 				pos --;
+			}
 			return lp.get(pos);
 		}
 	}
 	
 	@Override
 	public void setPrice(Price newPrice) {
-		setPrice(newPrice, false);
+		setPrice(newPrice, true);
 	}
 
 	@Override
-	public void setPrice(Price newPrice, boolean updateExistingPrice) {
-		Price oldPrice = setPriceInternal(newPrice, updateExistingPrice);
-		firePropertyChange("prices", oldPrice, newPrice);
+	public void setPrice(Price newPrice, boolean overideExistingData) {
+		Price oldPrice = setPriceInternal(newPrice, overideExistingData);
+		if (oldPrice == null || ! oldPrice.equals(newPrice)) {
+			firePropertyChange("prices", oldPrice, newPrice);
+		}
 	}
 	
 	@Override
-	public void setPrices(List<Price> prices, boolean updateExistingPrice) {
+	public void setPrices(List<Price> prices, boolean overideExistingData) {
 		boolean change = false;
 		for (Price price : prices) {
-			Price oldValue = setPriceInternal(price, updateExistingPrice);
+			Price oldValue = setPriceInternal(price, overideExistingData);
 			change = change || oldValue == null || ! oldValue.equals(price);
 		}
-		if (change)
+		if (change) {
 			firePropertyChange("prices", null, prices);
+		}
 	}
 	
-	public Price setPriceInternal(Price newPrice, boolean updateExistingPrice) {
+	private Price setPriceInternal(Price newPrice, boolean overideExistingData) {
 		ImmutableList<Price> lp = prices;
 		
 		int binarySearch = PeanutsUtil.binarySearch(lp, newPrice.getDay());
@@ -106,13 +113,16 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 		Price oldPrice = null;
 		if (binarySearch >= 0) {
 			oldPrice = lp.get(binarySearch);
-			if (updateExistingPrice) {
+			if (overideExistingData) {
 				// Update existing price with better values
 				BigDecimal open = newPrice.getOpen() != null ? newPrice.getOpen() : oldPrice.getOpen();
 				BigDecimal close = newPrice.getClose() != null ? newPrice.getClose() : oldPrice.getClose();
 				BigDecimal high = newPrice.getHigh() != null ? newPrice.getHigh() : oldPrice.getHigh();
 				BigDecimal low = newPrice.getLow() != null ? newPrice.getLow() : oldPrice.getLow();
 				newPrice = new Price(oldPrice.getDay(), open, close, high, low);				
+			} else {
+				// simulate no change
+				return newPrice;
 			}
 			s1 = binarySearch;
 			s2 = binarySearch +1;

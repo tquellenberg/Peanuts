@@ -5,6 +5,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -15,10 +16,13 @@ import de.tomsplayground.peanuts.domain.base.Security;
 
 public class SecurityPropertyPage extends PropertyPage {
 	
+	public static final String OVERRIDE_EXISTING_PRICE_DATA = "OVERRIDE_EXISTING_PRICE_DATA";
+
 	private Text name;
 	private Text wkn;
 	private Text isin;
 	private Text ticker;
+	private Button overridePriceDate;
 	
 	public SecurityPropertyPage() {
 		noDefaultAndApplyButton();
@@ -33,6 +37,10 @@ public class SecurityPropertyPage extends PropertyPage {
 		wkn = createTextWithLabel(composite, "WKN");
 		isin = createTextWithLabel(composite, "Isin");
 		ticker = createTextWithLabel(composite, "Ticker");
+
+		Label label = new Label(composite, SWT.NONE);
+		label.setText("Override existing price data");
+		overridePriceDate = new Button(composite, SWT.CHECK);
 		
 		IAdaptable adapter = getElement();
 		Security security = (Security)adapter.getAdapter(Security.class);
@@ -40,6 +48,7 @@ public class SecurityPropertyPage extends PropertyPage {
 		wkn.setText(StringUtils.defaultString(security.getWKN()));
 		isin.setText(StringUtils.defaultString(security.getISIN()));
 		ticker.setText(StringUtils.defaultString(security.getTicker()));
+		overridePriceDate.setSelection(Boolean.valueOf(security.getConfigurationValue(OVERRIDE_EXISTING_PRICE_DATA)).booleanValue());
 		
 		return composite;
 	}
