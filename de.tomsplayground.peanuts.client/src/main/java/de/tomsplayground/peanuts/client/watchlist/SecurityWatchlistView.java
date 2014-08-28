@@ -2,26 +2,34 @@ package de.tomsplayground.peanuts.client.watchlist;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -29,6 +37,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
@@ -39,6 +48,8 @@ import com.google.common.collect.ImmutableList;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.dnd.PeanutsTransfer;
 import de.tomsplayground.peanuts.client.dnd.SecurityTransferData;
+import de.tomsplayground.peanuts.client.editors.security.SecurityEditor;
+import de.tomsplayground.peanuts.client.editors.security.SecurityEditorInput;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
@@ -56,6 +67,75 @@ public class SecurityWatchlistView extends ViewPart {
 	private TableViewer securityListViewer;
 	private Watchlist currentWatchList;
 	private final int colWidth[] = new int[13];
+
+	private static abstract class WatchEntryViewerComparator extends ViewerComparator {
+		enum SORT {
+			UP, DOWN
+		}
+		
+		private SORT sort = SORT.UP;
+
+		abstract public int compare(WatchEntry w1, WatchEntry w2);
+		
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			if (e1 instanceof WatchEntry && e2 instanceof WatchEntry) {
+				WatchEntry w1 = (WatchEntry) e1;
+				WatchEntry w2 = (WatchEntry) e2;
+				int compare = compare(w1, w2);
+				return (sort == SORT.DOWN) ? compare : -compare;
+			}
+			return 0;
+		}		
+		public void setSortDirection(SORT sort) {
+			this.sort = sort;
+		}
+	}
+
+	private final WatchEntryViewerComparator nameComparator = new WatchEntryViewerComparator() {
+		@Override
+		public int compare(WatchEntry w1, WatchEntry w2) {
+			return w2.getSecurity().getName().compareToIgnoreCase(w1.getSecurity().getName());
+		}
+	};
+	private final WatchEntryViewerComparator peRatioComparator = new WatchEntryViewerComparator() {
+		@Override
+		public int compare(WatchEntry w1, WatchEntry w2) {
+			BigDecimal peRatio1 = null;
+			BigDecimal peRatio2 = null;
+			
+			FundamentalData data1 = w1.getSecurity().getCurrentFundamentalData();
+			if (data1 != null) {
+				IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(w1.getSecurity());
+				peRatio1 = data1.calculatePeRatio(priceProvider);
+			}
+			FundamentalData data2 = w2.getSecurity().getCurrentFundamentalData();
+			if (data2 != null) {
+				IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(w2.getSecurity());
+				peRatio2 = data2.calculatePeRatio(priceProvider);
+			}
+			return ObjectUtils.compare(peRatio2, peRatio1, true);
+		}
+	};
+	private final WatchEntryViewerComparator divYieldComparator = new WatchEntryViewerComparator() {
+		@Override
+		public int compare(WatchEntry w1, WatchEntry w2) {
+			BigDecimal divYield1 = null;
+			BigDecimal divYield2 = null;
+			
+			FundamentalData data1 = w1.getSecurity().getCurrentFundamentalData();
+			if (data1 != null) {
+				IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(w1.getSecurity());
+				divYield1 = data1.calculateDivYield(priceProvider);
+			}
+			FundamentalData data2 = w2.getSecurity().getCurrentFundamentalData();
+			if (data2 != null) {
+				IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(w2.getSecurity());
+				divYield2 = data2.calculateDivYield(priceProvider);
+			}
+			return ObjectUtils.compare(divYield1, divYield2);
+		}
+	};
 
 	private final PropertyChangeListener watchlistChangeListener = new UniqueAsyncExecution() {
 		
@@ -130,7 +210,7 @@ public class SecurityWatchlistView extends ViewPart {
 				FundamentalData data1 = watchEntry.getSecurity().getCurrentFundamentalData();
 				if (data1 != null) {
 					IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(watchEntry.getSecurity());
-					return PeanutsUtil.formatQuantity(data1.calculatePeRatio(priceProvider));
+					return PeanutsUtil.format(data1.calculatePeRatio(priceProvider), 1);
 				}
 				return "";
 			case 4:
@@ -239,6 +319,12 @@ public class SecurityWatchlistView extends ViewPart {
 		col.setText("Name");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 300);
 		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, nameComparator);
+			}
+		});
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
@@ -257,12 +343,24 @@ public class SecurityWatchlistView extends ViewPart {
 		col.setText("P/E ratio");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, peRatioComparator);
+			}
+		});
 		colNum++;
 		
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Div yield");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, divYieldComparator);
+			}
+		});
 		colNum++;
 		
 		col = new TableColumn(table, SWT.RIGHT);
@@ -312,6 +410,10 @@ public class SecurityWatchlistView extends ViewPart {
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
 		
+		table.setSortColumn(table.getColumn(0));
+		table.setSortDirection(SWT.UP);	
+		securityListViewer.setComparator(nameComparator);
+		
 		securityListViewer.setContentProvider(new WatchlistContentProvider());
 		Color red = parent.getShell().getDisplay().getSystemColor(SWT.COLOR_RED);
 		Color green = parent.getShell().getDisplay().getSystemColor(SWT.COLOR_GREEN);
@@ -352,6 +454,23 @@ public class SecurityWatchlistView extends ViewPart {
 		
 		initWatchlists();
 		securityListViewer.setInput(currentWatchList);
+
+		securityListViewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
+				if (sel.getFirstElement() instanceof WatchEntry) {
+					Security security = ((WatchEntry) sel.getFirstElement()).getSecurity();
+					IEditorInput input = new SecurityEditorInput(security);
+					try {
+						getSite().getWorkbenchWindow().getActivePage().openEditor(input,
+							SecurityEditor.ID);
+					} catch (PartInitException e) {
+						e.printStackTrace();
+					}					
+				}
+			}
+		});
 
 		MenuManager menuManager = new MenuManager();
 		table.setMenu(menuManager.createContextMenu(table));
@@ -416,6 +535,21 @@ public class SecurityWatchlistView extends ViewPart {
 	@Override
 	public void setFocus() {
 		// nothing to do
+	}
+
+	protected void setSorting(TableColumn column, WatchEntryViewerComparator newComparator) {
+		Table table = securityListViewer.getTable();
+		if (securityListViewer.getComparator() == newComparator) {
+			int currentSortDirection = table.getSortDirection();
+			table.setSortDirection(currentSortDirection==SWT.UP?SWT.DOWN:SWT.UP);
+			newComparator.setSortDirection(currentSortDirection==SWT.UP?WatchEntryViewerComparator.SORT.DOWN:WatchEntryViewerComparator.SORT.UP);
+			securityListViewer.refresh();
+		} else {
+			table.setSortColumn(column);
+			table.setSortDirection(SWT.UP);	
+			newComparator.setSortDirection(WatchEntryViewerComparator.SORT.UP);
+			securityListViewer.setComparator(newComparator);
+		}
 	}
 
 }

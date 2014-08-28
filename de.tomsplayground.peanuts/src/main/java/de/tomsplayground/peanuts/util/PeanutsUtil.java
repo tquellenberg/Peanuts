@@ -34,10 +34,26 @@ public class PeanutsUtil {
 		percentFormat.setMinimumFractionDigits(2);
 	}
 
+	public static String format(BigDecimal amount, int fractionDigits) {
+		if (amount == null) {
+			return "";
+		}
+		NumberFormat numberInstance = NumberFormat.getNumberInstance();
+		((DecimalFormat) numberInstance).setParseBigDecimal(true);
+		((DecimalFormat) numberInstance).setMaximumFractionDigits(fractionDigits);
+		((DecimalFormat) numberInstance).setMinimumFractionDigits(fractionDigits);
+		try {
+			return numberInstance.format(amount);
+		} catch (IllegalArgumentException e) {
+			log.error("amount:" + amount);
+			throw e;
+		}
+	}
 	
 	public static String formatCurrency(BigDecimal amount, Currency currency) {
-		if (amount == null)
+		if (amount == null) {
 			return "";
+		}
 		try {
 			if (currency != null) {
 				synchronized (currencyFormat) {
@@ -56,8 +72,9 @@ public class PeanutsUtil {
 	}
 
 	public static String formatQuantity(BigDecimal quantity) {
-		if (quantity == null)
+		if (quantity == null) {
 			return "";
+		}
 		try {
 			synchronized (quantityFormat) {
 				return quantityFormat.format(quantity);
@@ -69,8 +86,9 @@ public class PeanutsUtil {
 	}
 
 	public static String formatPercent(BigDecimal percent) {
-		if (percent == null)
+		if (percent == null) {
 			return "";
+		}
 		try {
 			synchronized (percentFormat) {
 				return percentFormat.format(percent);
@@ -82,8 +100,9 @@ public class PeanutsUtil {
 	}
 	
 	public static String formatDate(Day date) {
-		if (date == null)
+		if (date == null) {
 			return "";
+		}
 		try {
 			synchronized (dateFormat) {
 				return dateFormat.format(date.toCalendar().getTime());
@@ -124,12 +143,14 @@ public class PeanutsUtil {
 			ITimedElement midVal = prices.get(mid);
 			int cmp = midVal.getDay().compareTo(date);
 	
-			if (cmp < 0)
+			if (cmp < 0) {
 				low = mid + 1;
-			else if (cmp > 0)
+			} else if (cmp > 0) {
 				high = mid - 1;
-			else
+			}
+			else {
 				return mid; // key found
+			}
 		}
 		return -(low +1); // key not found
 	}
