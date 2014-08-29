@@ -30,6 +30,7 @@ public class FundamentalData {
 		this.year = d.year;
 		this.dividende = d.dividende;
 		this.earningsPerShare = d.earningsPerShare;
+		this.debtEquityRatio = d.debtEquityRatio;
 	}
 	
 	public int getYear() {
