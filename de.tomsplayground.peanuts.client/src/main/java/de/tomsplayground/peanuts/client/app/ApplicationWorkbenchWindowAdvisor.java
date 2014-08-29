@@ -28,6 +28,8 @@ import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 
 public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
+	private Job job;
+
 	public ApplicationWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer) {
 		super(configurer);
 	}
@@ -44,6 +46,12 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		configurer.setShowCoolBar(true);
 		configurer.setShowStatusLine(true);
 		configurer.setShowProgressIndicator(true);
+	}
+	
+	@Override
+	public void postWindowClose() {
+		super.postWindowClose();
+		job.cancel();
 	}
 
 	@Override
@@ -66,7 +74,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		});
 		statusline.update(true);
 		
-		Job job = new Job("Refresh investment prices") {
+		job = new Job("Refresh investment prices") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
