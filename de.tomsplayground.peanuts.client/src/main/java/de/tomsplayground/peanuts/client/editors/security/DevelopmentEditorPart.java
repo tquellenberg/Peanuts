@@ -30,6 +30,7 @@ import org.eclipse.ui.IPersistableEditor;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.Price;
@@ -114,7 +115,7 @@ public class DevelopmentEditorPart extends EditorPart implements IPersistableEdi
 		col.setWidth((colWidth[2] > 0) ? colWidth[2] : 100);
 		col.setResizable(true);
 
-		Color red = getSite().getShell().getDisplay().getSystemColor(SWT.COLOR_RED);
+		Color red = Activator.getDefault().getColorProvider().get(Activator.RED);
 		tableViewer.setLabelProvider(new StringTableLabelProvider(red));
 		tableViewer.setContentProvider(new ArrayContentProvider());
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

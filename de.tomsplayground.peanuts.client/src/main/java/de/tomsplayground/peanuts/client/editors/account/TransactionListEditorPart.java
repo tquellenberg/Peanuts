@@ -363,7 +363,7 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 		gd.exclude = true;
 		transactionDetailComposite2.setLayoutData(gd);
 
-		Color red = getSite().getShell().getDisplay().getSystemColor(SWT.COLOR_RED);
+		Color red = Activator.getDefault().getColorProvider().get(Activator.RED);
 		transactionTree.setLabelProvider(new AccountLabelProvider(red, account));
 		transactionTree.setContentProvider(new TransactionListContentProvider());
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

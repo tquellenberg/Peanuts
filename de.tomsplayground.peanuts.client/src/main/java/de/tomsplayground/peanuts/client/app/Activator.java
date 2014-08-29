@@ -26,10 +26,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
+import org.eclipse.jface.resource.ColorRegistry;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -50,6 +52,13 @@ public class Activator extends AbstractUIPlugin {
 	private static final String EXAMPLE_FILENAME = "example.bpx";
 	private static final String EXAMPLE = "<EXAMPLE>";
 	
+	public static final String LIST_EVEN = "LIST_EVEN";
+	public static final String LIST_ODD = "LIST_ODD";
+	public static final String RED = "RED";
+	public static final String GREEN = "GREEN";
+	public static final String RED_BG = "RED_BG";
+	public static final String GREEN_BG = "GREEN_BG";
+
 	public static final String FILE_EXTENSION_XML = "bpx";
 	public static final String FILE_EXTENSION_SECURE = "bps";
 	public static final String[] ALL_FILE_PATTERN = new String[]{"*."+FILE_EXTENSION_SECURE, "*."+FILE_EXTENSION_XML};
@@ -81,7 +90,7 @@ public class Activator extends AbstractUIPlugin {
 
 	// The shared instance
 	private static Activator plugin;
-	private static ColorProvider colorProvider;
+	private static ColorRegistry colorProvider;
 
 	private AccountManager accountManager;
 	private String passphrase;
@@ -144,9 +153,15 @@ public class Activator extends AbstractUIPlugin {
 		getImageRegistry().put(IMAGE_SAVED_TRANSACTION, getImageDescriptor("icons/date.png"));
 	}
 
-	public synchronized ColorProvider getColorProvider() {
+	public synchronized ColorRegistry getColorProvider() {
 		if (colorProvider == null) {
-			colorProvider = new ColorProvider(getWorkbench().getDisplay());
+			colorProvider = new ColorRegistry(getWorkbench().getDisplay());
+			colorProvider.put(LIST_EVEN, new RGB(0xBF, 0xE4, 0xFF));
+			colorProvider.put(LIST_ODD, new RGB(0xFF, 0xF2, 0xBF));
+			colorProvider.put(RED, new RGB(0xFF, 0x0D, 0x00));
+			colorProvider.put(GREEN, new RGB(0x00, 0xC6, 0x18));
+			colorProvider.put(RED_BG, new RGB(0xFF, 0x7A, 0x73));
+			colorProvider.put(GREEN_BG, new RGB(0x66, 0xE2, 0x75));
 		}
 		return colorProvider;
 	}
@@ -247,9 +262,6 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	@Override
 	public void stop(BundleContext context) throws Exception {
-		if (colorProvider != null) {
-			colorProvider.dispose();
-		}
 		if (accountManager != null) {
 			save(getFilename());
 		}

@@ -199,10 +199,14 @@ public class SecurityWatchlistView extends ViewPart {
 
 		private final Color red;
 		private final Color green;
+		private final Color redBg;
+		private final Color greenBg;
 		
-		public SecurityListLabelProvider(Color red, Color green) {
-			this.red = red;
-			this.green = green;
+		public SecurityListLabelProvider() {
+			red = Activator.getDefault().getColorProvider().get(Activator.RED);
+			green = Activator.getDefault().getColorProvider().get(Activator.GREEN);
+			redBg = Activator.getDefault().getColorProvider().get(Activator.RED_BG);
+			greenBg = Activator.getDefault().getColorProvider().get(Activator.GREEN_BG);
 		}
 
 		@Override
@@ -291,10 +295,10 @@ public class SecurityWatchlistView extends ViewPart {
 				WatchEntry watchEntry = (WatchEntry) element;
 				if (watchEntry.getSignal() != null) {
 					if (watchEntry.getSignal().type == Type.BUY) {
-						return green;
+						return greenBg;
 					}
 					if (watchEntry.getSignal().type == Type.SELL) {
-						return red;
+						return redBg;
 					}
 				}
 			}
@@ -304,7 +308,17 @@ public class SecurityWatchlistView extends ViewPart {
 		@Override
 		public Color getForeground(Object element, int columnIndex) {
 			WatchEntry watchEntry = (WatchEntry) element;
-			if (columnIndex == 8 || columnIndex == 9) {
+			if (columnIndex == 6) {
+				FundamentalData data4 = watchEntry.getSecurity().getCurrentFundamentalData();
+				if (data4 != null && data4.getDebtEquityRatio() != null) {
+					if (data4.getDebtEquityRatio().intValue() > 100) {
+						return red;
+					}
+					if (data4.getDebtEquityRatio().intValue() < 40) {
+						return green;
+					}
+				}
+			} else if (columnIndex == 8 || columnIndex == 9) {
 				return (watchEntry.getDayChangeAbsolut().signum() == -1) ? red : green;
 			} else if (columnIndex == 10) {
 				return (watchEntry.getPerformance(7, 0, 0).signum() == -1) ? red : green;
@@ -472,9 +486,7 @@ public class SecurityWatchlistView extends ViewPart {
 		securityListViewer.setComparator(nameComparator);
 		
 		securityListViewer.setContentProvider(new WatchlistContentProvider());
-		Color red = parent.getShell().getDisplay().getSystemColor(SWT.COLOR_RED);
-		Color green = parent.getShell().getDisplay().getSystemColor(SWT.COLOR_GREEN);
-		securityListViewer.setLabelProvider(new SecurityListLabelProvider(red, green));
+		securityListViewer.setLabelProvider(new SecurityListLabelProvider());
 		
 		// Drop-Target
 		Transfer[] types = new Transfer[] { PeanutsTransfer.INSTANCE };

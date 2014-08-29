@@ -25,6 +25,7 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer;
@@ -76,14 +77,18 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 				}
 			} else if (element instanceof BigDecimal[]) {
 				BigDecimal[] sum = (BigDecimal[]) element;
-				if (columnIndex == 3)
+				if (columnIndex == 3) {
 					return PeanutsUtil.formatCurrency(sum[0], currency);
-				if (columnIndex == 4)
+				}
+				if (columnIndex == 4) {
 					return PeanutsUtil.formatCurrency(sum[1], currency);
-				if (columnIndex == 5)
+				}
+				if (columnIndex == 5) {
 					return PeanutsUtil.formatCurrency(sum[2], currency);
-				if (columnIndex == 6)
+				}
+				if (columnIndex == 6) {
 					return PeanutsUtil.formatCurrency(sum[3], currency);
+				}
 			}
 			return null;
 		}
@@ -104,26 +109,36 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 				Value value = (Value) element;
 				if (columnIndex == 5) {
 					BigDecimal v = value.getAdditions().add(value.getLeavings());
-					if (v.signum() == -1)
+					if (v.signum() == -1) {
 						return red;
+					}
 				} else if (columnIndex == 6 || columnIndex == 8) {
-					if (value.getGainings().signum() == -1)
+					if (value.getGainings().signum() == -1) {
 						return red;
+					}
 				}
 			} else if (element instanceof BigDecimal) {
 				BigDecimal[] sum = (BigDecimal[]) element;
-				if (columnIndex == 3)
-					if (sum[0].signum() == -1)
+				if (columnIndex == 3) {
+					if (sum[0].signum() == -1) {
 						return red;
-				if (columnIndex == 4)
-					if (sum[1].signum() == -1)
+					}
+				}
+				if (columnIndex == 4) {
+					if (sum[1].signum() == -1) {
 						return red;
-				if (columnIndex == 5)
-					if (sum[2].signum() == -1)
+					}
+				}
+				if (columnIndex == 5) {
+					if (sum[2].signum() == -1) {
 						return red;
-				if (columnIndex == 6)
-					if (sum[3].signum() == -1)
+					}
+				}
+				if (columnIndex == 6) {
+					if (sum[3].signum() == -1) {
 						return red;
+					}
+				}
 			}
 			return null;
 		}
@@ -218,7 +233,7 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 		col.setResizable(true);
 
 		Account account = ((AccountEditorInput) getEditorInput()).getAccount();
-		Color red = getSite().getShell().getDisplay().getSystemColor(SWT.COLOR_RED);
+		Color red = Activator.getDefault().getColorProvider().get(Activator.RED);
 		tableViewer.setLabelProvider(new PerformanceTableLabelProvider(red, account.getCurrency()));
 		tableViewer.setContentProvider(new MyArrayContentProvider());
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

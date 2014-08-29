@@ -53,6 +53,7 @@ import org.eclipse.ui.part.EditorPart;
 
 import com.google.common.collect.ImmutableList;
 
+import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.editors.security.SecurityEditor;
 import de.tomsplayground.peanuts.client.editors.security.SecurityEditorInput;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
@@ -72,7 +73,7 @@ import de.tomsplayground.util.Day;
 public class InventoryEditorPart extends EditorPart implements IPersistableEditor {
 
 	private static final String SHOW_ALL_SECURITIES = "inventoryShowAllSecurities";
-	private int colWidth[] = new int[10];
+	private final int colWidth[] = new int[10];
 	private TreeViewer treeViewer;
 	private Label gainingLabel;
 	private Label marketValueLabel;
@@ -359,12 +360,14 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 			if (element instanceof InventoryEntry) {
 				InventoryEntry entry = (InventoryEntry) element;
 				if (columnIndex == INVENTORY_POS_GAIN || columnIndex == INVENTORY_POS_GAIN_PERCENT) {
-					if (entry.getMarketValue(date).subtract(entry.getInvestedAmount()).signum() == -1)
+					if (entry.getMarketValue(date).subtract(entry.getInvestedAmount()).signum() == -1) {
 						return red;
+					}
 				}
 				if (columnIndex == INVENTORY_POS_DAY_CHANGE) {
-					if (entry.getChange(date.addDays(-1), date).signum() == -1)
+					if (entry.getChange(date.addDays(-1), date).signum() == -1) {
 						return red;
+					}
 				}
 			} else if (element instanceof AnalyzedInvestmentTransaction) {
 				AnalyzedInvestmentTransaction t = (AnalyzedInvestmentTransaction) element;
@@ -443,13 +446,14 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		tree.setLinesVisible(true);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		treeViewer.setContentProvider(new InventoryContentProvider());
-		Color red = getSite().getShell().getDisplay().getSystemColor(SWT.COLOR_RED);
+		Color red = Activator.getDefault().getColorProvider().get(Activator.RED);
 		treeViewer.setLabelProvider(new InventoryLabelProvider(red, account.getCurrency()));
 		treeViewer.addFilter(new ViewerFilter() {
 			@Override
 			public boolean select(Viewer viewer, Object parentElement, Object element) {
-				if (showAllSecurities)
+				if (showAllSecurities) {
 					return true;
+				}
 				if (element instanceof InventoryEntry) {
 					InventoryEntry entry = (InventoryEntry) element;
 					return entry.getQuantity().intValue() != 0;

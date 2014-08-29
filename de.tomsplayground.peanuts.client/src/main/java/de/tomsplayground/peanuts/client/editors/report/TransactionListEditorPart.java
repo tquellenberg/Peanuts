@@ -20,6 +20,7 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.LabeledTransaction;
@@ -137,7 +138,7 @@ public class TransactionListEditorPart extends EditorPart {
 
 		Report report = ((ReportEditorInput) getEditorInput()).getReport();
 
-		Color red = getSite().getShell().getDisplay().getSystemColor(SWT.COLOR_RED);
+		Color red = Activator.getDefault().getColorProvider().get(Activator.RED);
 		tableViewer.setLabelProvider(new TransactionTableLabelProvider(red, report));
 		tableViewer.setContentProvider(new ArrayContentProvider());
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

@@ -238,8 +238,8 @@ public class AccountListView extends ViewPart {
 		col.setResizable(true);
 
 		accountListViewer.setContentProvider(new ArrayContentProvider());
-		Color red = getSite().getShell().getDisplay().getSystemColor(SWT.COLOR_RED);
 		ColorRegistry colorProvider = Activator.getDefault().getColorProvider();
+		Color red = colorProvider.get(Activator.RED);
 		accountListViewer.setLabelProvider(new AccountListLabelProvider(red, 
 			colorProvider.get(Activator.LIST_EVEN), colorProvider.get(Activator.LIST_ODD)));
 		accounts = Activator.getDefault().getAccountManager().getAccounts();
