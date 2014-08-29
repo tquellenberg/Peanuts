@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.resource.ColorRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -48,7 +49,6 @@ import org.eclipse.ui.part.ViewPart;
 import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.client.app.Activator;
-import de.tomsplayground.peanuts.client.app.ColorProvider;
 import de.tomsplayground.peanuts.client.editors.account.AccountEditor;
 import de.tomsplayground.peanuts.client.editors.account.AccountEditorInput;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
@@ -129,13 +129,13 @@ public class AccountListView extends ViewPart {
 		}
 	}
 
-	private int colWidth[] = new int[3];
+	private final int colWidth[] = new int[3];
 
 	private Label saldo;
 	
 	private Day date = new Day();
 
-	private PropertyChangeListener propertyChangeListener = new UniqueAsyncExecution() {
+	private final PropertyChangeListener propertyChangeListener = new UniqueAsyncExecution() {
 
 		@Override
 		public void doit(final PropertyChangeEvent evt, Display display) {
@@ -146,8 +146,9 @@ public class AccountListView extends ViewPart {
 					updateSaldo();
 				} else if (evt.getSource() instanceof Inventory) {
 					for (Entry<Account, Inventory> entry : inventories.entrySet()) {
-						if (entry.getValue() == evt.getSource())
+						if (entry.getValue() == evt.getSource()) {
 							accountListViewer.update(entry.getKey(), null);
+						}
 					}
 					updateSaldo();
 				}
@@ -161,7 +162,7 @@ public class AccountListView extends ViewPart {
 	};
 
 	private ImmutableList<Account> accounts;
-	private Map<Account, Inventory> inventories = new HashMap<Account, Inventory>();
+	private final Map<Account, Inventory> inventories = new HashMap<Account, Inventory>();
 
 	@Override
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
@@ -238,9 +239,9 @@ public class AccountListView extends ViewPart {
 
 		accountListViewer.setContentProvider(new ArrayContentProvider());
 		Color red = getSite().getShell().getDisplay().getSystemColor(SWT.COLOR_RED);
-		ColorProvider colorProvider = Activator.getDefault().getColorProvider();
-		accountListViewer.setLabelProvider(new AccountListLabelProvider(red, colorProvider
-				.getColor(ColorProvider.LIST_EVEN), colorProvider.getColor(ColorProvider.LIST_ODD)));
+		ColorRegistry colorProvider = Activator.getDefault().getColorProvider();
+		accountListViewer.setLabelProvider(new AccountListLabelProvider(red, 
+			colorProvider.get(Activator.LIST_EVEN), colorProvider.get(Activator.LIST_ODD)));
 		accounts = Activator.getDefault().getAccountManager().getAccounts();
 		for (Account account : accounts) {
 			account.addPropertyChangeListener(propertyChangeListener);
@@ -302,8 +303,9 @@ public class AccountListView extends ViewPart {
 		final Map<Currency, BigDecimal> saldoMap = new HashMap<Currency, BigDecimal>();
 		for (Account a : accounts) {
 			BigDecimal s = BigDecimal.ZERO;
-			if (saldoMap.containsKey(a.getCurrency()))
+			if (saldoMap.containsKey(a.getCurrency())) {
 				s = saldoMap.get(a.getCurrency());
+			}
 			s = s.add(a.getBalance(date));
 			if (a.getType() == Account.Type.INVESTMENT) {
 				s = s.add(inventories.get(a).getMarketValue());
@@ -320,8 +322,9 @@ public class AccountListView extends ViewPart {
 			}});
 		String saldoStr = "";
 		for (Currency currency : currencies) {
-			if (saldoStr.length() > 0)
+			if (saldoStr.length() > 0) {
 				saldoStr += "; ";
+			}
 			saldoStr = saldoStr + PeanutsUtil.formatCurrency(saldoMap.get(currency), currency);
 		}
 		saldo.setText(saldoStr);

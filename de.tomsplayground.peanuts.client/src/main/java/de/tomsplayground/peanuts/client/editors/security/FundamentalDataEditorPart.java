@@ -48,7 +48,7 @@ import de.tomsplayground.util.Day;
 public class FundamentalDataEditorPart extends EditorPart {
 
 	private TableViewer tableViewer;
-	private final int colWidth[] = new int[6];
+	private final int colWidth[] = new int[7];
 	private boolean dirty = false;
 	private List<FundamentalData> fundamentalDatas;
 	private IPriceProvider priceProvider;
@@ -71,10 +71,12 @@ public class FundamentalDataEditorPart extends EditorPart {
 			case 2:
 				return PeanutsUtil.formatCurrency(data.getEarningsPerShare(), null);
 			case 3:
-				return PeanutsUtil.formatQuantity(data.calculatePeRatio(priceProvider));
+				return PeanutsUtil.formatQuantity(data.getDebtEquityRatio());
 			case 4:
-				return PeanutsUtil.formatPercent(data.calculateDivYield(priceProvider));
+				return PeanutsUtil.formatQuantity(data.calculatePeRatio(priceProvider));
 			case 5:
+				return PeanutsUtil.formatPercent(data.calculateDivYield(priceProvider));
+			case 6:
 				if (inventoryEntry != null && data.getYear() == (new Day()).year) {
 					return PeanutsUtil.formatPercent(data.calculateYOC(inventoryEntry));
 				} else {
@@ -114,9 +116,10 @@ public class FundamentalDataEditorPart extends EditorPart {
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 
+		int colNumber = 0;
 		TableColumn col = new TableColumn(table, SWT.LEFT);
 		col.setText("Year");
-		col.setWidth((colWidth[0] > 0) ? colWidth[0] : 100);
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.setResizable(true);
 		ViewerComparator comparator = new ViewerComparator() {
 			@Override
@@ -127,38 +130,50 @@ public class FundamentalDataEditorPart extends EditorPart {
 		tableViewer.setComparator(comparator);
 		table.setSortColumn(col);
 		table.setSortDirection(SWT.UP);
-
+		colNumber++;
+		
 		col = new TableColumn(table, SWT.LEFT);
 		col.setText("Dividende");
-		col.setWidth((colWidth[1] > 0) ? colWidth[1] : 100);
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.setResizable(true);
+		colNumber++;
 
 		col = new TableColumn(table, SWT.LEFT);
 		col.setText("EPS");
-		col.setWidth((colWidth[2] > 0) ? colWidth[2] : 100);
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.setResizable(true);
+		colNumber++;
+
+		col = new TableColumn(table, SWT.LEFT);
+		col.setText("D/E ratio");
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setResizable(true);
+		colNumber++;
 
 		col = new TableColumn(table, SWT.LEFT);
 		col.setText("P/E ratio");
-		col.setWidth((colWidth[3] > 0) ? colWidth[3] : 100);
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.setResizable(true);
+		colNumber++;
 
 		col = new TableColumn(table, SWT.LEFT);
 		col.setText("Div yield");
-		col.setWidth((colWidth[4] > 0) ? colWidth[4] : 100);
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.setResizable(true);
+		colNumber++;
 
 		col = new TableColumn(table, SWT.LEFT);
 		col.setText("YOC");
-		col.setWidth((colWidth[5] > 0) ? colWidth[5] : 100);
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.setResizable(true);
+		colNumber++;
 
-		tableViewer.setColumnProperties(new String[] { "year", "div", "EPS", "peRatio", "divYield", "YOC"});
+		tableViewer.setColumnProperties(new String[] { "year", "div", "EPS", "deRatio", "peRatio", "divYield", "YOC"});
 		tableViewer.setCellModifier(new ICellModifier() {
 
 			@Override
 			public boolean canModify(Object element, String property) {
-				return Lists.newArrayList("year", "div", "EPS").contains(property);
+				return Lists.newArrayList("year", "div", "EPS", "deRatio").contains(property);
 			}
 
 			@Override
@@ -170,6 +185,8 @@ public class FundamentalDataEditorPart extends EditorPart {
 					return PeanutsUtil.formatCurrency(p.getDividende(), null);
 				} else if (property.equals("EPS")) {
 					return PeanutsUtil.formatCurrency(p.getEarningsPerShare(), null);
+				} else if (property.equals("deRatio")) {
+					return PeanutsUtil.formatCurrency(p.getDebtEquityRatio(), null);
 				}
 				return null;
 			}
@@ -199,6 +216,13 @@ public class FundamentalDataEditorPart extends EditorPart {
 							tableViewer.update(p, new String[]{property});
 							markDirty();
 						}
+					} else if (property.equals("deRatio")) {
+						BigDecimal v = PeanutsUtil.parseCurrency((String) value);
+						if (! v.equals(p.getDebtEquityRatio())) {
+							p.setDebtEquityRatio(v);;
+							tableViewer.update(p, new String[]{property});
+							markDirty();
+						}
 					}
 				} catch (ParseException e) {
 					// Okay
@@ -206,7 +230,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 			}
 		});
 		tableViewer.setCellEditors(new CellEditor[] {new TextCellEditor(table), new TextCellEditor(table),
-				new TextCellEditor(table)});
+				new TextCellEditor(table), new TextCellEditor(table)});
 
 		tableViewer.setLabelProvider(new FundamentalDataTableLabelProvider());
 		tableViewer.setContentProvider(new ArrayContentProvider());

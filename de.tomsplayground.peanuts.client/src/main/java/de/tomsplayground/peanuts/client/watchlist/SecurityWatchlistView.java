@@ -68,7 +68,7 @@ public class SecurityWatchlistView extends ViewPart {
 	
 	private TableViewer securityListViewer;
 	private Watchlist currentWatchList;
-	private final int colWidth[] = new int[14];
+	private final int colWidth[] = new int[15];
 
 	private static abstract class WatchEntryViewerComparator extends ViewerComparator {
 		enum SORT {
@@ -254,24 +254,30 @@ public class SecurityWatchlistView extends ViewPart {
 				}
 				return "";
 			case 6:
+				FundamentalData data4 = security.getCurrentFundamentalData();
+				if (data4 != null) {
+					return PeanutsUtil.format(data4.getDebtEquityRatio(), 2);
+				}
+				return "";
+			case 7:
 				Signal signal = watchEntry.getSignal();
 				if (signal != null) {
 					return signal.type.toString() + " " + PeanutsUtil.formatDate(signal.price.getDay());
 				}
 				return "";
-			case 7:
-				return PeanutsUtil.formatCurrency(watchEntry.getDayChangeAbsolut(), null);
 			case 8:
-				return PeanutsUtil.formatPercent(watchEntry.getDayChange());
+				return PeanutsUtil.formatCurrency(watchEntry.getDayChangeAbsolut(), null);
 			case 9:
-				return PeanutsUtil.formatPercent(watchEntry.getPerformance(7, 0, 0));
+				return PeanutsUtil.formatPercent(watchEntry.getDayChange());
 			case 10:
-				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 1, 0));
+				return PeanutsUtil.formatPercent(watchEntry.getPerformance(7, 0, 0));
 			case 11:
-				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 6, 0));
+				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 1, 0));
 			case 12:
-				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 1));
+				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 6, 0));
 			case 13:
+				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 1));
+			case 14:
 				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 3));
 			default:
 				break;
@@ -281,7 +287,7 @@ public class SecurityWatchlistView extends ViewPart {
 
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
-			if (columnIndex == 6) {
+			if (columnIndex == 7) {
 				WatchEntry watchEntry = (WatchEntry) element;
 				if (watchEntry.getSignal() != null) {
 					if (watchEntry.getSignal().type == Type.BUY) {
@@ -298,17 +304,17 @@ public class SecurityWatchlistView extends ViewPart {
 		@Override
 		public Color getForeground(Object element, int columnIndex) {
 			WatchEntry watchEntry = (WatchEntry) element;
-			if (columnIndex == 7 || columnIndex == 8) {
+			if (columnIndex == 8 || columnIndex == 9) {
 				return (watchEntry.getDayChangeAbsolut().signum() == -1) ? red : green;
-			} else if (columnIndex == 9) {
-				return (watchEntry.getPerformance(7, 0, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 10) {
-				return (watchEntry.getPerformance(0, 1, 0).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(7, 0, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 11) {
-				return (watchEntry.getPerformance(0, 6, 0).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(0, 1, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 12) {
-				return (watchEntry.getPerformance(0, 0, 1).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(0, 6, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 13) {
+				return (watchEntry.getPerformance(0, 0, 1).signum() == -1) ? red : green;
+			} else if (columnIndex == 14) {
 				return (watchEntry.getPerformance(0, 0, 3).signum() == -1) ? red : green;
 			}
 			return null;
@@ -406,6 +412,12 @@ public class SecurityWatchlistView extends ViewPart {
 				setSorting((TableColumn)e.widget, yocComparator);
 			}
 		});
+		colNum++;
+		
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("D/E");
+		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
+		col.setResizable(true);
 		colNum++;
 		
 		col = new TableColumn(table, SWT.RIGHT);

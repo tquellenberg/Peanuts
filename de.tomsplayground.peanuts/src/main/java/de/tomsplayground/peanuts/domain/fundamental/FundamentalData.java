@@ -17,11 +17,13 @@ public class FundamentalData {
 	private int year;
 	private BigDecimal dividende;
 	private BigDecimal earningsPerShare;
+	private BigDecimal debtEquityRatio;
 	
 	public FundamentalData() {
 		this.year = 2000;
 		this.dividende = BigDecimal.ZERO;
 		this.earningsPerShare = BigDecimal.ZERO;
+		this.debtEquityRatio = BigDecimal.ZERO;
 	}
 	
 	public FundamentalData(FundamentalData d) {
@@ -47,6 +49,12 @@ public class FundamentalData {
 	}
 	public void setEarningsPerShare(BigDecimal earningsPerShare) {
 		this.earningsPerShare = earningsPerShare;
+	}
+	public BigDecimal getDebtEquityRatio() {
+		return debtEquityRatio;
+	}
+	public void setDebtEquityRatio(BigDecimal deptEquityRatio) {
+		this.debtEquityRatio = deptEquityRatio;
 	}
 
 	public BigDecimal calculatePeRatio(IPriceProvider priceProvider) {
