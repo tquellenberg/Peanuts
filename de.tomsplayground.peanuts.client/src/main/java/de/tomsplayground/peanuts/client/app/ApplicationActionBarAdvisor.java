@@ -1,21 +1,33 @@
 package de.tomsplayground.peanuts.client.app;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.ICoolBarManager;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.action.StatusLineLayoutData;
+import org.eclipse.jface.action.StatusLineManager;
 import org.eclipse.jface.action.ToolBarContributionItem;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.graphics.FontMetrics;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.eclipse.ui.actions.ContributionItemFactory;
 import org.eclipse.ui.actions.RetargetAction;
-import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 
@@ -141,7 +153,43 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	@Override
 	protected void fillCoolBar(ICoolBarManager coolBar) {
 		IToolBarManager toolbar = new ToolBarManager(SWT.FLAT | SWT.RIGHT);
-		coolBar.add(new ToolBarContributionItem(toolbar, IWorkbenchActionConstants.TOOLBAR_FILE));
 		coolBar.add(new ToolBarContributionItem(toolbar, "main"));
+	}
+	
+	@Override
+	protected void fillStatusLine(final IStatusLineManager statusLine) {
+		statusLine.appendToGroup(StatusLineManager.MIDDLE_GROUP, new ContributionItem() {
+			@Override
+			public void fill(Composite parent) {
+				String text = Activator.getDefault().getFilename();
+				
+				GC gc = new GC(parent);
+				gc.setFont(parent.getFont());
+				FontMetrics fm = gc.getFontMetrics();
+				Point extent = gc.textExtent(text);
+				int widthHint = extent.x + 50;
+				int heightHint = fm.getHeight();
+				gc.dispose();
+
+				Label sep = new Label(parent, SWT.SEPARATOR);
+				StatusLineLayoutData statusLineLayoutData = new StatusLineLayoutData();
+				statusLineLayoutData.heightHint = heightHint;
+				sep.setLayoutData(statusLineLayoutData);
+				
+				CLabel label = new CLabel(parent, SWT.SHADOW_NONE);
+				statusLineLayoutData = new StatusLineLayoutData();
+				statusLineLayoutData.widthHint = widthHint;
+				label.setLayoutData(statusLineLayoutData);
+				label.setText(text);
+			}
+		});
+		Activator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				if (event.getProperty().equals(Activator.FILENAME_PROPERTY)) {
+					statusLine.update(true);
+				}
+			}
+		});
 	}
 }

@@ -236,7 +236,7 @@
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+            locationURI="toolbar:main">
          <command
                commandId="de.tomsplayground.peanuts.client.load.bpx"
                icon="icons/database_go.png"

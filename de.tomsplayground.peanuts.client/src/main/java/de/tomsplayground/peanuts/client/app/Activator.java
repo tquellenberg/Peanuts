@@ -12,6 +12,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.security.GeneralSecurityException;
+import java.util.Objects;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -24,7 +25,11 @@ import javax.crypto.spec.PBEParameterSpec;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.resource.ColorRegistry;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -35,11 +40,21 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.service.application.ApplicationHandle;
 
+import com.google.common.collect.ImmutableList;
+
+import de.tomsplayground.peanuts.client.editors.security.Scraping;
+import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
 import de.tomsplayground.peanuts.client.util.PeanutsAdapterFactory;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
+import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.process.IPriceProvider;
+import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.persistence.Persistence;
 import de.tomsplayground.peanuts.persistence.xstream.PersistenceService;
@@ -94,6 +109,7 @@ public class Activator extends AbstractUIPlugin {
 
 	private AccountManager accountManager;
 	private String passphrase;
+	private Job refreshPricesJob;
 
 	/**
 	 * The constructor
@@ -135,8 +151,59 @@ public class Activator extends AbstractUIPlugin {
 		if (StringUtils.isBlank(getFilename())) {
 			setFilename(EXAMPLE);
 		}
+		context.addServiceListener(new ServiceListener() {
+			@Override
+			public void serviceChanged(ServiceEvent event) {
+				if (event.getType() == ServiceEvent.MODIFIED) {
+					if (Objects.equals(event.getServiceReference().getProperty("application.state"), "RUNNING")) {
+						applicationStarted();
+					} else if (Objects.equals(event.getServiceReference().getProperty("application.state"), "STOPPING")) {
+						applicationStopping();
+					}
+				}
+			}
+		}, "(objectclass=" + ApplicationHandle.class.getName() + ")");
 	}
 
+	protected void applicationStopping() {
+		refreshPricesJob.cancel();
+	}
+	
+	protected void applicationStarted() {
+		refreshPricesJob = new Job("Refresh investment prices") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					PriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
+					ImmutableList<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
+					monitor.beginTask("Refresh investment prices", securities.size());
+					for (Security security : securities) {
+						monitor.subTask("Refreshing " + security.getName());
+						priceProviderFactory.refresh(security, Boolean.valueOf(
+							security.getConfigurationValue(SecurityPropertyPage.OVERRIDE_EXISTING_PRICE_DATA)).booleanValue());
+						Scraping scraping = new Scraping(security);
+						Price price = scraping.execute();
+						if (price != null) {							
+							IPriceProvider priceProvider = priceProviderFactory.getPriceProvider(security);
+							priceProvider.setPrice(price);
+							priceProviderFactory.saveToLocal(security, priceProvider);
+						}
+						monitor.worked(1);
+						if (monitor.isCanceled()) {
+							return Status.CANCEL_STATUS;
+						}
+					}
+				} finally {
+					monitor.done();
+				}
+				return Status.OK_STATUS;
+			}
+		};
+		refreshPricesJob.setUser(false);
+		refreshPricesJob.setSystem(false);
+		refreshPricesJob.schedule();		
+	}
+	
 	@Override
 	protected void initializeImageRegistry(ImageRegistry registry) {
 		getImageRegistry().put(IMAGE_ACCOUNT, getImageDescriptor("/icons/table.png"));
