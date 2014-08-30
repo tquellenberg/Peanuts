@@ -168,6 +168,8 @@ public class DetailPart extends EditorPart implements IPersistableEditor {
 	private Button newButton;
 	private Button removeButton;
 	private SecurityCategoryMapping mapping;
+	private Button upButton;
+	private Button downButton;
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -205,9 +207,13 @@ public class DetailPart extends EditorPart implements IPersistableEditor {
 				if (singleCategorySelected(selection)) {
 					editButton.setEnabled(true);
 					removeButton.setEnabled(true);
+					upButton.setEnabled(true);
+					downButton.setEnabled(true);
 				} else {
 					editButton.setEnabled(false);
 					removeButton.setEnabled(false);
+					upButton.setEnabled(false);
+					downButton.setEnabled(false);
 				}
 			}
 		});
@@ -278,6 +284,46 @@ public class DetailPart extends EditorPart implements IPersistableEditor {
 			}
 		});
 		removeButton.setEnabled(false);
+		
+		upButton = new Button(buttonList, SWT.NONE);
+		upButton.setText("Up");
+		upButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ITreeSelection selection = (ITreeSelection) treeViewer.getSelection();
+				if (singleCategorySelected(selection)) {
+					String category = (String) selection.getFirstElement();
+					List<String> categories = mapping.getCategories();
+					int indexOf = categories.indexOf(category);
+					if (indexOf > 0) {
+						Collections.swap(categories, indexOf, indexOf-1);
+						mapping.setCategories(categories);
+						treeViewer.refresh();
+					}
+				}
+			}
+		});
+		upButton.setEnabled(false);
+
+		downButton = new Button(buttonList, SWT.NONE);
+		downButton.setText("Down");
+		downButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ITreeSelection selection = (ITreeSelection) treeViewer.getSelection();
+				if (singleCategorySelected(selection)) {
+					String category = (String) selection.getFirstElement();
+					List<String> categories = mapping.getCategories();
+					int indexOf = categories.indexOf(category);
+					if (indexOf < (categories.size()-1)) {
+						Collections.swap(categories, indexOf, indexOf+1);
+						mapping.setCategories(categories);
+						treeViewer.refresh();
+					}
+				}
+			}
+		});
+		downButton.setEnabled(false);
 
 		treeViewer.setInput(mapping);
 	}

@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections4.OrderedMap;
+import org.apache.commons.collections4.map.ListOrderedMap;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.base.INamedElement;
@@ -20,8 +23,8 @@ import de.tomsplayground.peanuts.domain.base.Security;
 public class SecurityCategoryMapping implements INamedElement {
 
 	private String name;
-	private List<String> categories = new ArrayList<String>();
-	private Map<Security, String> mapping = new HashMap<Security, String>();
+	private final List<String> categories = new ArrayList<String>();
+	private final Map<Security, String> mapping = new HashMap<Security, String>();
 	
 	public SecurityCategoryMapping(String name, List<String> categories) {
 		this.name = name;
@@ -39,6 +42,11 @@ public class SecurityCategoryMapping implements INamedElement {
 	
 	public List<String> getCategories() {
 		return new ArrayList<String>(categories);
+	}
+	
+	public void setCategories(List<String> categories) {
+		this.categories.clear();
+		this.categories.addAll(categories);
 	}
 	
 	public void renameCategory(String oldName, String newName) {
@@ -82,8 +90,8 @@ public class SecurityCategoryMapping implements INamedElement {
 		return new HashSet<Security>(mapping.keySet());
 	}
 	
-	public Map<String, BigDecimal> calculateCategoryValues(Inventory inventory) {
-		Map<String, BigDecimal> values = new HashMap<String, BigDecimal>();
+	public OrderedMap<String, BigDecimal> calculateCategoryValues(Inventory inventory) {
+		OrderedMap<String, BigDecimal> values = new ListOrderedMap<String, BigDecimal>();
 		for (String category : categories) {
 			values.put(category, calculateCategoryValue(category, inventory));
 		}
