@@ -158,6 +158,23 @@ public class SecurityWatchlistView extends ViewPart {
 			return ObjectUtils.compare(yoc1, yoc2);
 		}
 	};
+	private final WatchEntryViewerComparator deRatioComparator = new WatchEntryViewerComparator() {
+		@Override
+		public int compare(WatchEntry w1, WatchEntry w2) {
+			BigDecimal deRatio1 = null;
+			BigDecimal deRatio2 = null;
+			
+			FundamentalData data1 = w1.getSecurity().getCurrentFundamentalData();
+			if (data1 != null) {
+				deRatio1 = data1.getDebtEquityRatio();
+			}
+			FundamentalData data2 = w2.getSecurity().getCurrentFundamentalData();
+			if (data2 != null) {
+				deRatio2 = data2.getDebtEquityRatio();
+			}
+			return ObjectUtils.compare(deRatio1, deRatio2);
+		}
+	};
 
 	private final PropertyChangeListener watchlistChangeListener = new UniqueAsyncExecution() {
 		
@@ -432,6 +449,12 @@ public class SecurityWatchlistView extends ViewPart {
 		col.setText("D/E");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, deRatioComparator);
+			}
+		});
 		colNum++;
 		
 		col = new TableColumn(table, SWT.RIGHT);
