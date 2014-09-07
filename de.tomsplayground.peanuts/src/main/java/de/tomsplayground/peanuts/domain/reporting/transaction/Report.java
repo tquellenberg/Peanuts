@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.config.ConfigurableSupport;
@@ -127,30 +129,34 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	
 	@Override
 	public Day getMaxDate() {
-		Day maxDay = null;
-		for (Account account : accounts) {
-			Day date = account.getMaxDate();
-			if (date != null) {
-				if (maxDay == null || date.after(maxDay)) {
-					maxDay = date;
-				}
-			}
+		ImmutableList<ITransaction> transactions = getTransactions();
+		if (transactions.isEmpty()) {
+			return null;
 		}
-		return maxDay;
+		return Iterables.getLast(transactions).getDay();
 	}
 	
 	@Override
 	public Day getMinDate() {
-		Day minDay = null;
-		for (Account account : accounts) {
-			Day date = account.getMaxDate();
-			if (date != null) {
-				if (minDay == null || date.before(minDay)) {
-					minDay = date;
-				}
-			}
+		ImmutableList<ITransaction> transactions = getTransactions();
+		if (transactions.isEmpty()) {
+			return null;
 		}
-		return minDay;
+		return transactions.get(0).getDay();
+	}
+	
+	@Override
+	public BigDecimal getBalance(Day date) {
+		BigDecimal balance = BigDecimal.ZERO;
+		for (Account account : accounts) {
+			balance = balance.add(account.getBalance(date));
+		}
+		return balance;
+	}
+	
+	@Override
+	public Currency getCurrency() {
+		return Currency.getInstance("EUR");
 	}
 	
 	public BigDecimal getBalance(ITransaction t) {

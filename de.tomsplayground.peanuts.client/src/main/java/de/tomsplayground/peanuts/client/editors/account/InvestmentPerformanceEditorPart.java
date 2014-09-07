@@ -26,7 +26,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
 import de.tomsplayground.peanuts.client.app.Activator;
-import de.tomsplayground.peanuts.domain.base.Account;
+import de.tomsplayground.peanuts.client.editors.ITransactionProviderInput;
+import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer;
 import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer.Value;
@@ -166,8 +167,8 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 	
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-		if ( !(input instanceof AccountEditorInput)) {
-			throw new PartInitException("Invalid Input: Must be AccountEditorInput");
+		if ( !(input instanceof ITransactionProviderInput)) {
+			throw new PartInitException("Invalid Input: Must be ITransactionProviderInput");
 		}
 		setSite(site);
 		setInput(input);
@@ -232,12 +233,12 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 		col.setWidth(100);
 		col.setResizable(true);
 
-		Account account = ((AccountEditorInput) getEditorInput()).getAccount();
+		ITransactionProvider transactions = ((ITransactionProviderInput) getEditorInput()).getTransactionProvider();
 		Color red = Activator.getDefault().getColorProvider().get(Activator.RED);
-		tableViewer.setLabelProvider(new PerformanceTableLabelProvider(red, account.getCurrency()));
+		tableViewer.setLabelProvider(new PerformanceTableLabelProvider(red, transactions.getCurrency()));
 		tableViewer.setContentProvider(new MyArrayContentProvider());
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, PriceProviderFactory.getInstance());
+		PerformanceAnalyzer analizer = new PerformanceAnalyzer(transactions, PriceProviderFactory.getInstance());
 		tableViewer.setInput(analizer.getValues());
 	}
 

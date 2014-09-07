@@ -8,11 +8,13 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistableElement;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.editors.ITransactionProviderInput;
 import de.tomsplayground.peanuts.domain.base.Account;
+import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.process.ICredit;
 
-public class AccountEditorInput implements IEditorInput {
+public class AccountEditorInput implements IEditorInput, ITransactionProviderInput {
 
 	Account account;
 
@@ -77,14 +79,20 @@ public class AccountEditorInput implements IEditorInput {
 		} else if (adapter == Credit.class) {
 			List<ICredit> credits = Activator.getDefault().getAccountManager().getCredits();
 			for (ICredit c : credits) {
-				if (c.getConnection().equals(account))
+				if (c.getConnection().equals(account)) {
 					return c;
+				}
 			}
 		}
 		return null;
 	}
 
 	public Account getAccount() {
+		return account;
+	}
+	
+	@Override
+	public ITransactionProvider getTransactionProvider() {
 		return account;
 	}
 

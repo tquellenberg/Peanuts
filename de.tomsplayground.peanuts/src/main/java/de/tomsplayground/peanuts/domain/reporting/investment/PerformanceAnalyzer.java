@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-import de.tomsplayground.peanuts.domain.base.Account;
+import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
@@ -18,7 +18,7 @@ public class PerformanceAnalyzer {
 
 	private ImmutableList<Value> values = ImmutableList.of();
 	private final IPriceProviderFactory priceProviderFactory;
-	private final Account account;
+	private final ITransactionProvider account;
 
 	public static class Value {
 		private final int year;
@@ -76,15 +76,16 @@ public class PerformanceAnalyzer {
 		}
 	}
 	
-	public PerformanceAnalyzer(Account account, IPriceProviderFactory priceProviderFactory) {
+	public PerformanceAnalyzer(ITransactionProvider account, IPriceProviderFactory priceProviderFactory) {
 		this.account = account;
 		this.priceProviderFactory = priceProviderFactory;
 		buidMarketValues();
 	}
 	
 	private void buidMarketValues() {
-		if (account.getMinDate() == null)
+		if (account.getMinDate() == null) {
 			return;
+		}
 		int year = account.getMinDate().year;
 		int endYear = account.getMaxDate().year;
 		Day now = new Day();

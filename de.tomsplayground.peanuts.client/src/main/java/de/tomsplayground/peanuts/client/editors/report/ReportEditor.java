@@ -1,5 +1,9 @@
 package de.tomsplayground.peanuts.client.editors.report;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.ui.IEditorInput;
@@ -8,12 +12,17 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
+import de.tomsplayground.peanuts.client.editors.account.InventoryEditorPart;
+import de.tomsplayground.peanuts.client.editors.account.InventoryPieEditorPart;
+import de.tomsplayground.peanuts.client.editors.account.InvestmentPerformanceEditorPart;
+import de.tomsplayground.peanuts.domain.base.Account;
+import de.tomsplayground.peanuts.domain.base.Account.Type;
+
 public class ReportEditor extends MultiPageEditorPart {
 
 	public static final String ID = "de.tomsplayground.peanuts.client.reportEditor";
 
-	private ChartEditorPart chartEditorPart;
-	private MetaEditorPart metaEditorPart;
+	private final List<IEditorPart> editors = new ArrayList<IEditorPart>();
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -27,16 +36,30 @@ public class ReportEditor extends MultiPageEditorPart {
 	@Override
 	protected void createPages() {
 		createEditorPage(new TransactionListEditorPart(), "Report");
-		chartEditorPart = new ChartEditorPart();
-		createEditorPage(chartEditorPart, "Chart");
-		metaEditorPart = new MetaEditorPart();
-		createEditorPage(metaEditorPart, "Meta Data");
+		createEditorPage(new ChartEditorPart(), "Chart");
+		if (isInvestmentAccount()) {
+			createEditorPage(new InventoryEditorPart(), "Inventory");
+			createEditorPage(new InventoryPieEditorPart(), "InventoryPie");
+		}
+		createEditorPage(new InvestmentPerformanceEditorPart(), "Performance");
+		createEditorPage(new MetaEditorPart(), "Meta Data");
+	}
+
+	private boolean isInvestmentAccount() {
+		Set<Account> accounts = ((ReportEditorInput)getEditorInput()).getReport().getAccounts();
+		for (Account account : accounts) {
+			if (account.getType() == Type.INVESTMENT) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void createEditorPage(IEditorPart editor, String name) {
 		try {
 			int pageIndex = addPage(editor, getEditorInput());
 			setPageText(pageIndex, name);
+			editors.add(editor);
 		} catch (PartInitException e) {
 			ErrorDialog.openError(getSite().getShell(), "Error creating nested editor", null,
 				e.getStatus());
@@ -45,8 +68,10 @@ public class ReportEditor extends MultiPageEditorPart {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		chartEditorPart.doSave(monitor);
-		metaEditorPart.doSave(monitor);
+		for (IEditorPart editor : editors) {
+			editor.doSave(monitor);
+		}
+		setPartName(getEditorInput().getName());
 		firePropertyChange(IEditorPart.PROP_DIRTY);
 	}
 

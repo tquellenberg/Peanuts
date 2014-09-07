@@ -1,7 +1,6 @@
 package de.tomsplayground.peanuts.domain.process;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -40,6 +39,14 @@ public class TransactionProviderUtilTest {
 		public Day getMinDate() {
 			return new Day(2008, 0, 2);
 		}
+		@Override
+		public BigDecimal getBalance(Day date) {
+			return BigDecimal.ZERO;
+		}
+		@Override
+		public java.util.Currency getCurrency() {
+			return null;
+		}
 	};
 	
 	@Test
@@ -59,6 +66,14 @@ public class TransactionProviderUtilTest {
 			}
 			@Override
 			public Day getMinDate() {
+				return null;
+			}
+			@Override
+			public BigDecimal getBalance(Day date) {
+				return BigDecimal.ZERO;
+			}
+			@Override
+			public java.util.Currency getCurrency() {
 				return null;
 			}
 		};

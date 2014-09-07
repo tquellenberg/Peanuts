@@ -1,5 +1,8 @@
 package de.tomsplayground.peanuts.domain.base;
 
+import java.math.BigDecimal;
+import java.util.Currency;
+
 import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.domain.process.ITransaction;
@@ -19,4 +22,7 @@ public interface ITransactionProvider {
 
 	Day getMaxDate();
 
+	BigDecimal getBalance(Day date);
+	
+	Currency getCurrency();
 }

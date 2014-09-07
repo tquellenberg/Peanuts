@@ -58,10 +58,12 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 				addTransactionInternal(t);
 			}
 			if (evt.getPropertyName().equals("split")) {
-				if (evt.getOldValue() != null)
+				if (evt.getOldValue() != null) {
 					((Transaction)evt.getOldValue()).removePropertyChangeListener(transactionChangeListener);
-				if (evt.getNewValue() != null)
+				}
+				if (evt.getNewValue() != null) {
 					((Transaction)evt.getNewValue()).addPropertyChangeListener(transactionChangeListener);
+				}
 			}
 			if (evt.getPropertyName().equals("amount")) {
 				firePropertyChange("balance", null, null);
@@ -98,11 +100,13 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 		return balance;
 	}
 
+	@Override
 	public BigDecimal getBalance(Day date) {
 		BigDecimal balance = startBalance;
 		for (Transaction t : transactions) {
-			if (t.getDay().compareTo(date) > 0)
+			if (t.getDay().compareTo(date) > 0) {
 				break;
+			}
 			balance = balance.add(t.getAmount());
 		}
 		return balance;		
@@ -200,10 +204,12 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	public int indexOf(Transaction transaction) {
 		int i = 0;
 		for (Transaction t : transactions) {
-			if (t == transaction)
+			if (t == transaction) {
 				return i;
-			if (t.getSplits().contains(transaction))
+			}
+			if (t.getSplits().contains(transaction)) {
 				return i;
+			}
 			i++;
 		}
 		throw new IllegalArgumentException("Transaction does not belong to account:" + transaction);
@@ -236,15 +242,17 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	
 	@Override
 	public Day getMaxDate() {
-		if (transactions.isEmpty())
+		if (transactions.isEmpty()) {
 			return null;
+		}
 		return Iterables.getLast(transactions).getDay();
 	}
 	
 	@Override
 	public Day getMinDate() {
-		if (transactions.isEmpty())
+		if (transactions.isEmpty()) {
 			return null;
+		}
 		return transactions.get(0).getDay();
 	}
 	
@@ -282,8 +290,9 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 
 	public Transaction getParentTransaction(Transaction split) {
 		for (Transaction t : transactions) {
-			if (t.getSplits().contains(split))
+			if (t.getSplits().contains(split)) {
 				return t;
+			}
 		}
 		return null;
 	}

@@ -374,8 +374,9 @@ public class MetaEditorPart extends EditorPart {
 	}
 	
 	public List<Category> getCategories() {
-		if (allCategories)
+		if (allCategories) {
 			return null;
+		}
 		List<Category> result = new ArrayList<Category>();
 		Tree tree = categoryListViewer.getTree();
 		TreeItem[] items = tree.getItems();
@@ -482,8 +483,9 @@ public class MetaEditorPart extends EditorPart {
 		report.setAccounts(getAccounts());		
 		report.clearQueries();
 		List<Category> categories = getCategories();
-		if (categories != null)
+		if (categories != null) {
 			report.addQuery(new CategoryQuery(categories));
+		}
 		report.addQuery(getDateQuery());
 		saveForecasts();
 		managedForm.commit(true);

@@ -29,9 +29,10 @@ import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.experimental.chart.swt.ChartComposite;
 
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
+import de.tomsplayground.peanuts.client.editors.ITransactionProviderInput;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.client.widgets.DateComposite;
-import de.tomsplayground.peanuts.domain.base.Account;
+import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
@@ -65,8 +66,8 @@ public class InventoryPieEditorPart extends EditorPart {
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-		if ( !(input instanceof AccountEditorInput)) {
-			throw new PartInitException("Invalid Input: Must be AccountEditorInput");
+		if ( !(input instanceof ITransactionProviderInput)) {
+			throw new PartInitException("Invalid Input: Must be ITransactionProviderInput");
 		}
 		setSite(site);
 		setInput(input);
@@ -107,8 +108,8 @@ public class InventoryPieEditorPart extends EditorPart {
 		marketValueLabel =  new Label(banner, SWT.NONE);
 		marketValueLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		
-		Account account = ((AccountEditorInput) getEditorInput()).getAccount();
-		inventory = new Inventory(account, PriceProviderFactory.getInstance(), date, new AnalyzerFactory());
+		ITransactionProvider transactions = ((ITransactionProviderInput) getEditorInput()).getTransactionProvider();
+		inventory = new Inventory(transactions, PriceProviderFactory.getInstance(), date, new AnalyzerFactory());
 		inventory.setDate(date);
 		inventory.addPropertyChangeListener(inventoryChangeListener);
 
@@ -139,8 +140,9 @@ public class InventoryPieEditorPart extends EditorPart {
 			}
 		});        
         for (InventoryEntry entry : entries) {
-        	if (entry.getQuantity().intValue() != 0)
-        		dataset.setValue(entry.getSecurity().getName(), entry.getMarketValue(date));
+        	if (entry.getQuantity().intValue() != 0) {
+				dataset.setValue(entry.getSecurity().getName(), entry.getMarketValue(date));
+			}
         }
 	}
 
@@ -158,9 +160,9 @@ public class InventoryPieEditorPart extends EditorPart {
 	}
 
 	protected void updateAll() {
-		Account account = ((AccountEditorInput) getEditorInput()).getAccount();
-		gainingLabel.setText(PeanutsUtil.formatCurrency(inventory.getGainings(), account.getCurrency()));
-		marketValueLabel.setText(PeanutsUtil.formatCurrency(inventory.getMarketValue(), account.getCurrency()));
+		ITransactionProvider transactions = ((ITransactionProviderInput) getEditorInput()).getTransactionProvider();
+		gainingLabel.setText(PeanutsUtil.formatCurrency(inventory.getGainings(), transactions.getCurrency()));
+		marketValueLabel.setText(PeanutsUtil.formatCurrency(inventory.getMarketValue(), transactions.getCurrency()));
 		marketValueLabel.getParent().layout();
 		updateDataset();
 	}

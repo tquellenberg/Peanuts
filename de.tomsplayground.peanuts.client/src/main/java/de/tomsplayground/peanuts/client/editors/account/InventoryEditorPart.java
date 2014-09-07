@@ -54,11 +54,13 @@ import org.eclipse.ui.part.EditorPart;
 import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.editors.ITransactionProviderInput;
 import de.tomsplayground.peanuts.client.editors.security.SecurityEditor;
 import de.tomsplayground.peanuts.client.editors.security.SecurityEditorInput;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.client.widgets.DateComposite;
-import de.tomsplayground.peanuts.domain.base.Account;
+import de.tomsplayground.peanuts.config.IConfigurable;
+import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
@@ -388,8 +390,8 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-		if ( !(input instanceof AccountEditorInput)) {
-			throw new PartInitException("Invalid Input: Must be AccountEditorInput");
+		if ( !(input instanceof ITransactionProviderInput)) {
+			throw new PartInitException("Invalid Input: Must be ITransactionProviderInput");
 		}
 		setSite(site);
 		setInput(input);
@@ -437,8 +439,12 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		changeLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		
 		
-		Account account = getAccount();
-		showAllSecurities = Boolean.parseBoolean(account.getConfigurationValue(SHOW_ALL_SECURITIES));
+		ITransactionProvider account = getTransactions();
+		if (account instanceof IConfigurable) {
+			showAllSecurities = Boolean.parseBoolean(((IConfigurable)account).getConfigurationValue(SHOW_ALL_SECURITIES));
+		} else {
+			showAllSecurities = false;
+		}
 
 		treeViewer = new TreeViewer(top);
 		Tree tree = treeViewer.getTree();
@@ -589,7 +595,10 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 					@Override
 					public void run() {
 						showAllSecurities = ! showAllSecurities;
-						getAccount().putConfigurationValue(SHOW_ALL_SECURITIES, Boolean.valueOf(showAllSecurities).toString());
+						ITransactionProvider transactionProvider = getTransactions();
+						if (transactionProvider instanceof IConfigurable) {
+							((IConfigurable)transactionProvider).putConfigurationValue(SHOW_ALL_SECURITIES, Boolean.valueOf(showAllSecurities).toString());
+						}
 						treeViewer.refresh();
 					}
 					@Override
@@ -606,7 +615,7 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 	}
 
 	protected void updateAll() {
-		Account account = getAccount();
+		ITransactionProvider account = getTransactions();
 		treeViewer.refresh(true);
 		gainingLabel.setText(PeanutsUtil.formatCurrency(inventory.getGainings(), account.getCurrency()));
 		marketValueLabel.setText(PeanutsUtil.formatCurrency(inventory.getMarketValue(), account.getCurrency()));
@@ -614,8 +623,8 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		marketValueLabel.getParent().layout();
 	}
 
-	private Account getAccount() {
-		return ((AccountEditorInput) getEditorInput()).getAccount();
+	private ITransactionProvider getTransactions() {
+		return ((ITransactionProviderInput) getEditorInput()).getTransactionProvider();
 	}
 
 	@Override

@@ -5,11 +5,13 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistableElement;
 
+import de.tomsplayground.peanuts.client.editors.ITransactionProviderInput;
+import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 
-public class ReportEditorInput implements IEditorInput {
+public class ReportEditorInput implements IEditorInput, ITransactionProviderInput {
 
-	private Report report;
+	private final Report report;
 
 	public ReportEditorInput(Report report) {
 		this.report = report;
@@ -70,6 +72,11 @@ public class ReportEditorInput implements IEditorInput {
 	}
 
 	public Report getReport() {
+		return report;
+	}
+
+	@Override
+	public ITransactionProvider getTransactionProvider() {
 		return report;
 	}
 

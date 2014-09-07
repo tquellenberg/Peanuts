@@ -22,7 +22,7 @@ public class AccountEditor extends MultiPageEditorPart implements IPersistableEd
 	public static final String ID = "de.tomsplayground.peanuts.client.accountEditor";
 	private TransactionListEditorPart accountEditorPart;
 
-	List<IEditorPart> editors = new ArrayList<IEditorPart>();
+	private final List<IEditorPart> editors = new ArrayList<IEditorPart>();
 	private IMemento mementoForRestore;
 	private MetaEditorPart metaEditorPart;
 
