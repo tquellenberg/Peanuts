@@ -148,12 +148,16 @@ public class SecurityWatchlistView extends ViewPart {
 			FundamentalData data1 = w1.getSecurity().getCurrentFundamentalData();
 			if (data1 != null) {
 				InventoryEntry inventoryEntry = inventory.getEntry(w1.getSecurity());
-				yoc1 = data1.calculateYOC(inventoryEntry);
+				if (inventoryEntry != null) {
+					yoc1 = data1.calculateYOC(inventoryEntry);
+				}
 			}
 			FundamentalData data2 = w2.getSecurity().getCurrentFundamentalData();
 			if (data2 != null) {
 				InventoryEntry inventoryEntry = inventory.getEntry(w2.getSecurity());
-				yoc2 = data2.calculateYOC(inventoryEntry);
+				if (inventoryEntry != null) {
+					yoc2 = data2.calculateYOC(inventoryEntry);
+				}
 			}
 			return ObjectUtils.compare(yoc1, yoc2);
 		}
