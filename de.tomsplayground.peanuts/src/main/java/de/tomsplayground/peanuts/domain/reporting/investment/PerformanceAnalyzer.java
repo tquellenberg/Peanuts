@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.domain.reporting.investment;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.TransferTransaction;
+import de.tomsplayground.peanuts.domain.statistics.XIRR;
 import de.tomsplayground.util.Day;
 
 public class PerformanceAnalyzer {
@@ -28,6 +30,8 @@ public class PerformanceAnalyzer {
 		private BigDecimal leavings;
 		private Day avgDate;
 		private BigDecimal investedAvg;
+		private final XIRR xirr = new XIRR();
+		private BigDecimal rate;
 		public Value(int year, BigDecimal marketValue1, BigDecimal marketValue2) {
 			this.year = year;
 			this.marketValue1 = marketValue1;
@@ -36,6 +40,8 @@ public class PerformanceAnalyzer {
 			this.leavings = BigDecimal.ZERO;
 			this.avgDate = new Day(year, 0, 1);
 			this.investedAvg = BigDecimal.ZERO;
+			xirr.add(new Day(year, 0, 1), marketValue1);
+			xirr.add(new Day(year, 11, 31), marketValue2.negate());
 		}
 		public void add(Day date, BigDecimal amount) {
 			int dayDelta = avgDate.delta(date);
@@ -47,6 +53,7 @@ public class PerformanceAnalyzer {
 			} else {
 				leavings = leavings.add(amount);
 			}
+			xirr.add(date, amount);
 		}
 		
 		private BigDecimal invested() {
@@ -73,6 +80,18 @@ public class PerformanceAnalyzer {
 		}
 		public BigDecimal getInvestedAvg() {
 			return investedAvg;
+		}
+		public BigDecimal getGainingPercent() {
+			if (getInvestedAvg().signum() != 0) {
+				return getGainings().divide(getInvestedAvg(), new MathContext(10, RoundingMode.HALF_EVEN));
+			}
+			return BigDecimal.ZERO;
+		}
+		public BigDecimal getIRR() {
+			if (rate == null) {
+				rate = xirr.calculateValue();
+			}
+			return rate;
 		}
 	}
 	

@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.joda.time.LocalDate;
+
 public class Day implements Serializable, Cloneable, Comparable<Day>{
 
 	private static final long serialVersionUID = 817177201924284505L;
@@ -142,5 +144,8 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 		return delta;
 	}
 	
+	public LocalDate getJodaDate() {
+		return new LocalDate(year, month+1, day);
+	}
 	
 }

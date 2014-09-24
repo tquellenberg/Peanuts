@@ -1,8 +1,6 @@
 package de.tomsplayground.peanuts.client.editors.account;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.Currency;
 import java.util.List;
 
@@ -69,12 +67,9 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 				case 7:
 					return PeanutsUtil.formatCurrency(value.getInvestedAvg(), currency);
 				case 8:
-					if (value.getInvestedAvg().signum() != 0) {
-						BigDecimal gainPercent = value.getGainings().divide(value.getInvestedAvg(), new MathContext(10, RoundingMode.HALF_EVEN));
-						return PeanutsUtil.formatPercent(gainPercent);
-					} else {
-						return "NaN";
-					}
+					return PeanutsUtil.formatPercent(value.getGainingPercent());
+				case 9:
+					return PeanutsUtil.formatPercent(value.getIRR());
 				}
 			} else if (element instanceof BigDecimal[]) {
 				BigDecimal[] sum = (BigDecimal[]) element;
@@ -115,6 +110,10 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 					}
 				} else if (columnIndex == 6 || columnIndex == 8) {
 					if (value.getGainings().signum() == -1) {
+						return red;
+					}
+				} else if (columnIndex == 9) {
+					if (value.getIRR().signum() == -1) {
 						return red;
 					}
 				}
@@ -225,6 +224,11 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Invested avg");
+		col.setWidth(100);
+		col.setResizable(true);
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Gain/Lost (%)");
 		col.setWidth(100);
 		col.setResizable(true);
 
