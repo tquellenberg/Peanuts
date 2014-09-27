@@ -19,7 +19,7 @@ import de.tomsplayground.peanuts.domain.process.StockSplit;
 
 public class Watchlist extends ObservableModelObject implements INamedElement {
 
-	private final PropertyChangeListener priceProviderChangeListener = new PropertyChangeListener() {
+	private final PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			getPropertyChangeSupport().firePropertyChange(evt);
@@ -48,10 +48,11 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 				return null;
 			}
 		}
+		security.addPropertyChangeListener(propertyChangeListener);
 		IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
 		if (priceProvider instanceof ObservableModelObject) {
 			ObservableModelObject ob = (ObservableModelObject) priceProvider;
-			ob.addPropertyChangeListener(priceProviderChangeListener);
+			ob.addPropertyChangeListener(propertyChangeListener);
 		}
 		ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
 		IPriceProvider adjustedPriceProvider = PriceProviderFactory.getInstance().getAdjustedPriceProvider(security, stockSplits);
@@ -69,9 +70,10 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 				IPriceProvider priceProvider = watchEntry.getPriceProvider();
 				if (priceProvider instanceof ObservableModelObject) {
 					ObservableModelObject ob = (ObservableModelObject) priceProvider;
-					ob.removePropertyChangeListener(priceProviderChangeListener);
+					ob.removePropertyChangeListener(propertyChangeListener);
 				}
 				firePropertyChange("entries", watchEntry, null);
+				security.removePropertyChangeListener(propertyChangeListener);
 				return watchEntry;
 			}
 		}

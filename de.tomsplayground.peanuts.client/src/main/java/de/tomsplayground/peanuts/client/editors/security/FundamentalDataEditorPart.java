@@ -296,7 +296,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		security.setFundamentalDatas(fundamentalDatas);
+		security.setFundamentalDatas(cloneFundamentalData(fundamentalDatas));
 		dirty = false;
 	}
 

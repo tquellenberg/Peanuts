@@ -101,7 +101,9 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	}
 	
 	public void setFundamentalDatas(List<FundamentalData> fundamentalDatas) {
-		this.fundamentalDatas = fundamentalDatas;
+		List<FundamentalData> old = this.fundamentalDatas;
+		this.fundamentalDatas = new ArrayList<FundamentalData>(fundamentalDatas);
+		firePropertyChange("fundamentalData", old, fundamentalDatas);
 	}
 
 
