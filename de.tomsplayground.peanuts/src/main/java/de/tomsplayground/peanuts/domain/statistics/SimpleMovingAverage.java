@@ -9,6 +9,7 @@ import java.util.Queue;
 
 import com.google.common.collect.ImmutableList;
 
+import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.statistics.Signal.Type;
 
@@ -21,15 +22,15 @@ public class SimpleMovingAverage {
 		this.days = days;
 	}
 
-	public ImmutableList<Price> calculate(ImmutableList<Price> prices) {
+	public ImmutableList<IPrice> calculate(ImmutableList<? extends IPrice> prices) {
 		List<Signal> s = new ArrayList<Signal>();
 		s.clear();
 		BigDecimal d = new BigDecimal(days);
-		List<Price> result = new ArrayList<Price>();
+		List<IPrice> result = new ArrayList<IPrice>();
 		Queue<BigDecimal> queue = new LinkedList<BigDecimal>();
 		BigDecimal sum = BigDecimal.ZERO;
 		int compare = 0;
-		for (Price price : prices) {
+		for (IPrice price : prices) {
 			BigDecimal value = price.getValue();
 			queue.add(value);
 			sum = sum.add(value);
@@ -39,8 +40,9 @@ public class SimpleMovingAverage {
 				sum = sum.subtract(queue.poll());
 				int newCompare = average.compareTo(value);
 				if (newCompare != 0 && newCompare != compare) {
-					if (compare != 0)
+					if (compare != 0) {
 						s.add(new Signal(price.getDay(), newCompare < 0? Type.BUY:Type.SELL, price));
+					}
 					compare = newCompare;
 				}
 			}

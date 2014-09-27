@@ -40,6 +40,7 @@ import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.client.widgets.DateCellEditor;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
+import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
@@ -59,7 +60,7 @@ public class PriceEditorPart extends EditorPart implements IPersistableEditor {
 		public void doit(PropertyChangeEvent evt, Display display) {
 			if (! tableViewer.getControl().isDisposed()) {
 				// Full update
-				ImmutableList<Price> list = priceProvider.getPrices();
+				ImmutableList<IPrice> list = priceProvider.getPrices();
 				tableViewer.setInput(list.reverse());
 			}
 		}
@@ -226,7 +227,7 @@ public class PriceEditorPart extends EditorPart implements IPersistableEditor {
 
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
-		ImmutableList<Price> list = priceProvider.getPrices();
+		ImmutableList<IPrice> list = priceProvider.getPrices();
 		tableViewer.setInput(list.reverse());
 
 		MenuManager menuManager = new MenuManager();

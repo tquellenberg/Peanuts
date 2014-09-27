@@ -2,11 +2,7 @@ package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
 
-import de.tomsplayground.util.Day;
-
-public interface IPrice {
-
-	Day getDay();
+public interface IPrice extends ITimedElement {
 
 	BigDecimal getValue();
 

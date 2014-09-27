@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import java.util.List;
 
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.statistics.Signal;
@@ -15,17 +16,20 @@ import de.tomsplayground.util.Day;
 public class WatchEntry {
 	private final Security security;
 	private final IPriceProvider priceProvider;
+	private final IPriceProvider adjustedPriceProvider;
 	
-	WatchEntry(Security security, IPriceProvider priceProvider) {
+	WatchEntry(Security security, IPriceProvider priceProvider, IPriceProvider adjustedPriceProvider) {
 		this.security = security;
 		this.priceProvider = priceProvider;
+		this.adjustedPriceProvider = adjustedPriceProvider;
 	}
 	public IPriceProvider getPriceProvider() {
 		return priceProvider;
 	}
-	public Price getPrice() {
-		if (priceProvider.getMaxDate() != null)
+	public IPrice getPrice() {
+		if (priceProvider.getMaxDate() != null) {
 			return priceProvider.getPrice(priceProvider.getMaxDate());
+		}
 		return Price.ZERO;
 	}
 	public Security getSecurity() {
@@ -33,7 +37,7 @@ public class WatchEntry {
 	}
 	public Signal getSignal() {
 		SimpleMovingAverage simpleMovingAverage = new SimpleMovingAverage(20);
-		simpleMovingAverage.calculate(priceProvider.getPrices());
+		simpleMovingAverage.calculate(adjustedPriceProvider.getPrices());
 		List<Signal> signals = simpleMovingAverage.getSignals();
 		Signal signal = null;
 		if (! signals.isEmpty()) {
@@ -43,26 +47,29 @@ public class WatchEntry {
 	}
 	
 	public BigDecimal getDayChangeAbsolut() {
-		List<Price> prices = priceProvider.getPrices();
-		if (prices.size() < 2)
+		List<IPrice> prices = adjustedPriceProvider.getPrices();
+		if (prices.size() < 2) {
 			return BigDecimal.ZERO;
+		}
 		
-		Price price1 = prices.get(prices.size() - 2);
-		Price price2 = prices.get(prices.size() - 1);
+		IPrice price1 = prices.get(prices.size() - 2);
+		IPrice price2 = prices.get(prices.size() - 1);
 		
 		return price2.getClose().subtract(price1.getClose());
 	}
 	
 	public BigDecimal getDayChange() {
-		List<Price> prices = priceProvider.getPrices();
-		if (prices.size() < 2)
+		List<IPrice> prices = adjustedPriceProvider.getPrices();
+		if (prices.size() < 2) {
 			return BigDecimal.ZERO;
+		}
 		
-		Price price1 = prices.get(prices.size() - 2);
-		Price price2 = prices.get(prices.size() - 1);
+		IPrice price1 = prices.get(prices.size() - 2);
+		IPrice price2 = prices.get(prices.size() - 1);
 		
-		if (price1.getClose().signum() == 0)
+		if (price1.getClose().signum() == 0) {
 			return BigDecimal.ZERO;
+		}
 		
 		BigDecimal delta = price2.getClose().subtract(price1.getClose());
 		
@@ -71,14 +78,14 @@ public class WatchEntry {
 	}
 	
 	public BigDecimal getPerformance(int day, int month, int year) {
-		Day maxDate = priceProvider.getMaxDate();
+		Day maxDate = adjustedPriceProvider.getMaxDate();
 		if (maxDate != null) {
 			Day minDay = maxDate.addDays(-day);
 			minDay = minDay.addMonth(-month);
 			minDay = minDay.addYear(-year);
 			
-			Price price1 = priceProvider.getPrice(minDay);
-			Price price2 = priceProvider.getPrice(maxDate);
+			IPrice price1 = adjustedPriceProvider.getPrice(minDay);
+			IPrice price2 = adjustedPriceProvider.getPrice(maxDate);
 			
 			BigDecimal delta = price2.getClose().subtract(price1.getClose());
 			

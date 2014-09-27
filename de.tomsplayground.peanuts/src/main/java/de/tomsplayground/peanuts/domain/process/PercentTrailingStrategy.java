@@ -15,7 +15,7 @@ public class PercentTrailingStrategy implements ITrailingStrategy {
 	}
 	
 	@Override
-	public BigDecimal calculateStop(BigDecimal stop, Price price) {
+	public BigDecimal calculateStop(BigDecimal stop, IPrice price) {
 		BigDecimal newStop = price.getClose().multiply(BigDecimal.ONE.subtract(percent));
 		if (newStop.compareTo(stop) > 0) {
 			return newStop;

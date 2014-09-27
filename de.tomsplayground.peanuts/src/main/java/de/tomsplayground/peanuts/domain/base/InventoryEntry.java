@@ -5,9 +5,9 @@ import java.util.Calendar;
 
 import com.google.common.collect.ImmutableList;
 
+import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
-import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzedInvestmentTransaction;
 import de.tomsplayground.util.Day;
 
@@ -64,10 +64,12 @@ public class InventoryEntry {
 	
 	private Day adjustWorkday(Day d) {
 		int i = d.toCalendar().get(Calendar.DAY_OF_WEEK);
-		if (i == Calendar.SUNDAY)
+		if (i == Calendar.SUNDAY) {
 			return d.addDays(-2);
-		if (i == Calendar.SATURDAY)
+		}
+		if (i == Calendar.SATURDAY) {
 			return d.addDays(-1);
+		}
 		return d;
 	}
 	
@@ -75,15 +77,17 @@ public class InventoryEntry {
 		return getMarketValue(to).subtract(getMarketValue(adjustWorkday(from)));
 	}
 
-	public Price getPrice(Day day) {
-		if (priceprovider != null)
+	public IPrice getPrice(Day day) {
+		if (priceprovider != null) {
 			return priceprovider.getPrice(day);
+		}
 		return null;
 	}
 	
 	public BigDecimal getMarketValue(Day day) {
-		if (priceprovider != null && getQuantity().compareTo(BigDecimal.ZERO) != 0)
+		if (priceprovider != null && getQuantity().compareTo(BigDecimal.ZERO) != 0) {
 			return getPrice(day).getValue().multiply(getQuantity());
+		}
 		return BigDecimal.ZERO;
 	}
 

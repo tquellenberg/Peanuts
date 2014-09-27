@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 public class NoTrailingStrategy implements ITrailingStrategy {
 
 	@Override
-	public BigDecimal calculateStop(BigDecimal stop, Price price) {
+	public BigDecimal calculateStop(BigDecimal stop, IPrice price) {
 		return stop;
 	}
 

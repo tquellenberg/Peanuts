@@ -28,6 +28,8 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.dialogs.PropertyPage;
 
+import com.google.common.collect.Lists;
+
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.widgets.DateCellEditor;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
@@ -110,18 +112,20 @@ public class SplitsPropertyPage extends PropertyPage {
 
 			private Integer getValueByProperty(StockSplit p, String property) {
 				int v = 0;
-				if (property.equals("from"))
+				if (property.equals("from")) {
 					v = p.getFrom();
-				else if (property.equals("to"))
+				} else if (property.equals("to")) {
 					v = p.getTo();
+				}
 				return Integer.valueOf(v);
 			}
 
 			@Override
 			public Object getValue(Object element, String property) {
 				StockSplit p = (StockSplit) element;
-				if (property.equals("date"))
+				if (property.equals("date")) {
 					return p.getDay();
+				}
 				return String.valueOf(getValueByProperty(p, property));
 			}
 
@@ -136,10 +140,11 @@ public class SplitsPropertyPage extends PropertyPage {
 						int v = Integer.parseInt((String) value);
 						Integer oldV = getValueByProperty(p, property);
 						if (oldV.intValue() != v) {
-							if (property.equals("from"))
+							if (property.equals("from")) {
 								newP = new StockSplit(security, p.getDay(), v, p.getTo());
-							else if (property.equals("to"))
+							} else if (property.equals("to")) {
 								newP = new StockSplit(security, p.getDay(), p.getFrom(), v);
+							}
 						}
 					} catch (NumberFormatException e) {
 						// Okay
@@ -157,7 +162,7 @@ public class SplitsPropertyPage extends PropertyPage {
 		tableViewer.setContentProvider(new ArrayContentProvider());
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
+		stockSplits = Lists.newArrayList(Activator.getDefault().getAccountManager().getStockSplits(security));
 		tableViewer.setInput(stockSplits);
 
 		MenuManager menu = new MenuManager();

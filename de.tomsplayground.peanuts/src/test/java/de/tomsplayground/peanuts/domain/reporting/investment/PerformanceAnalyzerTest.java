@@ -1,7 +1,6 @@
 package de.tomsplayground.peanuts.domain.reporting.investment;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,6 +19,7 @@ import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProvider;
+import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.domain.process.Transfer;
 import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer.Value;
 import de.tomsplayground.util.Day;
@@ -52,7 +52,12 @@ public class PerformanceAnalyzerTest {
 				SimplePriceProvider simplePriceProvider = new SimplePriceProvider();
 				simplePriceProvider.addPrice(new Price(new Day(2008, 3, 13), new BigDecimal("9.00")));
 				return simplePriceProvider;
-			}};
+			}
+			@Override
+			public IPriceProvider getAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
+				return getPriceProvider(security);
+			}
+		};
 	}
 	
 	@Test

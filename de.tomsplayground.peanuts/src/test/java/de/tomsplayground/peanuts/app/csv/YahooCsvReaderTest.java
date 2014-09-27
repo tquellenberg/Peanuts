@@ -13,7 +13,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import de.tomsplayground.peanuts.app.quicken.QifReaderTest;
-import de.tomsplayground.peanuts.domain.process.Price;
+import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.util.Day;
 
 public class YahooCsvReaderTest extends TestCase {
@@ -24,9 +24,9 @@ public class YahooCsvReaderTest extends TestCase {
 		YahooCsvReader reader = new YahooCsvReader(in);
 		IOUtils.closeQuietly(in);
 
-		List<Price> prices = reader.getPrices();
+		List<IPrice> prices = reader.getPrices();
 		assertEquals(3, prices.size());
-		Price price = prices.get(0);
+		IPrice price = prices.get(0);
 		assertEquals(new BigDecimal("52.48"), price.getValue());
 		assertEquals(new BigDecimal("53.59"), price.getOpen());
 		assertEquals(new BigDecimal("53.60"), price.getHigh());
@@ -41,7 +41,7 @@ public class YahooCsvReaderTest extends TestCase {
 		Reader in = new StringReader("");
 		YahooCsvReader reader = new YahooCsvReader(in, YahooCsvReader.Type.CURRENT);
 		
-		List<Price> prices = reader.getPrices();
+		List<IPrice> prices = reader.getPrices();
 		assertEquals(0, prices.size());
 	}
 	
@@ -51,7 +51,7 @@ public class YahooCsvReaderTest extends TestCase {
 		YahooCsvReader reader = new YahooCsvReader(in, YahooCsvReader.Type.CURRENT);
 		IOUtils.closeQuietly(in);
 
-		List<Price> prices = reader.getPrices();
+		List<IPrice> prices = reader.getPrices();
 		assertEquals(1, prices.size());
 		assertEquals(new BigDecimal("106.25"), prices.get(0).getValue());
 		assertEquals(new BigDecimal("101.90"), prices.get(0).getOpen());

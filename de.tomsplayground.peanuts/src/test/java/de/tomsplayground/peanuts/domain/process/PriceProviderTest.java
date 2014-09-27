@@ -38,7 +38,7 @@ public class PriceProviderTest {
 		Price price1 = new Price(c1, BigDecimal.ZERO);
 		pp.setPrice(price1);
 
-		Price price = pp.getPrice(c1);
+		IPrice price = pp.getPrice(c1);
 		Assert.assertEquals(price1, price);
 
 		price = pp.getPrice(dateAfterC1);

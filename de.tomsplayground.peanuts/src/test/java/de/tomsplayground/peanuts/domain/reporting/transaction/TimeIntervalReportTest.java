@@ -19,6 +19,7 @@ import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProvider;
+import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.domain.process.Transaction;
 import de.tomsplayground.util.Day;
 
@@ -117,6 +118,10 @@ public class TimeIntervalReportTest {
 			public IPriceProvider getPriceProvider(Security security) {
 				return priceProvider;
 			}
+			@Override
+			public IPriceProvider getAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
+				return getPriceProvider(security);
+			}
 		});
 		
 		List<BigDecimal> inventoryValues = timeIntervalReport.getInventoryValues();
@@ -147,6 +152,10 @@ public class TimeIntervalReportTest {
 			public IPriceProvider getPriceProvider(Security security) {
 				return priceProvider;
 			}
+			@Override
+			public IPriceProvider getAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
+				return getPriceProvider(security);
+			}
 		});
 		
 		List<BigDecimal> inventoryValues = timeIntervalReport.getInventoryValues();
@@ -166,6 +175,10 @@ public class TimeIntervalReportTest {
 			@Override
 			public IPriceProvider getPriceProvider(Security security) {
 				return priceProvider;
+			}
+			@Override
+			public IPriceProvider getAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
+				return getPriceProvider(security);
 			}
 		});
 		final PropertyChangeEvent lastEvent[] = new PropertyChangeEvent[1];

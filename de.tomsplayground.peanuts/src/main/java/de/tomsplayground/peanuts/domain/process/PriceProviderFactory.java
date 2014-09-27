@@ -54,6 +54,15 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		}
 		return localPriceProvider;
 	}
+	
+	@Override
+	public IPriceProvider getAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
+		IPriceProvider rawPriceProvider = getPriceProvider(security);
+		if (stockSplits.isEmpty()) {
+			return rawPriceProvider;
+		}
+		return new AdjustedPriceProvider(rawPriceProvider, stockSplits);
+	}
 
 	public void refresh(Security security, boolean overideExistingData) {
 		if (StringUtils.isNotBlank(security.getTicker())) {
@@ -78,7 +87,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 	}
 
 	private void mergePrices(IPriceProvider localPriceProvider, IPriceProvider remotePriceProvider, boolean overideExistingData) {
-		List<Price> prices = remotePriceProvider.getPrices();
+		List<IPrice> prices = remotePriceProvider.getPrices();
 		localPriceProvider.setPrices(prices, overideExistingData);
 	}
 
@@ -102,14 +111,14 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 			FileWriter writer = null;
 			try {
 				writer = new FileWriter(file);
-				List<Price> prices = priceProvider.getPrices();
+				List<IPrice> prices = priceProvider.getPrices();
 				
 				CSVWriter csvWriter = new CSVWriter(writer, ',', '"');
 				String line[] = {"Date","Open","High","Low","Close","Volume","Adj Close"};
 				csvWriter.writeNext(line);
-				ListIterator<Price> iterator = prices.listIterator(prices.size());
+				ListIterator<IPrice> iterator = prices.listIterator(prices.size());
 				while (iterator.hasPrevious()) {
-					Price p = iterator.previous();
+					IPrice p = iterator.previous();
 					line[0] = p.getDay().toString();
 					line[1] = p.getOpen()==null?"":p.getOpen().toString();
 					line[2] = p.getHigh()==null?"":p.getHigh().toString();

@@ -55,9 +55,7 @@ import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
-import de.tomsplayground.peanuts.domain.process.IPriceProvider;
-import de.tomsplayground.peanuts.domain.process.Price;
-import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
+import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.statistics.Signal;
 import de.tomsplayground.peanuts.domain.statistics.Signal.Type;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
@@ -108,13 +106,11 @@ public class SecurityWatchlistView extends ViewPart {
 			
 			FundamentalData data1 = w1.getSecurity().getCurrentFundamentalData();
 			if (data1 != null) {
-				IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(w1.getSecurity());
-				peRatio1 = data1.calculatePeRatio(priceProvider);
+				peRatio1 = data1.calculatePeRatio(w1.getPriceProvider());
 			}
 			FundamentalData data2 = w2.getSecurity().getCurrentFundamentalData();
 			if (data2 != null) {
-				IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(w2.getSecurity());
-				peRatio2 = data2.calculatePeRatio(priceProvider);
+				peRatio2 = data2.calculatePeRatio(w2.getPriceProvider());
 			}
 			return ObjectUtils.compare(peRatio2, peRatio1, true);
 		}
@@ -127,13 +123,11 @@ public class SecurityWatchlistView extends ViewPart {
 			
 			FundamentalData data1 = w1.getSecurity().getCurrentFundamentalData();
 			if (data1 != null) {
-				IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(w1.getSecurity());
-				divYield1 = data1.calculateDivYield(priceProvider);
+				divYield1 = data1.calculateDivYield(w1.getPriceProvider());
 			}
 			FundamentalData data2 = w2.getSecurity().getCurrentFundamentalData();
 			if (data2 != null) {
-				IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(w2.getSecurity());
-				divYield2 = data2.calculateDivYield(priceProvider);
+				divYield2 = data2.calculateDivYield(w2.getPriceProvider());
 			}
 			return ObjectUtils.compare(divYield1, divYield2);
 		}
@@ -243,13 +237,13 @@ public class SecurityWatchlistView extends ViewPart {
 			case 0:
 				return security.getName();
 			case 1:
-					Price price = watchEntry.getPrice();
+					IPrice price = watchEntry.getPrice();
 					if (price == null) {
 						return "";
 					}
 					return PeanutsUtil.formatDate(price.getDay());
 			case 2:
-					Price price2 = watchEntry.getPrice();
+					IPrice price2 = watchEntry.getPrice();
 					if (price2 == null) {
 						return "";
 					}
@@ -257,15 +251,13 @@ public class SecurityWatchlistView extends ViewPart {
 			case 3:
 				FundamentalData data1 = security.getCurrentFundamentalData();
 				if (data1 != null) {
-					IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
-					return PeanutsUtil.format(data1.calculatePeRatio(priceProvider), 1);
+					return PeanutsUtil.format(data1.calculatePeRatio(watchEntry.getPriceProvider()), 1);
 				}
 				return "";
 			case 4:
 				FundamentalData data2 = security.getCurrentFundamentalData();
 				if (data2 != null) {
-					IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
-					return PeanutsUtil.formatPercent(data2.calculateDivYield(priceProvider));
+					return PeanutsUtil.formatPercent(data2.calculateDivYield(watchEntry.getPriceProvider()));
 				}
 				return "";
 			case 5:

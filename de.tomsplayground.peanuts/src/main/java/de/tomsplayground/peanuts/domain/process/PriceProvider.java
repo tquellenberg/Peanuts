@@ -14,7 +14,7 @@ import de.tomsplayground.util.Day;
 
 public abstract class PriceProvider extends ObservableModelObject implements IPriceProvider {
 
-	private ImmutableList<Price> prices = ImmutableList.of();
+	private ImmutableList<IPrice> prices = ImmutableList.of();
 	
 	public PriceProvider() {
 		super();
@@ -22,7 +22,7 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 
 	@Override
 	public Day getMaxDate() {
-		ImmutableList<Price> lp = prices;
+		ImmutableList<IPrice> lp = prices;
 		if (lp.isEmpty()) {
 			return null;
 		}
@@ -31,7 +31,7 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 
 	@Override
 	public Day getMinDate() {
-		ImmutableList<Price> lp = prices;
+		ImmutableList<IPrice> lp = prices;
 		if (lp.isEmpty()) {
 			return null;
 		}
@@ -39,19 +39,19 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 	}
 
 	@Override
-	public ImmutableList<Price> getPrices() {
+	public ImmutableList<IPrice> getPrices() {
 		return prices;
 	}
 
 	@Override
-	public ImmutableList<Price> getPrices(Day from, Day to) {
+	public ImmutableList<IPrice> getPrices(Day from, Day to) {
 		if (from.after(to)) {
 			throw new IllegalArgumentException("'from' after 'to'" + from + "->" + to);
 		}
 		int start = 0;
 		int end = 0;
-		ImmutableList<Price> lp = prices;
-		for (Price p : lp) {
+		ImmutableList<IPrice> lp = prices;
+		for (IPrice p : lp) {
 			if (p.getDay().compareTo(from) < 0) {
 				start++ ;
 			}
@@ -63,8 +63,8 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 	}
 
 	@Override
-	public Price getPrice(Day date) {
-		ImmutableList<Price> lp = prices;
+	public IPrice getPrice(Day date) {
+		ImmutableList<IPrice> lp = prices;
 		if (lp.isEmpty()) {
 			return new Price(date, BigDecimal.ZERO);
 		}
@@ -81,23 +81,23 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 	}
 	
 	@Override
-	public void setPrice(Price newPrice) {
+	public void setPrice(IPrice newPrice) {
 		setPrice(newPrice, true);
 	}
 
 	@Override
-	public void setPrice(Price newPrice, boolean overideExistingData) {
-		Price oldPrice = setPriceInternal(newPrice, overideExistingData);
+	public void setPrice(IPrice newPrice, boolean overideExistingData) {
+		IPrice oldPrice = setPriceInternal(newPrice, overideExistingData);
 		if (oldPrice == null || ! oldPrice.equals(newPrice)) {
 			firePropertyChange("prices", oldPrice, newPrice);
 		}
 	}
 	
 	@Override
-	public void setPrices(List<Price> prices, boolean overideExistingData) {
+	public void setPrices(List<? extends IPrice> prices, boolean overideExistingData) {
 		boolean change = false;
-		for (Price price : prices) {
-			Price oldValue = setPriceInternal(price, overideExistingData);
+		for (IPrice price : prices) {
+			IPrice oldValue = setPriceInternal(price, overideExistingData);
 			change = change || oldValue == null || ! oldValue.equals(price);
 		}
 		if (change) {
@@ -105,12 +105,12 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 		}
 	}
 	
-	private Price setPriceInternal(Price newPrice, boolean overideExistingData) {
-		ImmutableList<Price> lp = prices;
+	private IPrice setPriceInternal(IPrice newPrice, boolean overideExistingData) {
+		ImmutableList<IPrice> lp = prices;
 		
 		int binarySearch = PeanutsUtil.binarySearch(lp, newPrice.getDay());
 		int s1, s2;
-		Price oldPrice = null;
+		IPrice oldPrice = null;
 		if (binarySearch >= 0) {
 			oldPrice = lp.get(binarySearch);
 			if (overideExistingData) {
@@ -130,8 +130,8 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 			s1 = s2 = -binarySearch -1;
 		}
 
-		ImmutableList<Price> subList1 = lp.subList(0, s1);
-		ImmutableList<Price> subList2 = lp.subList(s2, lp.size());
+		ImmutableList<IPrice> subList1 = lp.subList(0, s1);
+		ImmutableList<IPrice> subList2 = lp.subList(s2, lp.size());
 		prices = ImmutableList.copyOf(Iterables.concat(
 			subList1,
 			ImmutableList.of(newPrice),
@@ -142,11 +142,11 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 
 	@Override
 	public void removePrice(final Day date) {
-		final Price[] removed = new Price[1];
-		ImmutableList<Price> lp = ImmutableList.copyOf(
-			Iterables.filter(prices, new Predicate<Price>() {
+		final IPrice[] removed = new IPrice[1];
+		ImmutableList<IPrice> lp = ImmutableList.copyOf(
+			Iterables.filter(prices, new Predicate<IPrice>() {
 				@Override
-				public boolean apply(Price input) {
+				public boolean apply(IPrice input) {
 					if (input.getDay().equals(date)) {
 						removed[0] = input;
 						return false;

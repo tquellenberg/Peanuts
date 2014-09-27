@@ -7,7 +7,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import de.tomsplayground.util.Day;
 
-public class Price implements ITimedElement, IPrice {
+public class Price implements IPrice {
 
 	public final static Price ZERO = new Price(Day.ZERO, BigDecimal.ZERO);
 	

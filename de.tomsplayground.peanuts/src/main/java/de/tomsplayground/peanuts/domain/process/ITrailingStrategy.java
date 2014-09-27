@@ -11,6 +11,6 @@ public interface ITrailingStrategy {
 	 * @param price Current stock price
 	 * @return New stop value
 	 */
-	BigDecimal calculateStop(BigDecimal stop, Price price);
+	BigDecimal calculateStop(BigDecimal stop, IPrice price);
 
 }

@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.domain.statistics;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,6 +10,7 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.Helper;
+import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.util.Day;
 
@@ -26,10 +27,10 @@ public class SimpleMovingAverageTest {
 			new Price(day.addDays(1), new BigDecimal("10")),
 			new Price(day.addDays(2), new BigDecimal("15")),
 			new Price(day.addDays(3), new BigDecimal("20")));
-		List<Price> sma = movingAverage.calculate(prices);
+		List<IPrice> sma = movingAverage.calculate(prices);
 		
 		assertEquals(2, sma.size());
-		Price price = sma.get(0);
+		IPrice price = sma.get(0);
 		Helper.assertEquals(new BigDecimal("10"), price.getValue());
 		assertEquals(new Day(2008, 9, 20), price.getDay());
 		price = sma.get(1);

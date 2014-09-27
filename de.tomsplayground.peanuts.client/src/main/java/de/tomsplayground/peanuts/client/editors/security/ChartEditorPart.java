@@ -53,10 +53,12 @@ import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
+import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
+import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.domain.process.StopLoss;
 import de.tomsplayground.peanuts.domain.statistics.Signal;
 import de.tomsplayground.peanuts.domain.statistics.SimpleMovingAverage;
@@ -95,7 +97,7 @@ public class ChartEditorPart extends EditorPart {
 							priceTimeSeries.add(new Day(day.day, day.month+1, day.year), priceNew.getValue());
 						} else  if (evt.getNewValue() != null) {
 							// Full update
-							for (Price p : priceProvider.getPrices()) {
+							for (IPrice p : priceProvider.getPrices()) {
 								de.tomsplayground.util.Day day = p.getDay();
 								priceTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), p.getValue());
 							}
@@ -160,7 +162,8 @@ public class ChartEditorPart extends EditorPart {
 		setInput(input);
 		setPartName(input.getName());
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
+		ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
+		priceProvider = PriceProviderFactory.getInstance().getAdjustedPriceProvider(security, stockSplits);
 	}
 
 	@Override
@@ -196,6 +199,8 @@ public class ChartEditorPart extends EditorPart {
 			((XYPlot)chart.getPlot()).addRangeMarker(marker);
 		}
 		
+		addSplitAnnotations(chart, Activator.getDefault().getAccountManager().getStockSplits(security));
+		
 		displayType = new Combo(body, SWT.READ_ONLY);
 		displayType.add("all");
 		displayType.add("ten years");
@@ -223,6 +228,17 @@ public class ChartEditorPart extends EditorPart {
 		
 		Activator.getDefault().getAccountManager().addPropertyChangeListener(accountManagerChangeListener);
 	}
+	
+	protected void addSplitAnnotations(JFreeChart chart, List<StockSplit> splits) {
+		for (StockSplit stockSplit : splits) {
+			de.tomsplayground.util.Day day = stockSplit.getDay();
+			long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
+			ValueMarker valueMarker = new ValueMarker(x);
+			valueMarker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
+			valueMarker.setLabel("Split "+stockSplit.getFrom()+":"+stockSplit.getTo());
+			((XYPlot)chart.getPlot()).addDomainMarker(valueMarker);
+		}
+	}
 
 	protected void addOrderAnnotations(final JFreeChart chart) {
 		ImmutableList<InvestmentTransaction> transactions = getOrders();
@@ -234,26 +250,31 @@ public class ChartEditorPart extends EditorPart {
 			XYPointerAnnotation pointerAnnotation = null;
 			String t = "";
 			Color c = Color.BLACK;
+			org.eclipse.swt.graphics.Color swtColor;
 			switch (investmentTransaction.getType()) {
 			case BUY:
 				t = "+"+investmentTransaction.getQuantity();
 				pointerAnnotation = new XYPointerAnnotation(t, x, y, Math.PI / 2);
-				c = Color.GREEN;
+				swtColor = Activator.getDefault().getColorProvider().get(Activator.GREEN);
+				c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
 				break;
 			case SELL:
 				t = "-"+investmentTransaction.getQuantity();
 				pointerAnnotation = new XYPointerAnnotation(t, x, y, 3* Math.PI / 2);
-				c = Color.RED;
+				swtColor = Activator.getDefault().getColorProvider().get(Activator.RED);
+				c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
 				break;
 			case INCOME:
 				t = " +"+PeanutsUtil.formatCurrency(investmentTransaction.getAmount(), Currency.getInstance("EUR"));
 				pointerAnnotation = new XYPointerAnnotation(t, x, y, Math.PI / 2);
-				c = Color.GREEN;
+				swtColor = Activator.getDefault().getColorProvider().get(Activator.GREEN);
+				c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
 				break;
 			case EXPENSE:
 				t = " -"+PeanutsUtil.formatCurrency(investmentTransaction.getAmount(), Currency.getInstance("EUR"));
 				pointerAnnotation = new XYPointerAnnotation(t, x, y, 3* Math.PI / 2);
-				c = Color.RED;
+				swtColor = Activator.getDefault().getColorProvider().get(Activator.RED);
+				c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
 				break;
 			}
 			if (pointerAnnotation != null) {
@@ -261,6 +282,7 @@ public class ChartEditorPart extends EditorPart {
 				pointerAnnotation.setArrowPaint(c);
 				pointerAnnotation.setToolTipText(PeanutsUtil.formatDate(day) + " " + t);
 				pointerAnnotation.setArrowWidth(5);
+				pointerAnnotation.setLabelOffset(5);
 				((XYPlot)chart.getPlot()).addAnnotation(pointerAnnotation);
 			}
 		}
@@ -328,7 +350,7 @@ public class ChartEditorPart extends EditorPart {
 
 	private void createDataset() {
 		priceTimeSeries = new TimeSeries(getEditorInput().getName(), Day.class);
-		for (Price price : priceProvider.getPrices()) {
+		for (IPrice price : priceProvider.getPrices()) {
 			de.tomsplayground.util.Day day = price.getDay();
 			priceTimeSeries.add(new Day(day.day, day.month+1, day.year), price.getValue());
 		}
@@ -349,7 +371,9 @@ public class ChartEditorPart extends EditorPart {
 		updateStopLoss();
 		dataset.addSeries(stopLoss);
 
-		((ObservableModelObject) priceProvider).addPropertyChangeListener(priceProviderChangeListener);
+		if (priceProvider instanceof ObservableModelObject) {
+			((ObservableModelObject) priceProvider).addPropertyChangeListener(priceProviderChangeListener);
+		}
 	}
 	
 	private void updateStopLoss() {
@@ -370,7 +394,9 @@ public class ChartEditorPart extends EditorPart {
 
 	@Override
 	public void dispose() {
-		((ObservableModelObject) priceProvider).removePropertyChangeListener(priceProviderChangeListener);
+		if (priceProvider instanceof ObservableModelObject) {
+			((ObservableModelObject) priceProvider).removePropertyChangeListener(priceProviderChangeListener);
+		}
 		((SecurityEditorInput)getEditorInput()).getSecurity().removePropertyChangeListener(securityPropertyChangeListener);
 		Activator.getDefault().getAccountManager().removePropertyChangeListener(accountManagerChangeListener);
 		super.dispose();
@@ -378,8 +404,8 @@ public class ChartEditorPart extends EditorPart {
 	
 	private void createMovingAverage(TimeSeries a1, int days) {
 		SimpleMovingAverage simpleMovingAverage = new SimpleMovingAverage(days);
-		List<Price> sma = simpleMovingAverage.calculate(priceProvider.getPrices());
-		for (Price price : sma) {
+		List<IPrice> sma = simpleMovingAverage.calculate(priceProvider.getPrices());
+		for (IPrice price : sma) {
 			de.tomsplayground.util.Day day = price.getDay();
 			a1.addOrUpdate(new Day(day.day, day.month+1, day.year), price.getValue());
 		}

@@ -7,11 +7,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
+import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
+import de.tomsplayground.peanuts.domain.process.StockSplit;
 
 public class Watchlist extends ObservableModelObject implements INamedElement {
 
@@ -49,7 +53,9 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 			ObservableModelObject ob = (ObservableModelObject) priceProvider;
 			ob.addPropertyChangeListener(priceProviderChangeListener);
 		}
-		WatchEntry watchEntry = new WatchEntry(security, priceProvider);
+		ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
+		IPriceProvider adjustedPriceProvider = PriceProviderFactory.getInstance().getAdjustedPriceProvider(security, stockSplits);
+		WatchEntry watchEntry = new WatchEntry(security, priceProvider, adjustedPriceProvider);
 		entries.add(watchEntry);
 		firePropertyChange("entries", null, watchEntry);
 		return watchEntry;

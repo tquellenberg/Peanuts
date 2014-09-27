@@ -7,17 +7,20 @@ import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Currency;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import de.tomsplayground.peanuts.Helper;
 import de.tomsplayground.peanuts.domain.process.BankTransaction;
+import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProvider;
+import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.domain.process.Transaction;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.util.Day;
@@ -167,7 +170,12 @@ public class InventoryTest {
 				priceProvider.addPrice(new Price(now.addDays(-1), new BigDecimal("11.00")));				
 				priceProvider.addPrice(new Price(now, new BigDecimal("12.00")));				
 				return priceProvider;
-			}});
+			}
+			@Override
+			public IPriceProvider getAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
+				return getPriceProvider(security);
+			}
+		});
 		
 		inventory.setDate(now);
 		Helper.assertEquals(new BigDecimal("132.00"), inventory.getMarketValue());
@@ -195,7 +203,12 @@ public class InventoryTest {
 				SimplePriceProvider priceProvider = new SimplePriceProvider();
 				priceProvider.addPrice(new Price(now, new BigDecimal("12.00")));				
 				return priceProvider;
-			}}, now, new AnalyzerFactory());
+			}
+			@Override
+			public IPriceProvider getAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
+				return getPriceProvider(security);
+			}
+		}, now, new AnalyzerFactory());
 		
 		Collection<InventoryEntry> entries = inventory.getEntries();
 		assertEquals(1, entries.size());
@@ -222,7 +235,12 @@ public class InventoryTest {
 			@Override
 			public IPriceProvider getPriceProvider(Security security) {
 				return priceProvider;
-			}});
+			}
+			@Override
+			public IPriceProvider getAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
+				return getPriceProvider(security);
+			}
+		});
 		
 		Helper.assertEquals(new BigDecimal("12.00") ,inventory.getMarketValue());
 		InventoryEntry inventoryEntry = inventory.getEntries().iterator().next();
@@ -234,7 +252,7 @@ public class InventoryTest {
 			}
 		});
 
-		Price oldPrice = priceProvider.getPrice(now);
+		IPrice oldPrice = priceProvider.getPrice(now);
 		priceProvider.setPrice(new Price(now, oldPrice.getOpen(), new BigDecimal("13.00"), null, null));		
 		Helper.assertEquals(new BigDecimal("13.00"), inventory.getMarketValue());
 		assertNotNull(lastEvent[0]);

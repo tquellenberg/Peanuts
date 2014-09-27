@@ -32,8 +32,8 @@ import org.eclipse.ui.part.EditorPart;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
-import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
@@ -140,7 +140,7 @@ public class DevelopmentEditorPart extends EditorPart implements IPersistableEdi
 		if (StringUtils.isNotEmpty(stopLossValue)) {
 			try {
 				BigDecimal stopLoss = PeanutsUtil.parseQuantity(stopLossValue);
-				Price price = prices.getPrice(prices.getMaxDate());
+				IPrice price = prices.getPrice(prices.getMaxDate());
 				if (price.getValue().compareTo(BigDecimal.ZERO) != 0) {
 					BigDecimal percent = stopLoss.divide(price.getValue(), new MathContext(10, RoundingMode.HALF_EVEN));
 					percent = percent.subtract(BigDecimal.ONE);
@@ -163,8 +163,8 @@ public class DevelopmentEditorPart extends EditorPart implements IPersistableEdi
 		Day to = Day.fromCalendar(date);
 		date.add(field, delta);
 		Day from = Day.fromCalendar(date);
-		Price price1 = prices.getPrice(from);
-		Price price2 = prices.getPrice(to);
+		IPrice price1 = prices.getPrice(from);
+		IPrice price2 = prices.getPrice(to);
 		BigDecimal diff = price2.getValue().subtract(price1.getValue());
 		if (price1.getValue().compareTo(BigDecimal.ZERO) != 0) {
 			BigDecimal diffPercent = diff.divide(price1.getValue(), new MathContext(10, RoundingMode.HALF_EVEN)).movePointRight(2);

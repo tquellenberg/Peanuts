@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.app.quicken;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,7 +12,7 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
-import de.tomsplayground.peanuts.domain.process.Price;
+import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.util.Day;
 
 
@@ -25,7 +25,7 @@ public class FileCvsReaderTest {
 		reader.read();
 		IOUtils.closeQuietly(in);
 
-		List<Price> prices = reader.getPrices();
+		List<IPrice> prices = reader.getPrices();
 		assertEquals(14, prices.size());
 		assertEquals(new BigDecimal("2.392"), prices.get(0).getValue());
 		Day date = prices.get(0).getDay();

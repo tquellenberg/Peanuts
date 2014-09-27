@@ -11,17 +11,17 @@ public interface IPriceProvider {
 
 	String getName();
 
-	ImmutableList<Price> getPrices();
+	ImmutableList<IPrice> getPrices();
 
-	ImmutableList<Price> getPrices(Day from, Day to);
+	ImmutableList<IPrice> getPrices(Day from, Day to);
 	
-	Price getPrice(Day date);
+	IPrice getPrice(Day date);
 	
-	void setPrice(Price p);
+	void setPrice(IPrice p);
 	
-	void setPrice(Price newPrice, boolean overideExistingData);
+	void setPrice(IPrice newPrice, boolean overideExistingData);
 
-	void setPrices(List<Price> prices, boolean overideExistingData);
+	void setPrices(List<? extends IPrice> prices, boolean overideExistingData);
 	
 	void removePrice(Day date);
 
