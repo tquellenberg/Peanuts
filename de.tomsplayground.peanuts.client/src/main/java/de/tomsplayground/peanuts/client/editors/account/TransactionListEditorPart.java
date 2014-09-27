@@ -542,6 +542,8 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 		super.dispose();
 		Account account = ((AccountEditorInput) getEditorInput()).account;
 		account.removePropertyChangeListener(propertyChangeListener);
+		transactionDetails1.dispose();
+		transactionDetails2.dispose();
 	}
 	
 	private void updateTransactionDetail(ITransaction t, Transaction parentTransaction) {

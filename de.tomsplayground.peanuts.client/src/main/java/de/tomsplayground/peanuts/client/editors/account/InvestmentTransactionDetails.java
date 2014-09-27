@@ -1,5 +1,7 @@
 package de.tomsplayground.peanuts.client.editors.account;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -43,7 +45,7 @@ import de.tomsplayground.util.Day;
 
 public class InvestmentTransactionDetails implements ITransactionDetail {
 
-	private Account account;
+	private final Account account;
 	InvestmentTransaction transaction;
 	Transaction parentTransaction;
 
@@ -61,7 +63,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 	private Combo transactionType;
 	private boolean internalUpdate;
 
-	private ModifyListener modifyListener = new ModifyListener() {
+	private final ModifyListener modifyListener = new ModifyListener() {
 		@Override
 		public void modifyText(ModifyEvent arg0) {
 			if ( !internalUpdate) {
@@ -71,7 +73,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		}
 	};
 
-	private ModifyListener recalculateAmount = new ModifyListener() {
+	private final ModifyListener recalculateAmount = new ModifyListener() {
 		@Override
 		public void modifyText(ModifyEvent arg0) {
 			if ( !internalUpdate) {
@@ -90,6 +92,8 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		}
 	};
 	private ContentProposalAdapter autoCompleteSecurityAdapter;
+	private SimpleContentProposalProvider securityProposalProvider;
+	private PropertyChangeListener propertyChangeListener;
 	
 	public InvestmentTransactionDetails(Account account) {
 		this.account = account;
@@ -105,11 +109,10 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		group.setLayout(new GridLayout(2, true));
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
-		security = new Text(group, SWT.SINGLE | SWT.BORDER);	
-		SimpleContentProposalProvider proposalProvider = new SimpleContentProposalProvider(getSecurityNames());
-		proposalProvider.setFiltering(true);
+		security = new Text(group, SWT.SINGLE | SWT.BORDER);
+		initSecurityProposalProvider();
 		autoCompleteSecurityAdapter = new ContentProposalAdapter(security, new TextContentAdapter(),
-				proposalProvider, null, null);
+				securityProposalProvider, null, null);
 		autoCompleteSecurityAdapter.setPropagateKeys(true);
 		autoCompleteSecurityAdapter.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
 		security.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -180,16 +183,33 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		return detailComposit;
 	}
 
-	private String[] getSecurityNames() {
-		ImmutableList<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
-		return Collections2.transform(securities, new Function<Security, String>() {
+	private void initSecurityProposalProvider() {
+		securityProposalProvider = new SimpleContentProposalProvider(new String[0]);
+		securityProposalProvider.setFiltering(true);
+		propertyChangeListener = new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				setSecurities(Activator.getDefault().getAccountManager().getSecurities());
+			}
+		};
+		Activator.getDefault().getAccountManager().addPropertyChangeListener("security", propertyChangeListener);
+		setSecurities(Activator.getDefault().getAccountManager().getSecurities());
+	}
+	
+	private void setSecurities(ImmutableList<Security> securities) {
+		securityProposalProvider.setProposals(Collections2.transform(securities, new Function<Security, String>() {
 			@Override
 			public String apply(Security input) {
 				return input.getName();
 			}
-		}).toArray(new String[securities.size()]);
+		}).toArray(new String[securities.size()]));		
 	}
 
+	@Override
+	public void dispose() {
+		Activator.getDefault().getAccountManager().removePropertyChangeListener("security", propertyChangeListener);
+	}
+	
 	protected void readForm() {
 		try {
 			String securityName = security.getText();

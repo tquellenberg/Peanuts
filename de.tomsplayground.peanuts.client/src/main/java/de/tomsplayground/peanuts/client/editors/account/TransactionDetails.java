@@ -39,7 +39,7 @@ import de.tomsplayground.util.Day;
 
 public class TransactionDetails implements ITransactionDetail {
 
-	private Account account;
+	private final Account account;
 	private Transaction transaction;
 	private Transaction parentTransaction;
 
@@ -53,7 +53,7 @@ public class TransactionDetails implements ITransactionDetail {
 	private CategoryComposite categoryComposite;
 	private AccountComposite accountComposite;
 
-	private ModifyListener modifyListener = new ModifyListener() {
+	private final ModifyListener modifyListener = new ModifyListener() {
 		@Override
 		public void modifyText(ModifyEvent arg0) {
 			cancel.setEnabled(true);
@@ -151,6 +151,11 @@ public class TransactionDetails implements ITransactionDetail {
 		return detailComposit;
 	}
 
+	@Override
+	public void dispose() {
+		// nothing to do
+	}
+	
 	protected void readForm() {
 		try {
 			BigDecimal newAmount = PeanutsUtil.parseCurrency(amount.getText());
