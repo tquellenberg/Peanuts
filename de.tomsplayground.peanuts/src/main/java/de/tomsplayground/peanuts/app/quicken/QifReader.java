@@ -12,7 +12,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
@@ -29,7 +30,7 @@ import de.tomsplayground.util.Day;
 
 public class QifReader {
 
-	final static Logger log = Logger.getLogger(QifReader.class);
+	private final static Logger log = LoggerFactory.getLogger(QifReader.class);
 
 	AccountManager accountManager;
 

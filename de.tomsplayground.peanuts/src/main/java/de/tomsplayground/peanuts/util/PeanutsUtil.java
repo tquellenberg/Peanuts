@@ -9,14 +9,15 @@ import java.util.Currency;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.tomsplayground.peanuts.domain.process.ITimedElement;
 import de.tomsplayground.util.Day;
 
 public class PeanutsUtil {
 
-	final static Logger log = Logger.getLogger(PeanutsUtil.class);
+	private final static Logger log = LoggerFactory.getLogger(PeanutsUtil.class);
 
 	private static final DateFormat dateFormat = DateFormat.getDateInstance();
 	private static final DateFormat dateTimeFormat = DateFormat.getDateTimeInstance();

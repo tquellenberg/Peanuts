@@ -2,7 +2,8 @@ package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -12,11 +13,11 @@ import de.tomsplayground.util.Day;
 @XStreamAlias("transfer-transaction")
 public class TransferTransaction extends LabeledTransaction {
 
-	private static final Logger log = Logger.getLogger(TransferTransaction.class);
+	private final static Logger log = LoggerFactory.getLogger(TransferTransaction.class);
 
 	private ITransferLocation target;
 	private TransferTransaction complement;
-	private boolean source;
+	private final boolean source;
 
 	protected TransferTransaction(Day date, BigDecimal value, ITransferLocation target,
 		boolean source) {

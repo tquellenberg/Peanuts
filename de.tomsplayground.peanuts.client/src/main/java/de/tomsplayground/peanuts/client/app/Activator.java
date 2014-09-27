@@ -166,7 +166,9 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	protected void applicationStopping() {
-		refreshPricesJob.cancel();
+		if (refreshPricesJob != null) {
+			refreshPricesJob.cancel();
+		}
 	}
 	
 	protected void applicationStarted() {

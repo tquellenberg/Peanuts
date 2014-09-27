@@ -12,7 +12,8 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVWriter;
 import de.tomsplayground.peanuts.app.csv.GoogleCsvPriceProvider;
@@ -24,7 +25,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 
 	private static final String GOOGLE_PREFIX = "Google:";
 
-	final static Logger log = Logger.getLogger(PriceProviderFactory.class);
+	private final static Logger log = LoggerFactory.getLogger(PriceProviderFactory.class);
 	
 	private static String localPriceStorePath = ".";
 	private static PriceProviderFactory priceProviderFactory;
@@ -160,7 +161,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		try {
 			return new GoogleCsvPriceProvider(ticker);
 		} catch (IOException e) {
-			log.error("readHistoricalPricesFromGoogle " + security.getName(), e);
+			log.error("readHistoricalPricesFromGoogle " + security.getName() + " " + e.getMessage());
 			return null;
 		}
 	}
@@ -169,7 +170,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		try {
 			return YahooCsvReader.forTicker(security.getTicker(), Type.HISTORICAL);
 		} catch (IOException e) {
-			log.error("readHistoricalPricesFromYahoo " + security.getName(), e);
+			log.error("readHistoricalPricesFromYahoo " + security.getName() + " " + e.getMessage());
 			return null;
 		}
 	}
@@ -178,7 +179,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		try {
 			return YahooCsvReader.forTicker(security.getTicker(), Type.CURRENT);
 		} catch (IOException e) {
-			log.error("readLastPricesFromYahoo " + security.getName(), e);
+			log.error("readLastPricesFromYahoo " + security.getName() + " " + e.getMessage());
 			return null;
 		}
 	}

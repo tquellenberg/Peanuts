@@ -13,7 +13,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVReader;
 import de.tomsplayground.peanuts.domain.process.Price;
@@ -22,7 +23,7 @@ import de.tomsplayground.util.Day;
 
 public class YahooCsvReader extends PriceProvider {
 
-	final static Logger log = Logger.getLogger(YahooCsvReader.class);
+	private final static Logger log = LoggerFactory.getLogger(YahooCsvReader.class);
 	
 	public enum Type {
 		CURRENT,
@@ -115,7 +116,7 @@ public class YahooCsvReader extends PriceProvider {
 		try  {
 			return new BigDecimal(value);
 		} catch (NumberFormatException e) {
-			System.err.println("readDecimal: " + value);
+			log.error("readDecimal: '" + value+"' "+e.getMessage());
 			return null;
 		}
 	}

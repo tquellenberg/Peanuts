@@ -11,7 +11,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVReader;
 import de.tomsplayground.peanuts.domain.process.Price;
@@ -20,10 +21,10 @@ import de.tomsplayground.util.Day;
 
 public class GoogleCsvPriceProvider extends PriceProvider {
 
-	final static Logger log = Logger.getLogger(YahooCsvReader.class);
+	private final static Logger log = LoggerFactory.getLogger(GoogleCsvPriceProvider.class);
 
 	private URL url;
-	private Reader reader;
+	private final Reader reader;
 	
 	public GoogleCsvPriceProvider(String ticker) throws IOException {
 		url = new URL("http://www.google.com/finance/historical?q=" + ticker + "&output=csv");
