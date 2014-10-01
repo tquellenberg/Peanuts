@@ -224,6 +224,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 			if (transaction == null) {
 				transaction = new InvestmentTransaction(newDate, newSecurity, newPrice,
 					newQuantity, newCommission, type);
+				transaction.setCategory(newCategory);
 				if (parentTransaction != null) {
 					parentTransaction.addSplit(transaction);
 				} else {
