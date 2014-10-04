@@ -35,7 +35,7 @@ public class AllAccountsPieView extends ViewPart {
 	
 	private DefaultPieDataset dataset;
 	private JFreeChart chart;
-	private Map<Account, Inventory> inventories = new HashMap<Account, Inventory>();
+	private final Map<Account, Inventory> inventories = new HashMap<Account, Inventory>();
 	private Shell shell;
 	
 	private final PropertyChangeListener accountChangeListener = new UniqueAsyncExecution() {		
@@ -74,15 +74,15 @@ public class AllAccountsPieView extends ViewPart {
 		final Day today = new Day();
         for (Account entry : Activator.getDefault().getAccountManager().getAccounts()) {
         	Inventory i;
-        	if (inventories.containsKey(entry))
-        		i = inventories.get(entry);
-        	else {
+        	if (inventories.containsKey(entry)) {
+				i = inventories.get(entry);
+			} else {
         		i = new Inventory(entry, PriceProviderFactory.getInstance(), today, new AnalyzerFactory());
         		inventories.put(entry, i);
         		i.addPropertyChangeListener(accountChangeListener);
         	}
 			BigDecimal sum = entry.getBalance(today).add(i.getMarketValue());
-        	if (sum.compareTo(BigDecimal.ZERO) != 0) {
+        	if (sum.abs().compareTo(new BigDecimal("0.01")) > 0) {
         		dataset.setValue(entry.getName(), sum);
         	}
         }
