@@ -173,6 +173,20 @@ public class SecurityWatchlistView extends ViewPart {
 			return ObjectUtils.compare(deRatio1, deRatio2);
 		}
 	};
+	private static final class PerformanceComparator extends WatchEntryViewerComparator{
+		private final int day;
+		private final int month;
+		private final int year;
+		public PerformanceComparator(int day, int month, int year) {
+			this.day = day;
+			this.month = month;
+			this.year = year;
+		}
+		@Override
+		public int compare(WatchEntry w1, WatchEntry w2) {
+			return w1.getPerformance(day, month, year).compareTo(w2.getPerformance(day, month, year));
+		}
+	}
 
 	private final PropertyChangeListener watchlistChangeListener = new UniqueAsyncExecution() {
 		
@@ -475,30 +489,60 @@ public class SecurityWatchlistView extends ViewPart {
 		col.setText("Perf. 1 week");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, new PerformanceComparator(7, 0, 0));
+			}
+		});
 		colNum++;
 		
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Perf. 1 month");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, new PerformanceComparator(0, 1, 0));
+			}
+		});
 		colNum++;
 		
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Perf. 6 month");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, new PerformanceComparator(0, 6, 0));
+			}
+		});
 		colNum++;
 		
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Perf. 1 year");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, new PerformanceComparator(0, 0, 1));
+			}
+		});
 		colNum++;
 		
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Perf. 3 years");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, new PerformanceComparator(0, 0, 3));
+			}
+		});
 		
 		table.setSortColumn(table.getColumn(0));
 		table.setSortDirection(SWT.UP);	
