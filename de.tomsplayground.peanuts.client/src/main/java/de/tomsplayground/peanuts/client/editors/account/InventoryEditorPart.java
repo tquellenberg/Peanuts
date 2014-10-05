@@ -75,7 +75,7 @@ import de.tomsplayground.util.Day;
 public class InventoryEditorPart extends EditorPart implements IPersistableEditor {
 
 	private static final String SHOW_ALL_SECURITIES = "inventoryShowAllSecurities";
-	private final int colWidth[] = new int[10];
+	private final int colWidth[] = new int[11];
 	private TreeViewer treeViewer;
 	private Label gainingLabel;
 	private Label marketValueLabel;
@@ -85,30 +85,24 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 	private boolean showAllSecurities;
 	private Inventory inventory;
 	
-	abstract private static class InventoryComparator extends ViewerComparator {
-		enum SORT {
-			UP, DOWN
-		}
-		
-		private SORT sort = SORT.UP;
-		
+	abstract private class InventoryComparator extends ViewerComparator {
+
 		abstract int compareInventoryEntry(Viewer viewer, InventoryEntry e1, InventoryEntry e2); 
 		
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
+			int sort = ((TreeViewer)viewer).getTree().getSortDirection();
 			if (e1 instanceof InventoryEntry && e2 instanceof InventoryEntry) {
 				int compare = compareInventoryEntry(viewer, (InventoryEntry)e1, (InventoryEntry)e2);
-				return (sort == SORT.DOWN) ? compare : -compare;
+				return (sort == SWT.DOWN) ? compare : -compare;
 			}
 			if (e1 instanceof InvestmentTransaction && e2 instanceof InvestmentTransaction) {
 				InvestmentTransaction i1 = (InvestmentTransaction)e1;
 				InvestmentTransaction i2 = (InvestmentTransaction)e2;
-				return i2.getDay().compareTo(i1.getDay());
+				ImmutableList<InvestmentTransaction> transactions = inventory.getEntry(i1.getSecurity()).getTransactions();
+				return Integer.compare(transactions.indexOf(i2), transactions.indexOf(i1));
 			}
 			return 0;
-		}
-		public void setSortDirection(SORT sort) {
-			this.sort = sort;
 		}
 	}
 
@@ -155,6 +149,13 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		@Override
 		public int compareInventoryEntry(Viewer viewer, InventoryEntry i1, InventoryEntry i2) {
 			return gainingPercent(i1).compareTo(gainingPercent(i2));
+		}
+	};
+	
+	private final InventoryComparator ratePerYearComparator = new InventoryComparator() {
+		@Override
+		public int compareInventoryEntry(Viewer viewer, InventoryEntry i1, InventoryEntry i2) {
+			return i1.getXIRR(date).compareTo(i2.getXIRR(date));
 		}
 	};
 	
@@ -232,7 +233,8 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		private static final int TRANSACTION_POS_GAIN = 7;
 		private static final int INVENTORY_POS_GAIN = 7;
 		private static final int INVENTORY_POS_GAIN_PERCENT = 8;
-		private static final int INVENTORY_POS_DAY_CHANGE = 9;
+		private static final int INVENTORY_POS_RATE = 9;
+		private static final int INVENTORY_POS_DAY_CHANGE = 10;
 		
 		private final Currency currency;
 		private final Color red;
@@ -281,6 +283,9 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 				}
 				if (columnIndex == INVENTORY_POS_INVESTED_SUM) {
 					return PeanutsUtil.formatCurrency(entry.getInvestedAmount(), currency);
+				}
+				if (columnIndex == INVENTORY_POS_RATE) {
+					return PeanutsUtil.formatPercent(entry.getXIRR(date));
 				}
 			} else if (element instanceof AnalyzedInvestmentTransaction) {
 				AnalyzedInvestmentTransaction t = (AnalyzedInvestmentTransaction) element;
@@ -368,6 +373,11 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 				}
 				if (columnIndex == INVENTORY_POS_DAY_CHANGE) {
 					if (entry.getChange(date.addDays(-1), date).signum() == -1) {
+						return red;
+					}
+				}
+				if (columnIndex == INVENTORY_POS_RATE) {
+					if (entry.getXIRR(date).signum() == -1) {
 						return red;
 					}
 				}
@@ -548,9 +558,20 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		});
 		
 		col = new TreeColumn(tree, SWT.RIGHT);
-		col.setText("Change");
+		col.setText("Rate p.a.");
 		col.setResizable(true);
 		col.setWidth((colWidth[9] > 0) ? colWidth[9] : 100);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TreeColumn)e.widget, ratePerYearComparator);
+			}
+		});
+		
+		col = new TreeColumn(tree, SWT.RIGHT);
+		col.setText("Change");
+		col.setResizable(true);
+		col.setWidth((colWidth[10] > 0) ? colWidth[10] : 100);
 		
 		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
@@ -682,12 +703,10 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		if (treeViewer.getComparator() == newComparator) {
 			int currentSortDirection = tree2.getSortDirection();
 			tree2.setSortDirection(currentSortDirection==SWT.UP?SWT.DOWN:SWT.UP);
-			newComparator.setSortDirection(currentSortDirection==SWT.UP?InventoryComparator.SORT.DOWN:InventoryComparator.SORT.UP);
 			treeViewer.refresh();
 		} else {
 			tree2.setSortColumn(column);
 			tree2.setSortDirection(SWT.UP);	
-			newComparator.setSortDirection(InventoryComparator.SORT.UP);
 			treeViewer.setComparator(newComparator);
 		}
 	}

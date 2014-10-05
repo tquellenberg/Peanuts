@@ -8,7 +8,9 @@ import com.google.common.collect.ImmutableList;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
+import de.tomsplayground.peanuts.domain.process.InvestmentTransaction.Type;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzedInvestmentTransaction;
+import de.tomsplayground.peanuts.domain.statistics.XIRR;
 import de.tomsplayground.util.Day;
 
 public class InventoryEntry {
@@ -119,6 +121,31 @@ public class InventoryEntry {
 			investedAmount = getQuantity().multiply(transaction.getAvgPrice());
 		}
 		return investedAmount;
+	}
+	
+	public BigDecimal getXIRR(Day day) {
+		XIRR xirr = new XIRR();
+		BigDecimal addings = BigDecimal.ZERO;
+		for (InvestmentTransaction transaction : transactions) {
+			if (transaction.getDay().after(day)) {
+				break;
+			}
+			if (transaction.getType() == Type.BUY || transaction.getType() == Type.SELL) {
+				xirr.add(transaction.getDay(), transaction.getAmount());
+				if (transaction instanceof AnalyzedInvestmentTransaction) {
+					AnalyzedInvestmentTransaction at = (AnalyzedInvestmentTransaction)transaction;
+					if (at.getQuantitySum().signum() == 0) {
+						// reset
+						xirr = new XIRR();
+						addings = BigDecimal.ZERO;
+					}
+				}
+			} else {
+				addings = addings.add(transaction.getAmount());
+			}
+		}
+		xirr.add(day, getMarketValue(day).add(addings));
+		return xirr.calculateValue();
 	}
 
 }
