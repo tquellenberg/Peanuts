@@ -217,8 +217,9 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 
 	private class InventoryLabelProvider implements ITableLabelProvider, ITableColorProvider {
 		
-		private static final int INVENTRY_POS_NAME = 0;
+		private static final int INVENTORY_POS_NAME = 0;
 		private static final int TRANSACTION_POS_DATE = 0;
+		private static final int INVENTORY_FRACTION = 1;
 		private static final int TRANSACTION_POS_QUANTITY = 1;
 		private static final int INVENTORY_POS_QUANTITY = 2;
 		private static final int TRANSACTION_POS_QUANTITY_SUM = 2;
@@ -253,8 +254,12 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		public String getColumnText(Object element, int columnIndex) {
 			if (element instanceof InventoryEntry) {
 				InventoryEntry entry = (InventoryEntry) element;
-				if (columnIndex == INVENTRY_POS_NAME) {
+				if (columnIndex == INVENTORY_POS_NAME) {
 					return entry.getSecurity().getName();
+				}
+				if (columnIndex == INVENTORY_FRACTION) {
+					BigDecimal fraction = entry.getMarketValue(date).divide(inventory.getMarketValue(), new MathContext(10, RoundingMode.HALF_EVEN));
+					return PeanutsUtil.formatPercent(fraction);
 				}
 				if (columnIndex == INVENTORY_POS_PRICE) {
 					return PeanutsUtil.formatCurrency(entry.getPrice(date).getValue(), currency);
@@ -494,7 +499,7 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		treeViewer.getTree().setSortDirection(SWT.UP);
 
 		col = new TreeColumn(tree, SWT.RIGHT);
-		col.setText("Quantity change");
+		col.setText("Fraction");
 		col.setResizable(true);
 		col.setWidth((colWidth[1] > 0) ? colWidth[1] : 100);
 

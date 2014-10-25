@@ -85,6 +85,13 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 				if (columnIndex == 6) {
 					return PeanutsUtil.formatCurrency(sum[3], currency);
 				}
+				if (columnIndex == 9) {
+					return PeanutsUtil.formatPercent(sum[4]);
+				}
+			} else if (element instanceof BigDecimal) {
+				if (columnIndex == 9) {
+					return PeanutsUtil.formatPercent((BigDecimal)element);
+				}				
 			}
 			return null;
 		}
@@ -117,7 +124,7 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 						return red;
 					}
 				}
-			} else if (element instanceof BigDecimal) {
+			} else if (element instanceof BigDecimal[]) {
 				BigDecimal[] sum = (BigDecimal[]) element;
 				if (columnIndex == 3) {
 					if (sum[0].signum() == -1) {
@@ -139,6 +146,11 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 						return red;
 					}
 				}
+				if (columnIndex == 9) {
+					if (sum[4].signum() == -1) {
+						return red;
+					}
+				}
 			}
 			return null;
 		}
@@ -148,9 +160,10 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 		@Override
 		@SuppressWarnings("unchecked")
 		public Object[] getElements(Object inputElement) {
-			List<Value> value = (List<Value>) inputElement;
-			BigDecimal sum[] = new BigDecimal[]{BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO};
-			Object[] array = new Object[value.size() + 1];
+			PerformanceAnalyzer analizer = (PerformanceAnalyzer) inputElement;
+			List<Value> value =analizer.getValues();
+			BigDecimal sum[] = new BigDecimal[]{BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO};
+			Object[] array = new Object[value.size() + 3];
 			int i = 0;
 			for (Value v : value) {
 				array[i++] = v;
@@ -159,7 +172,10 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 				sum[2] = sum[2].add(v.getAdditions().add(v.getLeavings()));
 				sum[3] = sum[3].add(v.getGainings());
 			}
+			sum[4] = analizer.getFullGainingPercent();
 			array[i] = sum;
+			array[i+1] = analizer.get10YearGainingPercent();
+			array[i+2] = analizer.get5YearGainingPercent();
 			return array;
 		}
 	}
@@ -243,7 +259,7 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 		tableViewer.setContentProvider(new MyArrayContentProvider());
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(transactions, PriceProviderFactory.getInstance());
-		tableViewer.setInput(analizer.getValues());
+		tableViewer.setInput(analizer);
 	}
 
 	@Override

@@ -21,6 +21,9 @@ public class PerformanceAnalyzer {
 	private ImmutableList<Value> values = ImmutableList.of();
 	private final IPriceProviderFactory priceProviderFactory;
 	private final ITransactionProvider account;
+	private final XIRR xirrFull;
+	private final XIRR xirr10Year;
+	private final XIRR xirr5Year;
 
 	public static class Value {
 		private final int year;
@@ -98,6 +101,9 @@ public class PerformanceAnalyzer {
 	public PerformanceAnalyzer(ITransactionProvider account, IPriceProviderFactory priceProviderFactory) {
 		this.account = account;
 		this.priceProviderFactory = priceProviderFactory;
+		this.xirrFull = new XIRR();
+		this.xirr10Year = new XIRR();
+		this.xirr5Year = new XIRR();
 		buidMarketValues();
 	}
 	
@@ -122,8 +128,24 @@ public class PerformanceAnalyzer {
 			BigDecimal marketValue2 = inventory.getMarketValue().add(account.getBalance(r2));
 			Value value = new Value(year, marketValue1, marketValue2);
 			calculateAdditionLeaving(r1, r2,  value);
+			calculateAdditionLeaving(r1, r2, xirrFull);
+			if (endYear - year <= 9) {
+				if (endYear -year == 9) {
+					xirr10Year.add(r1, marketValue1);
+				}
+				calculateAdditionLeaving(r1, r2, xirr10Year);
+			}
+			if (endYear - year <= 4) {
+				if (endYear -year == 4) {
+					xirr5Year.add(r1, marketValue1);
+				}
+				calculateAdditionLeaving(r1, r2, xirr5Year);
+			}
 			elements.add(value);
 		}
+		xirrFull.add(now, elements.get(elements.size()-1).marketValue2.negate());
+		xirr10Year.add(now, elements.get(elements.size()-1).marketValue2.negate());
+		xirr5Year.add(now, elements.get(elements.size()-1).marketValue2.negate());
 		values = ImmutableList.copyOf(elements);
 	}
 
@@ -143,8 +165,35 @@ public class PerformanceAnalyzer {
 		}
 		value.add(to, BigDecimal.ZERO);
 	}
+	
+	private void calculateAdditionLeaving(Day from, Day to, XIRR xirr) {
+		ImmutableList<ITransaction> list = account.getTransactionsByDate(from, to);
+		for (ITransaction transaction : list) {
+			ImmutableList<ITransaction> splits = transaction.getSplits();
+			if (! splits.isEmpty()) {
+				for (ITransaction transaction2 : splits) {
+					if (transaction2 instanceof TransferTransaction) {
+						xirr.add(transaction2.getDay(), transaction2.getAmount());
+					}
+				}
+			} else if (transaction instanceof TransferTransaction) {
+				xirr.add(transaction.getDay(), transaction.getAmount());
+			}
+		}
+	}
+
 
 	public ImmutableList<Value> getValues() {
 		return values;
+	}
+	
+	public BigDecimal getFullGainingPercent() {
+		return xirrFull.calculateValue();
+	}
+	public BigDecimal get10YearGainingPercent() {
+		return xirr10Year.calculateValue();
+	}
+	public BigDecimal get5YearGainingPercent() {
+		return xirr5Year.calculateValue();
 	}
 }
