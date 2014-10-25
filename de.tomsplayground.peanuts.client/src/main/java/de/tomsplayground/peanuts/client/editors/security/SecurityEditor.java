@@ -43,9 +43,13 @@ public class SecurityEditor extends MultiPageEditorPart implements IPersistableE
 			if (editor instanceof IPersistableEditor) {
 				IPersistableEditor pEditor = (IPersistableEditor) editor;
 				if (mementoForRestore != null) {
-					IMemento childMemento = mementoForRestore.getChild(editor.getClass().getName());
+					IMemento[] childMemento = mementoForRestore.getChildren(editor.getClass().getName());
 					if (childMemento != null) {
-						pEditor.restoreState(childMemento);
+						for (IMemento iMemento : childMemento) {
+							if (iMemento.getID().equals(getEditorInput().getName())) {
+								pEditor.restoreState(iMemento);
+							}
+						}
 					}
 				}
 			}
@@ -88,7 +92,7 @@ public class SecurityEditor extends MultiPageEditorPart implements IPersistableE
 		for (IEditorPart editor : editors) {
 			if (editor instanceof IPersistableEditor) {
 				IPersistableEditor pEditor = (IPersistableEditor) editor;
-				pEditor.saveState(memento.createChild(editor.getClass().getName()));
+				pEditor.saveState(memento.createChild(editor.getClass().getName(), getEditorInput().getName()));
 			}
 		}
 	}

@@ -13,12 +13,12 @@ import org.eclipse.ui.IPersistableEditor;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
-public class SecurityCategoryEditor extends MultiPageEditorPart {
+public class SecurityCategoryEditor extends MultiPageEditorPart implements IPersistableEditor {
 
 	public static final String ID = "de.tomsplayground.peanuts.client.securityCategoryEditor";
 
 	private IMemento memento;
-	private List<IEditorPart> editors = new ArrayList<IEditorPart>();
+	private final List<IEditorPart> editors = new ArrayList<IEditorPart>();
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -40,9 +40,13 @@ public class SecurityCategoryEditor extends MultiPageEditorPart {
 			if (editor instanceof IPersistableEditor) {
 				IPersistableEditor pEditor = (IPersistableEditor) editor;
 				if (memento != null) {
-					IMemento childMemento = memento.getChild(editor.getClass().getName());
+					IMemento[] childMemento = memento.getChildren(editor.getClass().getName());
 					if (childMemento != null) {
-						pEditor.restoreState(childMemento);
+						for (IMemento iMemento : childMemento) {
+							if (iMemento.getID().equals(getEditorInput().getName())) {
+								pEditor.restoreState(iMemento);
+							}
+						}
 					}
 				}
 			}
@@ -68,6 +72,21 @@ public class SecurityCategoryEditor extends MultiPageEditorPart {
 	@Override
 	public boolean isSaveAsAllowed() {
 		return false;
+	}
+
+	@Override
+	public void restoreState(IMemento memento) {
+		this.memento = memento;
+	}
+
+	@Override
+	public void saveState(IMemento memento) {
+		for (IEditorPart editor : editors) {
+			if (editor instanceof IPersistableEditor) {
+				IPersistableEditor pEditor = (IPersistableEditor) editor;
+				pEditor.saveState(memento.createChild(editor.getClass().getName(), getEditorInput().getName()));
+			}
+		}
 	}
 
 }
