@@ -197,13 +197,15 @@ public class SecurityWatchlistView extends ViewPart {
 		
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
-			if (evt.getPropertyName().equals("currentWatchlist")) {
-				currentWatchList = (Watchlist) evt.getNewValue();
-				setContentDescription(currentWatchList.getName());
-				securityListViewer.setInput(currentWatchList);
-				securityListViewer.refresh();
-			} else {
-				securityListViewer.refresh();
+			if (! securityListViewer.getTable().isDisposed()) {
+				if (evt.getPropertyName().equals("currentWatchlist")) {
+					currentWatchList = (Watchlist) evt.getNewValue();
+					setContentDescription(currentWatchList.getName());
+					securityListViewer.setInput(currentWatchList);
+					securityListViewer.refresh();
+				} else {
+					securityListViewer.refresh();
+				}
 			}
 		}
 	};
