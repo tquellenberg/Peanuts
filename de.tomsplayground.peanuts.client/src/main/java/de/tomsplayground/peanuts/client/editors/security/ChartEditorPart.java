@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Currency;
 import java.util.List;
@@ -43,8 +44,10 @@ import org.jfree.ui.RectangleAnchor;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.ui.TextAnchor;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
@@ -152,6 +155,7 @@ public class ChartEditorPart extends EditorPart {
 	private ImmutableList<XYAnnotation> signalAnnotations = ImmutableList.of();
 	private TimeChart timeChart;
 	private TimeSeries stopLoss;
+	private TimeSeries compareToPriceTimeSeries;
 	
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -206,6 +210,7 @@ public class ChartEditorPart extends EditorPart {
 		displayType.add("ten years");
 		displayType.add("five years");
 		displayType.add("three years");
+		displayType.add("two years");
 		displayType.add("one year");
 		displayType.add("this year");
 		displayType.add("6 month");
@@ -221,8 +226,10 @@ public class ChartEditorPart extends EditorPart {
 				timeChart.setChartType(type);
 				dirty = true;
 				firePropertyChange(IEditorPart.PROP_DIRTY);
+				calculateCompareToValues();
 			}
 		});
+		calculateCompareToValues();
 		
 		security.addPropertyChangeListener(securityPropertyChangeListener);
 		
@@ -338,8 +345,17 @@ public class ChartEditorPart extends EditorPart {
 		plot.setDrawingSupplier(new PeanutsDrawingSupplier());
 		XYItemRenderer renderer = plot.getRenderer();
 		if (renderer instanceof XYLineAndShapeRenderer) {
-			renderer.setSeriesStroke(1, new BasicStroke(2.0f));
-			renderer.setSeriesStroke(2, new BasicStroke(2.0f));
+			renderer.setSeriesPaint(0, Color.BLACK);
+			int nextPos = 1;
+			if (isShowAvg()) {
+				renderer.setSeriesStroke(1, new BasicStroke(2.0f));
+				renderer.setSeriesStroke(2, new BasicStroke(2.0f));
+				nextPos = 3;
+			}
+			// Stop loss
+			renderer.setSeriesPaint(nextPos, Color.GREEN);
+			// Compare to
+			renderer.setSeriesPaint(nextPos + 1, Color.LIGHT_GRAY);
 		}
 		
 		DateAxis axis = (DateAxis) plot.getDomainAxis();
@@ -349,16 +365,17 @@ public class ChartEditorPart extends EditorPart {
 	}
 
 	private void createDataset() {
+		dataset = new TimeSeriesCollection();
+
 		priceTimeSeries = new TimeSeries(getEditorInput().getName(), Day.class);
 		for (IPrice price : priceProvider.getPrices()) {
 			de.tomsplayground.util.Day day = price.getDay();
 			priceTimeSeries.add(new Day(day.day, day.month+1, day.year), price.getValue());
 		}
-		dataset = new TimeSeriesCollection();
 		dataset.addSeries(priceTimeSeries);
 
-		average20Days = new TimeSeries("Moving Average: 20 days", Day.class);
-		average100Days = new TimeSeries("Moving Average: 100 days", Day.class);
+		average20Days = new TimeSeries("MA20", Day.class);
+		average100Days = new TimeSeries("MA100", Day.class);
 		
 		if (isShowAvg()) {
 			createMovingAverage(average20Days, 20);
@@ -370,9 +387,32 @@ public class ChartEditorPart extends EditorPart {
 		stopLoss = new TimeSeries("Stop Loss", Day.class);
 		updateStopLoss();
 		dataset.addSeries(stopLoss);
+		
+		Security compareTo = getCompareTo();
+		if (compareTo != null) {
+			compareToPriceTimeSeries = new TimeSeries(compareTo.getName(), Day.class);
+			dataset.addSeries(compareToPriceTimeSeries);			
+		}
 
 		if (priceProvider instanceof ObservableModelObject) {
 			((ObservableModelObject) priceProvider).addPropertyChangeListener(priceProviderChangeListener);
+		}
+	}
+
+	private void calculateCompareToValues() {
+		Security compareTo = getCompareTo();
+		if (compareTo != null && timeChart.getFromDate() != null) {
+			de.tomsplayground.util.Day fromDate = de.tomsplayground.util.Day.fromCalendar(timeChart.getFromDate());
+			ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(compareTo);
+			IPriceProvider compareToPriceProvider = PriceProviderFactory.getInstance().getAdjustedPriceProvider(compareTo, stockSplits);
+			IPrice p1 = priceProvider.getPrice(fromDate);
+			IPrice p2 = compareToPriceProvider.getPrice(fromDate);
+			BigDecimal adjust = p1.getValue().divide(p2.getValue(), RoundingMode.HALF_EVEN);
+			for (IPrice price : compareToPriceProvider.getPrices()) {
+				de.tomsplayground.util.Day day = price.getDay();
+				BigDecimal value = price.getValue().multiply(adjust);
+				compareToPriceTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), value);
+			}
 		}
 	}
 	
@@ -390,6 +430,20 @@ public class ChartEditorPart extends EditorPart {
 	
 	private boolean isShowSignals() {
 		return Boolean.parseBoolean(((SecurityEditorInput)getEditorInput()).getSecurity().getConfigurationValue("SHOW_SIGNALS"));
+	}
+	
+	private Security getCompareTo() {
+		final String isin = ((SecurityEditorInput)getEditorInput()).getSecurity().getConfigurationValue("COMPARE_WITH");
+		if (StringUtils.isNoneEmpty(isin)) {
+			ImmutableList<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
+			return Iterables.find(securities, new Predicate<Security>() {
+				@Override
+				public boolean apply(Security arg0) {
+					return StringUtils.equals(arg0.getISIN(), isin);
+				}
+			});
+		}
+		return null;
 	}
 
 	@Override

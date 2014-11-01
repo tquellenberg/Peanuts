@@ -65,7 +65,7 @@ public class ChartPropertyPage extends PropertyPage {
 			int index = Iterables.indexOf(securities, new Predicate<Security>() {
 				@Override
 				public boolean apply(Security input) {
-					return input.getISIN().equals(compareWithIsin);
+					return compareWithIsin.equals(input.getISIN());
 				}
 			});
 			compareWithList.select(index+1);

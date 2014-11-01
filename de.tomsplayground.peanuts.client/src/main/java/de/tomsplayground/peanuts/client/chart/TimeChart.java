@@ -30,6 +30,7 @@ public class TimeChart {
 
 	final private JFreeChart chart;
 	final private TimeSeriesCollection series;
+	private String type;
 
 	final static private Drawable buyDrawable = new Drawable() {
 		@Override
@@ -57,36 +58,42 @@ public class TimeChart {
 	}
 	
 	public void setChartType(String type) {
+		this.type = type;
 		XYPlot plot = getPlot();
 		DateAxis dateAxis = ((DateAxis)plot.getDomainAxis());
-		Calendar from = Calendar.getInstance();
 		Calendar to = Calendar.getInstance();
-		if (type.equals("ten years")) {
-			from.add(Calendar.YEAR, -10);
-			dateAxis.setRange(from.getTime(), to.getTime());
-		} else if (type.equals("five years")) {
-			from.add(Calendar.YEAR, -5);
-			dateAxis.setRange(from.getTime(), to.getTime());
-		} else if (type.equals("three years")) {
-			from.add(Calendar.YEAR, -3);
-			dateAxis.setRange(from.getTime(), to.getTime());
-		} else if (type.equals("one year")) {
-			from.add(Calendar.YEAR, -1);
-			dateAxis.setRange(from.getTime(), to.getTime());
-		} else if (type.equals("this year")) {
-			from.set(Calendar.DAY_OF_MONTH, 1);
-			from.set(Calendar.MONTH, 0);
-			dateAxis.setRange(from.getTime(), to.getTime());
-		} else if (type.equals("6 month")) {
-			from.add(Calendar.MONTH, -6);
-			dateAxis.setRange(from.getTime(), to.getTime());
-		} else if (type.equals("1 month")) {
-			from.add(Calendar.MONTH, -1);
-			dateAxis.setRange(from.getTime(), to.getTime());
+		Calendar from = getFromDate();
+		if (from != null) {
+			dateAxis.setRange(from.getTime(), to.getTime());			
 		} else {
 			dateAxis.setAutoRange(true);
 		}
 		adjustRangeAxis(plot, from, to);
+	}
+
+	public Calendar getFromDate() {
+		Calendar from = Calendar.getInstance();
+		if (type.equals("ten years")) {
+			from.add(Calendar.YEAR, -10);
+		} else if (type.equals("five years")) {
+			from.add(Calendar.YEAR, -5);
+		} else if (type.equals("three years")) {
+			from.add(Calendar.YEAR, -3);
+		} else if (type.equals("two years")) {
+			from.add(Calendar.YEAR, -2);
+		} else if (type.equals("one year")) {
+			from.add(Calendar.YEAR, -1);
+		} else if (type.equals("this year")) {
+			from.set(Calendar.DAY_OF_MONTH, 1);
+			from.set(Calendar.MONTH, 0);
+		} else if (type.equals("6 month")) {
+			from.add(Calendar.MONTH, -6);
+		} else if (type.equals("1 month")) {
+			from.add(Calendar.MONTH, -1);
+		} else {
+			from = null;
+		}
+		return from;
 	}
 
 	public ImmutableList<XYAnnotation> addSignals(List<Signal> signals) {
