@@ -9,6 +9,7 @@ import org.eclipse.ui.IPersistableElement;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.editors.ITransactionProviderInput;
+import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.process.Credit;
@@ -53,12 +54,10 @@ public class AccountEditorInput implements IEditorInput, ITransactionProviderInp
 	@Override
 	public IPersistableElement getPersistable() {
 		return new IPersistableElement() {
-
 			@Override
 			public String getFactoryId() {
 				return AccountEditorFactory.ID;
 			}
-
 			@Override
 			public void saveState(IMemento memento) {
 				memento.putString(AccountEditorFactory.ACCOUNT_NAME, account.getName());
@@ -83,6 +82,8 @@ public class AccountEditorInput implements IEditorInput, ITransactionProviderInp
 					return c;
 				}
 			}
+		} else if (adapter == IConfigurable.class) {
+			return account;
 		}
 		return null;
 	}

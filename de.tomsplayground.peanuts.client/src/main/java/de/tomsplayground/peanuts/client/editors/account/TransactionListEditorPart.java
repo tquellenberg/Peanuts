@@ -28,6 +28,8 @@ import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -40,8 +42,6 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IPersistableEditor;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.dialogs.FilteredTree;
@@ -61,7 +61,7 @@ import de.tomsplayground.peanuts.domain.process.TransferTransaction;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
-public class TransactionListEditorPart extends EditorPart implements IPersistableEditor {
+public class TransactionListEditorPart extends EditorPart {
 
 	private TreeViewer transactionTree;
 
@@ -231,6 +231,8 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 
 	@Override
 	public void createPartControl(Composite parent) {
+		restoreState();
+		
 		top = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
@@ -322,32 +324,46 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 		
+		ControlListener saveSizeOnResize = new ControlListener() {
+			@Override
+			public void controlResized(ControlEvent e) {
+				saveState();
+			}
+			@Override
+			public void controlMoved(ControlEvent e) {
+			}
+		};
 		TreeColumn col;
 		
 		col = new TreeColumn(table, SWT.LEFT);
 		col.setText("Date");
 		col.setWidth((colWidth[0] > 0) ? colWidth[0] : 100);
 		col.setResizable(true);
+		col.addControlListener(saveSizeOnResize);
 
 		col = new TreeColumn(table, SWT.LEFT);
 		col.setText("Beschreibung");
 		col.setWidth((colWidth[1] > 0) ? colWidth[1] : 300);
 		col.setResizable(true);
+		col.addControlListener(saveSizeOnResize);
 
 		col = new TreeColumn(table, SWT.RIGHT);
 		col.setText("Betrag");
 		col.setWidth((colWidth[2] > 0) ? colWidth[2] : 100);
 		col.setResizable(true);
+		col.addControlListener(saveSizeOnResize);
 
 		col = new TreeColumn(table, SWT.RIGHT);
 		col.setText("Saldo");
 		col.setWidth((colWidth[3] > 0) ? colWidth[3] : 100);
 		col.setResizable(true);
+		col.addControlListener(saveSizeOnResize);
 
 		col = new TreeColumn(table, SWT.LEFT);
 		col.setText("Category");
 		col.setWidth((colWidth[4] > 0) ? colWidth[4] : 150);
 		col.setResizable(true);
+		col.addControlListener(saveSizeOnResize);
 
 		final Account account = ((AccountEditorInput) getEditorInput()).account;
 
@@ -539,11 +555,11 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 	
 	@Override
 	public void dispose() {
-		super.dispose();
 		Account account = ((AccountEditorInput) getEditorInput()).account;
 		account.removePropertyChangeListener(propertyChangeListener);
 		transactionDetails1.dispose();
 		transactionDetails2.dispose();
+		super.dispose();
 	}
 	
 	private void updateTransactionDetail(ITransaction t, Transaction parentTransaction) {
@@ -609,23 +625,23 @@ public class TransactionListEditorPart extends EditorPart implements IPersistabl
 	public boolean isSaveAsAllowed() {
 		return false;
 	}
-
-	@Override
-	public void restoreState(IMemento memento) {
+	
+	public void restoreState() {
+		Account account = ((AccountEditorInput) getEditorInput()).account;
 		for (int i = 0; i < colWidth.length; i++ ) {
-			Integer width = memento.getInteger("col" + i);
+			String width = account.getConfigurationValue(getClass().getSimpleName()+".col" + i);
 			if (width != null) {
-				colWidth[i] = width.intValue();
+				colWidth[i] = Integer.valueOf(width).intValue();
 			}
 		}
 	}
 
-	@Override
-	public void saveState(IMemento memento) {
+	public void saveState() {
+		Account account = ((AccountEditorInput) getEditorInput()).account;
 		TreeColumn[] columns = transactionTree.getTree().getColumns();
 		for (int i = 0; i < columns.length; i++ ) {
 			TreeColumn tableColumn = columns[i];
-			memento.putInteger("col" + i, tableColumn.getWidth());
+			account.putConfigurationValue(getClass().getSimpleName()+".col" + i, String.valueOf(tableColumn.getWidth()));
 		}
 	}
 }

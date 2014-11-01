@@ -14,17 +14,21 @@ import org.apache.commons.collections4.map.ListOrderedMap;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+import de.tomsplayground.peanuts.config.ConfigurableSupport;
+import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 
 @XStreamAlias("securityCategoryMapping")
-public class SecurityCategoryMapping implements INamedElement {
+public class SecurityCategoryMapping extends ObservableModelObject implements INamedElement, IConfigurable {
 
 	private String name;
 	private final List<String> categories = new ArrayList<String>();
 	private final Map<Security, String> mapping = new HashMap<Security, String>();
+	private Map<String, String> displayConfiguration = new HashMap<String, String>();
 	
 	public SecurityCategoryMapping(String name, List<String> categories) {
 		this.name = name;
@@ -128,4 +132,27 @@ public class SecurityCategoryMapping implements INamedElement {
 	public String getCategory(Security security) {
 		return mapping.get(security);
 	}
+	
+	private transient ConfigurableSupport configurableSupport;
+	
+	private ConfigurableSupport getConfigurableSupport() {
+		if (displayConfiguration == null) {
+			displayConfiguration = new HashMap<String, String>();
+		}
+		if (configurableSupport == null) {
+			configurableSupport = new ConfigurableSupport(displayConfiguration, getPropertyChangeSupport());
+		}
+		return configurableSupport;
+	}
+	
+	@Override
+	public String getConfigurationValue(String key) {
+		return getConfigurableSupport().getConfigurationValue(key);
+	}
+
+	@Override
+	public void putConfigurationValue(String key, String value) {
+		getConfigurableSupport().putConfigurationValue(key, value);
+	}
+
 }

@@ -6,6 +6,7 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistableElement;
 
 import de.tomsplayground.peanuts.client.editors.ITransactionProviderInput;
+import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 
@@ -68,6 +69,9 @@ public class ReportEditorInput implements IEditorInput, ITransactionProviderInpu
 
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
+		if (adapter == IConfigurable.class) {
+			return report;
+		}
 		return null;
 	}
 

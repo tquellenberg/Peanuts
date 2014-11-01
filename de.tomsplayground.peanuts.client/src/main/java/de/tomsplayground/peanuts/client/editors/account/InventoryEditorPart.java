@@ -29,6 +29,8 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -45,8 +47,6 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IPersistableEditor;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
@@ -72,7 +72,7 @@ import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
-public class InventoryEditorPart extends EditorPart implements IPersistableEditor {
+public class InventoryEditorPart extends EditorPart {
 
 	private static final String SHOW_ALL_SECURITIES = "inventoryShowAllSecurities";
 	private final int colWidth[] = new int[11];
@@ -415,6 +415,8 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 
 	@Override
 	public void createPartControl(Composite parent) {
+		restoreState();
+		
 		Composite top = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
@@ -485,6 +487,16 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 
 		treeViewer.setComparator(securityNameComparator);
 		
+		ControlListener saveSizeOnResize = new ControlListener() {
+			@Override
+			public void controlResized(ControlEvent e) {
+				saveState();
+			}
+			@Override
+			public void controlMoved(ControlEvent e) {
+			}
+		};
+		
 		TreeColumn col = new TreeColumn(tree, SWT.LEFT);
 		col.setText("Name");
 		col.setResizable(true);
@@ -495,6 +507,7 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 				setSorting((TreeColumn)e.widget, securityNameComparator);
 			}
 		});
+		col.addControlListener(saveSizeOnResize);
 		treeViewer.getTree().setSortColumn(col);
 		treeViewer.getTree().setSortDirection(SWT.UP);
 
@@ -502,16 +515,19 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		col.setText("Fraction");
 		col.setResizable(true);
 		col.setWidth((colWidth[1] > 0) ? colWidth[1] : 100);
+		col.addControlListener(saveSizeOnResize);
 
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Quantity");
 		col.setResizable(true);
 		col.setWidth((colWidth[2] > 0) ? colWidth[2] : 100);
+		col.addControlListener(saveSizeOnResize);
 
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Price");
 		col.setResizable(true);
 		col.setWidth((colWidth[3] > 0) ? colWidth[3] : 100);
+		col.addControlListener(saveSizeOnResize);
 
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Market value");
@@ -523,6 +539,7 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 				setSorting((TreeColumn)e.widget, marketValueComparator);
 			}
 		});
+		col.addControlListener(saveSizeOnResize);
 		
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Avg Price");
@@ -539,6 +556,7 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 				setSorting((TreeColumn)e.widget, investmentSumComparator);
 			}
 		});
+		col.addControlListener(saveSizeOnResize);
 
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Gain/Lost");
@@ -550,6 +568,7 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 				setSorting((TreeColumn)e.widget, gainingComparator);
 			}
 		});
+		col.addControlListener(saveSizeOnResize);
 
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Gain/Lost (%)");
@@ -561,6 +580,7 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 				setSorting((TreeColumn)e.widget, gainingPercentComparator);
 			}
 		});
+		col.addControlListener(saveSizeOnResize);
 		
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Rate p.a.");
@@ -572,11 +592,13 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 				setSorting((TreeColumn)e.widget, ratePerYearComparator);
 			}
 		});
+		col.addControlListener(saveSizeOnResize);
 		
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Change");
 		col.setResizable(true);
 		col.setWidth((colWidth[10] > 0) ? colWidth[10] : 100);
+		col.addControlListener(saveSizeOnResize);
 		
 		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
@@ -599,7 +621,7 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		inventory.setDate(date);
 		inventory.addPropertyChangeListener(inventoryChangeListener);
 		treeViewer.setInput(inventory);
-
+		
 		dateChooser.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
@@ -684,22 +706,26 @@ public class InventoryEditorPart extends EditorPart implements IPersistableEdito
 		// nothing to do
 	}
 
-	@Override
-	public void restoreState(IMemento memento) {
-		for (int i = 0; i < colWidth.length; i++ ) {
-			Integer width = memento.getInteger("col" + i);
-			if (width != null) {
-				colWidth[i] = width.intValue();
+	public void restoreState() {
+		IConfigurable config = (IConfigurable) getEditorInput().getAdapter(IConfigurable.class);
+		if (config != null) {
+			for (int i = 0; i < colWidth.length; i++ ) {
+				String width = config.getConfigurationValue(getClass().getSimpleName()+".col" + i);
+				if (width != null) {
+					colWidth[i] = Integer.valueOf(width).intValue();
+				}
 			}
 		}
 	}
 
-	@Override
-	public void saveState(IMemento memento) {
-		TreeColumn[] columns = treeViewer.getTree().getColumns();
-		for (int i = 0; i < columns.length; i++ ) {
-			TreeColumn tableColumn = columns[i];
-			memento.putInteger("col" + i, tableColumn.getWidth());
+	public void saveState() {
+		IConfigurable config = (IConfigurable) getEditorInput().getAdapter(IConfigurable.class);
+		if (config != null) {
+			TreeColumn[] columns = treeViewer.getTree().getColumns();
+			for (int i = 0; i < columns.length; i++ ) {
+				TreeColumn tableColumn = columns[i];
+				config.putConfigurationValue(getClass().getSimpleName()+".col" + i, String.valueOf(tableColumn.getWidth()));
+			}
 		}
 	}
 

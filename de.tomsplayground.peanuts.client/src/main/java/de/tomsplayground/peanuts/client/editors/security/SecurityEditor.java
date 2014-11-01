@@ -8,16 +8,13 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IPersistableEditor;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
-public class SecurityEditor extends MultiPageEditorPart implements IPersistableEditor {
+public class SecurityEditor extends MultiPageEditorPart {
 
 	public static final String ID = "de.tomsplayground.peanuts.client.securityEditor";
 
-	private IMemento mementoForRestore;
 	private final List<IEditorPart> editors = new ArrayList<IEditorPart>();
 
 	@Override
@@ -40,19 +37,6 @@ public class SecurityEditor extends MultiPageEditorPart implements IPersistableE
 
 	private void createEditorPage(IEditorPart editor, String name) {
 		try {
-			if (editor instanceof IPersistableEditor) {
-				IPersistableEditor pEditor = (IPersistableEditor) editor;
-				if (mementoForRestore != null) {
-					IMemento[] childMemento = mementoForRestore.getChildren(editor.getClass().getName());
-					if (childMemento != null) {
-						for (IMemento iMemento : childMemento) {
-							if (iMemento.getID().equals(getEditorInput().getName())) {
-								pEditor.restoreState(iMemento);
-							}
-						}
-					}
-				}
-			}
 			int pageIndex = addPage(editor, getEditorInput());
 			setPageText(pageIndex, name);
 			editors.add(editor);
@@ -79,22 +63,6 @@ public class SecurityEditor extends MultiPageEditorPart implements IPersistableE
 	@Override
 	public boolean isSaveAsAllowed() {
 		return false;
-	}
-
-	@Override
-	public void restoreState(IMemento memento) {
-		// Editors not yet created.
-		this.mementoForRestore = memento;
-	}
-
-	@Override
-	public void saveState(IMemento memento) {
-		for (IEditorPart editor : editors) {
-			if (editor instanceof IPersistableEditor) {
-				IPersistableEditor pEditor = (IPersistableEditor) editor;
-				pEditor.saveState(memento.createChild(editor.getClass().getName(), getEditorInput().getName()));
-			}
-		}
 	}
 
 }

@@ -8,8 +8,6 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IPersistableEditor;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
@@ -17,13 +15,12 @@ import de.tomsplayground.peanuts.client.editors.credit.CreditChartEditorPart;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.process.Transaction;
 
-public class AccountEditor extends MultiPageEditorPart implements IPersistableEditor {
+public class AccountEditor extends MultiPageEditorPart {
 
 	public static final String ID = "de.tomsplayground.peanuts.client.accountEditor";
 	private TransactionListEditorPart accountEditorPart;
 
 	private final List<IEditorPart> editors = new ArrayList<IEditorPart>();
-	private IMemento mementoForRestore;
 	private MetaEditorPart metaEditorPart;
 
 	@Override
@@ -54,19 +51,6 @@ public class AccountEditor extends MultiPageEditorPart implements IPersistableEd
 
 	private void createEditorPage(IEditorPart editor, String name) {
 		try {
-			if (editor instanceof IPersistableEditor) {
-				IPersistableEditor pEditor = (IPersistableEditor) editor;
-				if (mementoForRestore != null) {
-					IMemento[] childMemento = mementoForRestore.getChildren(editor.getClass().getName());
-					if (childMemento != null) {
-						for (IMemento iMemento : childMemento) {
-							if (iMemento.getID().equals(getEditorInput().getName())) {
-								pEditor.restoreState(iMemento);
-							}
-						}
-					}
-				}
-			}
 			int pageIndex = addPage(editor, getEditorInput());
 			setPageText(pageIndex, name);
 			editors.add(editor);
@@ -101,22 +85,6 @@ public class AccountEditor extends MultiPageEditorPart implements IPersistableEd
 
 	public void editorDirtyStateChanged() {
 		firePropertyChange(IEditorPart.PROP_DIRTY);
-	}
-
-	@Override
-	public void restoreState(IMemento memento) {
-		// Editors not yet created.
-		this.mementoForRestore = memento;
-	}
-
-	@Override
-	public void saveState(IMemento memento) {
-		for (IEditorPart editor : editors) {
-			if (editor instanceof IPersistableEditor) {
-				IPersistableEditor pEditor = (IPersistableEditor) editor;
-				pEditor.saveState(memento.createChild(editor.getClass().getName(), getEditorInput().getName()));
-			}
-		}
 	}
 
 }

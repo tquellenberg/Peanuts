@@ -16,6 +16,8 @@ import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -25,8 +27,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IPersistableEditor;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
@@ -38,7 +38,7 @@ import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
-public class DevelopmentEditorPart extends EditorPart implements IPersistableEditor {
+public class DevelopmentEditorPart extends EditorPart {
 
 	private TableViewer tableViewer;
 	private final int colWidth[] = new int[3];
@@ -89,6 +89,8 @@ public class DevelopmentEditorPart extends EditorPart implements IPersistableEdi
 
 	@Override
 	public void createPartControl(Composite parent) {
+		restoreState();
+		
 		Composite top = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
@@ -100,20 +102,33 @@ public class DevelopmentEditorPart extends EditorPart implements IPersistableEdi
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 
+		ControlListener saveSizeOnResize = new ControlListener() {
+			@Override
+			public void controlResized(ControlEvent e) {
+				saveState();
+			}
+			@Override
+			public void controlMoved(ControlEvent e) {
+			}
+		};
+		
 		TableColumn col = new TableColumn(table, SWT.LEFT);
 		col.setText("Text");
 		col.setWidth((colWidth[0] > 0) ? colWidth[0] : 100);
 		col.setResizable(true);
+		col.addControlListener(saveSizeOnResize);
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Value");
 		col.setWidth((colWidth[1] > 0) ? colWidth[1] : 100);
 		col.setResizable(true);
+		col.addControlListener(saveSizeOnResize);
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Percent");
 		col.setWidth((colWidth[2] > 0) ? colWidth[2] : 100);
 		col.setResizable(true);
+		col.addControlListener(saveSizeOnResize);
 
 		Color red = Activator.getDefault().getColorProvider().get(Activator.RED);
 		tableViewer.setLabelProvider(new StringTableLabelProvider(red));
@@ -180,22 +195,22 @@ public class DevelopmentEditorPart extends EditorPart implements IPersistableEdi
 		tableViewer.getTable().setFocus();
 	}
 
-	@Override
-	public void restoreState(IMemento memento) {
-		for (int i = 0; i < colWidth.length; i++) {
-			Integer width = memento.getInteger("col" + i);
+	public void restoreState() {
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		for (int i = 0; i < colWidth.length; i++ ) {
+			String width = security.getConfigurationValue(getClass().getSimpleName()+".col" + i);
 			if (width != null) {
-				colWidth[i] = width.intValue();
+				colWidth[i] = Integer.valueOf(width).intValue();
 			}
 		}
 	}
 
-	@Override
-	public void saveState(IMemento memento) {
+	public void saveState() {
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		TableColumn[] columns = tableViewer.getTable().getColumns();
-		for (int i = 0; i < columns.length; i++) {
+		for (int i = 0; i < columns.length; i++ ) {
 			TableColumn tableColumn = columns[i];
-			memento.putInteger("col" + i, tableColumn.getWidth());
+			security.putConfigurationValue(getClass().getSimpleName()+".col" + i, String.valueOf(tableColumn.getWidth()));
 		}
 	}
 

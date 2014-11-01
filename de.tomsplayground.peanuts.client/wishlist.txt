@@ -1,8 +1,6 @@
 Must have
 =========
 
-- Momento weg
-
 - Category management (colors for categories)
 - Split edit within transaction detail (details button)
 - Folder for Navigation
