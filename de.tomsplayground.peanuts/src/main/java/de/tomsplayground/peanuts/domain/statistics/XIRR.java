@@ -61,6 +61,9 @@ public class XIRR {
 	}
 	
 	public BigDecimal calculateValue() {
+		if (dates.isEmpty()) {
+			return BigDecimal.ZERO;
+		}
 		caluculateDates();
 		checkNegative();
 		
