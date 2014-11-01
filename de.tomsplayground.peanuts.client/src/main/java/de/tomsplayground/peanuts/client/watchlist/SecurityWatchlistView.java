@@ -62,6 +62,16 @@ import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class SecurityWatchlistView extends ViewPart {
 
+	private static final PerformanceComparator THREE_YEAR_COMPARATOR = new PerformanceComparator(0, 0, 3);
+
+	private static final PerformanceComparator YEAR_COMPARATOR = new PerformanceComparator(0, 0, 1);
+
+	private static final PerformanceComparator SIX_MONTH_COMPARATOR = new PerformanceComparator(0, 6, 0);
+
+	private static final PerformanceComparator MONTH_COMPARATOR = new PerformanceComparator(0, 1, 0);
+
+	private static final PerformanceComparator WEEK_COMPARATOR = new PerformanceComparator(7, 0, 0);
+
 	public static final String ID = "de.tomsplayground.peanuts.client.securityWatchListView";
 	
 	private TableViewer securityListViewer;
@@ -494,7 +504,7 @@ public class SecurityWatchlistView extends ViewPart {
 		col.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setSorting((TableColumn)e.widget, new PerformanceComparator(7, 0, 0));
+				setSorting((TableColumn)e.widget, WEEK_COMPARATOR);
 			}
 		});
 		colNum++;
@@ -506,7 +516,7 @@ public class SecurityWatchlistView extends ViewPart {
 		col.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setSorting((TableColumn)e.widget, new PerformanceComparator(0, 1, 0));
+				setSorting((TableColumn)e.widget, MONTH_COMPARATOR);
 			}
 		});
 		colNum++;
@@ -518,7 +528,7 @@ public class SecurityWatchlistView extends ViewPart {
 		col.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setSorting((TableColumn)e.widget, new PerformanceComparator(0, 6, 0));
+				setSorting((TableColumn)e.widget, SIX_MONTH_COMPARATOR);
 			}
 		});
 		colNum++;
@@ -530,7 +540,7 @@ public class SecurityWatchlistView extends ViewPart {
 		col.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setSorting((TableColumn)e.widget, new PerformanceComparator(0, 0, 1));
+				setSorting((TableColumn)e.widget, YEAR_COMPARATOR);
 			}
 		});
 		colNum++;
@@ -542,7 +552,7 @@ public class SecurityWatchlistView extends ViewPart {
 		col.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setSorting((TableColumn)e.widget, new PerformanceComparator(0, 0, 3));
+				setSorting((TableColumn)e.widget, THREE_YEAR_COMPARATOR);
 			}
 		});
 		
