@@ -26,6 +26,7 @@ import org.eclipse.ui.part.EditorPart;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
@@ -133,13 +134,17 @@ public class ValueChartEditorPart extends EditorPart {
 		chart.setBackgroundPaint(Color.white);
 
 		TimeSeriesCollection dataset = createTotalDataset();
-		XYPlot subplot1 = new XYPlot(dataset, null,  new NumberAxis("Value"), new StandardXYItemRenderer());
+		StandardXYItemRenderer standardXYItemRenderer = new StandardXYItemRenderer();
+		standardXYItemRenderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
+		XYPlot subplot1 = new XYPlot(dataset, null,  new NumberAxis("Value"), standardXYItemRenderer);
 		plot.add(subplot1, 70);
 		subplot1.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
 		subplot1.setDomainCrosshairVisible(true);
 		subplot1.setRangeCrosshairVisible(true);
 
-		XYPlot subplot2 = new XYPlot(createGainLossDataset(), null, new NumberAxis("Gain/Loss"), new XYAreaRenderer());
+		XYAreaRenderer xyAreaRenderer = new XYAreaRenderer();
+		xyAreaRenderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
+		XYPlot subplot2 = new XYPlot(createGainLossDataset(), null, new NumberAxis("Gain/Loss"), xyAreaRenderer);
 		subplot2.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
 		subplot2.setDomainCrosshairVisible(true);
 		subplot2.setRangeCrosshairVisible(true);
