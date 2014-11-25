@@ -59,6 +59,7 @@ import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.statistics.Signal;
 import de.tomsplayground.peanuts.domain.statistics.Signal.Type;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
+import de.tomsplayground.util.Day;
 
 public class SecurityWatchlistView extends ViewPart {
 
@@ -76,7 +77,7 @@ public class SecurityWatchlistView extends ViewPart {
 	
 	private TableViewer securityListViewer;
 	private Watchlist currentWatchList;
-	private final int colWidth[] = new int[15];
+	private final int colWidth[] = new int[16];
 
 	private static abstract class WatchEntryViewerComparator extends ViewerComparator {
 		enum SORT {
@@ -197,6 +198,12 @@ public class SecurityWatchlistView extends ViewPart {
 			return w1.getPerformance(day, month, year).compareTo(w2.getPerformance(day, month, year));
 		}
 	}
+	private final WatchEntryViewerComparator customPerformanceComparator = new WatchEntryViewerComparator() {
+		@Override
+		public int compare(WatchEntry w1, WatchEntry w2) {
+			return w1.getCustomPerformance().compareTo(w2.getCustomPerformance());
+		}
+	};
 
 	private final PropertyChangeListener watchlistChangeListener = new UniqueAsyncExecution() {
 		
@@ -322,6 +329,8 @@ public class SecurityWatchlistView extends ViewPart {
 				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 1));
 			case 14:
 				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 3));
+			case 15:
+				return PeanutsUtil.formatPercent(watchEntry.getCustomPerformance());
 			default:
 				break;
 			}
@@ -369,6 +378,8 @@ public class SecurityWatchlistView extends ViewPart {
 				return (watchEntry.getPerformance(0, 0, 1).signum() == -1) ? red : green;
 			} else if (columnIndex == 14) {
 				return (watchEntry.getPerformance(0, 0, 3).signum() == -1) ? red : green;
+			} else if (columnIndex == 15) {
+				return (watchEntry.getCustomPerformance().signum() == -1) ? red : green;
 			}
 			return null;
 		}
@@ -385,6 +396,15 @@ public class SecurityWatchlistView extends ViewPart {
 					colWidth[i] = width.intValue();
 				}
 			}
+			WatchlistManager watchlistManager = WatchlistManager.getInstance();
+			String fromStr = memento.getString("customPerformance.from");
+			if (StringUtils.isNoneBlank(fromStr)) {
+				watchlistManager.setPerformanceFrom(Day.fromString(fromStr));
+			}
+			String toStr = memento.getString("customPerformance.to");
+			if (StringUtils.isNoneBlank(toStr)) {
+				watchlistManager.setPerformanceTo(Day.fromString(toStr));
+			}
 		}
 	}
 
@@ -395,6 +415,14 @@ public class SecurityWatchlistView extends ViewPart {
 		for (int i = 0; i < columns.length; i++ ) {
 			TableColumn tableColumn = columns[i];
 			memento.putInteger("col" + i, tableColumn.getWidth());
+		}
+		WatchlistManager watchlistManager = WatchlistManager.getInstance();
+		if (watchlistManager.isCustomPerformanceRangeSet()) {
+			memento.putString("customPerformance.from", watchlistManager.getPerformanceFrom().toString());
+			memento.putString("customPerformance.to", watchlistManager.getPerformanceTo().toString());
+		} else {
+			memento.putString("customPerformance.from", "");
+			memento.putString("customPerformance.to", "");
 		}
 	}
 
@@ -553,6 +581,18 @@ public class SecurityWatchlistView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				setSorting((TableColumn)e.widget, THREE_YEAR_COMPARATOR);
+			}
+		});
+		colNum++;
+		
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Perf. custom");
+		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
+		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, customPerformanceComparator);
 			}
 		});
 		

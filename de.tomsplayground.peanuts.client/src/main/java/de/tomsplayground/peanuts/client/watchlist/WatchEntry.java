@@ -77,25 +77,35 @@ public class WatchEntry {
 		return performance;
 	}
 	
-	public BigDecimal getPerformance(int day, int month, int year) {
-		Day maxDate = adjustedPriceProvider.getMaxDate();
-		if (maxDate != null) {
-			Day minDay = maxDate.addDays(-day);
-			minDay = minDay.addMonth(-month);
-			minDay = minDay.addYear(-year);
-			
-			IPrice price1 = adjustedPriceProvider.getPrice(minDay);
-			IPrice price2 = adjustedPriceProvider.getPrice(maxDate);
-			
-			BigDecimal delta = price2.getClose().subtract(price1.getClose());
-			
-			if (price1.getClose().signum() == 0) {
-				return BigDecimal.ZERO;
-			}
-			
-			BigDecimal performance = delta.divide(price1.getClose(), new MathContext(10, RoundingMode.HALF_EVEN));
-			return performance;
+	public BigDecimal getPerformance(int deltyDays, int deltaMonths, int deltaYear) {
+		Day maxDay = adjustedPriceProvider.getMaxDate();
+		if (maxDay == null) {
+			return BigDecimal.ZERO;
+		}
+		Day minDay = maxDay.addDays(-deltyDays);
+		minDay = minDay.addMonth(-deltaMonths);
+		minDay = minDay.addYear(-deltaYear);
+		return getPerformance(minDay, maxDay);
+	}
+	
+	public BigDecimal getCustomPerformance() {
+		WatchlistManager manager = WatchlistManager.getInstance();
+		if (manager.isCustomPerformanceRangeSet()) {
+			Day from = manager.getPerformanceFrom();
+			Day to = manager.getPerformanceTo();
+			return getPerformance(from, to);
 		}
 		return BigDecimal.ZERO;
+	}
+	
+	public BigDecimal getPerformance(Day minDay, Day maxDay) {
+		IPrice price1 = adjustedPriceProvider.getPrice(minDay);
+		IPrice price2 = adjustedPriceProvider.getPrice(maxDay);
+		BigDecimal delta = price2.getClose().subtract(price1.getClose());		
+		if (price1.getClose().signum() == 0) {
+			return BigDecimal.ZERO;
+		}
+		BigDecimal performance = delta.divide(price1.getClose(), new MathContext(10, RoundingMode.HALF_EVEN));
+		return performance;
 	}
 }

@@ -105,6 +105,12 @@
       </command>
       <command
             categoryId="de.tomsplayground.peanuts.client.category"
+            defaultHandler="de.tomsplayground.peanuts.client.watchlist.SetWatchlistPerformanceRange"
+            id="de.tomsplayground.peanuts.client.setWatchlistPerformanceRange"
+            name="Custom performance range">
+      </command>
+      <command
+            categoryId="de.tomsplayground.peanuts.client.category"
             defaultHandler="de.tomsplayground.peanuts.client.watchlist.SwitchWatchlistHandler"
             id="de.tomsplayground.peanuts.client.switchWatchlist.cmd"
             name="Switch Watchlist">
@@ -263,6 +269,16 @@
                commandId="de.tomsplayground.peanuts.client.addWatchlist"
                icon="icons/add.png"
                label="Add Watchlist"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:de.tomsplayground.peanuts.client.securityWatchListView">
+         <command
+               commandId="de.tomsplayground.peanuts.client.setWatchlistPerformanceRange"
+               icon="icons/date.png"
+               label="Custom performance range"
                style="push">
          </command>
       </menuContribution>

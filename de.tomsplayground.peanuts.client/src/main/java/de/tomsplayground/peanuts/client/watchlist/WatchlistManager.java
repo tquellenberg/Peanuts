@@ -6,13 +6,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
+import de.tomsplayground.util.Day;
 
 public class WatchlistManager extends ObservableModelObject {
 
 	private static WatchlistManager INSTANCE = new WatchlistManager();
 	
-	List<Watchlist> watchlists = new ArrayList<Watchlist>();
-	Watchlist currentWatchlist;
+	private final List<Watchlist> watchlists = new ArrayList<Watchlist>();
+	private Watchlist currentWatchlist;
+	
+	private Day performanceFrom;
+	private Day performanceTo;
 	
 	private final PropertyChangeListener watchlistChangeListener = new PropertyChangeListener() {
 		@Override
@@ -68,4 +72,22 @@ public class WatchlistManager extends ObservableModelObject {
 		return newWatchlist;
 	}
 	
+	public boolean isCustomPerformanceRangeSet() {
+		return performanceFrom != null && performanceTo != null &&
+			performanceFrom.before(performanceTo);
+	}
+	
+	public void setPerformanceFrom(Day performanceFrom) {
+		this.performanceFrom = performanceFrom;
+	}
+	public Day getPerformanceFrom() {
+		return performanceFrom;
+	}
+	
+	public void setPerformanceTo(Day performanceTo) {
+		this.performanceTo = performanceTo;
+	}
+	public Day getPerformanceTo() {
+		return performanceTo;
+	}
 }
