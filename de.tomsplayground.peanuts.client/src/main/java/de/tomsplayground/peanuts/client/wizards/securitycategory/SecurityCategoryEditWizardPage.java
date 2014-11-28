@@ -13,6 +13,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -28,6 +29,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.domain.base.Inventory;
+import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 
@@ -50,12 +53,14 @@ public class SecurityCategoryEditWizardPage extends WizardPage {
 	private Button removeButton;
 	private ListViewer listViewer1;
 	private ListViewer listViewer2;
+	private Inventory inventory;
 	private static final ViewerSorter SECURITY_SORTER = new ViewerSorter() {
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
 			return ((Security)e1).getName().compareToIgnoreCase(((Security)e2).getName());
 		}
 	};
+	private ViewerFilter viewerFilter;
 
 	protected SecurityCategoryEditWizardPage(String pageName, SecurityCategoryMapping mapping, String category) {
 		super(pageName);
@@ -76,12 +81,14 @@ public class SecurityCategoryEditWizardPage extends WizardPage {
 		name.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		name.setText(category != null ? category : "");
 		name.addModifyListener(checkNotEmptyListener);
-		
+
 		Composite securityChooser = new Composite(contents, SWT.NONE);
-		securityChooser.setLayout(new GridLayout(3, false));
-		
+		GridLayout gridLayout = new GridLayout(3, false);
+		gridLayout.marginWidth = 0;
+		securityChooser.setLayout(gridLayout);
+
 		listViewer1 = createList(securityChooser);
-		
+
 		// Buttons
 		Composite buttonRow = new Composite(securityChooser, SWT.NONE);
 		buttonRow.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
@@ -102,7 +109,7 @@ public class SecurityCategoryEditWizardPage extends WizardPage {
 				listViewer2.refresh();
 			}
 		});
-		
+
 		removeButton = new Button(buttonRow, SWT.NONE);
 		removeButton.setText("<-- Remove");
 		removeButton.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false));
@@ -143,11 +150,41 @@ public class SecurityCategoryEditWizardPage extends WizardPage {
 		} else {
 			selectedSecurities = new ArrayList<Security>();
 		}
-		securities.removeAll(selectedSecurities);		
+		securities.removeAll(selectedSecurities);
 		listViewer1.setInput(securities);
 		listViewer1.setSorter(SECURITY_SORTER);
 		listViewer2.setInput(selectedSecurities);
 		listViewer2.setSorter(SECURITY_SORTER);
+
+		Composite buttonComposite = new Composite(securityChooser, SWT.NONE);
+		GridLayout gridLayout2 = new GridLayout(2, false);
+		gridLayout2.marginWidth = 0;
+		gridLayout2.marginHeight = 0;
+		buttonComposite.setLayout(gridLayout2);
+		final Button filterButton = new Button(buttonComposite, SWT.CHECK);
+		filterButton.setSelection(true);
+		filterButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (filterButton.getSelection()) {
+					listViewer1.addFilter(viewerFilter);
+				} else {
+					listViewer1.resetFilters();
+				}
+			}
+		});
+		inventory = Activator.getDefault().getAccountManager().getFullInventory();
+		viewerFilter = new ViewerFilter() {
+			@Override
+			public boolean select(Viewer viewer, Object parentElement, Object element) {
+				Security security = (Security)element;
+				InventoryEntry entry = inventory.getEntry(security);
+				return (entry != null && entry.getQuantity().intValue() > 0);
+			}
+		};
+		listViewer1.addFilter(viewerFilter);
+		Label label2 = new Label(buttonComposite, SWT.NONE);
+		label2.setText("Show only my securities");
 
 		setControl(contents);
 	}
@@ -163,7 +200,11 @@ public class SecurityCategoryEditWizardPage extends WizardPage {
 			@Override
 			public String getText(Object element) {
 				Security security = (Security) element;
-				return security.getName();
+				String text = security.getName();
+				if (StringUtils.isNoneBlank(mapping.getCategory(security))) {
+					text += " ("+mapping.getCategory(security)+")";
+				}
+				return text;
 			}
 		});
 		return listViewer;
@@ -177,5 +218,5 @@ public class SecurityCategoryEditWizardPage extends WizardPage {
 	public Set<Security> getSecurities() {
 		return new HashSet<Security>(selectedSecurities);
 	}
-	
+
 }
