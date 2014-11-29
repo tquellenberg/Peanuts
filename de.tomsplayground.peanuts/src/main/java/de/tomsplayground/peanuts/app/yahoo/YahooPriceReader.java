@@ -1,4 +1,4 @@
-package de.tomsplayground.peanuts.app.csv;
+package de.tomsplayground.peanuts.app.yahoo;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -21,9 +21,9 @@ import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProvider;
 import de.tomsplayground.util.Day;
 
-public class YahooCsvReader extends PriceProvider {
+public class YahooPriceReader extends PriceProvider {
 
-	private final static Logger log = LoggerFactory.getLogger(YahooCsvReader.class);
+	private final static Logger log = LoggerFactory.getLogger(YahooPriceReader.class);
 	
 	public enum Type {
 		CURRENT,
@@ -34,7 +34,7 @@ public class YahooCsvReader extends PriceProvider {
 	private final CSVReader csvReader;
 	private final Type type;
 
-	public static YahooCsvReader forTicker(String ticker, Type type) throws IOException {
+	public static YahooPriceReader forTicker(String ticker, Type type) throws IOException {
 		URL url;
 		if (type == Type.CURRENT) {
 			url = new URL("http://download.finance.yahoo.com/d/quotes.csv?f=sl1d1t1c1ohgv&s=" +
@@ -48,14 +48,14 @@ public class YahooCsvReader extends PriceProvider {
 		URLConnection connection = url.openConnection();
 		connection.setConnectTimeout(1000*10);
 		String str = IOUtils.toString(connection.getInputStream());
-		return new YahooCsvReader(new StringReader(str), type);
+		return new YahooPriceReader(new StringReader(str), type);
 	}
 	
-	public YahooCsvReader(Reader reader) throws IOException {
+	public YahooPriceReader(Reader reader) throws IOException {
 		this(reader, Type.HISTORICAL);
 	}
 	
-	public YahooCsvReader(Reader reader, Type type) throws IOException {
+	public YahooPriceReader(Reader reader, Type type) throws IOException {
 		if (type == Type.HISTORICAL) {
 			csvReader = new CSVReader(reader, ',', '"');
 		} else {

@@ -16,9 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVWriter;
-import de.tomsplayground.peanuts.app.csv.GoogleCsvPriceProvider;
-import de.tomsplayground.peanuts.app.csv.YahooCsvReader;
-import de.tomsplayground.peanuts.app.csv.YahooCsvReader.Type;
+import de.tomsplayground.peanuts.app.google.GooglePriceReader;
+import de.tomsplayground.peanuts.app.yahoo.YahooPriceReader;
+import de.tomsplayground.peanuts.app.yahoo.YahooPriceReader.Type;
 import de.tomsplayground.peanuts.domain.base.Security;
 
 public class PriceProviderFactory implements IPriceProviderFactory {
@@ -99,7 +99,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 	protected IPriceProvider buildPriceProvider(String csv) {
 		IPriceProvider reader;
 		try {
-			reader = new YahooCsvReader(new StringReader(csv));
+			reader = new YahooPriceReader(new StringReader(csv));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -159,7 +159,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 	protected IPriceProvider readHistoricalPricesFromGoogle(Security security) {
 		String ticker = StringUtils.removeStart(security.getTicker(), GOOGLE_PREFIX);
 		try {
-			return new GoogleCsvPriceProvider(ticker);
+			return new GooglePriceReader(ticker);
 		} catch (IOException e) {
 			log.error("readHistoricalPricesFromGoogle " + security.getName() + " " + e.getMessage());
 			return null;
@@ -168,7 +168,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 
 	protected IPriceProvider readHistoricalPricesFromYahoo(Security security) {
 		try {
-			return YahooCsvReader.forTicker(security.getTicker(), Type.HISTORICAL);
+			return YahooPriceReader.forTicker(security.getTicker(), Type.HISTORICAL);
 		} catch (IOException e) {
 			log.error("readHistoricalPricesFromYahoo " + security.getName() + " " + e.getMessage());
 			return null;
@@ -177,7 +177,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 
 	protected IPriceProvider readLastPricesFromYahoo(Security security) {
 		try {
-			return YahooCsvReader.forTicker(security.getTicker(), Type.CURRENT);
+			return YahooPriceReader.forTicker(security.getTicker(), Type.CURRENT);
 		} catch (IOException e) {
 			log.error("readLastPricesFromYahoo " + security.getName() + " " + e.getMessage());
 			return null;

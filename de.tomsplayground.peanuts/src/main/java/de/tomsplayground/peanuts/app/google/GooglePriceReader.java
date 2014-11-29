@@ -1,4 +1,4 @@
-package de.tomsplayground.peanuts.app.csv;
+package de.tomsplayground.peanuts.app.google;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,20 +19,20 @@ import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProvider;
 import de.tomsplayground.util.Day;
 
-public class GoogleCsvPriceProvider extends PriceProvider {
+public class GooglePriceReader extends PriceProvider {
 
-	private final static Logger log = LoggerFactory.getLogger(GoogleCsvPriceProvider.class);
+	private final static Logger log = LoggerFactory.getLogger(GooglePriceReader.class);
 
 	private URL url;
 	private final Reader reader;
 	
-	public GoogleCsvPriceProvider(String ticker) throws IOException {
+	public GooglePriceReader(String ticker) throws IOException {
 		url = new URL("http://www.google.com/finance/historical?q=" + ticker + "&output=csv");
 		reader = new InputStreamReader(url.openStream(), "UTF-8");
 		read();
 	}
 
-	public GoogleCsvPriceProvider(Reader reader) throws IOException {
+	public GooglePriceReader(Reader reader) throws IOException {
 		this.reader = reader;
 		read();
 	}
