@@ -3,9 +3,11 @@ package de.tomsplayground.peanuts.client.util;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.watchlist.WatchEntry;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
@@ -19,7 +21,7 @@ import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 
 public class PeanutsAdapterFactory implements IAdapterFactory {
 
-	private Object securityWorkbenchAdapter = new IWorkbenchAdapter() {
+	private final Object securityWorkbenchAdapter = new IWorkbenchAdapter() {
 
 		@Override
 		public Object[] getChildren(Object o) {
@@ -54,7 +56,7 @@ public class PeanutsAdapterFactory implements IAdapterFactory {
 		@Override
 		public Object getParent(Object o) {
 			return null;
-		}		
+		}
 	};
 
 	@Override
@@ -68,6 +70,8 @@ public class PeanutsAdapterFactory implements IAdapterFactory {
 			return ((IAdaptable) adaptableObject).getAdapter(adapterType);
 		} else if ((adapterType == Security.class) && adaptableObject instanceof InventoryEntry) {
 			return ((InventoryEntry)adaptableObject).getSecurity();
+		} else if ((adapterType == Security.class) && adaptableObject instanceof WatchEntry) {
+			return ((WatchEntry)adaptableObject).getSecurity();
 		}
 		return null;
 	}
@@ -82,4 +86,13 @@ public class PeanutsAdapterFactory implements IAdapterFactory {
     	};
 	}
 
+	@SuppressWarnings("rawtypes")
+	public static Class[] getAdaptableClasses() {
+		return new Class[] {
+			INamedElement.class,
+			IEditorInput.class,
+			InventoryEntry.class,
+			WatchEntry.class
+		};
+	}
 }

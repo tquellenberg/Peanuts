@@ -12,6 +12,8 @@ import java.util.Set;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.viewers.CellLabelProvider;
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -20,7 +22,9 @@ import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
@@ -37,10 +41,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.ui.dialogs.PropertyDialogAction;
 import org.eclipse.ui.part.ViewPart;
 
 import com.google.common.collect.ImmutableList;
@@ -74,7 +81,7 @@ public class SecurityWatchlistView extends ViewPart {
 	private static final PerformanceComparator WEEK_COMPARATOR = new PerformanceComparator(7, 0, 0);
 
 	public static final String ID = "de.tomsplayground.peanuts.client.securityWatchListView";
-	
+
 	private TableViewer securityListViewer;
 	private Watchlist currentWatchList;
 	private final int colWidth[] = new int[16];
@@ -83,11 +90,11 @@ public class SecurityWatchlistView extends ViewPart {
 		enum SORT {
 			UP, DOWN
 		}
-		
+
 		private SORT sort = SORT.UP;
 
 		abstract public int compare(WatchEntry w1, WatchEntry w2);
-		
+
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
 			if (e1 instanceof WatchEntry && e2 instanceof WatchEntry) {
@@ -97,7 +104,7 @@ public class SecurityWatchlistView extends ViewPart {
 				return (sort == SORT.DOWN) ? compare : -compare;
 			}
 			return 0;
-		}		
+		}
 		public void setSortDirection(SORT sort) {
 			this.sort = sort;
 		}
@@ -114,7 +121,7 @@ public class SecurityWatchlistView extends ViewPart {
 		public int compare(WatchEntry w1, WatchEntry w2) {
 			BigDecimal peRatio1 = null;
 			BigDecimal peRatio2 = null;
-			
+
 			FundamentalData data1 = w1.getSecurity().getCurrentFundamentalData();
 			if (data1 != null) {
 				peRatio1 = data1.calculatePeRatio(w1.getPriceProvider());
@@ -131,7 +138,7 @@ public class SecurityWatchlistView extends ViewPart {
 		public int compare(WatchEntry w1, WatchEntry w2) {
 			BigDecimal divYield1 = null;
 			BigDecimal divYield2 = null;
-			
+
 			FundamentalData data1 = w1.getSecurity().getCurrentFundamentalData();
 			if (data1 != null) {
 				divYield1 = data1.calculateDivYield(w1.getPriceProvider());
@@ -149,7 +156,7 @@ public class SecurityWatchlistView extends ViewPart {
 			Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
 			BigDecimal yoc1 = null;
 			BigDecimal yoc2 = null;
-			
+
 			FundamentalData data1 = w1.getSecurity().getCurrentFundamentalData();
 			if (data1 != null) {
 				InventoryEntry inventoryEntry = inventory.getEntry(w1.getSecurity());
@@ -172,7 +179,7 @@ public class SecurityWatchlistView extends ViewPart {
 		public int compare(WatchEntry w1, WatchEntry w2) {
 			BigDecimal deRatio1 = null;
 			BigDecimal deRatio2 = null;
-			
+
 			FundamentalData data1 = w1.getSecurity().getCurrentFundamentalData();
 			if (data1 != null) {
 				deRatio1 = data1.getDebtEquityRatio();
@@ -206,12 +213,12 @@ public class SecurityWatchlistView extends ViewPart {
 	};
 
 	private final PropertyChangeListener watchlistChangeListener = new UniqueAsyncExecution() {
-		
+
 		@Override
 		public Display getDisplay() {
 			return securityListViewer.getTable().getDisplay();
 		}
-		
+
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
 			if (! securityListViewer.getTable().isDisposed()) {
@@ -242,14 +249,14 @@ public class SecurityWatchlistView extends ViewPart {
 			// Nothing to do
 		}
 	}
-	
+
 	private class SecurityListLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 
 		private final Color red;
 		private final Color green;
 		private final Color redBg;
 		private final Color greenBg;
-		
+
 		public SecurityListLabelProvider() {
 			red = Activator.getDefault().getColorProvider().get(Activator.RED);
 			green = Activator.getDefault().getColorProvider().get(Activator.GREEN);
@@ -267,8 +274,8 @@ public class SecurityWatchlistView extends ViewPart {
 			WatchEntry watchEntry = (WatchEntry) element;
 			Security security = watchEntry.getSecurity();
 			switch (columnIndex) {
-			case 0:
-				return security.getName();
+			case 0: return security.getName();
+
 			case 1:
 					IPrice price = watchEntry.getPrice();
 					if (price == null) {
@@ -384,7 +391,7 @@ public class SecurityWatchlistView extends ViewPart {
 			return null;
 		}
 	}
-	
+
 	@Override
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
 		super.init(site, memento);
@@ -433,6 +440,9 @@ public class SecurityWatchlistView extends ViewPart {
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		ColumnViewerToolTipSupport.enableFor(securityListViewer);
+		// must be called  before tableViewerColumn.setLabelProvider
+		securityListViewer.setLabelProvider(new SecurityListLabelProvider());
 
 		int colNum = 0;
 		TableColumn col = new TableColumn(table, SWT.LEFT);
@@ -445,6 +455,31 @@ public class SecurityWatchlistView extends ViewPart {
 				setSorting((TableColumn)e.widget, nameComparator);
 			}
 		});
+		TableViewerColumn tableViewerColumn = new TableViewerColumn(securityListViewer, col);
+		tableViewerColumn.setLabelProvider(new CellLabelProvider() {
+			@Override
+			public void update(ViewerCell cell) {
+				Object element = cell.getElement();
+				if (element instanceof WatchEntry) {
+					WatchEntry watchEntry = (WatchEntry) element;
+					Security security = watchEntry.getSecurity();
+					cell.setText(security.getName());
+					String icon = security.getConfigurationValue("icon");
+					if (StringUtils.isBlank(icon)) {
+						icon = "empty";
+					}
+					cell.setImage(Activator.getDefault().getImage("icons/"+icon+".png"));
+				}
+			}
+			@Override
+			public String getToolTipText(Object element) {
+				if (element instanceof WatchEntry) {
+					WatchEntry entry = (WatchEntry) element;
+					return StringUtils.defaultString(entry.getSecurity().getConfigurationValue("iconText"));
+				}
+				return super.getToolTipText(element);
+			}
+		});
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
@@ -452,13 +487,13 @@ public class SecurityWatchlistView extends ViewPart {
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
 		colNum++;
-		
+
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Price");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
 		colNum++;
-		
+
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("P/E ratio");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
@@ -470,7 +505,7 @@ public class SecurityWatchlistView extends ViewPart {
 			}
 		});
 		colNum++;
-		
+
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Div yield");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
@@ -482,7 +517,7 @@ public class SecurityWatchlistView extends ViewPart {
 			}
 		});
 		colNum++;
-		
+
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("YOC");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
@@ -494,7 +529,7 @@ public class SecurityWatchlistView extends ViewPart {
 			}
 		});
 		colNum++;
-		
+
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("D/E");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
@@ -506,25 +541,25 @@ public class SecurityWatchlistView extends ViewPart {
 			}
 		});
 		colNum++;
-		
+
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Signal");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
 		colNum++;
-		
+
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Change");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
 		colNum++;
-		
+
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Change");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
 		colNum++;
-		
+
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Perf. 1 week");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
@@ -536,7 +571,7 @@ public class SecurityWatchlistView extends ViewPart {
 			}
 		});
 		colNum++;
-		
+
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Perf. 1 month");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
@@ -548,7 +583,7 @@ public class SecurityWatchlistView extends ViewPart {
 			}
 		});
 		colNum++;
-		
+
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Perf. 6 month");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
@@ -560,7 +595,7 @@ public class SecurityWatchlistView extends ViewPart {
 			}
 		});
 		colNum++;
-		
+
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Perf. 1 year");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
@@ -572,7 +607,7 @@ public class SecurityWatchlistView extends ViewPart {
 			}
 		});
 		colNum++;
-		
+
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Perf. 3 years");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
@@ -584,7 +619,7 @@ public class SecurityWatchlistView extends ViewPart {
 			}
 		});
 		colNum++;
-		
+
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Perf. custom");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
@@ -595,14 +630,13 @@ public class SecurityWatchlistView extends ViewPart {
 				setSorting((TableColumn)e.widget, customPerformanceComparator);
 			}
 		});
-		
+
 		table.setSortColumn(table.getColumn(0));
-		table.setSortDirection(SWT.UP);	
+		table.setSortDirection(SWT.UP);
 		securityListViewer.setComparator(nameComparator);
-		
+
 		securityListViewer.setContentProvider(new WatchlistContentProvider());
-		securityListViewer.setLabelProvider(new SecurityListLabelProvider());
-		
+
 		// Drop-Target
 		Transfer[] types = new Transfer[] { PeanutsTransfer.INSTANCE };
 		int operations = DND.DROP_DEFAULT | DND.DROP_LINK;
@@ -635,7 +669,7 @@ public class SecurityWatchlistView extends ViewPart {
 				}
 			}
 		});
-		
+
 		initWatchlists();
 		securityListViewer.setInput(currentWatchList);
 
@@ -651,7 +685,7 @@ public class SecurityWatchlistView extends ViewPart {
 							SecurityEditor.ID);
 					} catch (PartInitException e) {
 						e.printStackTrace();
-					}					
+					}
 				}
 			}
 		});
@@ -660,8 +694,12 @@ public class SecurityWatchlistView extends ViewPart {
 		table.setMenu(menuManager.createContextMenu(table));
 		getSite().registerContextMenu(menuManager, securityListViewer);
 		getSite().setSelectionProvider(securityListViewer);
+
+		IActionBars actionBars = getViewSite().getActionBars();
+		actionBars.setGlobalActionHandler(ActionFactory.PROPERTIES.getId(),
+				new PropertyDialogAction(getSite(), securityListViewer));
 	}
-	
+
 	@Override
 	public void dispose() {
 		WatchlistManager.getInstance().removePropertyChangeListener(watchlistChangeListener);
@@ -678,7 +716,7 @@ public class SecurityWatchlistView extends ViewPart {
 				watchlist.addEntry(security);
 			}
 		}
-		currentWatchList = WatchlistManager.getInstance().getCurrentWatchlist();		
+		currentWatchList = WatchlistManager.getInstance().getCurrentWatchlist();
 		WatchlistManager.getInstance().addPropertyChangeListener(watchlistChangeListener);
 	}
 
@@ -715,7 +753,7 @@ public class SecurityWatchlistView extends ViewPart {
 		}
 		return Collections.emptyList();
 	}
-	
+
 	@Override
 	public void setFocus() {
 		// nothing to do
@@ -730,7 +768,7 @@ public class SecurityWatchlistView extends ViewPart {
 			securityListViewer.refresh();
 		} else {
 			table.setSortColumn(column);
-			table.setSortDirection(SWT.UP);	
+			table.setSortDirection(SWT.UP);
 			newComparator.setSortDirection(WatchEntryViewerComparator.SORT.UP);
 			securityListViewer.setComparator(newComparator);
 		}

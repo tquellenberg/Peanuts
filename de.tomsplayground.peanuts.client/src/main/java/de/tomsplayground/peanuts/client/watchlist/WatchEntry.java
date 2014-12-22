@@ -17,7 +17,7 @@ public class WatchEntry {
 	private final Security security;
 	private final IPriceProvider priceProvider;
 	private final IPriceProvider adjustedPriceProvider;
-	
+
 	WatchEntry(Security security, IPriceProvider priceProvider, IPriceProvider adjustedPriceProvider) {
 		this.security = security;
 		this.priceProvider = priceProvider;
@@ -45,38 +45,38 @@ public class WatchEntry {
 		}
 		return signal;
 	}
-	
+
 	public BigDecimal getDayChangeAbsolut() {
 		List<IPrice> prices = adjustedPriceProvider.getPrices();
 		if (prices.size() < 2) {
 			return BigDecimal.ZERO;
 		}
-		
+
 		IPrice price1 = prices.get(prices.size() - 2);
 		IPrice price2 = prices.get(prices.size() - 1);
-		
+
 		return price2.getClose().subtract(price1.getClose());
 	}
-	
+
 	public BigDecimal getDayChange() {
 		List<IPrice> prices = adjustedPriceProvider.getPrices();
 		if (prices.size() < 2) {
 			return BigDecimal.ZERO;
 		}
-		
+
 		IPrice price1 = prices.get(prices.size() - 2);
 		IPrice price2 = prices.get(prices.size() - 1);
-		
+
 		if (price1.getClose().signum() == 0) {
 			return BigDecimal.ZERO;
 		}
-		
+
 		BigDecimal delta = price2.getClose().subtract(price1.getClose());
-		
+
 		BigDecimal performance = delta.divide(price1.getClose(), new MathContext(10, RoundingMode.HALF_EVEN));
 		return performance;
 	}
-	
+
 	public BigDecimal getPerformance(int deltyDays, int deltaMonths, int deltaYear) {
 		Day maxDay = adjustedPriceProvider.getMaxDate();
 		if (maxDay == null) {
@@ -87,7 +87,7 @@ public class WatchEntry {
 		minDay = minDay.addYear(-deltaYear);
 		return getPerformance(minDay, maxDay);
 	}
-	
+
 	public BigDecimal getCustomPerformance() {
 		WatchlistManager manager = WatchlistManager.getInstance();
 		if (manager.isCustomPerformanceRangeSet()) {
@@ -97,11 +97,11 @@ public class WatchEntry {
 		}
 		return BigDecimal.ZERO;
 	}
-	
+
 	public BigDecimal getPerformance(Day minDay, Day maxDay) {
 		IPrice price1 = adjustedPriceProvider.getPrice(minDay);
 		IPrice price2 = adjustedPriceProvider.getPrice(maxDay);
-		BigDecimal delta = price2.getClose().subtract(price1.getClose());		
+		BigDecimal delta = price2.getClose().subtract(price1.getClose());
 		if (price1.getClose().signum() == 0) {
 			return BigDecimal.ZERO;
 		}

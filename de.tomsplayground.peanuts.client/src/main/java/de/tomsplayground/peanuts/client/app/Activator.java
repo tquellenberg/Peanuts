@@ -36,8 +36,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
@@ -50,8 +50,6 @@ import de.tomsplayground.peanuts.client.editors.security.Scraping;
 import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
 import de.tomsplayground.peanuts.client.util.PeanutsAdapterFactory;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
-import de.tomsplayground.peanuts.domain.base.INamedElement;
-import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.Price;
@@ -66,7 +64,7 @@ public class Activator extends AbstractUIPlugin {
 
 	private static final String EXAMPLE_FILENAME = "example.bpx";
 	private static final String EXAMPLE = "<EXAMPLE>";
-	
+
 	public static final String LIST_EVEN = "LIST_EVEN";
 	public static final String LIST_ODD = "LIST_ODD";
 	public static final String RED = "RED";
@@ -77,7 +75,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String FILE_EXTENSION_XML = "bpx";
 	public static final String FILE_EXTENSION_SECURE = "bps";
 	public static final String[] ALL_FILE_PATTERN = new String[]{"*."+FILE_EXTENSION_SECURE, "*."+FILE_EXTENSION_XML};
-	
+
 	public static final String IMAGE_SECURITY = "security";
 	public static final String IMAGE_SECURITYCATEGORY = "security_category";
 	public static final String IMAGE_SAVED_TRANSACTION = "saved_transaction";
@@ -126,11 +124,11 @@ public class Activator extends AbstractUIPlugin {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		
-		Platform.getAdapterManager().registerAdapters(new PeanutsAdapterFactory(), INamedElement.class);
-		Platform.getAdapterManager().registerAdapters(new PeanutsAdapterFactory(), IEditorInput.class);
-		Platform.getAdapterManager().registerAdapters(new PeanutsAdapterFactory(), InventoryEntry.class);
-		
+
+		for (@SuppressWarnings("rawtypes") Class c : PeanutsAdapterFactory.getAdaptableClasses()) {
+			Platform.getAdapterManager().registerAdapters(new PeanutsAdapterFactory(), c);
+		}
+
 		File dir = getStateLocation().append("securityprices").toFile();
 		if (! dir.exists()) {
 			dir.mkdir();
@@ -138,8 +136,8 @@ public class Activator extends AbstractUIPlugin {
 		getPreferenceStore().setDefault(SECURITYPRICEPATH_PROPERTY, dir.getAbsolutePath());
 
 		PriceProviderFactory.setLocalPriceStorePath(getPreferenceStore().getString(SECURITYPRICEPATH_PROPERTY));
-		
-		getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {			
+
+		getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
 				if (event.getProperty().equals(SECURITYPRICEPATH_PROPERTY)) {
@@ -170,7 +168,7 @@ public class Activator extends AbstractUIPlugin {
 			refreshPricesJob.cancel();
 		}
 	}
-	
+
 	protected void applicationStarted() {
 		refreshPricesJob = new Job("Refresh investment prices") {
 			@Override
@@ -185,7 +183,7 @@ public class Activator extends AbstractUIPlugin {
 							security.getConfigurationValue(SecurityPropertyPage.OVERRIDE_EXISTING_PRICE_DATA)).booleanValue());
 						Scraping scraping = new Scraping(security);
 						Price price = scraping.execute();
-						if (price != null) {							
+						if (price != null) {
 							IPriceProvider priceProvider = priceProviderFactory.getPriceProvider(security);
 							priceProvider.setPrice(price);
 							priceProviderFactory.saveToLocal(security, priceProvider);
@@ -203,9 +201,9 @@ public class Activator extends AbstractUIPlugin {
 		};
 		refreshPricesJob.setUser(false);
 		refreshPricesJob.setSystem(false);
-		refreshPricesJob.schedule();		
+		refreshPricesJob.schedule();
 	}
-	
+
 	@Override
 	protected void initializeImageRegistry(ImageRegistry registry) {
 		getImageRegistry().put(IMAGE_ACCOUNT, getImageDescriptor("/icons/table.png"));
@@ -222,6 +220,15 @@ public class Activator extends AbstractUIPlugin {
 		getImageRegistry().put(IMAGE_SAVED_TRANSACTION, getImageDescriptor("icons/date.png"));
 	}
 
+	public Image getImage(String path) {
+		ImageDescriptor imageDescriptor = getImageRegistry().getDescriptor(path);
+		if (imageDescriptor == null) {
+			imageDescriptor = getImageDescriptor(path);
+			getImageRegistry().put(path, imageDescriptor);
+		}
+		return imageDescriptor.createImage();
+	}
+
 	public synchronized ColorRegistry getColorProvider() {
 		if (colorProvider == null) {
 			colorProvider = new ColorRegistry(getWorkbench().getDisplay());
@@ -234,17 +241,17 @@ public class Activator extends AbstractUIPlugin {
 		}
 		return colorProvider;
 	}
-	
+
 	private OutputStream writeSecure(File file) {
 		try {
 			PBEKeySpec keySpec = new PBEKeySpec(passphrase.toCharArray());
 			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(ALGORITHM);
 			SecretKey secret = keyFactory.generateSecret(keySpec);
 			PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(SALT, ITERATIONS);
-			
+
 			Cipher cipher = Cipher.getInstance(ALGORITHM);
 			cipher.init(Cipher.ENCRYPT_MODE, secret, pbeParameterSpec);
-	
+
 			return new CipherOutputStream(new FileOutputStream(file), cipher);
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
@@ -252,17 +259,17 @@ public class Activator extends AbstractUIPlugin {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	private InputStream readSecure(File file) {
 		try {
 			PBEKeySpec keySpec = new PBEKeySpec(passphrase.toCharArray());
 			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(ALGORITHM);
 			SecretKey secret = keyFactory.generateSecret(keySpec);
 			PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(SALT, ITERATIONS);
-			
+
 			Cipher cipher = Cipher.getInstance(ALGORITHM);
 			cipher.init(Cipher.DECRYPT_MODE, secret, pbeParameterSpec);
-	
+
 			return new CipherInputStream(new FileInputStream(file), cipher);
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
@@ -270,7 +277,7 @@ public class Activator extends AbstractUIPlugin {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public void load(String filename) throws IOException {
 		Reader reader;
 		if (filename.equals(EXAMPLE)) {
@@ -278,7 +285,7 @@ public class Activator extends AbstractUIPlugin {
 		} else {
 			File file = new File(filename);
 			if (! file.exists()) {
-				setFilename(filename);				
+				setFilename(filename);
 				accountManager = new AccountManager();
 				return;
 			}
@@ -295,13 +302,13 @@ public class Activator extends AbstractUIPlugin {
 			if (filename.equals(EXAMPLE)) {
 				setFilename(System.getProperty("user.home") + File.separator + EXAMPLE_FILENAME);
 			} else {
-				setFilename(filename);				
+				setFilename(filename);
 			}
 		} finally {
 			IOUtils.closeQuietly(reader);
 		}
 	}
-	
+
 	public void save(String filename) throws IOException {
 		// Save copy of old file
 		File file = new File(filename);
@@ -377,7 +384,7 @@ public class Activator extends AbstractUIPlugin {
 		getPreferenceStore().setValue(FILENAME_PROPERTY, filename);
 		((IPersistentPreferenceStore) getPreferenceStore()).save();
 	}
-	
+
 	public String getFilename() {
 		return getPreferenceStore().getString(FILENAME_PROPERTY);
 	}

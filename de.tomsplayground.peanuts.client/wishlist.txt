@@ -20,7 +20,7 @@ Maybe
 - Direct add-button for transactions
 - Join categories and transfer
 - Smart Accounts (= Filter for Transactions)
-
+- Volatility (difference to 100MA?)
 
 Tasks
 =====
