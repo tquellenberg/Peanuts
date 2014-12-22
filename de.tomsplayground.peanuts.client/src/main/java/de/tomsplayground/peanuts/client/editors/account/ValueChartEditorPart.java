@@ -46,7 +46,7 @@ import de.tomsplayground.peanuts.domain.reporting.transaction.DateIterator;
 import de.tomsplayground.peanuts.domain.reporting.transaction.TimeIntervalReport;
 
 public class ValueChartEditorPart extends EditorPart {
-	
+
 	private static final String CHART_TYPE = "chartType";
 
 	private Combo displayType;
@@ -97,9 +97,11 @@ public class ValueChartEditorPart extends EditorPart {
 		JFreeChart chart = createChart(chartType);
 		chartFrame = new ChartComposite(body, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
+
 		displayType = new Combo(body, SWT.READ_ONLY);
 		displayType.add("all");
+		displayType.add("ten years");
+		displayType.add("five years");
 		displayType.add("three years");
 		displayType.add("one year");
 		displayType.add("this year");
@@ -121,7 +123,7 @@ public class ValueChartEditorPart extends EditorPart {
 	private Account getAccount() {
 		return ((AccountEditorInput) getEditorInput()).getAccount();
 	}
-	
+
 	@Override
 	public void dispose() {
 		intervalReport.removePropertyChangeListener(changeListener);
@@ -149,7 +151,7 @@ public class ValueChartEditorPart extends EditorPart {
 		subplot2.setDomainCrosshairVisible(true);
 		subplot2.setRangeCrosshairVisible(true);
 		plot.add(subplot2, 30);
-		
+
 		plot.setDrawingSupplier(new PeanutsDrawingSupplier());
 
 		DateAxis axis = (DateAxis) plot.getDomainAxis();
@@ -157,7 +159,7 @@ public class ValueChartEditorPart extends EditorPart {
 
 		timeChart = new TimeChart(chart, dataset);
 		timeChart.setChartType(chartType);
-		
+
 		return chart;
 	}
 
@@ -209,7 +211,7 @@ public class ValueChartEditorPart extends EditorPart {
 
 		return dataset;
 	}
-	
+
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		String type = displayType.getItem(displayType.getSelectionIndex());
