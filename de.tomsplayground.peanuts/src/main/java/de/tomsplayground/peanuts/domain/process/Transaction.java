@@ -57,7 +57,7 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 	public Day getDay() {
 		return day;
 	}
-	
+
 	public void setDay(Day day) {
 		if (day == null) {
 			throw new IllegalArgumentException("day");
@@ -145,7 +145,7 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 		setSplits(newSplits);
 		firePropertyChange("split", null, t);
 	}
-	
+
 	public void removeSplit(Transaction t) {
 		List<Transaction> newSplits = new ArrayList<Transaction>(splits);
 		if (! newSplits.remove(t)) {
@@ -186,6 +186,9 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 		for (Transaction t : splits) {
 			if (t.getCategory() != null) {
 				t.setCategory(accountManager.getCategoryByPath(t.getCategory().getPath()));
+			}
+			if (! t.getDay().equals(day)) {
+				t.setDay(day);
 			}
 			t.addPropertyChangeListener("amount", splitChangeListener);
 		}
