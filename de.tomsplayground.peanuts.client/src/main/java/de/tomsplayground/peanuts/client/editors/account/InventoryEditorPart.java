@@ -260,8 +260,10 @@ public class InventoryEditorPart extends EditorPart {
 			if (element instanceof InventoryEntry) {
 				InventoryEntry entry = (InventoryEntry) element;
 				if (columnIndex == INVENTORY_FRACTION) {
-					BigDecimal fraction = entry.getMarketValue(date).divide(inventory.getMarketValue(), new MathContext(10, RoundingMode.HALF_EVEN));
-					return PeanutsUtil.formatPercent(fraction);
+					if (inventory.getMarketValue().compareTo(BigDecimal.ZERO) != 0) {
+						BigDecimal fraction = entry.getMarketValue(date).divide(inventory.getMarketValue(), new MathContext(10, RoundingMode.HALF_EVEN));
+						return PeanutsUtil.formatPercent(fraction);
+					}
 				}
 				if (columnIndex == INVENTORY_POS_PRICE) {
 					return PeanutsUtil.formatCurrency(entry.getPrice(date).getValue(), currency);
