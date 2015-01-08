@@ -13,7 +13,6 @@ import de.tomsplayground.peanuts.config.ConfigurableSupport;
 import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
-import de.tomsplayground.util.Day;
 
 @XStreamAlias("security")
 public class Security extends ObservableModelObject implements INamedElement, IConfigurable {
@@ -25,15 +24,15 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	private String ISIN;
 	private String WKN;
 	private String ticker;
-	
+
 	final private Map<String, String> displayConfiguration = new HashMap<String, String>();
-	
+
 	private List<FundamentalData> fundamentalDatas = new ArrayList<FundamentalData>();
 
 	public Security(String name) {
 		this.name = name;
 	}
-	
+
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this).append("name", name).toString();
@@ -85,21 +84,24 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 			fundamentalDatas = new ArrayList<FundamentalData>();
 		}
 	}
-	
+
 	public List<FundamentalData> getFundamentalDatas() {
 		return fundamentalDatas;
 	}
-	
+
 	public FundamentalData getCurrentFundamentalData() {
-		int currentYear = new Day().year;
+		if (fundamentalDatas.isEmpty()) {
+			return null;
+		}
+		FundamentalData result = fundamentalDatas.get(0);
 		for (FundamentalData data : fundamentalDatas) {
-			if (data.getYear() == currentYear) {
-				return data;
+			if (data.getYear() > result.getYear()) {
+				result = data;
 			}
 		}
-		return null;
+		return result;
 	}
-	
+
 	public void setFundamentalDatas(List<FundamentalData> fundamentalDatas) {
 		List<FundamentalData> old = this.fundamentalDatas;
 		this.fundamentalDatas = new ArrayList<FundamentalData>(fundamentalDatas);
@@ -108,14 +110,14 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 
 
 	private transient ConfigurableSupport configurableSupport;
-	
+
 	private ConfigurableSupport getConfigurableSupport() {
 		if (configurableSupport == null) {
 			configurableSupport = new ConfigurableSupport(displayConfiguration, getPropertyChangeSupport());
 		}
 		return configurableSupport;
 	}
-	
+
 	@Override
 	public String getConfigurationValue(String key) {
 		return getConfigurableSupport().getConfigurationValue(key);
