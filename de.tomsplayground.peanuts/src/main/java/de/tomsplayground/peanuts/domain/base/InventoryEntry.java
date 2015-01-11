@@ -118,7 +118,7 @@ public class InventoryEntry {
 		BigDecimal investedAmount = BigDecimal.ZERO;
 		AnalyzedInvestmentTransaction transaction = getLastAnalyzedInvestmentTransaction();
 		if (transaction != null) {
-			investedAmount = getQuantity().multiply(transaction.getAvgPrice());
+			investedAmount = transaction.getInvestedAmount();
 		}
 		return investedAmount;
 	}

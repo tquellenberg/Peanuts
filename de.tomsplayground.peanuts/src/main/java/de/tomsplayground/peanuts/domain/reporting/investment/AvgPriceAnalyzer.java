@@ -14,10 +14,12 @@ public class AvgPriceAnalyzer extends Analyzer {
 		public AnalyzedInvestmentTransaction apply(InvestmentTransaction t) {
 			strategy.buildBuyList(t);
 			AnalyzedInvestmentTransaction at = AnalyzedInvestmentTransaction.createAnalyzedInvestmentTransaction(t);
-			if (strategy.getQuantity().signum() == 0)
+			if (strategy.getQuantity().signum() == 0) {
 				at.setAvgPrice(BigDecimal.ZERO);
-			else
+			} else {
 				at.setAvgPrice(strategy.getInvestedAmount().divide(strategy.getQuantity(), RoundingMode.HALF_EVEN));
+			}
+			at.setInvestedAmount(strategy.getInvestedAmount());
 			return at;
 		}
 	};

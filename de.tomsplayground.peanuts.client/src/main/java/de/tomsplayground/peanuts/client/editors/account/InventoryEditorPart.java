@@ -323,7 +323,7 @@ public class InventoryEditorPart extends EditorPart {
 					return PeanutsUtil.formatCurrency(t.getAvgPrice(), currency);
 				}
 				if (columnIndex == TRANSACTION_POS_INVESTED_SUM) {
-					return PeanutsUtil.formatCurrency(t.getAvgPrice().multiply(t.getQuantitySum()), currency);
+					return PeanutsUtil.formatCurrency(t.getInvestedAmount(), currency);
 				}
 			} else if (element instanceof InvestmentTransaction) {
 				InvestmentTransaction t = (InvestmentTransaction) element;

@@ -74,15 +74,14 @@ public class InvestmentTransaction extends Transaction {
 		return commission;
 	}
 
-	public static BigDecimal calculateAmount(Type type, BigDecimal price, BigDecimal quantity,
-		BigDecimal commission) {
+	public static BigDecimal calculateAmount(Type type, BigDecimal price, BigDecimal quantity, BigDecimal commission) {
 		return (type.equals(Type.SELL) || type.equals(Type.INCOME) ?
-			price.multiply(quantity).setScale(2,BigDecimal.ROUND_HALF_UP) :
-				price.multiply(quantity).setScale(2,BigDecimal.ROUND_HALF_UP).negate()).subtract(commission);
+				price.multiply(quantity).setScale(2,BigDecimal.ROUND_HALF_UP) :
+				price.multiply(quantity).setScale(2,BigDecimal.ROUND_HALF_UP).negate())
+			.subtract(commission);
 	}
 
-	public void setInvestmentDetails(Type type, BigDecimal price, BigDecimal quantity,
-		BigDecimal commission) {
+	public void setInvestmentDetails(Type type, BigDecimal price, BigDecimal quantity, BigDecimal commission) {
 		this.type = type;
 		this.price = price;
 		this.quantity = quantity;

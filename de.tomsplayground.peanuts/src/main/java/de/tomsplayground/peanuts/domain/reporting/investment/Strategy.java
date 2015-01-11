@@ -13,15 +13,21 @@ public abstract class Strategy {
 
 	public static final class Buy {
 		private BigDecimal remainingQuantity;
+		private BigDecimal remainingAmount;
 		private final BigDecimal avgPrice;
 
 		Buy(InvestmentTransaction transaction) {
 			this.remainingQuantity = transaction.getQuantity();
+			this.remainingAmount = transaction.getAmount().negate();
 			this.avgPrice = transaction.getAmount().divide(remainingQuantity, RoundingMode.HALF_EVEN).negate();
 		}
 
 		BigDecimal getRemainingQuantity() {
 			return remainingQuantity;
+		}
+
+		public BigDecimal getRemainingAmount() {
+			return remainingAmount;
 		}
 
 		BigDecimal getAvgPrice() {
@@ -34,8 +40,10 @@ public abstract class Strategy {
 			}
 			if (q.compareTo(remainingQuantity) == 0) {
 				remainingQuantity = BigDecimal.ZERO;
+				remainingAmount = BigDecimal.ZERO;
 			} else {
 				remainingQuantity = remainingQuantity.subtract(q);
+				remainingAmount = remainingAmount.subtract(q.multiply(avgPrice));
 			}
 		}
 	}
@@ -43,7 +51,7 @@ public abstract class Strategy {
 	protected BigDecimal getInvestedAmount() {
 		BigDecimal investValue = BigDecimal.ZERO;
 		for (Buy buy : buyList) {
-			investValue = investValue.add(buy.getRemainingQuantity().multiply(buy.getAvgPrice()));
+			investValue = investValue.add(buy.getRemainingAmount());
 		}
 		return investValue;
 	}
