@@ -10,7 +10,7 @@ import de.tomsplayground.util.Day;
 public class Price implements IPrice {
 
 	public final static Price ZERO = new Price(Day.ZERO, BigDecimal.ZERO);
-	
+
 	private final Day date;
 	private final BigDecimal open;
 	private final BigDecimal close;
@@ -104,7 +104,7 @@ public class Price implements IPrice {
 			append(low).
 			toHashCode();
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {
@@ -123,7 +123,7 @@ public class Price implements IPrice {
 			equalsOrNull(high, p.high) &&
 			equalsOrNull(low, p.low);
 	}
-	
+
 	private boolean equalsOrNull(Object o1, Object o2) {
 		if (o1 == o2) {
 			return true;

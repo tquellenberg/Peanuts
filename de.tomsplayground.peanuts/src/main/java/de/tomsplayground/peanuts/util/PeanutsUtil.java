@@ -23,7 +23,7 @@ public class PeanutsUtil {
 	private static final DateFormat dateTimeFormat = DateFormat.getDateTimeInstance();
 	private static final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 	private static final NumberFormat currencyValueFormat = NumberFormat.getNumberInstance();
-	private static final NumberFormat quantityFormat = NumberFormat.getNumberInstance();	
+	private static final NumberFormat quantityFormat = NumberFormat.getNumberInstance();
 	private static final NumberFormat percentFormat = NumberFormat.getPercentInstance();
 	private static final NumberFormat percentValueFormat = NumberFormat.getPercentInstance();
 
@@ -50,7 +50,7 @@ public class PeanutsUtil {
 			throw e;
 		}
 	}
-	
+
 	public static String formatCurrency(BigDecimal amount, Currency currency) {
 		if (amount == null) {
 			return "";
@@ -99,7 +99,7 @@ public class PeanutsUtil {
 			throw e;
 		}
 	}
-	
+
 	public static String formatDate(Day date) {
 		if (date == null) {
 			return "";
@@ -113,7 +113,7 @@ public class PeanutsUtil {
 			throw e;
 		}
 	}
-	
+
 	public static String formatDateTime(Date date) {
 		synchronized (dateTimeFormat) {
 			return dateTimeFormat.format(date);
@@ -138,20 +138,20 @@ public class PeanutsUtil {
 	public static int binarySearch(List<? extends ITimedElement> prices, Day date) {
 		int low = 0;
 		int high = prices.size() - 1;
-	
+
 		while (low <= high) {
 			int mid = (low + high) >> 1;
-			ITimedElement midVal = prices.get(mid);
-			int cmp = midVal.getDay().compareTo(date);
-	
-			if (cmp < 0) {
-				low = mid + 1;
-			} else if (cmp > 0) {
-				high = mid - 1;
-			}
-			else {
-				return mid; // key found
-			}
+		ITimedElement midVal = prices.get(mid);
+		int cmp = midVal.getDay().compareTo(date);
+
+		if (cmp < 0) {
+			low = mid + 1;
+		} else if (cmp > 0) {
+			high = mid - 1;
+		}
+		else {
+			return mid; // key found
+		}
 		}
 		return -(low +1); // key not found
 	}

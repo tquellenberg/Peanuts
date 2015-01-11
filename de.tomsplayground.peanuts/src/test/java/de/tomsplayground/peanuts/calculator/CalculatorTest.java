@@ -18,10 +18,10 @@ public class CalculatorTest {
 	@Test
 	public void testSimple() throws Exception {
 		Calculator calculator = new Calculator();
-		
+
 		BigDecimal result = calculator.parse("1+2");
 		assertEquals(0, result.compareTo(new BigDecimal("3")));
-		
+
 		result = calculator.parse("2*3");
 		assertEquals(0, result.compareTo(new BigDecimal("6")));
 
@@ -40,31 +40,31 @@ public class CalculatorTest {
 		result = calculator.parse("( 1 + 2 ) *\t 3   ");
 		assertEquals(0, result.compareTo(new BigDecimal("9")));
 	}
-	
+
 	@Test
 	public void testMathContext() {
 		Calculator calculator = new Calculator();
-		
+
 		BigDecimal result = calculator.parse("1/3");
 		assertEquals(0, result.compareTo(new BigDecimal("0.3333333333333333333333333333333333")));
-		
+
 		calculator.setMathContext(new MathContext(10, RoundingMode.HALF_EVEN));
 		result = calculator.parse("1/3");
 		assertEquals(0, result.compareTo(new BigDecimal("0.3333333333")));
 	}
-	
+
 	@Test
 	public void testLanguage() {
 		Calculator calculator = new Calculator();
 		calculator.setNumberFormat(NumberFormat.getNumberInstance(Locale.GERMANY));
 		BigDecimal result = calculator.parse("1,123");
 		assertEquals(0, result.compareTo(new BigDecimal("1.123")));
-		
+
 		calculator.setNumberFormat(NumberFormat.getNumberInstance(Locale.US));
 		result = calculator.parse("1.123");
 		assertEquals(0, result.compareTo(new BigDecimal("1.123")));
 	}
-	
+
 	@Test
 	public void testInvalidExpression() {
 		Calculator calculator = new Calculator();

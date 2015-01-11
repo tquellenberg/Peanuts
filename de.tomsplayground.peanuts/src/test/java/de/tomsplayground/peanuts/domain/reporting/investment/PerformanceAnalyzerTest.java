@@ -36,7 +36,7 @@ public class PerformanceAnalyzerTest {
 		public String getName() {
 			return "test";
 		}
-		
+
 		public void addPrice(Price price) {
 			setPrice(price);
 		}
@@ -59,7 +59,7 @@ public class PerformanceAnalyzerTest {
 			}
 		};
 	}
-	
+
 	@Test
 	public void testEmptyAccount() throws Exception {
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
@@ -67,12 +67,12 @@ public class PerformanceAnalyzerTest {
 		List<Value> values = analizer.getValues();
 		Assert.assertEquals(0, values.size());
 	}
-	
+
 	@Test
 	public void testMarketValueWithMoney() throws Exception {
 		account.addTransaction(new BankTransaction(new Day(), new BigDecimal("100.00"), "l"));
-		InvestmentTransaction transaction = new InvestmentTransaction(new Day(), 
-				new Security("AAPL"), BigDecimal.ONE, BigDecimal.TEN, BigDecimal.ZERO, InvestmentTransaction.Type.BUY);
+		InvestmentTransaction transaction = new InvestmentTransaction(new Day(),
+			new Security("AAPL"), BigDecimal.ONE, BigDecimal.TEN, BigDecimal.ZERO, InvestmentTransaction.Type.BUY);
 		account.addTransaction(transaction);
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
 
@@ -84,17 +84,17 @@ public class PerformanceAnalyzerTest {
 		// 100 - (10 * 1) + (10 * 9)
 		Helper.assertEquals(new BigDecimal("180.00"), value.getMarketValue2());
 	}
-	
+
 	@Test
 	public void testLastYear() {
 		Day d = new Day();
 		d = d.addYear(-1);
 		account.addTransaction(new BankTransaction(d, new BigDecimal("100.00"), "l"));
-		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);		
+		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
 
 		List<Value> values = analizer.getValues();
 		Assert.assertEquals(2, values.size());
-	
+
 		assertEquals(new Day().year - 1, values.get(0).getYear());
 		assertEquals(new Day().year, values.get(1).getYear());
 	}
@@ -115,14 +115,14 @@ public class PerformanceAnalyzerTest {
 		// 4. Bank transaction (+3)
 		account.addTransaction(new BankTransaction(new Day(), new BigDecimal("3.00"), ""));
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
-		
+
 		List<Value> values = analizer.getValues();
 		Assert.assertEquals(1, values.size());
 		Value value = values.get(0);
 		Helper.assertEquals(new BigDecimal("100.00"), value.getAdditions());
 		Helper.assertEquals(new BigDecimal("-10.00"), value.getLeavings());
 	}
-	
+
 	@Test
 	public void testAdditionLeavingsFromSplit() throws Exception {
 		Account account2 = accountManager.getOrCreateAccount("X2", Account.Type.BANK);
@@ -145,7 +145,7 @@ public class PerformanceAnalyzerTest {
 		split.addSplit(new BankTransaction(new Day(), new BigDecimal("3.00"), ""));
 		account.addTransaction(split);
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
-		
+
 		List<Value> values = analizer.getValues();
 		Assert.assertEquals(1, values.size());
 		Value value = values.get(0);
@@ -160,11 +160,11 @@ public class PerformanceAnalyzerTest {
 		// 1. Addition on 1.7.2010 (+100)
 		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), new Day(2010, 6, 1));
 		account2.addTransaction(transfer.getTransferFrom());
-		account.addTransaction(transfer.getTransferTo());		
+		account.addTransaction(transfer.getTransferTo());
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
 
 		Value value = analizer.getValues().get(0);
-		Helper.assertEquals(new BigDecimal("50.00"), value.getInvestedAvg());		
+		Helper.assertEquals(new BigDecimal("50.00"), value.getInvestedAvg());
 	}
 
 	@Test
@@ -179,11 +179,11 @@ public class PerformanceAnalyzerTest {
 		// 2. Leaving on 1.7.2010 (1100)
 		transfer = new Transfer(account2, account, new BigDecimal("-100.00"), new Day(2010, 6, 1));
 		account2.addTransaction(transfer.getTransferFrom());
-		account.addTransaction(transfer.getTransferTo());		
+		account.addTransaction(transfer.getTransferTo());
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
 
 		Value value = analizer.getValues().get(0);
-		Helper.assertEquals(new BigDecimal("25.00"), value.getInvestedAvg());		
-	}	
+		Helper.assertEquals(new BigDecimal("25.00"), value.getInvestedAvg());
+	}
 
 }

@@ -11,7 +11,7 @@ public class PasswordDialog extends InputDialog {
 	private String password;
 
 	public PasswordDialog(Shell parentShell, String dialogTitle,
-			String dialogMessage) {
+		String dialogMessage) {
 		super(parentShell, dialogTitle, dialogMessage, "", validator);
 	}
 
@@ -25,7 +25,7 @@ public class PasswordDialog extends InputDialog {
 		password = getText().getText();
 		super.okPressed();
 	}
-	
+
 	public String getPassword() {
 		return password;
 	}

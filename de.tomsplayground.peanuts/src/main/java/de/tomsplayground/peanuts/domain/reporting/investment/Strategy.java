@@ -14,20 +14,20 @@ public abstract class Strategy {
 	public static final class Buy {
 		private BigDecimal remainingQuantity;
 		private final BigDecimal avgPrice;
-	
+
 		Buy(InvestmentTransaction transaction) {
 			this.remainingQuantity = transaction.getQuantity();
 			this.avgPrice = transaction.getAmount().divide(remainingQuantity, RoundingMode.HALF_EVEN).negate();
 		}
-	
+
 		BigDecimal getRemainingQuantity() {
 			return remainingQuantity;
 		}
-		
+
 		BigDecimal getAvgPrice() {
 			return avgPrice;
 		}
-	
+
 		void reduceQuantity(BigDecimal q) {
 			if (q.compareTo(remainingQuantity) > 0) {
 				throw new IllegalArgumentException();

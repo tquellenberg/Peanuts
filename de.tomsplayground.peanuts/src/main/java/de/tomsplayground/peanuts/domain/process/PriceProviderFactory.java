@@ -26,12 +26,12 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 	private static final String GOOGLE_PREFIX = "Google:";
 
 	private final static Logger log = LoggerFactory.getLogger(PriceProviderFactory.class);
-	
+
 	private static String localPriceStorePath = ".";
 	private static PriceProviderFactory priceProviderFactory;
-	
+
 	private final Map<Security, IPriceProvider> priceProviderMap = new HashMap<Security, IPriceProvider>();
-	
+
 	private PriceProviderFactory() {
 		// private constructor
 	}
@@ -55,7 +55,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		}
 		return localPriceProvider;
 	}
-	
+
 	@Override
 	public IPriceProvider getAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
 		IPriceProvider rawPriceProvider = getPriceProvider(security);
@@ -84,7 +84,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 				}
 			}
 			saveToLocal(security, localPriceProvider);
-		}		
+		}
 	}
 
 	private void mergePrices(IPriceProvider localPriceProvider, IPriceProvider remotePriceProvider, boolean overideExistingData) {
@@ -95,7 +95,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 	protected String localFilename(Security security) {
 		return localPriceStorePath + File.separator + security.getISIN() + ".csv";
 	}
-	
+
 	protected IPriceProvider buildPriceProvider(String csv) {
 		IPriceProvider reader;
 		try {
@@ -105,7 +105,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		}
 		return reader;
 	}
-	
+
 	public void saveToLocal(Security security, IPriceProvider priceProvider) {
 		synchronized (security) {
 			File file = new File(localFilename(security));
@@ -113,7 +113,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 			try {
 				writer = new FileWriter(file);
 				List<IPrice> prices = priceProvider.getPrices();
-				
+
 				CSVWriter csvWriter = new CSVWriter(writer, ',', '"');
 				String line[] = {"Date","Open","High","Low","Close","Volume","Adj Close"};
 				csvWriter.writeNext(line);
@@ -127,17 +127,17 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 					line[4] = p.getClose()==null?"":p.getClose().toString();
 					line[5] = "0";
 					line[6] = line[4];
-					csvWriter.writeNext(line);			
+					csvWriter.writeNext(line);
 				}
 				csvWriter.close();
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			} finally {
 				IOUtils.closeQuietly(writer);
-			}			
+			}
 		}
 	}
-	
+
 	protected IPriceProvider readFromLocal(Security security) {
 		synchronized (security) {
 			File file = new File(localFilename(security));
@@ -152,10 +152,10 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 					IOUtils.closeQuietly(reader);
 				}
 			}
-	 		return new EmptyPriceProvider();
+			return new EmptyPriceProvider();
 		}
 	}
-	
+
 	protected IPriceProvider readHistoricalPricesFromGoogle(Security security) {
 		String ticker = StringUtils.removeStart(security.getTicker(), GOOGLE_PREFIX);
 		try {

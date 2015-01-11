@@ -38,9 +38,9 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	final private Set<Account> accounts = new HashSet<Account>();
 	final private Set<IQuery> queries = new HashSet<IQuery>();
 	final private Map<String, String> displayConfiguration = new HashMap<String, String>();
-	
+
 	private transient ImmutableList<ITransaction> result;
-	
+
 	private final PropertyChangeListener accountChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(java.beans.PropertyChangeEvent evt) {
@@ -82,7 +82,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	public Set<IQuery> getQueries() {
 		return Collections.unmodifiableSet(queries);
 	}
-	
+
 	public void addQuery(IQuery query) {
 		queries.add(query);
 		firePropertyChange("query", null, query);
@@ -95,7 +95,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 		firePropertyChange("queries", oldQueries, null);
 		result = null;
 	}
-	
+
 	@Override
 	public String getName() {
 		return name;
@@ -126,7 +126,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 		}
 		return result;
 	}
-	
+
 	@Override
 	public Day getMaxDate() {
 		ImmutableList<ITransaction> transactions = getTransactions();
@@ -135,7 +135,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 		}
 		return Iterables.getLast(transactions).getDay();
 	}
-	
+
 	@Override
 	public Day getMinDate() {
 		ImmutableList<ITransaction> transactions = getTransactions();
@@ -144,7 +144,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 		}
 		return transactions.get(0).getDay();
 	}
-	
+
 	@Override
 	public BigDecimal getBalance(Day date) {
 		BigDecimal balance = BigDecimal.ZERO;
@@ -153,12 +153,12 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 		}
 		return balance;
 	}
-	
+
 	@Override
 	public Currency getCurrency() {
 		return Currency.getInstance("EUR");
 	}
-	
+
 	public BigDecimal getBalance(ITransaction t) {
 		BigDecimal balance = BigDecimal.ZERO;
 		for (ITransaction t2 : getTransactions()) {
@@ -178,20 +178,20 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	public ImmutableList<ITransaction> getTransactionsByDate(Day from, Day to) {
 		return TransactionProviderUtil.getTransactionsByDate(this, from, to);
 	}
-	
+
 	public void reconfigureAfterDeserialization() {
 		// not used
 	}
 
 	private transient ConfigurableSupport configurableSupport;
-	
+
 	private ConfigurableSupport getConfigurableSupport() {
 		if (configurableSupport == null) {
 			configurableSupport = new ConfigurableSupport(displayConfiguration, getPropertyChangeSupport());
 		}
 		return configurableSupport;
 	}
-	
+
 	@Override
 	public String getConfigurationValue(String key) {
 		return getConfigurableSupport().getConfigurationValue(key);

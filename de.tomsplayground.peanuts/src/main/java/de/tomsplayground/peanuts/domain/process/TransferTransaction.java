@@ -80,7 +80,7 @@ public class TransferTransaction extends LabeledTransaction {
 		newTarget.addTransaction(complement);
 		target = newTarget;
 	}
-	
+
 	public ITransferLocation getTarget() {
 		return target;
 	}

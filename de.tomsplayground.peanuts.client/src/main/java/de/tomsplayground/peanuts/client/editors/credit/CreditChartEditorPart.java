@@ -35,7 +35,7 @@ import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.process.ICredit;
 
 public class CreditChartEditorPart extends EditorPart {
-	
+
 	private static final String CHART_TYPE = "creditChartType";
 
 	private Combo displayType;
@@ -55,7 +55,7 @@ public class CreditChartEditorPart extends EditorPart {
 		IEditorInput input = getEditorInput();
 		return (Credit) input.getAdapter(Credit.class);
 	}
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 		Composite body = new Composite(parent, SWT.NONE);
@@ -86,20 +86,20 @@ public class CreditChartEditorPart extends EditorPart {
 				dirty = true;
 				firePropertyChange(IEditorPart.PROP_DIRTY);
 			}
-		});		
+		});
 	}
 
 	private JFreeChart createChart(IntervalXYDataset dataset) {
 		JFreeChart chart;
-			chart = ChartFactory.createTimeSeriesChart(
-					getCredit().getName(), // title
-					"Date", // x-axis label
-					"Value", // y-axis label
-					dataset, // data
-					false, // create legend?
-					true, // generate tooltips?
-					false // generate URLs?
-				);		
+		chart = ChartFactory.createTimeSeriesChart(
+			getCredit().getName(), // title
+			"Date", // x-axis label
+			"Value", // y-axis label
+			dataset, // data
+			false, // create legend?
+			true, // generate tooltips?
+			false // generate URLs?
+			);
 		chart.setBackgroundPaint(Color.white);
 
 		XYPlot plot = (XYPlot) chart.getPlot();
@@ -133,7 +133,7 @@ public class CreditChartEditorPart extends EditorPart {
 		dataset.addSeries(s2);
 		return dataset;
 	}
-	
+
 	@Override
 	public void setFocus() {
 		// nothing to do

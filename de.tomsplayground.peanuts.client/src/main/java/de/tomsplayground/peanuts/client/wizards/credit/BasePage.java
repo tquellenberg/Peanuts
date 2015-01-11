@@ -52,15 +52,15 @@ public class BasePage extends WizardPage {
 			}
 		});
 		creditName.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		
+
 		label = new Label(top, SWT.NONE);
 		label.setText("From:");
 		startDate = new DateComposite(top, SWT.NONE);
-		
+
 		label = new Label(top, SWT.NONE);
 		label.setText("To:");
 		endDate = new DateComposite(top, SWT.NONE);
-		
+
 		label = new Label(top, SWT.NONE);
 		label.setText("Amount:");
 		amount = (new CalculatorText(top, SWT.SINGLE | SWT.BORDER)).getText();

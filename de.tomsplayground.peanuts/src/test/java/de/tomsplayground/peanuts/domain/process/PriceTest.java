@@ -43,25 +43,25 @@ public class PriceTest {
 		Price price5 = new Price(new Day(2008, 2, 29), null, new BigDecimal("2.0"), null, null);
 		assertFalse(price1.equals(price5));
 	}
-	
+
 	@Test
 	public void highLowNull() throws Exception {
 		Price price1 = new Price(new Day(2008, 2, 29), new BigDecimal("1.00"), new BigDecimal("2.00"), null, null);
 		assertEquals(new BigDecimal("1.00"), price1.getLow());
 		assertEquals(new BigDecimal("2.00"), price1.getHigh());
 	}
-	
+
 //	@Test
 //	public void highLowAutoAdjust() throws Exception {
-//		Price price1 = new Price(new Day(2008, 2, 29), BigDecimal.ONE, new BigDecimal("2.00"), BigDecimal.ZERO, BigDecimal.ZERO);		
+//		Price price1 = new Price(new Day(2008, 2, 29), BigDecimal.ONE, new BigDecimal("2.00"), BigDecimal.ZERO, BigDecimal.ZERO);
 //		Helper.assertEquals(BigDecimal.ZERO, price1.getLow());
 //		Helper.assertEquals(BigDecimal.ONE, price1.getHigh());
-//		
-//		price1 = new Price(new Day(2008, 2, 29), new BigDecimal("0.5"), new BigDecimal("2.00"), BigDecimal.ZERO, BigDecimal.ZERO);		
+//
+//		price1 = new Price(new Day(2008, 2, 29), new BigDecimal("0.5"), new BigDecimal("2.00"), BigDecimal.ZERO, BigDecimal.ZERO);
 //		Helper.assertEquals(BigDecimal.ZERO, price1.getLow());
 //		Helper.assertEquals(BigDecimal.ONE, price1.getHigh());
-//		
-//		price1 = new Price(new Day(2008, 2, 29), new BigDecimal("0.3"), BigDecimal.TEN, new BigDecimal("0.5"), BigDecimal.ZERO);		
+//
+//		price1 = new Price(new Day(2008, 2, 29), new BigDecimal("0.3"), BigDecimal.TEN, new BigDecimal("0.5"), BigDecimal.ZERO);
 //		Helper.assertEquals(new BigDecimal("0.3"), price1.getLow());
 //	}
 //
@@ -70,11 +70,11 @@ public class PriceTest {
 //		Price price1 = new Price(new Day(2008, 2, 29), null, BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.ZERO);
 //		Helper.assertEquals(BigDecimal.ZERO, price1.getLow());
 //		Helper.assertEquals(BigDecimal.ONE, price1.getHigh());
-//		
+//
 //		price1 = new Price(new Day(2008, 2, 29), null, new BigDecimal("0.5"), BigDecimal.ZERO, BigDecimal.ZERO);
 //		Helper.assertEquals(BigDecimal.ZERO, price1.getLow());
 //		Helper.assertEquals(BigDecimal.ONE, price1.getHigh());
-//		
+//
 //		price1 = new Price(new Day(2008, 2, 29), BigDecimal.TEN, new BigDecimal("0.3"), new BigDecimal("0.5"), BigDecimal.ZERO);
 //		Helper.assertEquals(new BigDecimal("0.3"), price1.getLow());
 //	}
@@ -82,7 +82,7 @@ public class PriceTest {
 //	@Test
 //	public void highLowAutoAdjustConstructor() throws Exception {
 //		Price p = new Price(new Day(2008, 9, 27), new BigDecimal("20.00"), new BigDecimal("5.00"), new BigDecimal("10.00"), new BigDecimal("10.00"));
-//		
+//
 //		Helper.assertEquals(new BigDecimal("20"), p.getHigh());
 //		Helper.assertEquals(new BigDecimal("5"), p.getLow());
 //	}

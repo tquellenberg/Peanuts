@@ -28,7 +28,7 @@ public class InsertSavedTransactionItems extends CompoundContributionItem {
 		ImmutableList<SavedTransaction> savedTransactions = Activator.getDefault().getAccountManager().getSavedTransactions();
 		for (SavedTransaction savedTransaction : savedTransactions) {
 			CommandContributionItemParameter contributionParameters = new CommandContributionItemParameter(
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow(), ID, COMMAND_ID, CommandContributionItem.STYLE_PUSH);
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow(), ID, COMMAND_ID, CommandContributionItem.STYLE_PUSH);
 			contributionParameters.label = savedTransaction.getName();
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put(SAVED_TRANSACTION_NAME, savedTransaction.getName());

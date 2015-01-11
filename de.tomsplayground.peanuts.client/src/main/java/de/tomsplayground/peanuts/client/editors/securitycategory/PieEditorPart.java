@@ -44,7 +44,7 @@ public class PieEditorPart extends EditorPart {
 	private JFreeChart chart;
 	private Inventory inventory;
 	private DefaultPieDataset dataset;
-	
+
 	private final PropertyChangeListener inventoryChangeListener = new UniqueAsyncExecution() {
 
 		@Override
@@ -89,38 +89,38 @@ public class PieEditorPart extends EditorPart {
 		l.setText("Date:");
 		l.setFont(boldFont);
 		final DateComposite dateChooser = new DateComposite(banner, SWT.NONE);
-		
+
 		Report report = new Report("temp");
 		report.setAccounts(Activator.getDefault().getAccountManager().getAccounts());
 		inventory = new Inventory(report, PriceProviderFactory.getInstance(), date, new AnalyzerFactory());
 		inventory.addPropertyChangeListener(inventoryChangeListener);
-		
+
 		dataset = new DefaultPieDataset();
-        updateDataset();
+		updateDataset();
 		createChart();
 		ChartComposite chartFrame = new ChartComposite(top, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
+
 		dateChooser.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				date = dateChooser.getDay();
 				inventory.setDate(date);
-		        updateDataset();
+				updateDataset();
 			}
 		});
 	}
 
 	private void updateDataset() {
 		SecurityCategoryMapping securityCategoryMapping = ((SecurityCategoryEditorInput) getEditorInput()).getSecurityCategoryMapping();
-        dataset.clear();
-        
-		Map<String, BigDecimal> values = securityCategoryMapping.calculateCategoryValues(inventory);        
-        for (Map.Entry<String, BigDecimal> entry : values.entrySet()) {
-        	if (entry.getValue().intValue() != 0) {
-        		dataset.setValue(entry.getKey(), entry.getValue());
-        	}
-        }
+		dataset.clear();
+
+		Map<String, BigDecimal> values = securityCategoryMapping.calculateCategoryValues(inventory);
+		for (Map.Entry<String, BigDecimal> entry : values.entrySet()) {
+			if (entry.getValue().intValue() != 0) {
+				dataset.setValue(entry.getKey(), entry.getValue());
+			}
+		}
 	}
 
 	private void createChart() {
@@ -141,7 +141,7 @@ public class PieEditorPart extends EditorPart {
 		inventory.removePropertyChangeListener(inventoryChangeListener);
 		super.dispose();
 	}
-	
+
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		// nothing to do

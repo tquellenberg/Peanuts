@@ -16,12 +16,12 @@ import de.tomsplayground.util.Day;
 
 @XStreamAlias("credit")
 public class Credit extends ObservableModelObject implements ICredit, IConfigurable {
-	
+
 	public enum PaymentInterval {
 		MONTHLY,
 		YEARLY
 	}
-	
+
 	private String name;
 	private BigDecimal interestRate;
 	private BigDecimal amount;
@@ -32,7 +32,7 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 	private Map<String, String> displayConfiguration = new HashMap<String, String>();
 
 	private Account connection;
-	
+
 	public Credit(String name) {
 		this(new Day(), new Day(), BigDecimal.ZERO, BigDecimal.ZERO);
 		this.name = name;
@@ -123,7 +123,7 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 	public String getName() {
 		return name;
 	}
-	
+
 	public void setConnection(Account account) {
 		Account oldConnection = this.connection;
 		this.connection = account;
@@ -203,14 +203,14 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 	}
 
 	private transient ConfigurableSupport configurableSupport;
-	
+
 	private ConfigurableSupport getConfigurableSupport() {
 		if (configurableSupport == null) {
 			configurableSupport = new ConfigurableSupport(displayConfiguration, null);
 		}
 		return configurableSupport;
 	}
-	
+
 	@Override
 	public String getConfigurationValue(String key) {
 		return getConfigurableSupport().getConfigurationValue(key);

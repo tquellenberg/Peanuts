@@ -32,18 +32,18 @@ import de.tomsplayground.util.Day;
 public class AllAccountsPieView extends ViewPart {
 
 	public static final String ID = "de.tomsplayground.peanuts.client.AllAccountsPieView";
-	
+
 	private DefaultPieDataset dataset;
 	private JFreeChart chart;
 	private final Map<Account, Inventory> inventories = new HashMap<Account, Inventory>();
 	private Shell shell;
-	
-	private final PropertyChangeListener accountChangeListener = new UniqueAsyncExecution() {		
+
+	private final PropertyChangeListener accountChangeListener = new UniqueAsyncExecution() {
 		@Override
 		public Display getDisplay() {
 			return shell.getDisplay();
 		}
-		
+
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
 			updateControls();
@@ -53,8 +53,8 @@ public class AllAccountsPieView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		shell = parent.getShell();
-		
-        dataset = new DefaultPieDataset();
+
+		dataset = new DefaultPieDataset();
 		createChart();
 		ChartComposite chartFrame = new ChartComposite(parent, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -72,23 +72,23 @@ public class AllAccountsPieView extends ViewPart {
 
 	protected void updateControls() {
 		final Day today = new Day();
-        for (Account entry : Activator.getDefault().getAccountManager().getAccounts()) {
-        	Inventory i;
-        	if (inventories.containsKey(entry)) {
+		for (Account entry : Activator.getDefault().getAccountManager().getAccounts()) {
+			Inventory i;
+			if (inventories.containsKey(entry)) {
 				i = inventories.get(entry);
 			} else {
-        		i = new Inventory(entry, PriceProviderFactory.getInstance(), today, new AnalyzerFactory());
-        		inventories.put(entry, i);
-        		i.addPropertyChangeListener(accountChangeListener);
-        	}
+				i = new Inventory(entry, PriceProviderFactory.getInstance(), today, new AnalyzerFactory());
+				inventories.put(entry, i);
+				i.addPropertyChangeListener(accountChangeListener);
+			}
 			BigDecimal sum = entry.getBalance(today).add(i.getMarketValue());
-        	if (sum.abs().compareTo(new BigDecimal("0.01")) > 0) {
-        		dataset.setValue(entry.getName(), sum);
-        	}
-        }
-        dataset.sortByValues(SortOrder.DESCENDING);
+			if (sum.abs().compareTo(new BigDecimal("0.01")) > 0) {
+				dataset.setValue(entry.getName(), sum);
+			}
+		}
+		dataset.sortByValues(SortOrder.DESCENDING);
 	}
-	
+
 	private void createChart() {
 		chart = ChartFactory.createPieChart3D("", dataset, false, true, false);
 		PiePlot3D plot = (PiePlot3D) chart.getPlot();

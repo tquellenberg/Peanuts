@@ -28,11 +28,11 @@ public class PriceProviderTest {
 			public String getName() {
 				return "";
 			}
-		};		
+		};
 		c1 = new Day(2008, 4, 1);
 		dateAfterC1 = new Day(2008, 4, 2);
 	}
-	
+
 	@Test
 	public void testGetPrice() throws Exception {
 		Price price1 = new Price(c1, BigDecimal.ZERO);
@@ -44,17 +44,17 @@ public class PriceProviderTest {
 		price = pp.getPrice(dateAfterC1);
 		Assert.assertEquals(price1, price);
 	}
-	
+
 	@Test
 	public void testSetPrice() throws Exception {
-		
+
 		pp.setPrice(new Price(c1, BigDecimal.ZERO));
 		pp.setPrice(new Price(dateAfterC1, BigDecimal.ZERO));
-		
+
 		Assert.assertTrue(pp.getMinDate().equals(c1));
 		Assert.assertTrue(pp.getMaxDate().equals(dateAfterC1));
 	}
-	
+
 	@Test
 	public void testSetPrices() {
 		final PropertyChangeEvent lastEvent[] = new PropertyChangeEvent[1];
@@ -70,24 +70,24 @@ public class PriceProviderTest {
 		prices.add(new Price(c1, BigDecimal.ZERO));
 		prices.add(new Price(dateAfterC1, BigDecimal.ZERO));
 		pp.setPrices(prices, true);
-		
+
 		Assert.assertTrue(pp.getMinDate().equals(c1));
 		Assert.assertTrue(pp.getMaxDate().equals(dateAfterC1));
 		Assert.assertEquals(2, pp.getPrices().size());
-		
+
 		assertEquals(pp, lastEvent[0].getSource());
 		assertEquals("prices", lastEvent[0].getPropertyName());
 	}
-	
+
 	@Test
-	public void testSetPriceReverse() throws Exception {		
+	public void testSetPriceReverse() throws Exception {
 		pp.setPrice(new Price(dateAfterC1, BigDecimal.ZERO));
 		pp.setPrice(new Price(c1, BigDecimal.ZERO));
-		
+
 		Assert.assertTrue(pp.getMinDate().equals(c1));
 		Assert.assertTrue(pp.getMaxDate().equals(dateAfterC1));
 	}
-	
+
 	@Test
 	public void addPrice() throws Exception {
 		final PropertyChangeEvent lastEvent[] = new PropertyChangeEvent[1];
@@ -101,7 +101,7 @@ public class PriceProviderTest {
 		// Add price
 		Price price1 = new Price(c1, BigDecimal.ZERO);
 		pp.setPrice(price1);
-		
+
 		assertNotNull("Event expected", lastEvent[0]);
 		assertEquals(pp, lastEvent[0].getSource());
 		assertEquals("prices", lastEvent[0].getPropertyName());
@@ -119,9 +119,9 @@ public class PriceProviderTest {
 		pp.setPrice(new Price(c1, BigDecimal.ZERO));
 		pp.setPrice(new Price(c1.addDays(1), BigDecimal.ZERO));
 		pp.setPrice(new Price(c1.addDays(2), BigDecimal.ZERO));
-		
+
 		pp.removePrice(c1.addDays(1));
-		
+
 		assertEquals(2, pp.getPrices().size());
 		assertNotNull("Event expected", lastEvent[0]);
 		assertEquals(pp, lastEvent[0].getSource());
@@ -144,7 +144,7 @@ public class PriceProviderTest {
 		lastEvent[0] = null;
 		Price price2 = new Price(c1, new BigDecimal("2"));
 		pp.setPrice(price2, true);
-		
+
 		assertNotNull("Event expected", lastEvent[0]);
 		assertEquals(pp, lastEvent[0].getSource());
 		assertEquals("prices", lastEvent[0].getPropertyName());
@@ -168,7 +168,7 @@ public class PriceProviderTest {
 		lastEvent[0] = null;
 		Price price2 = new Price(c1, new BigDecimal("2"));
 		pp.setPrice(price2, false);
-		
+
 		assertNull("No Event expected", lastEvent[0]);
 		assertEquals(price1, pp.getPrices(c1, c1).get(0));
 	}

@@ -11,13 +11,13 @@ import de.tomsplayground.util.Day;
 public class WatchlistManager extends ObservableModelObject {
 
 	private static WatchlistManager INSTANCE = new WatchlistManager();
-	
+
 	private final List<Watchlist> watchlists = new ArrayList<Watchlist>();
 	private Watchlist currentWatchlist;
-	
+
 	private Day performanceFrom;
 	private Day performanceTo;
-	
+
 	private final PropertyChangeListener watchlistChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
@@ -28,17 +28,17 @@ public class WatchlistManager extends ObservableModelObject {
 	private WatchlistManager() {
 		// private
 	}
-	
+
 	public static WatchlistManager getInstance() {
 		return INSTANCE;
 	}
-	
+
 	void setCurrentWatchlist(String name) {
 		Watchlist oldCurrentWatchlist = currentWatchlist;
 		currentWatchlist = getWatchlist(name);
 		firePropertyChange("currentWatchlist", oldCurrentWatchlist, currentWatchlist);
 	}
-	
+
 	public Watchlist getCurrentWatchlist() {
 		if (watchlists.isEmpty()) {
 			addWatchlist("Default");
@@ -46,7 +46,7 @@ public class WatchlistManager extends ObservableModelObject {
 		}
 		return currentWatchlist;
 	}
-	
+
 	public List<String> getWatchlistNames() {
 		List<String> result = new ArrayList<String>();
 		for (Watchlist list : watchlists) {
@@ -54,7 +54,7 @@ public class WatchlistManager extends ObservableModelObject {
 		}
 		return result;
 	}
-	
+
 	public Watchlist getWatchlist(String name) {
 		for (Watchlist list : watchlists) {
 			if (list.getName().equals(name)) {
@@ -63,7 +63,7 @@ public class WatchlistManager extends ObservableModelObject {
 		}
 		return null;
 	}
-	
+
 	public Watchlist addWatchlist(String name) {
 		Watchlist newWatchlist = new Watchlist(name);
 		watchlists.add(newWatchlist);
@@ -71,19 +71,19 @@ public class WatchlistManager extends ObservableModelObject {
 		firePropertyChange("watchlists", null, newWatchlist);
 		return newWatchlist;
 	}
-	
+
 	public boolean isCustomPerformanceRangeSet() {
 		return performanceFrom != null && performanceTo != null &&
 			performanceFrom.before(performanceTo);
 	}
-	
+
 	public void setPerformanceFrom(Day performanceFrom) {
 		this.performanceFrom = performanceFrom;
 	}
 	public Day getPerformanceFrom() {
 		return performanceFrom;
 	}
-	
+
 	public void setPerformanceTo(Day performanceTo) {
 		this.performanceTo = performanceTo;
 	}

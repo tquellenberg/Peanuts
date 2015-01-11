@@ -75,7 +75,7 @@ public class ChartEditorPart extends EditorPart {
 	private TimeSeries priceTimeSeries;
 	private IPriceProvider priceProvider;
 	private ChartComposite chartComposite;
-	
+
 	private final PropertyChangeListener priceProviderChangeListener = new PropertyChangeListener() {
 
 		@Override
@@ -115,7 +115,7 @@ public class ChartEditorPart extends EditorPart {
 			});
 		}
 	};
-	
+
 	private final PropertyChangeListener securityPropertyChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
@@ -139,7 +139,7 @@ public class ChartEditorPart extends EditorPart {
 			}
 		}
 	};
-	
+
 	private final PropertyChangeListener accountManagerChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
@@ -156,7 +156,7 @@ public class ChartEditorPart extends EditorPart {
 	private TimeChart timeChart;
 	private TimeSeries stopLoss;
 	private TimeSeries compareToPriceTimeSeries;
-	
+
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		if ( !(input instanceof SecurityEditorInput)) {
@@ -184,11 +184,11 @@ public class ChartEditorPart extends EditorPart {
 		if (isShowSignals()) {
 			signalAnnotations = timeChart.addSignals(createSignals());
 		}
-		
+
 		addOrderAnnotations(chart);
 
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		
+
 		BigDecimal avgPrice = getAvgPrice();
 		if (avgPrice != null) {
 			ValueMarker marker = new ValueMarker(avgPrice.doubleValue());
@@ -202,9 +202,9 @@ public class ChartEditorPart extends EditorPart {
 
 			((XYPlot)chart.getPlot()).addRangeMarker(marker);
 		}
-		
+
 		addSplitAnnotations(chart, Activator.getDefault().getAccountManager().getStockSplits(security));
-		
+
 		displayType = new Combo(body, SWT.READ_ONLY);
 		displayType.add("all");
 		displayType.add("ten years");
@@ -230,12 +230,12 @@ public class ChartEditorPart extends EditorPart {
 			}
 		});
 		calculateCompareToValues();
-		
+
 		security.addPropertyChangeListener(securityPropertyChangeListener);
-		
+
 		Activator.getDefault().getAccountManager().addPropertyChangeListener(accountManagerChangeListener);
 	}
-	
+
 	protected void addSplitAnnotations(JFreeChart chart, List<StockSplit> splits) {
 		for (StockSplit stockSplit : splits) {
 			de.tomsplayground.util.Day day = stockSplit.getDay();
@@ -253,36 +253,36 @@ public class ChartEditorPart extends EditorPart {
 			de.tomsplayground.util.Day day = investmentTransaction.getDay();
 			long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
 			double y = priceProvider.getPrice(day).getClose().doubleValue();
-			
+
 			XYPointerAnnotation pointerAnnotation = null;
 			String t = "";
 			Color c = Color.BLACK;
 			org.eclipse.swt.graphics.Color swtColor;
 			switch (investmentTransaction.getType()) {
-			case BUY:
-				t = "+"+investmentTransaction.getQuantity();
-				pointerAnnotation = new XYPointerAnnotation(t, x, y, Math.PI / 2);
-				swtColor = Activator.getDefault().getColorProvider().get(Activator.GREEN);
-				c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
-				break;
-			case SELL:
-				t = "-"+investmentTransaction.getQuantity();
-				pointerAnnotation = new XYPointerAnnotation(t, x, y, 3* Math.PI / 2);
-				swtColor = Activator.getDefault().getColorProvider().get(Activator.RED);
-				c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
-				break;
-			case INCOME:
-				t = " +"+PeanutsUtil.formatCurrency(investmentTransaction.getAmount(), Currency.getInstance("EUR"));
-				pointerAnnotation = new XYPointerAnnotation(t, x, y, Math.PI / 2);
-				swtColor = Activator.getDefault().getColorProvider().get(Activator.GREEN);
-				c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
-				break;
-			case EXPENSE:
-				t = " -"+PeanutsUtil.formatCurrency(investmentTransaction.getAmount(), Currency.getInstance("EUR"));
-				pointerAnnotation = new XYPointerAnnotation(t, x, y, 3* Math.PI / 2);
-				swtColor = Activator.getDefault().getColorProvider().get(Activator.RED);
-				c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
-				break;
+				case BUY:
+					t = "+"+investmentTransaction.getQuantity();
+					pointerAnnotation = new XYPointerAnnotation(t, x, y, Math.PI / 2);
+					swtColor = Activator.getDefault().getColorProvider().get(Activator.GREEN);
+					c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
+					break;
+				case SELL:
+					t = "-"+investmentTransaction.getQuantity();
+					pointerAnnotation = new XYPointerAnnotation(t, x, y, 3* Math.PI / 2);
+					swtColor = Activator.getDefault().getColorProvider().get(Activator.RED);
+					c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
+					break;
+				case INCOME:
+					t = " +"+PeanutsUtil.formatCurrency(investmentTransaction.getAmount(), Currency.getInstance("EUR"));
+					pointerAnnotation = new XYPointerAnnotation(t, x, y, Math.PI / 2);
+					swtColor = Activator.getDefault().getColorProvider().get(Activator.GREEN);
+					c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
+					break;
+				case EXPENSE:
+					t = " -"+PeanutsUtil.formatCurrency(investmentTransaction.getAmount(), Currency.getInstance("EUR"));
+					pointerAnnotation = new XYPointerAnnotation(t, x, y, 3* Math.PI / 2);
+					swtColor = Activator.getDefault().getColorProvider().get(Activator.RED);
+					c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
+					break;
 			}
 			if (pointerAnnotation != null) {
 				pointerAnnotation.setPaint(c);
@@ -294,7 +294,7 @@ public class ChartEditorPart extends EditorPart {
 			}
 		}
 	}
-	
+
 	private ImmutableList<InvestmentTransaction> getOrders() {
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
@@ -305,7 +305,7 @@ public class ChartEditorPart extends EditorPart {
 			return ImmutableList.of();
 		}
 	}
-	
+
 	private BigDecimal getAvgPrice() {
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
@@ -331,7 +331,7 @@ public class ChartEditorPart extends EditorPart {
 			true, // create legend?
 			true, // generate tooltips?
 			false // generate URLs?
-		);
+			);
 
 		chart.setBackgroundPaint(Color.white);
 
@@ -357,7 +357,7 @@ public class ChartEditorPart extends EditorPart {
 			// Compare to
 			renderer.setSeriesPaint(nextPos + 1, Color.LIGHT_GRAY);
 		}
-		
+
 		DateAxis axis = (DateAxis) plot.getDomainAxis();
 		axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
 
@@ -376,7 +376,7 @@ public class ChartEditorPart extends EditorPart {
 
 		average20Days = new TimeSeries("MA20", Day.class);
 		average100Days = new TimeSeries("MA100", Day.class);
-		
+
 		if (isShowAvg()) {
 			createMovingAverage(average20Days, 20);
 			dataset.addSeries(average20Days);
@@ -387,11 +387,11 @@ public class ChartEditorPart extends EditorPart {
 		stopLoss = new TimeSeries("Stop Loss", Day.class);
 		updateStopLoss();
 		dataset.addSeries(stopLoss);
-		
+
 		Security compareTo = getCompareTo();
 		if (compareTo != null) {
 			compareToPriceTimeSeries = new TimeSeries(compareTo.getName(), Day.class);
-			dataset.addSeries(compareToPriceTimeSeries);			
+			dataset.addSeries(compareToPriceTimeSeries);
 		}
 
 		if (priceProvider instanceof ObservableModelObject) {
@@ -415,7 +415,7 @@ public class ChartEditorPart extends EditorPart {
 			}
 		}
 	}
-	
+
 	private void updateStopLoss() {
 		Security security = ((SecurityEditorInput)getEditorInput()).getSecurity();
 		ImmutableSet<StopLoss> stopLosses = Activator.getDefault().getAccountManager().getStopLosses(security);
@@ -427,11 +427,11 @@ public class ChartEditorPart extends EditorPart {
 	private boolean isShowAvg() {
 		return Boolean.parseBoolean(((SecurityEditorInput)getEditorInput()).getSecurity().getConfigurationValue("SHOW_AVG"));
 	}
-	
+
 	private boolean isShowSignals() {
 		return Boolean.parseBoolean(((SecurityEditorInput)getEditorInput()).getSecurity().getConfigurationValue("SHOW_SIGNALS"));
 	}
-	
+
 	private Security getCompareTo() {
 		final String isin = ((SecurityEditorInput)getEditorInput()).getSecurity().getConfigurationValue("COMPARE_WITH");
 		if (StringUtils.isNoneEmpty(isin)) {
@@ -455,7 +455,7 @@ public class ChartEditorPart extends EditorPart {
 		Activator.getDefault().getAccountManager().removePropertyChangeListener(accountManagerChangeListener);
 		super.dispose();
 	}
-	
+
 	private void createMovingAverage(TimeSeries a1, int days) {
 		SimpleMovingAverage simpleMovingAverage = new SimpleMovingAverage(days);
 		List<IPrice> sma = simpleMovingAverage.calculate(priceProvider.getPrices());
@@ -477,7 +477,7 @@ public class ChartEditorPart extends EditorPart {
 		simpleMovingAverage.calculate(priceProvider.getPrices());
 		return simpleMovingAverage.getSignals();
 	}
-	
+
 	@Override
 	public boolean isDirty() {
 		return dirty;

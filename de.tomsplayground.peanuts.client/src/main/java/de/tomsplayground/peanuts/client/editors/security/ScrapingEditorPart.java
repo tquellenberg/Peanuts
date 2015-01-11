@@ -107,7 +107,7 @@ public class ScrapingEditorPart extends EditorPart {
 
 		Composite buttonComposite = toolkit.createComposite(sectionClient);
 		buttonComposite.setLayout(new RowLayout());
-		
+
 		Button createButton = toolkit.createButton(buttonComposite, "Test", SWT.NONE);
 		createButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -115,8 +115,8 @@ public class ScrapingEditorPart extends EditorPart {
 				try {
 					execute(true);
 				} catch (Exception e1) {
-					MessageDialog.openError(getSite().getShell(), "Error", 
-							e1.getClass().getCanonicalName()+"\n"+StringUtils.defaultString(e1.getMessage()));
+					MessageDialog.openError(getSite().getShell(), "Error",
+						e1.getClass().getCanonicalName()+"\n"+StringUtils.defaultString(e1.getMessage()));
 				}
 			}
 		});
@@ -144,9 +144,9 @@ public class ScrapingEditorPart extends EditorPart {
 		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, true);
 		layoutData.heightHint = 200;
 		testResultText.setLayoutData(layoutData);
-		
+
 		section2.setClient(sectionClient2);
-		
+
 		managedForm.refresh();
 	}
 

@@ -38,24 +38,24 @@ public class PersistenceService implements IPersistenceService {
 		stream.registerConverter(new ImmutableListConverter(stream.getMapper()));
 		stream.registerConverter(new ISO8601GregorianCalendarConverter());
 		stream.processAnnotations(new Class[]{
-				Account.class,
-				AccountManager.class,
-				Transaction.class,
-				TransferTransaction.class,
-				InvestmentTransaction.class,
-				Category.class,
-				BankTransaction.class,
-				Security.class,
-				FundamentalData.class,
-				Report.class,
-				Forecast.class,
-				DateQuery.class,
-				CategoryQuery.class,
-				Credit.class,
-				StockSplit.class,
-				SecurityCategoryMapping.class,
-				StopLoss.class
-		});		
+			Account.class,
+			AccountManager.class,
+			Transaction.class,
+			TransferTransaction.class,
+			InvestmentTransaction.class,
+			Category.class,
+			BankTransaction.class,
+			Security.class,
+			FundamentalData.class,
+			Report.class,
+			Forecast.class,
+			DateQuery.class,
+			CategoryQuery.class,
+			Credit.class,
+			StockSplit.class,
+			SecurityCategoryMapping.class,
+			StopLoss.class
+		});
 	}
 
 	@Override

@@ -17,7 +17,7 @@ public class ForecastTest {
 		BigDecimal increase = BigDecimal.TEN;
 		Day startDay = new Day(2008, 7, 20);
 		Forecast forecast = new Forecast(startDay, amount, increase);
-		
+
 		// Now
 		Helper.assertEquals(BigDecimal.TEN, forecast.getValue(startDay));
 		// 6 month later
@@ -27,7 +27,7 @@ public class ForecastTest {
 		// 2 year later
 		Helper.assertEquals(new BigDecimal("30"), forecast.getValue(startDay.addYear(2)));
 	}
-	
+
 	@Test
 	public void beforeStart() {
 		BigDecimal amount = BigDecimal.TEN;
@@ -42,7 +42,7 @@ public class ForecastTest {
 			// Okay
 		}
 	}
-	
+
 	@Test
 	public void percent() throws Exception {
 		BigDecimal amount = BigDecimal.TEN;

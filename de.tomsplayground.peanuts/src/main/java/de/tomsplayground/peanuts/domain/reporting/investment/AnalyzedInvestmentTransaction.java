@@ -19,7 +19,7 @@ public class AnalyzedInvestmentTransaction extends InvestmentTransaction {
 			return (AnalyzedInvestmentTransaction)t;
 		return new AnalyzedInvestmentTransaction(t);
 	}
-	
+
 	public void setGain(BigDecimal gain) {
 		if (gain == null)
 			throw new IllegalArgumentException("gain must not be null");

@@ -29,30 +29,30 @@ public class SecurityCategoryMapping extends ObservableModelObject implements IN
 	private final List<String> categories = new ArrayList<String>();
 	private final Map<Security, String> mapping = new HashMap<Security, String>();
 	private Map<String, String> displayConfiguration = new HashMap<String, String>();
-	
+
 	public SecurityCategoryMapping(String name, List<String> categories) {
 		this.name = name;
 		this.categories.addAll(categories);
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	@Override
 	public String getName() {
 		return name;
 	}
-	
+
 	public List<String> getCategories() {
 		return new ArrayList<String>(categories);
 	}
-	
+
 	public void setCategories(List<String> categories) {
 		this.categories.clear();
 		this.categories.addAll(categories);
 	}
-	
+
 	public void renameCategory(String oldName, String newName) {
 		for (Map.Entry<Security, String> entry : mapping.entrySet()) {
 			if (oldName.equals(entry.getValue())) {
@@ -62,7 +62,7 @@ public class SecurityCategoryMapping extends ObservableModelObject implements IN
 		categories.remove(oldName);
 		categories.add(newName);
 	}
-	
+
 	public void removeCategory(String category) {
 		categories.remove(category);
 		Set<Security> securities = getSecuritiesByCategory(category);
@@ -70,7 +70,7 @@ public class SecurityCategoryMapping extends ObservableModelObject implements IN
 			setCategory(security, null);
 		}
 	}
-	
+
 	public void setCategory(Security security, String category) {
 		if (category != null && ! categories.contains(category)) {
 			categories.add(category);
@@ -89,11 +89,11 @@ public class SecurityCategoryMapping extends ObservableModelObject implements IN
 			mapping.put(security, category);
 		}
 	}
-	
+
 	public Set<Security> getAllSecurities() {
 		return new HashSet<Security>(mapping.keySet());
 	}
-	
+
 	public OrderedMap<String, BigDecimal> calculateCategoryValues(Inventory inventory) {
 		OrderedMap<String, BigDecimal> values = new ListOrderedMap<String, BigDecimal>();
 		for (String category : categories) {
@@ -101,7 +101,7 @@ public class SecurityCategoryMapping extends ObservableModelObject implements IN
 		}
 		return values;
 	}
-	
+
 	private BigDecimal calculateCategoryValue(String category, Inventory inventory) {
 		Set<Security> securities = getSecuritiesByCategory(category);
 		if (securities == null || securities.isEmpty()) {
@@ -115,10 +115,10 @@ public class SecurityCategoryMapping extends ObservableModelObject implements IN
 					result = result.add(inventoryEntry.getMarketValue(inventory.getDay()));
 				}
 			}
-		}		
+		}
 		return result;
 	}
-	
+
 	public Set<Security> getSecuritiesByCategory(String category) {
 		Set<Security> securities = new HashSet<Security>();
 		for (Map.Entry<Security, String> entry : mapping.entrySet()) {
@@ -128,13 +128,13 @@ public class SecurityCategoryMapping extends ObservableModelObject implements IN
 		}
 		return securities;
 	}
-	
+
 	public String getCategory(Security security) {
 		return mapping.get(security);
 	}
-	
+
 	private transient ConfigurableSupport configurableSupport;
-	
+
 	private ConfigurableSupport getConfigurableSupport() {
 		if (displayConfiguration == null) {
 			displayConfiguration = new HashMap<String, String>();
@@ -144,7 +144,7 @@ public class SecurityCategoryMapping extends ObservableModelObject implements IN
 		}
 		return configurableSupport;
 	}
-	
+
 	@Override
 	public String getConfigurationValue(String key) {
 		return getConfigurableSupport().getConfigurationValue(key);

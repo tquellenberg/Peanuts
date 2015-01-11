@@ -64,26 +64,26 @@ public class FundamentalDataEditorPart extends EditorPart {
 		public String getColumnText(Object element, int columnIndex) {
 			FundamentalData data = (FundamentalData) element;
 			switch (columnIndex) {
-			case 0:
-				return String.valueOf(data.getYear());
-			case 1:
-				return PeanutsUtil.formatCurrency(data.getDividende(), null);
-			case 2:
-				return PeanutsUtil.formatCurrency(data.getEarningsPerShare(), null);
-			case 3:
-				return PeanutsUtil.formatQuantity(data.getDebtEquityRatio());
-			case 4:
-				return PeanutsUtil.formatQuantity(data.calculatePeRatio(priceProvider));
-			case 5:
-				return PeanutsUtil.formatPercent(data.calculateDivYield(priceProvider));
-			case 6:
-				if (inventoryEntry != null && data.getYear() == (new Day()).year) {
-					return PeanutsUtil.formatPercent(data.calculateYOC(inventoryEntry));
-				} else {
+				case 0:
+					return String.valueOf(data.getYear());
+				case 1:
+					return PeanutsUtil.formatCurrency(data.getDividende(), null);
+				case 2:
+					return PeanutsUtil.formatCurrency(data.getEarningsPerShare(), null);
+				case 3:
+					return PeanutsUtil.formatQuantity(data.getDebtEquityRatio());
+				case 4:
+					return PeanutsUtil.formatQuantity(data.calculatePeRatio(priceProvider));
+				case 5:
+					return PeanutsUtil.formatPercent(data.calculateDivYield(priceProvider));
+				case 6:
+					if (inventoryEntry != null && data.getYear() == (new Day()).year) {
+						return PeanutsUtil.formatPercent(data.calculateYOC(inventoryEntry));
+					} else {
+						return "";
+					}
+				default:
 					return "";
-				}
-			default:
-				return "";
 			}
 		}
 		@Override
@@ -131,7 +131,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 		table.setSortColumn(col);
 		table.setSortDirection(SWT.UP);
 		colNumber++;
-		
+
 		col = new TableColumn(table, SWT.LEFT);
 		col.setText("Dividende");
 		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
@@ -230,7 +230,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 			}
 		});
 		tableViewer.setCellEditors(new CellEditor[] {new TextCellEditor(table), new TextCellEditor(table),
-				new TextCellEditor(table), new TextCellEditor(table)});
+			new TextCellEditor(table), new TextCellEditor(table)});
 
 		tableViewer.setLabelProvider(new FundamentalDataTableLabelProvider());
 		tableViewer.setContentProvider(new ArrayContentProvider());
@@ -244,7 +244,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 				inventoryEntry = entry;
 			}
 		}
-		
+
 		fundamentalDatas = cloneFundamentalData(security.getFundamentalDatas());
 		tableViewer.setInput(fundamentalDatas);
 
@@ -268,7 +268,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 		}
 		return fundamentalDatas;
 	}
-	
+
 	@Override
 	public void setFocus() {
 		tableViewer.getTable().setFocus();
@@ -292,7 +292,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 			markDirty();
 		}
 	}
-	
+
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();

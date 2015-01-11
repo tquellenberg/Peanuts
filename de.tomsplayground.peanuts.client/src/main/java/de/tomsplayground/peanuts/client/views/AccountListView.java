@@ -76,7 +76,7 @@ public class AccountListView extends ViewPart {
 	}
 
 	private class AccountListLabelProvider extends LabelProvider implements
-		ITableLabelProvider, ITableColorProvider {
+	ITableLabelProvider, ITableColorProvider {
 
 		private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 		private final Color red;
@@ -132,7 +132,7 @@ public class AccountListView extends ViewPart {
 	private final int colWidth[] = new int[3];
 
 	private Label saldo;
-	
+
 	private Day date = new Day();
 
 	private final PropertyChangeListener propertyChangeListener = new UniqueAsyncExecution() {
@@ -215,13 +215,13 @@ public class AccountListView extends ViewPart {
 		l.setText("Saldo:");
 		l.setFont(boldFont);
 		saldo = new Label(banner, SWT.NONE);
-		
+
 		accountListViewer = new TableViewer(top, SWT.MULTI | SWT.FULL_SELECTION);
 		Table table = accountListViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
+
 		TableColumn col = new TableColumn(table, SWT.LEFT);
 		col.setText("Name");
 		col.setWidth((colWidth[0] > 0) ? colWidth[0] : 300);
@@ -240,7 +240,7 @@ public class AccountListView extends ViewPart {
 		accountListViewer.setContentProvider(new ArrayContentProvider());
 		ColorRegistry colorProvider = Activator.getDefault().getColorProvider();
 		Color red = colorProvider.get(Activator.RED);
-		accountListViewer.setLabelProvider(new AccountListLabelProvider(red, 
+		accountListViewer.setLabelProvider(new AccountListLabelProvider(red,
 			colorProvider.get(Activator.LIST_EVEN), colorProvider.get(Activator.LIST_ODD)));
 		accounts = Activator.getDefault().getAccountManager().getAccounts();
 		for (Account account : accounts) {
@@ -277,7 +277,7 @@ public class AccountListView extends ViewPart {
 				updateSaldo();
 			}
 		});
-		
+
 
 		IActionBars actionBars = getViewSite().getActionBars();
 		actionBars.setGlobalActionHandler(ActionFactory.REFRESH.getId(), new Action("Refresh") {
@@ -289,16 +289,16 @@ public class AccountListView extends ViewPart {
 		});
 		updateSaldo();
 	}
-	
+
 	@Override
 	public void dispose() {
 		super.dispose();
 		for (Entry<Account, Inventory> entry : inventories.entrySet()) {
 			entry.getKey().removePropertyChangeListener(propertyChangeListener);
 			entry.getValue().removePropertyChangeListener(propertyChangeListener);
-		}		
+		}
 	}
-	
+
 	private void updateSaldo() {
 		final Map<Currency, BigDecimal> saldoMap = new HashMap<Currency, BigDecimal>();
 		for (Account a : accounts) {

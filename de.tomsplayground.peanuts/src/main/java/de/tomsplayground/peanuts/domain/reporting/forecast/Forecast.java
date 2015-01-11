@@ -30,7 +30,7 @@ public class Forecast extends ObservableModelObject implements INamedElement {
 		this.annualPercent = BigDecimal.ZERO;
 		this.startDay = new Day();
 	}
-	
+
 	public Forecast(Day startDay, BigDecimal startAmount, BigDecimal annualIncrease) {
 		this(startDay, startAmount, annualIncrease, BigDecimal.ZERO);
 	}
@@ -46,7 +46,7 @@ public class Forecast extends ObservableModelObject implements INamedElement {
 		if (day.before(startDay))
 			throw new IllegalArgumentException(day + " is before " +startDay);
 		int delta = startDay.delta(day);
-		BigDecimal result = startAmount; 
+		BigDecimal result = startAmount;
 		while (delta > 360) {
 			result = result.add(result.multiply(annualPercent.movePointLeft(2)));
 			result = result.add(annualIncrease);
@@ -116,7 +116,7 @@ public class Forecast extends ObservableModelObject implements INamedElement {
 	public void disconnect(Report report) {
 		connected.remove(report);
 	}
-	
+
 	public boolean isConnected(Report report) {
 		return connected.contains(report);
 	}

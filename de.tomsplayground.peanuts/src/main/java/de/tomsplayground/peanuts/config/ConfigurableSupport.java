@@ -13,7 +13,7 @@ public class ConfigurableSupport implements IConfigurable {
 		this.map = map;
 		this.propertyChangeSupport = propertyChangeSupport;
 	}
-	
+
 	@Override
 	public String getConfigurationValue(String key) {
 		return map.get(key);

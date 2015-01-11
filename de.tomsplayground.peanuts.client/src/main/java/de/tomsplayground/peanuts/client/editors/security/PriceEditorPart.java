@@ -82,18 +82,18 @@ public class PriceEditorPart extends EditorPart {
 		public String getColumnText(Object element, int columnIndex) {
 			Price price = (Price) element;
 			switch (columnIndex) {
-			case 0:
-				return PeanutsUtil.formatDate(price.getDay());
-			case 1:
-				return PeanutsUtil.formatCurrency(price.getOpen(), null);
-			case 2:
-				return PeanutsUtil.formatCurrency(price.getClose(), null);
-			case 3:
-				return PeanutsUtil.formatCurrency(price.getLow(), null);
-			case 4:
-				return PeanutsUtil.formatCurrency(price.getHigh(), null);
-			default:
-				return "";
+				case 0:
+					return PeanutsUtil.formatDate(price.getDay());
+				case 1:
+					return PeanutsUtil.formatCurrency(price.getOpen(), null);
+				case 2:
+					return PeanutsUtil.formatCurrency(price.getClose(), null);
+				case 3:
+					return PeanutsUtil.formatCurrency(price.getLow(), null);
+				case 4:
+					return PeanutsUtil.formatCurrency(price.getHigh(), null);
+				default:
+					return "";
 			}
 		}
 	}
@@ -111,7 +111,7 @@ public class PriceEditorPart extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		restoreState();
-		
+
 		Composite top = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
@@ -122,7 +122,7 @@ public class PriceEditorPart extends EditorPart {
 		Table table = tableViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-		
+
 		ControlListener saveSizeOnResize = new ControlListener() {
 			@Override
 			public void controlResized(ControlEvent e) {
@@ -236,7 +236,7 @@ public class PriceEditorPart extends EditorPart {
 			}
 		});
 		tableViewer.setCellEditors(new CellEditor[] {new DateCellEditor(table), new TextCellEditor(table),
-				new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table) });
+			new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table) });
 
 		tableViewer.setLabelProvider(new PriceTableLabelProvider());
 		tableViewer.setContentProvider(new ArrayContentProvider());
@@ -258,7 +258,7 @@ public class PriceEditorPart extends EditorPart {
 		table.setMenu(menuManager.createContextMenu(table));
 		getSite().registerContextMenu(menuManager, tableViewer);
 		getSite().setSelectionProvider(tableViewer);
-		
+
 		((ObservableModelObject) priceProvider).addPropertyChangeListener(priceProviderChangeListener);
 	}
 

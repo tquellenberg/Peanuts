@@ -18,7 +18,7 @@ public class AdjustedPriceProvider extends ObservableModelObject implements IPri
 		this.rawPriceProvider = rawPriceProvider;
 		this.stockSplits = ImmutableList.copyOf(stockSplits);
 	}
-	
+
 	@Override
 	public String getName() {
 		return rawPriceProvider.getName();

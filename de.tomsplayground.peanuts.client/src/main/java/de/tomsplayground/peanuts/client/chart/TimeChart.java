@@ -37,7 +37,7 @@ public class TimeChart {
 		public void draw(Graphics2D g, Rectangle2D area) {
 			Rectangle rectangle = area.getBounds();
 			g.setPaint(Color.GREEN);
-	        g.setStroke(new BasicStroke(2));
+			g.setStroke(new BasicStroke(2));
 			g.drawLine(rectangle.x, rectangle.y, rectangle.x, rectangle.y - 10);
 		}
 	};
@@ -47,7 +47,7 @@ public class TimeChart {
 		public void draw(Graphics2D g, Rectangle2D area) {
 			Rectangle rectangle = area.getBounds();
 			g.setPaint(Color.RED);
-	        g.setStroke(new BasicStroke(2));
+			g.setStroke(new BasicStroke(2));
 			g.drawLine(rectangle.x, rectangle.y, rectangle.x, rectangle.y + 10);
 		}
 	};
@@ -56,7 +56,7 @@ public class TimeChart {
 		this.chart = chart;
 		this.series = series;
 	}
-	
+
 	public void setChartType(String type) {
 		this.type = type;
 		XYPlot plot = getPlot();
@@ -64,7 +64,7 @@ public class TimeChart {
 		Calendar to = Calendar.getInstance();
 		Calendar from = getFromDate();
 		if (from != null) {
-			dateAxis.setRange(from.getTime(), to.getTime());			
+			dateAxis.setRange(from.getTime(), to.getTime());
 		} else {
 			dateAxis.setAutoRange(true);
 		}
@@ -114,7 +114,7 @@ public class TimeChart {
 		}
 		return ImmutableList.copyOf(annotations);
 	}
-	
+
 	private void adjustRangeAxis(XYPlot plot, Calendar from, Calendar to) {
 		if (plot.getDomainAxis().isAutoRange()) {
 			plot.getRangeAxis().setAutoRange(true);

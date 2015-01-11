@@ -11,17 +11,17 @@ public class SavedTransaction implements INamedElement {
 
 	private final String name;
 	private final Transaction transaction;
-	
+
 	private final boolean automaticExecution;
 	private final Day start;
 	private final Account account;
-	
+
 	private Day lastExecution;
-	
+
 	public SavedTransaction(String name, Transaction transaction) {
 		this(name, transaction, null, null);
 	}
-	
+
 	public SavedTransaction(String name, Transaction transaction, Day start, Account account) {
 		if (name == null) throw new IllegalArgumentException("name");
 		if (transaction == null) throw new IllegalArgumentException("transaction");
@@ -31,27 +31,27 @@ public class SavedTransaction implements INamedElement {
 		this.start = start;
 		this.account = account;
 	}
-	
+
 	public Transaction getTransaction() {
 		return transaction;
 	}
-	
+
 	public Day getStart() {
 		return start;
 	}
-	
+
 	public Day getLastExecution() {
 		return lastExecution;
 	}
-	
+
 	public boolean isAutomaticExecution() {
 		return automaticExecution;
 	}
-	
+
 	public Account getAccount() {
 		return account;
 	}
-	
+
 	@Override
 	public String getName() {
 		return name;

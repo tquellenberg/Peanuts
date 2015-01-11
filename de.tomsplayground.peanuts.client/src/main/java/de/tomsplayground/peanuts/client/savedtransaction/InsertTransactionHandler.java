@@ -19,7 +19,7 @@ public class InsertTransactionHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		String savedTransactionName = event.getParameter(InsertSavedTransactionItems.SAVED_TRANSACTION_NAME);
 		SavedTransaction savedTransaction = Activator.getDefault().getAccountManager().getSavedTransaction(savedTransactionName);
-		
+
 		IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
 		AccountEditorInput editorInput = (AccountEditorInput) activeEditor.getEditorInput();
 		Account account = editorInput.getAccount();

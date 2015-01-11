@@ -17,8 +17,8 @@ public class SecurityTransferData implements IPeanutsTransferData, Serializable 
 		isin = security.getISIN();
 		if (isin == null)
 			throw new IllegalArgumentException();
-	}	
-	
+	}
+
 	public Security getSecurity() {
 		ImmutableList<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
 		for (Security security : securities) {

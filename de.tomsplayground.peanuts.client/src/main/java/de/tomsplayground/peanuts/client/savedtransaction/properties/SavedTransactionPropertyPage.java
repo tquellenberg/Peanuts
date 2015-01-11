@@ -29,7 +29,7 @@ public class SavedTransactionPropertyPage extends PropertyPage {
 	protected Control createContents(Composite parent) {
 		Composite composite = new Composite(parent,SWT.NONE);
 		composite.setLayout(new GridLayout(2, false));
-				
+
 		Label label = new Label(composite, SWT.NONE);
 		label.setText("Automatic execution");
 		automaticExecution = new Button(composite, SWT.CHECK);
@@ -40,11 +40,11 @@ public class SavedTransactionPropertyPage extends PropertyPage {
 				account.setEnabled(automaticExecution.getSelection());
 			}
 		});
-		
+
 		label = new Label(composite, SWT.NONE);
 		label.setText("First execution");
 		startDate = new DateComposite(composite, SWT.NONE);
-		
+
 		label = new Label(composite, SWT.NONE);
 		label.setText("Account");
 		account = new AccountComposite(composite, SWT.NONE, null);
@@ -57,7 +57,7 @@ public class SavedTransactionPropertyPage extends PropertyPage {
 			account.setAccount(savedTransaction.getAccount());
 		} else {
 			startDate.setEnabled(false);
-			account.setEnabled(false);			
+			account.setEnabled(false);
 		}
 		return composite;
 	}
@@ -79,5 +79,5 @@ public class SavedTransactionPropertyPage extends PropertyPage {
 		accountManager.addSavedTransaction(savedTransaction2);
 		return super.performOk();
 	}
-	
+
 }

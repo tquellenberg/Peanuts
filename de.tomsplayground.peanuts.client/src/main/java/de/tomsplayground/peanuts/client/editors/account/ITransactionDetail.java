@@ -11,7 +11,7 @@ public interface ITransactionDetail {
 	Composite createComposite(Composite parent);
 
 	Composite getComposite();
-	
+
 	void dispose();
 
 }

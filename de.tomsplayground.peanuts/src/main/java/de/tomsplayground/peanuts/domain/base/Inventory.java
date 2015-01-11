@@ -57,11 +57,11 @@ public class Inventory extends ObservableModelObject {
 	public Inventory(Account account) {
 		this(account, null, null, null);
 	}
-	
+
 	public Inventory(ITransactionProvider account, IPriceProviderFactory priceProviderFactory) {
 		this(account, priceProviderFactory, null, null);
 	}
-	
+
 	public Inventory(ITransactionProvider account, IPriceProviderFactory priceProviderFactory, Day day, AnalyzerFactory analizerFactory) {
 		this.account = account;
 		this.priceProviderFactory = priceProviderFactory;
@@ -77,7 +77,7 @@ public class Inventory extends ObservableModelObject {
 			a.addPropertyChangeListener(transactionChangeListener);
 		}
 	}
-	
+
 	public void setDate(Day day) {
 		if (day.after(this.day)) {
 			Day startDay = this.day.addDays(1);
@@ -93,11 +93,11 @@ public class Inventory extends ObservableModelObject {
 			}
 		}
 	}
-	
+
 	public Day getDay() {
 		return day;
 	}
-	
+
 	public ImmutableSet<Security> getSecurities() {
 		synchronized (entryMap) {
 			return ImmutableSet.copyOf(entryMap.keySet());
@@ -109,7 +109,7 @@ public class Inventory extends ObservableModelObject {
 			return ImmutableSet.copyOf(entryMap.values());
 		}
 	}
-	
+
 	public InventoryEntry getEntry(Security security) {
 		synchronized (entryMap) {
 			return entryMap.get(security);
@@ -139,8 +139,8 @@ public class Inventory extends ObservableModelObject {
 			type == InvestmentTransaction.Type.SELL) {
 			if (analizerFactory != null) {
 				Iterable<InvestmentTransaction> transations = Iterables.concat(
-						inventoryEntry.getTransactions(),
-						ImmutableList.of(invTrans));
+					inventoryEntry.getTransactions(),
+					ImmutableList.of(invTrans));
 				IAnalyzer analizer = analizerFactory.getAnalizer();
 				Iterable<AnalyzedInvestmentTransaction> analyzedTransactions = analizer.getAnalyzedTransactions(transations);
 				invTrans = Iterables.getLast(analyzedTransactions);
@@ -150,7 +150,7 @@ public class Inventory extends ObservableModelObject {
 			inventoryEntry.add(invTrans);
 		}
 	}
-	
+
 	public InventoryEntry getInventoryEntry(Security security) {
 		synchronized (entryMap) {
 			if ( !entryMap.containsKey(security)) {
@@ -187,7 +187,7 @@ public class Inventory extends ObservableModelObject {
 		}
 		return sum;
 	}
-	
+
 	public BigDecimal getDayChange() {
 		BigDecimal sum = BigDecimal.ZERO;
 		Day fromDay = day.addDays(-1);
@@ -198,5 +198,5 @@ public class Inventory extends ObservableModelObject {
 		}
 		return sum;
 	}
-	
+
 }

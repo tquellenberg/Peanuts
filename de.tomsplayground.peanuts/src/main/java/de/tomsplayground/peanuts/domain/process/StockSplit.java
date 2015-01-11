@@ -19,7 +19,7 @@ public class StockSplit implements ITimedElement {
 	private final Day day;
 	private final int from;
 	private final int to;
-	
+
 	public StockSplit(Security security, Day day, int from, int to) {
 		if (security == null) {
 			throw new IllegalArgumentException("security");
@@ -32,11 +32,11 @@ public class StockSplit implements ITimedElement {
 		this.from = from;
 		this.to = to;
 	}
-	
+
 	public BigDecimal getRatio() {
 		return new BigDecimal(to).divide(new BigDecimal(from), new MathContext(10, RoundingMode.HALF_EVEN));
 	}
-	
+
 	public Security getSecurity() {
 		return security;
 	}
@@ -45,7 +45,7 @@ public class StockSplit implements ITimedElement {
 	public Day getDay() {
 		return day;
 	}
-	
+
 	public int getFrom() {
 		return from;
 	}
@@ -69,7 +69,7 @@ public class StockSplit implements ITimedElement {
 			append(security).
 			toHashCode();
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {

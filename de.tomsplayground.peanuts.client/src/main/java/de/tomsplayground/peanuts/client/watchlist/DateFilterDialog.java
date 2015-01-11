@@ -15,10 +15,10 @@ import de.tomsplayground.peanuts.client.widgets.DateComposite;
 import de.tomsplayground.util.Day;
 
 public class DateFilterDialog extends Dialog {
-	
+
 	private DateComposite datePickerFrom;
 	private DateComposite datePickerTo;
-	
+
 	private Day startDay;
 	private Day endDay;
 

@@ -68,8 +68,8 @@ public class SecurityEditorInput implements IEditorInput {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-    	if (adapter.isAssignableFrom(Security.class))
-    		return security;
+		if (adapter.isAssignableFrom(Security.class))
+			return security;
 		return null;
 	}
 

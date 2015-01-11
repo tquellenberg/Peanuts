@@ -44,32 +44,32 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 			this.currency = currency;
 			this.red = red;
 		}
-		
+
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
 			if (element instanceof Value) {
 				Value value = (Value) element;
 				switch (columnIndex) {
-				case 0:
-					return String.valueOf(value.getYear());
-				case 1:
-					return PeanutsUtil.formatCurrency(value.getMarketValue1(), currency);
-				case 2:
-					return PeanutsUtil.formatCurrency(value.getMarketValue2(), currency);
-				case 3:
-					return PeanutsUtil.formatCurrency(value.getAdditions(), currency);
-				case 4:
-					return PeanutsUtil.formatCurrency(value.getLeavings(), currency);
-				case 5:
-					return PeanutsUtil.formatCurrency(value.getAdditions().add(value.getLeavings()), currency);
-				case 6:
-					return PeanutsUtil.formatCurrency(value.getGainings(), currency);
-				case 7:
-					return PeanutsUtil.formatCurrency(value.getInvestedAvg(), currency);
-				case 8:
-					return PeanutsUtil.formatPercent(value.getGainingPercent());
-				case 9:
-					return PeanutsUtil.formatPercent(value.getIRR());
+					case 0:
+						return String.valueOf(value.getYear());
+					case 1:
+						return PeanutsUtil.formatCurrency(value.getMarketValue1(), currency);
+					case 2:
+						return PeanutsUtil.formatCurrency(value.getMarketValue2(), currency);
+					case 3:
+						return PeanutsUtil.formatCurrency(value.getAdditions(), currency);
+					case 4:
+						return PeanutsUtil.formatCurrency(value.getLeavings(), currency);
+					case 5:
+						return PeanutsUtil.formatCurrency(value.getAdditions().add(value.getLeavings()), currency);
+					case 6:
+						return PeanutsUtil.formatCurrency(value.getGainings(), currency);
+					case 7:
+						return PeanutsUtil.formatCurrency(value.getInvestedAvg(), currency);
+					case 8:
+						return PeanutsUtil.formatPercent(value.getGainingPercent());
+					case 9:
+						return PeanutsUtil.formatPercent(value.getIRR());
 				}
 			} else if (element instanceof BigDecimal[]) {
 				BigDecimal[] sum = (BigDecimal[]) element;
@@ -91,7 +91,7 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 			} else if (element instanceof BigDecimal) {
 				if (columnIndex == 9) {
 					return PeanutsUtil.formatPercent((BigDecimal)element);
-				}				
+				}
 			}
 			return null;
 		}
@@ -155,7 +155,7 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 			return null;
 		}
 	}
-	
+
 	class MyArrayContentProvider extends ArrayContentProvider {
 		@Override
 		@SuppressWarnings("unchecked")
@@ -179,7 +179,7 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 			return array;
 		}
 	}
-	
+
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		if ( !(input instanceof ITransactionProviderInput)) {

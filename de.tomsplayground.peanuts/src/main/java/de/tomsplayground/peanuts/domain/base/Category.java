@@ -32,11 +32,11 @@ public class Category implements Serializable, INamedElement {
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this).
-	       append("name", name).
-	       append("type", type).
-	       toString();
+			append("name", name).
+			append("type", type).
+			toString();
 	}
-	
+
 	@Override
 	public String getName() {
 		return name;
@@ -122,5 +122,5 @@ public class Category implements Serializable, INamedElement {
 			append(type, c.type).
 			append(parent, c.parent).isEquals();
 	}
-	
+
 }

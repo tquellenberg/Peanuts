@@ -74,7 +74,7 @@ public class CategoryQueryTest {
 
 		assertEquals(3, result.size());
 	}
-	
+
 	@Test
 	public void testNonIdenticalCategory() throws Exception {
 		Category c1NonIdentical = new Category("c1", Category.Type.EXPENSE);
@@ -83,5 +83,5 @@ public class CategoryQueryTest {
 
 		assertEquals(2, result.size());
 	}
-	
+
 }

@@ -14,7 +14,7 @@ public interface ITransactionProvider {
 
 	/**
 	 * Return all transactions in this time range. Including from-date and to-date. Both date can be null.
-	 * 
+	 *
 	 */
 	public ImmutableList<ITransaction> getTransactionsByDate(Day from, Day to);
 
@@ -23,6 +23,6 @@ public interface ITransactionProvider {
 	Day getMaxDate();
 
 	BigDecimal getBalance(Day date);
-	
+
 	Currency getCurrency();
 }

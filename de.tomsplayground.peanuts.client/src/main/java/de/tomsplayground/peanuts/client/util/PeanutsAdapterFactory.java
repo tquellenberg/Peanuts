@@ -80,10 +80,10 @@ public class PeanutsAdapterFactory implements IAdapterFactory {
 	@Override
 	public Class[] getAdapterList() {
 		return new Class[] {
-    		IWorkbenchAdapter.class,
-    		Security.class,
-    		Credit.class
-    	};
+			IWorkbenchAdapter.class,
+			Security.class,
+			Credit.class
+		};
 	}
 
 	@SuppressWarnings("rawtypes")

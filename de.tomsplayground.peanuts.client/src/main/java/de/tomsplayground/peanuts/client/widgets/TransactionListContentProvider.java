@@ -18,7 +18,7 @@ public class TransactionListContentProvider implements ITreeContentProvider {
 	public static final class TimeTreeNode {
 		private final Day date;
 		private final ITransactionProvider provider;
-		
+
 		public TimeTreeNode(Day date, ITransactionProvider provider) {
 			this.date = date;
 			this.provider = provider;
@@ -30,7 +30,7 @@ public class TransactionListContentProvider implements ITreeContentProvider {
 			return provider.getTransactionsByDate(new Day(date.year, 0, 1), new Day(date.year, 11, 31));
 		}
 	}
-	
+
 	@Override
 	public Object[] getElements(Object inputElement) {
 		ITransactionProvider provider = (ITransactionProvider) inputElement;

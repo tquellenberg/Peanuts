@@ -10,7 +10,7 @@ public class CombinedAnalyzer implements IAnalyzer {
 	private GainingsAnalizer gainingsAnalizer;
 	private AvgPriceAnalyzer avgPriceAnalyzer;
 	private QuantitySumAnalyzer quantitySumAnalyzer;
-	
+
 	private final Function<InvestmentTransaction, AnalyzedInvestmentTransaction> function = new Function<InvestmentTransaction, AnalyzedInvestmentTransaction>() {
 		@Override
 		public AnalyzedInvestmentTransaction apply(InvestmentTransaction input) {
@@ -18,15 +18,15 @@ public class CombinedAnalyzer implements IAnalyzer {
 			apply = avgPriceAnalyzer.getFunction().apply(apply);
 			apply = quantitySumAnalyzer.getFunction().apply(apply);
 			return apply;
-		}			
+		}
 	};
-	
+
 	public CombinedAnalyzer() {
 		gainingsAnalizer = new GainingsAnalizer();
 		avgPriceAnalyzer = new AvgPriceAnalyzer();
 		quantitySumAnalyzer = new QuantitySumAnalyzer();
 	}
-	
+
 	@Override
 	public Function<InvestmentTransaction, AnalyzedInvestmentTransaction> getFunction() {
 		return function;

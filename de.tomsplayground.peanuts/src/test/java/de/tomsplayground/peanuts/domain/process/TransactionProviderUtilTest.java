@@ -48,7 +48,7 @@ public class TransactionProviderUtilTest {
 			return null;
 		}
 	};
-	
+
 	@Test
 	public void emptylist() throws Exception {
 		ITransactionProvider provider = new ITransactionProvider() {
@@ -82,13 +82,13 @@ public class TransactionProviderUtilTest {
 		List<ITransaction> byDate = TransactionProviderUtil.getTransactionsByDate(provider, from, to);
 		assertTrue(byDate.isEmpty());
 	}
-	
+
 	@Test
 	public void allNull() throws Exception {
 		List<ITransaction> byDate = TransactionProviderUtil.getTransactionsByDate(defaultprovider, null, null);
 		assertEquals(5, byDate.size());
 	}
-	
+
 	@Test
 	public void oneDay() {
 		Day from = new Day(2008, 0, 4);
@@ -98,7 +98,7 @@ public class TransactionProviderUtilTest {
 		assertEquals(from, byDate.get(0).getDay());
 		assertEquals(from, byDate.get(1).getDay());
 	}
-	
+
 	@Test
 	public void notExactDay() {
 		Day from = new Day(2008, 0, 3);
@@ -116,7 +116,7 @@ public class TransactionProviderUtilTest {
 		List<ITransaction> byDate = TransactionProviderUtil.getTransactionsByDate(defaultprovider, from, to);
 		assertEquals(5, byDate.size());
 	}
-	
+
 	@Test
 	public void startEnd() throws Exception {
 		Day from = new Day(2008, 0, 2);

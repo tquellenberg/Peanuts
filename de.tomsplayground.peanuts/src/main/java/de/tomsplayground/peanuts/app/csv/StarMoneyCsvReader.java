@@ -22,7 +22,7 @@ public class StarMoneyCsvReader {
 	public StarMoneyCsvReader(Reader reader) {
 		csvReader = new CSVReader(reader, ';');
 	}
-	
+
 	public void read() throws IOException, ParseException {
 		transactions = new ArrayList<BankTransaction>();
 		// Skip header
@@ -51,5 +51,5 @@ public class StarMoneyCsvReader {
 	public List<BankTransaction> getTransactions() {
 		return transactions;
 	}
-	
+
 }

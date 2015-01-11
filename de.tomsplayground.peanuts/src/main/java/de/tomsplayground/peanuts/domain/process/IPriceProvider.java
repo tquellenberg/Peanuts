@@ -14,15 +14,15 @@ public interface IPriceProvider {
 	ImmutableList<IPrice> getPrices();
 
 	ImmutableList<IPrice> getPrices(Day from, Day to);
-	
+
 	IPrice getPrice(Day date);
-	
+
 	void setPrice(IPrice p);
-	
+
 	void setPrice(IPrice newPrice, boolean overideExistingData);
 
 	void setPrices(List<? extends IPrice> prices, boolean overideExistingData);
-	
+
 	void removePrice(Day date);
 
 	Day getMinDate();

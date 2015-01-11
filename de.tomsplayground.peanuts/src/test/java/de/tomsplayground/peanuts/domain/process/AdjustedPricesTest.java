@@ -22,10 +22,10 @@ public class AdjustedPricesTest {
 		prices.add(new Price(new Day(2008, 10, 2), new BigDecimal("5")));
 		prices.add(new Price(new Day(2008, 10, 3), new BigDecimal("5")));
 		StockSplit split = new StockSplit(new Security("sec"), new Day(2008, 10, 2), 1, 2);
-		
+
 		AdjustedPrices adjustedPrices = new AdjustedPrices();
 		List<IPrice> adjustPrices = adjustedPrices.adjustPrices(prices, split);
-		
+
 		assertEquals(3, adjustPrices.size());
 		Helper.assertEquals(new BigDecimal("5"), adjustPrices.get(0).getValue());
 		Helper.assertEquals(new BigDecimal("5"), adjustPrices.get(1).getValue());

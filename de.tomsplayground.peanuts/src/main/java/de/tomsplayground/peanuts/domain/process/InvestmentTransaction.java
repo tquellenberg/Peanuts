@@ -76,9 +76,9 @@ public class InvestmentTransaction extends Transaction {
 
 	public static BigDecimal calculateAmount(Type type, BigDecimal price, BigDecimal quantity,
 		BigDecimal commission) {
-		return (type.equals(Type.SELL) || type.equals(Type.INCOME) ? 
-			price.multiply(quantity).setScale(2,BigDecimal.ROUND_HALF_UP) : 
-			price.multiply(quantity).setScale(2,BigDecimal.ROUND_HALF_UP).negate()).subtract(commission);
+		return (type.equals(Type.SELL) || type.equals(Type.INCOME) ?
+			price.multiply(quantity).setScale(2,BigDecimal.ROUND_HALF_UP) :
+				price.multiply(quantity).setScale(2,BigDecimal.ROUND_HALF_UP).negate()).subtract(commission);
 	}
 
 	public void setInvestmentDetails(Type type, BigDecimal price, BigDecimal quantity,
@@ -104,11 +104,11 @@ public class InvestmentTransaction extends Transaction {
 	public Object clone() {
 		return super.clone();
 	}
-	
+
 	@Override
 	public void reconfigureAfterDeserialization(AccountManager accountManager) {
 		super.reconfigureAfterDeserialization(accountManager);
-		
+
 		if (type == Type.INCOME && price == null && quantity == null) {
 			quantity = BigDecimal.ONE;
 			price = getAmount();

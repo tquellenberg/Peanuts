@@ -123,7 +123,7 @@ public class MetaEditorPart extends EditorPart {
 			public void modifyText(ModifyEvent e) {
 				sectionPart.markDirty();
 			}});
-		
+
 		toolkit.createLabel(sectionClient, "Range");
 		rangeType = new Combo(sectionClient, SWT.READ_ONLY);
 		rangeType.add("All");
@@ -150,7 +150,7 @@ public class MetaEditorPart extends EditorPart {
 		gridData = new GridData(SWT.LEFT, SWT.CENTER, true, false);
 		gridData.horizontalSpan = 2;
 		fromDate.setLayoutData(gridData);
-		
+
 		toolkit.createLabel(sectionClient, "To");
 		toDate = new DateComposite(sectionClient, SWT.NONE);
 		toDate.setEnabled(false);
@@ -212,14 +212,14 @@ public class MetaEditorPart extends EditorPart {
 			}
 		});
 
-		
+
 		top = new Group(sectionClient, SWT.NONE);
 		top.setText("Categories");
 		top.setLayout(new GridLayout(2, false));
 		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		categoryListViewer = new TreeViewer(top, SWT.CHECK);
-		
+
 		final Tree tree = categoryListViewer.getTree();
 		tree.setLinesVisible(true);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -301,13 +301,13 @@ public class MetaEditorPart extends EditorPart {
 				}
 			}
 		});
-		
+
 		section.setClient(sectionClient);
 
 		setValues();
 		managedForm.refresh();
 	}
-	
+
 	private void checkPath(TreeItem item, boolean checked, boolean grayed) {
 		if (item == null) {
 			return;
@@ -341,7 +341,7 @@ public class MetaEditorPart extends EditorPart {
 
 	private void setValues() {
 		Report report = ((ReportEditorInput)getEditorInput()).getReport();
-		reportName.setText(report.getName());		
+		reportName.setText(report.getName());
 		TableItem[] items = accountListViewer.getTable().getItems();
 		Set<Account> accounts = report.getAccounts();
 		for (TableItem tableItem : items) {
@@ -372,7 +372,7 @@ public class MetaEditorPart extends EditorPart {
 			checkItems(items2, true);
 		}
 	}
-	
+
 	public List<Category> getCategories() {
 		if (allCategories) {
 			return null;
@@ -411,10 +411,10 @@ public class MetaEditorPart extends EditorPart {
 					checkPath(treeItem, true, false);
 				}
 			}
-			checkTreeItems(treeItem.getItems(), categories);				
+			checkTreeItems(treeItem.getItems(), categories);
 		}
 	}
-	
+
 	public Set<Account> getAccounts() {
 		Set<Account> accounts = new HashSet<Account>();
 		TableItem[] items = accountListViewer.getTable().getItems();
@@ -456,23 +456,23 @@ public class MetaEditorPart extends EditorPart {
 				return new DateQuery(fromDate.getDay(), toDate.getDay());
 		}
 	}
-	
+
 	private void setDateQuery(DateQuery query) {
 		switch (query.getTimeRange()) {
-		case ALL:
-			rangeType.select(0);
-			break;
-		case THIS_YEAR:
-			rangeType.select(1);
-			break;
-		case LAST_12_MONTH:
-			rangeType.select(2);
-			break;
-		case MANUAL:
-			rangeType.select(3);
-			fromDate.setDay(query.getStart());
-			toDate.setDay(query.getEnd());
-			break;
+			case ALL:
+				rangeType.select(0);
+				break;
+			case THIS_YEAR:
+				rangeType.select(1);
+				break;
+			case LAST_12_MONTH:
+				rangeType.select(2);
+				break;
+			case MANUAL:
+				rangeType.select(3);
+				fromDate.setDay(query.getStart());
+				toDate.setDay(query.getEnd());
+				break;
 		}
 	}
 
@@ -480,7 +480,7 @@ public class MetaEditorPart extends EditorPart {
 	public void doSave(IProgressMonitor monitor) {
 		Report report = ((ReportEditorInput)getEditorInput()).getReport();
 		report.setName(reportName.getText());
-		report.setAccounts(getAccounts());		
+		report.setAccounts(getAccounts());
 		report.clearQueries();
 		List<Category> categories = getCategories();
 		if (categories != null) {

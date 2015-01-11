@@ -117,7 +117,7 @@ public class MetaEditorPart extends EditorPart {
 			public void widgetSelected(SelectionEvent e) {
 				sectionPart.markDirty();
 			}});
-		
+
 		section.setClient(sectionClient);
 
 		setValues();

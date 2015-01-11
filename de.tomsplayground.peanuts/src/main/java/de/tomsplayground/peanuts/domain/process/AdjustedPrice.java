@@ -7,9 +7,9 @@ import java.math.RoundingMode;
 import de.tomsplayground.util.Day;
 
 public class AdjustedPrice implements IPrice {
-	
+
 	private final static MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
-	
+
 	private final IPrice price;
 	private final BigDecimal ratio;
 

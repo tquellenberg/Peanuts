@@ -274,72 +274,72 @@ public class SecurityWatchlistView extends ViewPart {
 			WatchEntry watchEntry = (WatchEntry) element;
 			Security security = watchEntry.getSecurity();
 			switch (columnIndex) {
-			case 0: return security.getName();
+				case 0: return security.getName();
 
-			case 1:
+				case 1:
 					IPrice price = watchEntry.getPrice();
 					if (price == null) {
 						return "";
 					}
 					return PeanutsUtil.formatDate(price.getDay());
-			case 2:
+				case 2:
 					IPrice price2 = watchEntry.getPrice();
 					if (price2 == null) {
 						return "";
 					}
 					return PeanutsUtil.formatCurrency(price2.getClose(), null);
-			case 3:
-				FundamentalData data1 = security.getCurrentFundamentalData();
-				if (data1 != null) {
-					return PeanutsUtil.format(data1.calculatePeRatio(watchEntry.getPriceProvider()), 1);
-				}
-				return "";
-			case 4:
-				FundamentalData data2 = security.getCurrentFundamentalData();
-				if (data2 != null) {
-					return PeanutsUtil.formatPercent(data2.calculateDivYield(watchEntry.getPriceProvider()));
-				}
-				return "";
-			case 5:
-				FundamentalData data3 = security.getCurrentFundamentalData();
-				if (data3 != null) {
-					Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
-					InventoryEntry inventoryEntry = inventory.getEntry(security);
-					if (inventoryEntry != null) {
-						return PeanutsUtil.formatPercent(data3.calculateYOC(inventoryEntry));
+				case 3:
+					FundamentalData data1 = security.getCurrentFundamentalData();
+					if (data1 != null) {
+						return PeanutsUtil.format(data1.calculatePeRatio(watchEntry.getPriceProvider()), 1);
 					}
-				}
-				return "";
-			case 6:
-				FundamentalData data4 = security.getCurrentFundamentalData();
-				if (data4 != null) {
-					return PeanutsUtil.format(data4.getDebtEquityRatio(), 2);
-				}
-				return "";
-			case 7:
-				Signal signal = watchEntry.getSignal();
-				if (signal != null) {
-					return signal.type.toString() + " " + PeanutsUtil.formatDate(signal.price.getDay());
-				}
-				return "";
-			case 8:
-				return PeanutsUtil.formatCurrency(watchEntry.getDayChangeAbsolut(), null);
-			case 9:
-				return PeanutsUtil.formatPercent(watchEntry.getDayChange());
-			case 10:
-				return PeanutsUtil.formatPercent(watchEntry.getPerformance(7, 0, 0));
-			case 11:
-				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 1, 0));
-			case 12:
-				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 6, 0));
-			case 13:
-				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 1));
-			case 14:
-				return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 3));
-			case 15:
-				return PeanutsUtil.formatPercent(watchEntry.getCustomPerformance());
-			default:
-				break;
+					return "";
+				case 4:
+					FundamentalData data2 = security.getCurrentFundamentalData();
+					if (data2 != null) {
+						return PeanutsUtil.formatPercent(data2.calculateDivYield(watchEntry.getPriceProvider()));
+					}
+					return "";
+				case 5:
+					FundamentalData data3 = security.getCurrentFundamentalData();
+					if (data3 != null) {
+						Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
+						InventoryEntry inventoryEntry = inventory.getEntry(security);
+						if (inventoryEntry != null) {
+							return PeanutsUtil.formatPercent(data3.calculateYOC(inventoryEntry));
+						}
+					}
+					return "";
+				case 6:
+					FundamentalData data4 = security.getCurrentFundamentalData();
+					if (data4 != null) {
+						return PeanutsUtil.format(data4.getDebtEquityRatio(), 2);
+					}
+					return "";
+				case 7:
+					Signal signal = watchEntry.getSignal();
+					if (signal != null) {
+						return signal.type.toString() + " " + PeanutsUtil.formatDate(signal.price.getDay());
+					}
+					return "";
+				case 8:
+					return PeanutsUtil.formatCurrency(watchEntry.getDayChangeAbsolut(), null);
+				case 9:
+					return PeanutsUtil.formatPercent(watchEntry.getDayChange());
+				case 10:
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(7, 0, 0));
+				case 11:
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 1, 0));
+				case 12:
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 6, 0));
+				case 13:
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 1));
+				case 14:
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 3));
+				case 15:
+					return PeanutsUtil.formatPercent(watchEntry.getCustomPerformance());
+				default:
+					break;
 			}
 			return null;
 		}
@@ -697,7 +697,7 @@ public class SecurityWatchlistView extends ViewPart {
 
 		IActionBars actionBars = getViewSite().getActionBars();
 		actionBars.setGlobalActionHandler(ActionFactory.PROPERTIES.getId(),
-				new PropertyDialogAction(getSite(), securityListViewer));
+			new PropertyDialogAction(getSite(), securityListViewer));
 	}
 
 	@Override

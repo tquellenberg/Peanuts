@@ -15,7 +15,7 @@ import de.tomsplayground.util.Day;
 public abstract class PriceProvider extends ObservableModelObject implements IPriceProvider {
 
 	private ImmutableList<IPrice> prices = ImmutableList.of();
-	
+
 	public PriceProvider() {
 		super();
 	}
@@ -79,7 +79,7 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 			return lp.get(pos);
 		}
 	}
-	
+
 	@Override
 	public void setPrice(IPrice newPrice) {
 		setPrice(newPrice, true);
@@ -92,7 +92,7 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 			firePropertyChange("prices", oldPrice, newPrice);
 		}
 	}
-	
+
 	@Override
 	public void setPrices(List<? extends IPrice> prices, boolean overideExistingData) {
 		boolean change = false;
@@ -104,10 +104,10 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 			firePropertyChange("prices", null, prices);
 		}
 	}
-	
+
 	private IPrice setPriceInternal(IPrice newPrice, boolean overideExistingData) {
 		ImmutableList<IPrice> lp = prices;
-		
+
 		int binarySearch = PeanutsUtil.binarySearch(lp, newPrice.getDay());
 		int s1, s2;
 		IPrice oldPrice = null;
@@ -119,7 +119,7 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 				BigDecimal close = newPrice.getClose() != null ? newPrice.getClose() : oldPrice.getClose();
 				BigDecimal high = newPrice.getHigh() != null ? newPrice.getHigh() : oldPrice.getHigh();
 				BigDecimal low = newPrice.getLow() != null ? newPrice.getLow() : oldPrice.getLow();
-				newPrice = new Price(oldPrice.getDay(), open, close, high, low);				
+				newPrice = new Price(oldPrice.getDay(), open, close, high, low);
 			} else {
 				// simulate no change
 				return newPrice;
@@ -136,7 +136,7 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 			subList1,
 			ImmutableList.of(newPrice),
 			subList2));
-		
+
 		return oldPrice;
 	}
 
@@ -154,7 +154,7 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 					return true;
 				}
 			})
-		);
+			);
 		if (removed[0] != null) {
 			prices = lp;
 			firePropertyChange("prices", removed[0], null);

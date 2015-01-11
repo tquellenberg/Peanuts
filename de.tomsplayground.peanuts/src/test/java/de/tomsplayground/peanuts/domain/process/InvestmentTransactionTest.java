@@ -8,9 +8,9 @@ import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.util.Day;
 
 public class InvestmentTransactionTest extends TestCase {
-	
+
 	private AccountManager acountManager;
-	
+
 	@Override
 	public void setUp() {
 		acountManager = new AccountManager();
@@ -18,13 +18,13 @@ public class InvestmentTransactionTest extends TestCase {
 
 	public void testCloneContructor() {
 		InvestmentTransaction trans = new InvestmentTransaction(new Day(),
-				acountManager.getOrCreateSecurity("test"), new BigDecimal("12.22"),
-				new BigDecimal("10"), new BigDecimal("0.50"), InvestmentTransaction.Type.BUY);
+			acountManager.getOrCreateSecurity("test"), new BigDecimal("12.22"),
+			new BigDecimal("10"), new BigDecimal("0.50"), InvestmentTransaction.Type.BUY);
 		InvestmentTransaction trans2 = new InvestmentTransaction(trans);
-		
+
 		assertEquals(new BigDecimal("-122.70"), trans2.getAmount());
 	}
-	
+
 	public void testBuy() {
 		InvestmentTransaction trans = new InvestmentTransaction(new Day(),
 			acountManager.getOrCreateSecurity("test"), new BigDecimal("12.22"),

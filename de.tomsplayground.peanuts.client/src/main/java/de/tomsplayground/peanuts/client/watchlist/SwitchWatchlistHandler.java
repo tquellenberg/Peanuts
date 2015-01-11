@@ -16,7 +16,7 @@ public class SwitchWatchlistHandler extends AbstractHandler implements IElementU
 		WatchlistManager.getInstance().setCurrentWatchlist(watchlistName);
 		return null;
 	}
-	
+
 	@Override
 	public void updateElement(UIElement element, @SuppressWarnings("rawtypes") Map parameters) {
 		String watchlistName = (String) parameters.get(SwitchWatchlistItems.WATCHLIST_NAME);

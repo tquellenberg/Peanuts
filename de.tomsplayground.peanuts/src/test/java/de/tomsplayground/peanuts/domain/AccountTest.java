@@ -66,7 +66,7 @@ public class AccountTest extends TestCase {
 
 	public void testTransfer() {
 		Transfer t = new Transfer(account1, account2, new BigDecimal("75.00"),
-				new Day());
+			new Day());
 		account1.addTransaction(t.getTransferFrom());
 		account2.addTransaction(t.getTransferTo());
 
@@ -97,7 +97,7 @@ public class AccountTest extends TestCase {
 	public void testModifyDateForTransfer() {
 		Day notNow = new Day(1999, 0, 1);
 		Transfer t = new Transfer(account1, account2, new BigDecimal("75.00"),
-				new Day());
+			new Day());
 		account1.addTransaction(t.getTransferFrom());
 		account2.addTransaction(t.getTransferTo());
 		((Transaction) account1.getTransactions().get(0)).setDay(notNow);
@@ -114,7 +114,7 @@ public class AccountTest extends TestCase {
 		account2.addTransaction(t.getTransferTo());
 		Transaction t1 = (Transaction) account1.getTransactions().get(0);
 		Transaction t2 = (Transaction) account2.getTransactions().get(0);
-		
+
 		t1.setAmount(new BigDecimal("-80.00"));
 		t1.setMemo("memo2");
 		Category c2 = new Category("c2", Category.Type.EXPENSE);
@@ -125,7 +125,7 @@ public class AccountTest extends TestCase {
 		assertEquals("memo2", t2.getMemo());
 		assertEquals(c2, t2.getCategory());
 	}
-	
+
 	public void testCloneTransfer() {
 		Transfer t = new Transfer(account1, account2, new BigDecimal("75.00"), new Day());
 		t.setMemo("Memo");
@@ -137,11 +137,11 @@ public class AccountTest extends TestCase {
 
 		t1.clone();
 		account1.addTransaction(t1);
-		
+
 		assertEquals(2, account1.getTransactions().size());
 		assertEquals(0, account1.getTransactions().get(0).getAmount().compareTo(new BigDecimal("-75.00")));
-		assertEquals(0, account1.getTransactions().get(1).getAmount().compareTo(new BigDecimal("-75.00")));		
-		
+		assertEquals(0, account1.getTransactions().get(1).getAmount().compareTo(new BigDecimal("-75.00")));
+
 		assertEquals(2, account2.getTransactions().size());
 		assertEquals(0, account2.getTransactions().get(0).getAmount().compareTo(new BigDecimal("75.00")));
 		assertEquals(0, account2.getTransactions().get(1).getAmount().compareTo(new BigDecimal("75.00")));
@@ -158,7 +158,7 @@ public class AccountTest extends TestCase {
 
 		t2.clone();
 		account2.addTransaction(t2);
-		
+
 		assertEquals(2, account1.getTransactions().size());
 		assertEquals(2, account2.getTransactions().size());
 	}

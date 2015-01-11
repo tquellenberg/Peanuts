@@ -30,7 +30,7 @@ import de.tomsplayground.peanuts.util.PeanutsUtil;
 public class TransactionListEditorPart extends EditorPart {
 
 	private static class TransactionTableLabelProvider extends LabelProvider implements
-		ITableLabelProvider, ITableColorProvider {
+	ITableLabelProvider, ITableColorProvider {
 
 		private final Color red;
 		private final Report report;

@@ -30,7 +30,7 @@ public class ChartPropertyPage extends PropertyPage {
 	protected Control createContents(Composite parent) {
 		Composite composite = new Composite(parent,SWT.NONE);
 		composite.setLayout(new GridLayout(2, false));
-				
+
 		Label label = new Label(composite, SWT.NONE);
 		label.setText("Show average");
 		showAverage = new Button(composite, SWT.CHECK);
@@ -73,7 +73,7 @@ public class ChartPropertyPage extends PropertyPage {
 
 		return composite;
 	}
-	
+
 	@Override
 	public boolean performOk() {
 		IAdaptable adapter = getElement();
@@ -86,7 +86,7 @@ public class ChartPropertyPage extends PropertyPage {
 		if (index > 0) {
 			final String securityName = compareWithList.getItem(index);
 			Security sec = Iterables.find(Activator.getDefault().getAccountManager().getSecurities(),
-			new Predicate<Security>() {
+				new Predicate<Security>() {
 				@Override
 				public boolean apply(Security input) {
 					return input.getName().equals(securityName);
@@ -95,7 +95,7 @@ public class ChartPropertyPage extends PropertyPage {
 			isin = sec.getISIN();
 		}
 		security.putConfigurationValue("COMPARE_WITH", isin);
-		
+
 		return super.performOk();
 	}
 

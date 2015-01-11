@@ -15,7 +15,7 @@ import org.eclipse.ui.dialogs.PropertyPage;
 import de.tomsplayground.peanuts.domain.base.Security;
 
 public class SecurityPropertyPage extends PropertyPage {
-	
+
 	public static final String OVERRIDE_EXISTING_PRICE_DATA = "OVERRIDE_EXISTING_PRICE_DATA";
 
 	private Text name;
@@ -23,7 +23,7 @@ public class SecurityPropertyPage extends PropertyPage {
 	private Text isin;
 	private Text ticker;
 	private Button overridePriceDate;
-	
+
 	public SecurityPropertyPage() {
 		noDefaultAndApplyButton();
 	}
@@ -32,7 +32,7 @@ public class SecurityPropertyPage extends PropertyPage {
 	protected Control createContents(Composite parent) {
 		Composite composite = new Composite(parent,SWT.NONE);
 		composite.setLayout(new GridLayout(2, false));
-				
+
 		name = createTextWithLabel(composite, "Name");
 		wkn = createTextWithLabel(composite, "WKN");
 		isin = createTextWithLabel(composite, "Isin");
@@ -41,7 +41,7 @@ public class SecurityPropertyPage extends PropertyPage {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText("Override existing price data");
 		overridePriceDate = new Button(composite, SWT.CHECK);
-		
+
 		IAdaptable adapter = getElement();
 		Security security = (Security)adapter.getAdapter(Security.class);
 		name.setText(security.getName());
@@ -49,7 +49,7 @@ public class SecurityPropertyPage extends PropertyPage {
 		isin.setText(StringUtils.defaultString(security.getISIN()));
 		ticker.setText(StringUtils.defaultString(security.getTicker()));
 		overridePriceDate.setSelection(Boolean.valueOf(security.getConfigurationValue(OVERRIDE_EXISTING_PRICE_DATA)).booleanValue());
-		
+
 		return composite;
 	}
 

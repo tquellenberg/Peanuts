@@ -88,7 +88,7 @@ public class MetaEditorPart extends EditorPart {
 		section.setText("Forecast");
 		Composite top = toolkit.createComposite(section);
 		top.setLayout(new GridLayout(2, false));
-		
+
 		Label label = new Label(top, SWT.NONE);
 		label.setText("Forecast name:");
 		forecastName = new Text(top, SWT.BORDER);
@@ -99,7 +99,7 @@ public class MetaEditorPart extends EditorPart {
 				sectionPart.markDirty();
 			}
 		});
-		
+
 		label = new Label(top, SWT.NONE);
 		label.setText("From:");
 		startDate = new DateComposite(top, SWT.NONE);
@@ -109,7 +109,7 @@ public class MetaEditorPart extends EditorPart {
 				sectionPart.markDirty();
 			}
 		});
-		
+
 		label = new Label(top, SWT.NONE);
 		label.setText("Start amount:");
 		startAmount = (new CalculatorText(top, SWT.SINGLE | SWT.BORDER)).getText();
@@ -142,11 +142,11 @@ public class MetaEditorPart extends EditorPart {
 				sectionPart.markDirty();
 			}
 		});
-		
+
 		section.setClient(top);
-		
+
 		setValues();
-		
+
 		final SectionPart sectionPart2 = new SectionPart(form.getBody(), toolkit, ExpandableComposite.TITLE_BAR);
 		managedForm.addPart(sectionPart2);
 		Section section2 = sectionPart2.getSection();
@@ -172,9 +172,9 @@ public class MetaEditorPart extends EditorPart {
 		label.setText("Valuel:");
 		resultText = new Text(top2, SWT.BORDER);
 		resultText.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		
+
 		section2.setClient(top2);
-		
+
 		managedForm.refresh();
 	}
 
@@ -191,7 +191,7 @@ public class MetaEditorPart extends EditorPart {
 	public void setFocus() {
 		// nothing to do
 	}
-	
+
 	@Override
 	public boolean isDirty() {
 		return managedForm.isDirty();

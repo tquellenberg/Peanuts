@@ -94,7 +94,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 	private ContentProposalAdapter autoCompleteSecurityAdapter;
 	private SimpleContentProposalProvider securityProposalProvider;
 	private PropertyChangeListener propertyChangeListener;
-	
+
 	public InvestmentTransactionDetails(Account account) {
 		this.account = account;
 	}
@@ -112,7 +112,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		security = new Text(group, SWT.SINGLE | SWT.BORDER);
 		initSecurityProposalProvider();
 		autoCompleteSecurityAdapter = new ContentProposalAdapter(security, new TextContentAdapter(),
-				securityProposalProvider, null, null);
+			securityProposalProvider, null, null);
 		autoCompleteSecurityAdapter.setPropagateKeys(true);
 		autoCompleteSecurityAdapter.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
 		security.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -195,21 +195,21 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		Activator.getDefault().getAccountManager().addPropertyChangeListener("security", propertyChangeListener);
 		setSecurities(Activator.getDefault().getAccountManager().getSecurities());
 	}
-	
+
 	private void setSecurities(ImmutableList<Security> securities) {
 		securityProposalProvider.setProposals(Collections2.transform(securities, new Function<Security, String>() {
 			@Override
 			public String apply(Security input) {
 				return input.getName();
 			}
-		}).toArray(new String[securities.size()]));		
+		}).toArray(new String[securities.size()]));
 	}
 
 	@Override
 	public void dispose() {
 		Activator.getDefault().getAccountManager().removePropertyChangeListener("security", propertyChangeListener);
 	}
-	
+
 	protected void readForm() {
 		try {
 			String securityName = security.getText();
@@ -320,7 +320,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		}
 		internalUpdate = false;
 	}
-	
+
 	@Override
 	public Composite getComposite() {
 		return detailComposit;

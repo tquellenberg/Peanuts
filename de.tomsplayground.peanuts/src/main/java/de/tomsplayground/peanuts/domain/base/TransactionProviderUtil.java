@@ -12,7 +12,7 @@ public class TransactionProviderUtil {
 	 * Return all transactions in this time range.
 	 * Including from-date and to-date.
 	 * Both date can be null.
-	 * 
+	 *
 	 */
 	public static ImmutableList<ITransaction> getTransactionsByDate(ITransactionProvider provider, Day from, Day to) {
 		int fromIndex;
@@ -48,7 +48,7 @@ public class TransactionProviderUtil {
 			}
 		} else {
 			toIndex = transactions.size();
-		}		
+		}
 		return transactions.subList(fromIndex, toIndex);
 	}
 }

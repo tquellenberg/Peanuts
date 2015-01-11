@@ -16,7 +16,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class PropertyChangeSupport {
 
 	private final Object source;
-	
+
 	private final Map<String, PropertyChangeSupport> children = new HashMap<String, PropertyChangeSupport>();
 
 	private final Set<PropertyChangeListener> listeners = new CopyOnWriteArraySet<PropertyChangeListener>();
@@ -33,7 +33,7 @@ public class PropertyChangeSupport {
 	 * registered for all properties. If
 	 * <code>listener</code> is null, no exception is thrown and no action is
 	 * taken.
-	 * 
+	 *
 	 * @param listener
 	 *            The PropertyChangeListener to be added
 	 */
@@ -55,7 +55,7 @@ public class PropertyChangeSupport {
 	 * PropertyChangeListener that was registered for all properties. If
 	 * <code>listener</code> is null, or was never added, no exception is thrown
 	 * and no action is taken.
-	 * 
+	 *
 	 * @param listener
 	 *            The PropertyChangeListener to be removed
 	 */
@@ -82,7 +82,7 @@ public class PropertyChangeSupport {
 	 * interested in distinguishing the listeners then it must test each element
 	 * to see if it's a <code>PropertyChangeListenerProxy</code>, perform the
 	 * cast, and examine the parameter.
-	 * 
+	 *
 	 * <pre>
 	 * PropertyChangeListener[] listeners = bean.getPropertyChangeListeners();
 	 * for (int i = 0; i &lt; listeners.length; i++) {
@@ -95,7 +95,7 @@ public class PropertyChangeSupport {
 	 * 	}
 	 * }
 	 *</pre>
-	 * 
+	 *
 	 * @see PropertyChangeListenerProxy
 	 * @return all of the <code>PropertyChangeListeners</code> added or an empty
 	 *         array if no listeners have been added
@@ -125,10 +125,10 @@ public class PropertyChangeSupport {
 	/**
 	 * Add a PropertyChangeListener for a specific property. The listener will
 	 * be invoked only when a call on firePropertyChange names that specific
-	 * property. For each property, the listener will be invoked. If 
+	 * property. For each property, the listener will be invoked. If
 	 * <code>propertyName</code> or <code>listener</code>
 	 * is null, no exception is thrown and no action is taken.
-	 * 
+	 *
 	 * @param propertyName
 	 *            The name of the property to listen on.
 	 * @param listener
@@ -145,17 +145,17 @@ public class PropertyChangeSupport {
 				child = new PropertyChangeSupport(source);
 				children.put(propertyName, child);
 			}
-			child.addPropertyChangeListener(listener);			
+			child.addPropertyChangeListener(listener);
 		}
 	}
 
 	/**
-	 * Remove a PropertyChangeListener for a specific property. If 
-     * <code>propertyName</code> is null, no exception is thrown and
+	 * Remove a PropertyChangeListener for a specific property. If
+	 * <code>propertyName</code> is null, no exception is thrown and
 	 * no action is taken. If <code>listener</code> is null, or was never added
 	 * for the specified property, no exception is thrown and no action is
 	 * taken.
-	 * 
+	 *
 	 * @param propertyName
 	 *            The name of the property that was listened on.
 	 * @param listener
@@ -178,7 +178,7 @@ public class PropertyChangeSupport {
 	/**
 	 * Returns an array of all the listeners which have been associated with the
 	 * named property.
-	 * 
+	 *
 	 * @param propertyName
 	 *            The name of the property being listened to
 	 * @return all of the <code>PropertyChangeListeners</code> associated with
@@ -201,7 +201,7 @@ public class PropertyChangeSupport {
 	/**
 	 * Report a bound property update to any registered listeners. No event is
 	 * fired if old and new are equal and non-null.
-	 * 
+	 *
 	 * @param propertyName
 	 *            The programmatic name of the property that was changed.
 	 * @param oldValue
@@ -222,7 +222,7 @@ public class PropertyChangeSupport {
 	 * <p>
 	 * This is merely a convenience wrapper around the more general
 	 * firePropertyChange method that takes Object values.
-	 * 
+	 *
 	 * @param propertyName
 	 *            The programmatic name of the property that was changed.
 	 * @param oldValue
@@ -243,7 +243,7 @@ public class PropertyChangeSupport {
 	 * <p>
 	 * This is merely a convenience wrapper around the more general
 	 * firePropertyChange method that takes Object values.
-	 * 
+	 *
 	 * @param propertyName
 	 *            The programmatic name of the property that was changed.
 	 * @param oldValue
@@ -262,7 +262,7 @@ public class PropertyChangeSupport {
 	 * Fire an existing PropertyChangeEvent to any registered listeners. No
 	 * event is fired if the given event's old and new values are equal and
 	 * non-null.
-	 * 
+	 *
 	 * @param evt
 	 *            The PropertyChangeEvent object.
 	 */
@@ -293,7 +293,7 @@ public class PropertyChangeSupport {
 	 * Report a bound indexed property update to any registered listeners.
 	 * <p>
 	 * No event is fired if old and new values are equal and non-null.
-	 * 
+	 *
 	 * @param propertyName
 	 *            The programmatic name of the property that was changed.
 	 * @param index
@@ -316,7 +316,7 @@ public class PropertyChangeSupport {
 	 * <p>
 	 * This is merely a convenience wrapper around the more general
 	 * fireIndexedPropertyChange method which takes Object values.
-	 * 
+	 *
 	 * @param propertyName
 	 *            The programmatic name of the property that was changed.
 	 * @param index
@@ -342,7 +342,7 @@ public class PropertyChangeSupport {
 	 * <p>
 	 * This is merely a convenience wrapper around the more general
 	 * fireIndexedPropertyChange method which takes Object values.
-	 * 
+	 *
 	 * @param propertyName
 	 *            The programmatic name of the property that was changed.
 	 * @param index

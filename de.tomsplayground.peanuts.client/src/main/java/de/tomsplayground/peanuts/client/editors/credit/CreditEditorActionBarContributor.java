@@ -18,7 +18,7 @@ public class CreditEditorActionBarContributor extends MultiPageEditorActionBarCo
 	public void setActiveEditor(IEditorPart part) {
 		super.setActiveEditor(part);
 		IActionBars actionBars = part.getEditorSite().getActionBars();
-		actionBars.setGlobalActionHandler(ActionFactory.PROPERTIES.getId(), 
+		actionBars.setGlobalActionHandler(ActionFactory.PROPERTIES.getId(),
 			new EditorInputPropertyDialogAction(part.getSite(), part.getEditorInput()));
 	}
 

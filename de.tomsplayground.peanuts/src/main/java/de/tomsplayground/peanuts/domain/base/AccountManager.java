@@ -41,17 +41,17 @@ public class AccountManager extends ObservableModelObject {
 
 	private ImmutableList<Security> securities = ImmutableList.of();
 
-	// FIXME: Do not use HashSet with mutable objects. 
+	// FIXME: Do not use HashSet with mutable objects.
 	final private Set<Category> categories = new HashSet<Category>();
 
 	final private List<Report> reports = new ArrayList<Report>();
-	
+
 	final private List<Forecast> forecasts = new ArrayList<Forecast>();
 
 	final private List<ICredit> credits = new ArrayList<ICredit>();
-	
+
 	private ImmutableList<SavedTransaction> savedTransactions = ImmutableList.of();
-	
+
 	private Set<StockSplit> stockSplits = new HashSet<StockSplit>();
 
 	private Set<StopLoss> stopLosses = new HashSet<StopLoss>();
@@ -209,7 +209,7 @@ public class AccountManager extends ObservableModelObject {
 		}
 		return toDelete != null;
 	}
-	
+
 	public void addSavedTransaction(SavedTransaction savedTransaction) {
 		List<SavedTransaction> list = new ArrayList<SavedTransaction>(savedTransactions);
 		list.add(savedTransaction);
@@ -253,7 +253,7 @@ public class AccountManager extends ObservableModelObject {
 	public Forecast getForecast(String name) {
 		return getByName(forecasts, name);
 	}
-	
+
 	public void addCredit(ICredit credit) {
 		credits.add(credit);
 		Collections.sort(credits, NAMED_COMPARATOR);
@@ -267,7 +267,7 @@ public class AccountManager extends ObservableModelObject {
 	public ICredit getCredit(String name) {
 		return getByName(credits, name);
 	}
-	
+
 	private <T extends INamedElement> T getByName(Iterable<T> elements, final String name) {
 		return Iterables.find(elements, new Predicate<T>() {
 			@Override
@@ -362,7 +362,7 @@ public class AccountManager extends ObservableModelObject {
 			}
 		}
 	}
-	
+
 	private boolean isCategoryUsed(Category category) {
 		for (Account account : accounts) {
 			for (ITransaction transaction : account.getTransactions()) {
@@ -393,27 +393,27 @@ public class AccountManager extends ObservableModelObject {
 	/**
 	 * Returns all splits for the given security.
 	 * The splits are ordered by date.
-	 * 
+	 *
 	 */
 	public ImmutableList<StockSplit> getStockSplits(final Security security) {
-		return ImmutableSortedSet.copyOf(DAY_COMPARATOR, 
+		return ImmutableSortedSet.copyOf(DAY_COMPARATOR,
 			Iterables.filter(stockSplits, new Predicate<StockSplit>() {
 				@Override
 				public boolean apply(StockSplit stockSplit) {
 					return stockSplit.getSecurity().equals(security);
 				}
 			}
-		)).asList();
+				)).asList();
 	}
-	
+
 	public void addStockSplit(StockSplit stockSplit) {
 		stockSplits.add(stockSplit);
 	}
-	
+
 	public boolean removeStockSplit(StockSplit stockSplit) {
 		return stockSplits.remove(stockSplit);
 	}
-	
+
 	public void setStockSplits(Security security, Set<StockSplit> splits) {
 		for (Iterator<StockSplit> iter = stockSplits.iterator(); iter.hasNext();) {
 			StockSplit stockSplit = iter.next();
@@ -423,7 +423,7 @@ public class AccountManager extends ObservableModelObject {
 		}
 		stockSplits.addAll(splits);
 	}
-	
+
 	/**
 	 * Returns all stop loss objects for the given security.
 	 */
@@ -435,14 +435,14 @@ public class AccountManager extends ObservableModelObject {
 					return stopLoss.getSecurity().equals(security);
 				}
 			}
-		));
+				));
 	}
-	
+
 	public void addStopLoss(StopLoss stopLoss) {
 		stopLosses.add(stopLoss);
 		firePropertyChange("stopLoss", null, stopLoss);
 	}
-	
+
 	public boolean removeStopLoss(StopLoss stopLoss) {
 		boolean remove = stopLosses.remove(stopLoss);
 		if (remove) {
@@ -450,15 +450,15 @@ public class AccountManager extends ObservableModelObject {
 		}
 		return remove;
 	}
-	
+
 	public Inventory getFullInventory() {
 		synchronized (this) {
 			if (fullInventory == null) {
 				Report report = new Report("temp");
 				report.setAccounts(getAccounts());
-				
+
 				fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new Day(), new AnalyzerFactory());
-			}			
+			}
 			return fullInventory;
 		}
 	}

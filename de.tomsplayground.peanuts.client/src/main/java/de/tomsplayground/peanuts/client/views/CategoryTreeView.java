@@ -72,7 +72,7 @@ public class CategoryTreeView extends ViewPart {
 			}
 		};
 		Activator.getDefault().getAccountManager().addPropertyChangeListener("category", propertyChangeListener);
-		
+
 		viewer.setColumnProperties(new String[] { "name" });
 		viewer.setCellEditors(new CellEditor[]{new TextCellEditor(viewer.getTree())});
 		viewer.setCellModifier(new ICellModifier() {
@@ -94,9 +94,9 @@ public class CategoryTreeView extends ViewPart {
 				cat.setName((String)value);
 				viewer.update(cat, null);
 			}
-			
+
 		});
-		
+
 		// Drag-Source
 		final Tree tree = viewer.getTree();
 		Transfer[] types = new Transfer[] { PeanutsTransfer.INSTANCE };
@@ -187,7 +187,7 @@ public class CategoryTreeView extends ViewPart {
 							Activator.getDefault().getAccountManager().removeCategory(cat);
 						} catch (IllegalStateException e) {
 							MessageDialog.openError(getSite().getWorkbenchWindow().getShell(), "Error",
-									"Can't delete category:" + e.getMessage());
+								"Can't delete category:" + e.getMessage());
 						}
 					}
 				}
@@ -225,7 +225,7 @@ public class CategoryTreeView extends ViewPart {
 		// Other plug-ins can contribute actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
-	
+
 	@Override
 	public void dispose() {
 		Activator.getDefault().getAccountManager().removePropertyChangeListener("category", propertyChangeListener);

@@ -28,11 +28,11 @@ public class AvgPriceAnalizerTest {
 		ImmutableList<InvestmentTransaction> trans = ImmutableList.of(
 			buildTrade(BigDecimal.TEN, new BigDecimal("2"), BigDecimal.ONE,
 				InvestmentTransaction.Type.BUY),
-			buildTrade(new BigDecimal("12"), new BigDecimal("2"), BigDecimal.ONE,
-				InvestmentTransaction.Type.BUY)
-		);
+				buildTrade(new BigDecimal("12"), new BigDecimal("2"), BigDecimal.ONE,
+					InvestmentTransaction.Type.BUY)
+			);
 		IAnalyzer avgPrices = new AvgPriceAnalyzer();
-		
+
 		List<AnalyzedInvestmentTransaction> analyzedTransactions = ImmutableList.copyOf(avgPrices.getAnalyzedTransactions(trans));
 
 		assertEquals(trans.size(), analyzedTransactions.size());
@@ -41,17 +41,17 @@ public class AvgPriceAnalizerTest {
 		at = analyzedTransactions.get(1);
 		Helper.assertEquals(new BigDecimal("11.50"), at.getAvgPrice());
 	}
-	
+
 	@Test
 	public void buyAndSellPartial() throws Exception {
 		ImmutableList<InvestmentTransaction> trans = ImmutableList.of(
 			buildTrade(BigDecimal.TEN, new BigDecimal("2"), BigDecimal.ONE,
-					InvestmentTransaction.Type.BUY),
-			buildTrade(new BigDecimal("11"), BigDecimal.ONE, BigDecimal.ONE, 
+				InvestmentTransaction.Type.BUY),
+				buildTrade(new BigDecimal("11"), BigDecimal.ONE, BigDecimal.ONE,
 					InvestmentTransaction.Type.SELL)
-		);
+			);
 		IAnalyzer avgPrices = new AvgPriceAnalyzer();
-		
+
 		List<AnalyzedInvestmentTransaction> analyzedTransactions = ImmutableList.copyOf(avgPrices.getAnalyzedTransactions(trans));
 
 		assertEquals(trans.size(), analyzedTransactions.size());
@@ -60,15 +60,15 @@ public class AvgPriceAnalizerTest {
 		at = analyzedTransactions.get(1);
 		Helper.assertEquals(new BigDecimal("10.50"), at.getAvgPrice());
 	}
-	
+
 	@Test
 	public void buyAndSellAll() throws Exception {
 		ImmutableList<InvestmentTransaction> trans = ImmutableList.of(
 			buildTrade(BigDecimal.TEN, BigDecimal.ONE, BigDecimal.ONE,
-					InvestmentTransaction.Type.BUY),
-			buildTrade(new BigDecimal("11"), BigDecimal.ONE, BigDecimal.ONE, 
+				InvestmentTransaction.Type.BUY),
+				buildTrade(new BigDecimal("11"), BigDecimal.ONE, BigDecimal.ONE,
 					InvestmentTransaction.Type.SELL)
-		);
+			);
 		IAnalyzer avgPrices = new AvgPriceAnalyzer();
 
 		List<AnalyzedInvestmentTransaction> analyzedTransactions = ImmutableList.copyOf(avgPrices.getAnalyzedTransactions(trans));

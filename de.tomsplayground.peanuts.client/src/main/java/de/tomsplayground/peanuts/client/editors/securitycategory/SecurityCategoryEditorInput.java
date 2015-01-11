@@ -10,16 +10,16 @@ import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 public class SecurityCategoryEditorInput implements IEditorInput {
 
 	SecurityCategoryMapping securityCategoryMapping;
-	
+
 	public SecurityCategoryEditorInput(SecurityCategoryMapping securityCategoryMapping) {
 		this.securityCategoryMapping = securityCategoryMapping;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-    	if (adapter.isAssignableFrom(SecurityCategoryMapping.class))
-    		return securityCategoryMapping;
+		if (adapter.isAssignableFrom(SecurityCategoryMapping.class))
+			return securityCategoryMapping;
 		return null;
 	}
 

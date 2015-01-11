@@ -25,7 +25,7 @@ public class Persistence {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public static String updateConcurrentHashMap(String xml) {
 		Matcher matcher = Pattern.compile("<displayConfiguration class=\"java.util.concurrent.ConcurrentHashMap\" id=\"([0-9]*)\" [^>]*>(.*?)</displayConfiguration>").matcher(xml);
 		StringBuffer result = new StringBuffer();
@@ -47,8 +47,8 @@ public class Persistence {
 
 	public AccountManager read(Reader reader) {
 		try {
-			String xml = IOUtils.toString(reader);			
-			String xml2 = updateConcurrentHashMap(xml);			
+			String xml = IOUtils.toString(reader);
+			String xml2 = updateConcurrentHashMap(xml);
 			AccountManager readAccountManager = persistenceService.readAccountManager(xml2);
 			readAccountManager.reconfigureAfterDeserialization();
 			return readAccountManager;

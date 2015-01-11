@@ -47,7 +47,7 @@ public class Transfer {
 		transFrom.setLabel(label);
 		transTo.setLabel(label);
 	}
-	
+
 	public void setCategory(Category category) {
 		transFrom.setCategory(category);
 		transTo.setCategory(category);

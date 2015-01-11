@@ -14,14 +14,14 @@ public class SecurityCategoryEditWizard extends Wizard {
 		this.mapping = mapping;
 		this.category = category;
 	}
-	
+
 	@Override
 	public void addPages() {
 		super.addPages();
 		page = new SecurityCategoryEditWizardPage("Edit", mapping, category);
 		addPage(page);
 	}
-	
+
 	@Override
 	public boolean performFinish() {
 		if (category != null && ! page.getName().equals(category))

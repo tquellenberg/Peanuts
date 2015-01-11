@@ -49,7 +49,7 @@ public class InventoryPieEditorPart extends EditorPart {
 	private Inventory inventory;
 	private JFreeChart chart;
 	private DefaultPieDataset dataset;
-	
+
 	private final PropertyChangeListener inventoryChangeListener = new UniqueAsyncExecution() {
 
 		@Override
@@ -62,7 +62,7 @@ public class InventoryPieEditorPart extends EditorPart {
 			return getSite().getShell().getDisplay();
 		}
 	};
-	
+
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -107,17 +107,17 @@ public class InventoryPieEditorPart extends EditorPart {
 		l.setText("Market value:");
 		marketValueLabel =  new Label(banner, SWT.NONE);
 		marketValueLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-		
+
 		ITransactionProvider transactions = ((ITransactionProviderInput) getEditorInput()).getTransactionProvider();
 		inventory = new Inventory(transactions, PriceProviderFactory.getInstance(), date, new AnalyzerFactory());
 		inventory.setDate(date);
 		inventory.addPropertyChangeListener(inventoryChangeListener);
 
-        dataset = new DefaultPieDataset();
+		dataset = new DefaultPieDataset();
 		createChart();
 		ChartComposite chartFrame = new ChartComposite(top, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
+
 		dateChooser.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
@@ -131,19 +131,19 @@ public class InventoryPieEditorPart extends EditorPart {
 	}
 
 	private void updateDataset() {
-        dataset.clear();
-        List<InventoryEntry> entries = new ArrayList<InventoryEntry>(inventory.getEntries());
+		dataset.clear();
+		List<InventoryEntry> entries = new ArrayList<InventoryEntry>(inventory.getEntries());
 		Collections.sort(entries, new Comparator<InventoryEntry>() {
 			@Override
 			public int compare(InventoryEntry o1, InventoryEntry o2) {
 				return o2.getMarketValue(date).compareTo(o1.getMarketValue(date));
 			}
-		});        
-        for (InventoryEntry entry : entries) {
-        	if (entry.getQuantity().intValue() != 0) {
+		});
+		for (InventoryEntry entry : entries) {
+			if (entry.getQuantity().intValue() != 0) {
 				dataset.setValue(entry.getSecurity().getName(), entry.getMarketValue(date));
 			}
-        }
+		}
 	}
 
 	private void createChart() {
@@ -172,7 +172,7 @@ public class InventoryPieEditorPart extends EditorPart {
 		inventory.removePropertyChangeListener(inventoryChangeListener);
 		super.dispose();
 	}
-	
+
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		// nothing to do

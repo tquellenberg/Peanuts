@@ -43,21 +43,21 @@ public class StopLoss {
 		}
 		return builder.build();
 	}
-	
+
 	public Security getSecurity() {
 		return security;
 	}
-	
+
 	public Day getStart() {
 		return start;
 	}
-	
+
 	public BigDecimal getStartPrice() {
 		return startPrice;
 	}
-	
+
 	public ITrailingStrategy getStrategy() {
 		return strategy;
 	}
-	
+
 }

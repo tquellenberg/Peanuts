@@ -54,7 +54,7 @@ public class InventoryTest {
 	@Test
 	public void testInventorySum() throws Exception {
 		InvestmentTransaction investmentTransaction2 = new InvestmentTransaction(
-				new Day(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
+			new Day(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
 			InvestmentTransaction.Type.BUY);
 		investmmentAccount.addTransaction(investmentTransaction2);
 		Inventory inventory = new Inventory(investmmentAccount);
@@ -65,7 +65,7 @@ public class InventoryTest {
 	@Test
 	public void testSellAll() throws Exception {
 		InvestmentTransaction investmentTransaction2 = new InvestmentTransaction(
-				new Day(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
+			new Day(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
 			InvestmentTransaction.Type.SELL);
 		investmmentAccount.addTransaction(investmentTransaction2);
 		Inventory inventory = new Inventory(investmmentAccount);
@@ -100,15 +100,15 @@ public class InventoryTest {
 	public void testIntventorySetDate() {
 		Inventory inventory = new Inventory(investmmentAccount);
 		inventory.setDate(new Day().addDays(-1));
-		
+
 		assertEquals(0, inventory.getSecurities().size());
 		assertEquals(0, inventory.getEntries().size());
 	}
-	
+
 	@Test
 	public void testInventoryEntry2() throws Exception {
 		InvestmentTransaction investmentTransaction2 = new InvestmentTransaction(
-				new Day(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
+			new Day(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
 			InvestmentTransaction.Type.SELL);
 		investmmentAccount.addTransaction(investmentTransaction2);
 		Inventory inventory = new Inventory(investmmentAccount);
@@ -120,17 +120,17 @@ public class InventoryTest {
 		assertEquals(BigDecimal.ZERO, entry.getQuantity());
 		assertEquals(2, entry.getTransactions().size());
 	}
-	
+
 	@Test
 	public void testSplittedTransacions() {
 		Day now = new Day();
 		Transaction transaction = new Transaction(now, BigDecimal.ZERO);
 		transaction.addSplit(new BankTransaction(now, new BigDecimal("-990.00"), "??"));
 		transaction.addSplit(new InvestmentTransaction(now, apple, PRICE, QUANTITY, BigDecimal.ZERO,
-				InvestmentTransaction.Type.SELL));
+			InvestmentTransaction.Type.SELL));
 		investmmentAccount.addTransaction(transaction);
 		Inventory inventory = new Inventory(investmmentAccount);
-		
+
 		Collection<InventoryEntry> quantityMap = inventory.getEntries();
 		assertEquals(1, quantityMap.size());
 		InventoryEntry entry = quantityMap.iterator().next();
@@ -138,13 +138,13 @@ public class InventoryTest {
 		assertEquals(BigDecimal.ZERO, entry.getQuantity());
 		assertEquals(2, entry.getTransactions().size());
 	}
-	
+
 	private static class SimplePriceProvider extends PriceProvider {
 		@Override
 		public String getName() {
 			return "test";
 		}
-		
+
 		public void addPrice(Price price) {
 			setPrice(price);
 		}
@@ -154,7 +154,7 @@ public class InventoryTest {
 	public void testMarketValue() {
 		// remove investmentTransaction1
 		investmmentAccount.reset();
-		
+
 		final Day now = new Day(2008, 4, 3);
 		// one share
 		InvestmentTransaction buy = new InvestmentTransaction(now.addDays(-1), apple, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY);
@@ -162,13 +162,13 @@ public class InventoryTest {
 		// 10 shares
 		buy = new InvestmentTransaction(now, apple, BigDecimal.ONE, BigDecimal.TEN, BigDecimal.ZERO, InvestmentTransaction.Type.BUY);
 		investmmentAccount.addTransaction(buy);
-		
+
 		Inventory inventory = new Inventory(investmmentAccount, new IPriceProviderFactory() {
 			@Override
 			public IPriceProvider getPriceProvider(Security security) {
 				SimplePriceProvider priceProvider = new SimplePriceProvider();
-				priceProvider.addPrice(new Price(now.addDays(-1), new BigDecimal("11.00")));				
-				priceProvider.addPrice(new Price(now, new BigDecimal("12.00")));				
+				priceProvider.addPrice(new Price(now.addDays(-1), new BigDecimal("11.00")));
+				priceProvider.addPrice(new Price(now, new BigDecimal("12.00")));
 				return priceProvider;
 			}
 			@Override
@@ -176,13 +176,13 @@ public class InventoryTest {
 				return getPriceProvider(security);
 			}
 		});
-		
+
 		inventory.setDate(now);
 		Helper.assertEquals(new BigDecimal("132.00"), inventory.getMarketValue());
-		
+
 		inventory.setDate(now.addDays(-1));
 		Helper.assertEquals(new BigDecimal("11.00"), inventory.getMarketValue());
-		
+
 		// incremental step from (now-1) => (now)
 		inventory.setDate(now);
 		Helper.assertEquals(new BigDecimal("132.00"), inventory.getMarketValue());
@@ -192,16 +192,16 @@ public class InventoryTest {
 	public void testAnalyzed() throws Exception {
 		// remove investmentTransaction1
 		investmmentAccount.reset();
-		
+
 		final Day now = new Day();
 		InvestmentTransaction buy = new InvestmentTransaction(now, apple, BigDecimal.TEN, BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY);
 		investmmentAccount.addTransaction(buy);
-		
+
 		Inventory inventory = new Inventory(investmmentAccount, new IPriceProviderFactory() {
 			@Override
 			public IPriceProvider getPriceProvider(Security security) {
 				SimplePriceProvider priceProvider = new SimplePriceProvider();
-				priceProvider.addPrice(new Price(now, new BigDecimal("12.00")));				
+				priceProvider.addPrice(new Price(now, new BigDecimal("12.00")));
 				return priceProvider;
 			}
 			@Override
@@ -209,7 +209,7 @@ public class InventoryTest {
 				return getPriceProvider(security);
 			}
 		}, now, new AnalyzerFactory());
-		
+
 		Collection<InventoryEntry> entries = inventory.getEntries();
 		assertEquals(1, entries.size());
 		InventoryEntry entry = entries.iterator().next();
@@ -218,7 +218,7 @@ public class InventoryTest {
 		Helper.assertEquals(BigDecimal.ONE, entry.getQuantity());
 		Helper.assertEquals(BigDecimal.TEN, entry.getInvestedAmount());
 	}
-	
+
 	@Test
 	public void priceUpdate() throws Exception {
 		// remove investmentTransaction1
@@ -241,7 +241,7 @@ public class InventoryTest {
 				return getPriceProvider(security);
 			}
 		});
-		
+
 		Helper.assertEquals(new BigDecimal("12.00") ,inventory.getMarketValue());
 		InventoryEntry inventoryEntry = inventory.getEntries().iterator().next();
 		final PropertyChangeEvent lastEvent[] = new PropertyChangeEvent[1];
@@ -253,7 +253,7 @@ public class InventoryTest {
 		});
 
 		IPrice oldPrice = priceProvider.getPrice(now);
-		priceProvider.setPrice(new Price(now, oldPrice.getOpen(), new BigDecimal("13.00"), null, null));		
+		priceProvider.setPrice(new Price(now, oldPrice.getOpen(), new BigDecimal("13.00"), null, null));
 		Helper.assertEquals(new BigDecimal("13.00"), inventory.getMarketValue());
 		assertNotNull(lastEvent[0]);
 		assertEquals(inventory, lastEvent[0].getSource());

@@ -27,7 +27,7 @@ public class CsvTransactionImportAction extends Action {
 		setId(ICommandIds.CMD_CSV_TRANSACTION_IMPORT);
 		setActionDefinitionId(ICommandIds.CMD_CSV_TRANSACTION_IMPORT);
 	}
-	
+
 	@Override
 	public void run() {
 		Shell shell = editorPart.getSite().getShell();
@@ -51,7 +51,7 @@ public class CsvTransactionImportAction extends Action {
 			} catch (ParseException e) {
 				MessageDialog.openError(shell, "Error", e.getMessage());
 			} finally {
-				IOUtils.closeQuietly(reader);				
+				IOUtils.closeQuietly(reader);
 			}
 		}
 	}
@@ -59,5 +59,5 @@ public class CsvTransactionImportAction extends Action {
 	public void setEditorPart(IEditorPart editorPart) {
 		this.editorPart = editorPart;
 	}
-	
+
 }

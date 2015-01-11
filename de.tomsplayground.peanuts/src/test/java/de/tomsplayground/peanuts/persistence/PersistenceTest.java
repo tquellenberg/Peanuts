@@ -77,10 +77,10 @@ public class PersistenceTest {
 	public void testUpdateConcurrentHashMap() throws IOException {
 		Reader in = new InputStreamReader(PersistenceTest.class.getResourceAsStream("/ConcurrentHashMap.xml"));
 		String xml = IOUtils.toString(in);
-		
+
 		String result = Persistence.updateConcurrentHashMap(xml);
-		
+
 		assertEquals("klasj fajsfl ajslf jaslfj aslkjals<displayConfiguration id=\"7420\"><entry><string>de.tomsplayground.peanuts.client.dashboard.SecurityWatchlist</string><string>1</string></entry><entry><string>chartType</string><string>one year</string></entry></displayConfiguration>skaj kajsfkaj lfkjaslkj", result);
-	}	
-	
+	}
+
 }

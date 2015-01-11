@@ -63,7 +63,7 @@ public class InventoryEntry {
 		}
 		return gaining;
 	}
-	
+
 	private Day adjustWorkday(Day d) {
 		int i = d.toCalendar().get(Calendar.DAY_OF_WEEK);
 		if (i == Calendar.SUNDAY) {
@@ -74,7 +74,7 @@ public class InventoryEntry {
 		}
 		return d;
 	}
-	
+
 	public BigDecimal getChange(Day from, Day to) {
 		return getMarketValue(to).subtract(getMarketValue(adjustWorkday(from)));
 	}
@@ -85,7 +85,7 @@ public class InventoryEntry {
 		}
 		return null;
 	}
-	
+
 	public BigDecimal getMarketValue(Day day) {
 		if (priceprovider != null && getQuantity().compareTo(BigDecimal.ZERO) != 0) {
 			return getPrice(day).getValue().multiply(getQuantity());
@@ -105,7 +105,7 @@ public class InventoryEntry {
 		}
 		return null;
 	}
-	
+
 	public BigDecimal getAvgPrice() {
 		AnalyzedInvestmentTransaction transaction = getLastAnalyzedInvestmentTransaction();
 		if (transaction != null) {
@@ -113,7 +113,7 @@ public class InventoryEntry {
 		}
 		return null;
 	}
-	
+
 	public BigDecimal getInvestedAmount() {
 		BigDecimal investedAmount = BigDecimal.ZERO;
 		AnalyzedInvestmentTransaction transaction = getLastAnalyzedInvestmentTransaction();
@@ -122,7 +122,7 @@ public class InventoryEntry {
 		}
 		return investedAmount;
 	}
-	
+
 	public BigDecimal getXIRR(Day day) {
 		XIRR xirr = new XIRR();
 		BigDecimal addings = BigDecimal.ZERO;

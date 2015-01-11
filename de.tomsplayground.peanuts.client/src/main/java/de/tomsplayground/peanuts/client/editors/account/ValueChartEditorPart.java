@@ -131,8 +131,8 @@ public class ValueChartEditorPart extends EditorPart {
 	}
 
 	private JFreeChart createChart(String chartType) {
-        CombinedDomainXYPlot plot = new CombinedDomainXYPlot(new DateAxis("Date"));
-        JFreeChart chart = new JFreeChart(getEditorInput().getName(), plot);
+		CombinedDomainXYPlot plot = new CombinedDomainXYPlot(new DateAxis("Date"));
+		JFreeChart chart = new JFreeChart(getEditorInput().getName(), plot);
 		chart.setBackgroundPaint(Color.white);
 
 		TimeSeriesCollection dataset = createTotalDataset();

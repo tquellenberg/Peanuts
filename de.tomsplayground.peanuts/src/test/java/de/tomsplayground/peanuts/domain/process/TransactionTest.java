@@ -72,7 +72,7 @@ public class TransactionTest extends TestCase {
 		assertEquals(new BigDecimal("100.00"), trans.getAmount());
 		assertEquals(2, trans.getSplits().size());
 	}
-	
+
 	public void testUpdateDateWithSplits() {
 		Day now = new Day();
 		Day notNow = new Day(1999, 1, 1);
@@ -82,9 +82,9 @@ public class TransactionTest extends TestCase {
 		splits.add(new Transaction(now, new BigDecimal("25.00"), cat, "memo"));
 		splits.add(new Transaction(now, new BigDecimal("25.00"), cat, "memo"));
 		trans.setSplits(splits);
-		
+
 		trans.setDay(notNow);
-		
+
 		assertEquals(notNow, trans.getDay());
 		assertEquals(notNow, trans.getSplits().get(0).getDay());
 		assertEquals(notNow, trans.getSplits().get(1).getDay());
@@ -102,10 +102,10 @@ public class TransactionTest extends TestCase {
 
 		assertEquals(new BigDecimal("110.00"), trans.getAmount());
 	}
-	
+
 	public void testClose() {
 		Transaction trans = new Transaction(new Day(), new BigDecimal("100.00"));
-		
+
 		Transaction clone = (Transaction) trans.clone();
 		assertNotNull(clone.splitChangeListener);
 		assertTrue(trans.splitChangeListener != clone.splitChangeListener);

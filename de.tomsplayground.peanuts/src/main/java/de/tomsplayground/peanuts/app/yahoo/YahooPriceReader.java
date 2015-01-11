@@ -24,12 +24,12 @@ import de.tomsplayground.util.Day;
 public class YahooPriceReader extends PriceProvider {
 
 	private final static Logger log = LoggerFactory.getLogger(YahooPriceReader.class);
-	
+
 	public enum Type {
 		CURRENT,
 		HISTORICAL
 	}
-	
+
 	private final DateFormat dateFormat2 = new SimpleDateFormat("MM/dd/yyyy");
 	private final CSVReader csvReader;
 	private final Type type;
@@ -38,7 +38,7 @@ public class YahooPriceReader extends PriceProvider {
 		URL url;
 		if (type == Type.CURRENT) {
 			url = new URL("http://download.finance.yahoo.com/d/quotes.csv?f=sl1d1t1c1ohgv&s=" +
-					ticker);
+				ticker);
 		} else {
 			Calendar today = Calendar.getInstance();
 			url = new URL("http://ichart.finance.yahoo.com/table.csv?g=d&a=0&b=3&c=2000" +
@@ -50,11 +50,11 @@ public class YahooPriceReader extends PriceProvider {
 		String str = IOUtils.toString(connection.getInputStream());
 		return new YahooPriceReader(new StringReader(str), type);
 	}
-	
+
 	public YahooPriceReader(Reader reader) throws IOException {
 		this(reader, Type.HISTORICAL);
 	}
-	
+
 	public YahooPriceReader(Reader reader, Type type) throws IOException {
 		if (type == Type.HISTORICAL) {
 			csvReader = new CSVReader(reader, ',', '"');
@@ -120,7 +120,7 @@ public class YahooPriceReader extends PriceProvider {
 			return null;
 		}
 	}
-	
+
 	@Override
 	public String getName() {
 		return "Yahoo";

@@ -24,7 +24,7 @@ public class StarMoneyCsvReaderTest {
 
 		List<BankTransaction> transactions = csvReader.getTransactions();
 		assertEquals(2, transactions.size());
-		
+
 		BankTransaction t1 = transactions.get(0);
 		assertEquals(0, (new BigDecimal("-1130.29")).compareTo(t1.getAmount()));
 		assertEquals(new Day(2001, 9, 8), t1.getDay());

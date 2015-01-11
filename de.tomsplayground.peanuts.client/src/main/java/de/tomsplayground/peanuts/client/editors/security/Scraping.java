@@ -27,23 +27,23 @@ public class Scraping {
 	public static final String SCRAPING_URL = "scaping.url";
 
 	public static final String[] XPATH_KEYS = new String[]{"open", "close", "high", "low", "date"};
-	
+
 	private final String scrapingUrl;
 	private final Map<String, String> xpathMap = new HashMap<String, String>();
 
 	private String result = "";
-	
+
 	public Scraping(Security security) {
 		for (String key : XPATH_KEYS) {
 			xpathMap.put(key, security.getConfigurationValue(SCRAPING_PREFIX+key));
 		}
 		scrapingUrl = security.getConfigurationValue(SCRAPING_URL);
 	}
-	
+
 	public String getResult() {
 		return result;
 	}
-	
+
 	public Price execute() {
 		Price price = null;
 		if (StringUtils.isBlank(scrapingUrl)) {
@@ -53,7 +53,7 @@ public class Scraping {
 		try {
 			HtmlCleaner htmlCleaner = new HtmlCleaner();
 			TagNode tagNode = htmlCleaner.clean(new URL(scrapingUrl));
-			
+
 			PrettyXmlSerializer xmlSerializer = new PrettyXmlSerializer(htmlCleaner.getProperties());
 			String string = xmlSerializer.getAsString(tagNode);
 
@@ -65,7 +65,7 @@ public class Scraping {
 					Object[] result = xPather.evaluateAgainstNode(tagNode);
 					for (Object object : result) {
 						resultStr.append('>').append(object).append('\n');
-					}		
+					}
 					if (result.length > 0) {
 						String value = result[0].toString().trim();
 						int i = StringUtils.indexOfAnyBut(value, "0123456789,.");

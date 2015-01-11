@@ -11,7 +11,7 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 	private static final long serialVersionUID = 817177201924284505L;
 
 	public final static Day ZERO = new Day(0, 0, 1);
-	
+
 	public final int day;
 	public final int month;
 	public final int year;
@@ -19,15 +19,15 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 	public static Day fromCalendar(Calendar cal) {
 		return new Day(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
 	}
-	
+
 	public static Day fromDate(Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		return fromCalendar(cal);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param dayStr in Format yyyy-MM-dd
 	 * @return
 	 */
@@ -41,14 +41,14 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 		int day = Integer.parseInt(split[2]);
 		return new Day(year, month-1, day);
 	}
-	
+
 	public Day() {
 		Calendar cal = Calendar.getInstance();
 		this.day = cal.get(Calendar.DAY_OF_MONTH);
 		this.month = cal.get(Calendar.MONTH);
 		this.year = cal.get(Calendar.YEAR);
 	}
-	
+
 	/**
 	 * Create new Day object.
 	 * @param year
@@ -73,7 +73,7 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 		cal.set(year, month, day);
 		return cal;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -90,7 +90,7 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 	public int hashCode() {
 		return day + (month << 5) + (year << 9);
 	}
-	
+
 	@Override
 	public String toString() {
 		return year + "-" + (month+1) + "-" + day;
@@ -134,7 +134,7 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 	}
 
 	/**
-	 * Calculates the difference in days between two dates 
+	 * Calculates the difference in days between two dates
 	 * on a base of 360 days per year.
 	 */
 	public int delta(Day d2) {
@@ -143,9 +143,9 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 		delta = delta + (d2.day - day);
 		return delta;
 	}
-	
+
 	public LocalDate getJodaDate() {
 		return new LocalDate(year, month+1, day);
 	}
-	
+
 }

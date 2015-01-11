@@ -10,11 +10,11 @@ import de.tomsplayground.peanuts.domain.process.Credit;
 public class CreditEditorInput implements IEditorInput {
 
 	private Credit credit;
-	
+
 	public CreditEditorInput(Credit credit) {
 		this.credit = credit;
 	}
-	
+
 	@Override
 	public boolean exists() {
 		return true;

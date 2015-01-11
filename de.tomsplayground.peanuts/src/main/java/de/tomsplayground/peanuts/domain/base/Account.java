@@ -46,7 +46,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 
 	// Process
 	final private List<Transaction> transactions = new LinkedList<Transaction>();
-	
+
 	transient private PropertyChangeListener transactionChangeListener = new TransactionPropertyListener();
 
 	private class TransactionPropertyListener implements PropertyChangeListener {
@@ -109,9 +109,9 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 			}
 			balance = balance.add(t.getAmount());
 		}
-		return balance;		
+		return balance;
 	}
-	
+
 	public BigDecimal getBalance(Transaction t) {
 		BigDecimal balance = startBalance;
 		for (Transaction t2 : transactions) {
@@ -145,13 +145,13 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	public boolean isActive() {
 		return active;
 	}
-	
+
 	public void setActive(boolean active) {
 		boolean oldActive = this.active;
 		this.active = active;
 		firePropertyChange("active", Boolean.valueOf(oldActive), Boolean.valueOf(active));
 	}
-	
+
 	@Override
 	public Currency getCurrency() {
 		return currency;
@@ -222,7 +222,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 
 	/**
 	 * Return all transactions of this single day
-	 * 
+	 *
 	 */
 	@Override
 	public ImmutableList<ITransaction> getTransactionsByDate(Day date) {
@@ -233,13 +233,13 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	 * Return all transactions in this time range.
 	 * Including from-date and including to-date.
 	 * Both date can be null.
-	 * 
+	 *
 	 */
 	@Override
 	public ImmutableList<ITransaction> getTransactionsByDate(Day from, Day to) {
 		return TransactionProviderUtil.getTransactionsByDate(this, from, to);
 	}
-	
+
 	@Override
 	public Day getMaxDate() {
 		if (transactions.isEmpty()) {
@@ -247,7 +247,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 		}
 		return Iterables.getLast(transactions).getDay();
 	}
-	
+
 	@Override
 	public Day getMinDate() {
 		if (transactions.isEmpty()) {
@@ -255,7 +255,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 		}
 		return transactions.get(0).getDay();
 	}
-	
+
 	public String getDescription() {
 		return description;
 	}
@@ -298,14 +298,14 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	}
 
 	private transient ConfigurableSupport configurableSupport;
-	
+
 	private ConfigurableSupport getConfigurableSupport() {
 		if (configurableSupport == null) {
 			configurableSupport = new ConfigurableSupport(displayConfiguration, getPropertyChangeSupport());
 		}
 		return configurableSupport;
 	}
-	
+
 	@Override
 	public String getConfigurationValue(String key) {
 		return getConfigurableSupport().getConfigurationValue(key);

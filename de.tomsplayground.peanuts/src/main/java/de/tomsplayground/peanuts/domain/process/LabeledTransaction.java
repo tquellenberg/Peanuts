@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import de.tomsplayground.util.Day;
 
 public class LabeledTransaction extends Transaction {
-	
+
 	private String label;
 
 	public LabeledTransaction(Day day, BigDecimal amount, String label) {

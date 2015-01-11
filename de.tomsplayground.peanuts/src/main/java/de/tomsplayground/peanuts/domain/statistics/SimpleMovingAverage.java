@@ -50,7 +50,7 @@ public class SimpleMovingAverage {
 		signals = ImmutableList.copyOf(s);
 		return ImmutableList.copyOf(result);
 	}
-	
+
 	public ImmutableList<Signal> getSignals() {
 		return signals;
 	}

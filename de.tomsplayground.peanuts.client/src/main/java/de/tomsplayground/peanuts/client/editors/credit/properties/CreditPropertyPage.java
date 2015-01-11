@@ -39,25 +39,25 @@ public class CreditPropertyPage extends PropertyPage {
 	public CreditPropertyPage() {
 		noDefaultAndApplyButton();
 	}
-	
+
 	@Override
 	protected Control createContents(Composite parent) {
 		Composite top = new Composite(parent,SWT.NONE);
 		top.setLayout(new GridLayout(2, false));
-		
+
 		Label label = new Label(top, SWT.NONE);
 		label.setText("Credit name:");
 		creditName = new Text(top, SWT.BORDER);
 		creditName.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		
+
 		label = new Label(top, SWT.NONE);
 		label.setText("From:");
 		startDate = new DateComposite(top, SWT.NONE);
-		
+
 		label = new Label(top, SWT.NONE);
 		label.setText("To:");
 		endDate = new DateComposite(top, SWT.NONE);
-		
+
 		label = new Label(top, SWT.NONE);
 		label.setText("Amount:");
 		amount = (new CalculatorText(top, SWT.SINGLE | SWT.BORDER)).getText();
@@ -79,13 +79,13 @@ public class CreditPropertyPage extends PropertyPage {
 		for (Credit.PaymentInterval t : Credit.PaymentInterval.values()) {
 			paymentInterval.add(t.toString());
 		}
-		
+
 		label = new Label(top, SWT.NONE);
 		label.setText("Account:");
 		account = new AccountComposite(top, SWT.NONE, null);
-		
+
 		setValues();
-		
+
 		return top;
 	}
 
@@ -105,7 +105,7 @@ public class CreditPropertyPage extends PropertyPage {
 			account.setAccount(connectedAccount);
 		}
 	}
-	
+
 	@Override
 	public boolean performOk() {
 		try {

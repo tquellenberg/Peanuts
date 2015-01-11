@@ -8,11 +8,11 @@ import org.eclipse.swt.widgets.Display;
 public abstract class UniqueAsyncExecution implements PropertyChangeListener {
 
 	private volatile boolean executionInQueue;
-	
+
 	public abstract void doit(PropertyChangeEvent evt, Display display);
-	
+
 	public abstract Display getDisplay();
-	
+
 	@Override
 	final public void propertyChange(final PropertyChangeEvent evt) {
 		if (! executionInQueue) {

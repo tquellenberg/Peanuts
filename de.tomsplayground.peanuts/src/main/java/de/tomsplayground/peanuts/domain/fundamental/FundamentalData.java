@@ -13,26 +13,26 @@ import de.tomsplayground.util.Day;
 
 @XStreamAlias("fundamental")
 public class FundamentalData {
-	
+
 	private int year;
 	private BigDecimal dividende;
 	private BigDecimal earningsPerShare;
 	private BigDecimal debtEquityRatio;
-	
+
 	public FundamentalData() {
 		this.year = 2000;
 		this.dividende = BigDecimal.ZERO;
 		this.earningsPerShare = BigDecimal.ZERO;
 		this.debtEquityRatio = BigDecimal.ZERO;
 	}
-	
+
 	public FundamentalData(FundamentalData d) {
 		this.year = d.year;
 		this.dividende = d.dividende;
 		this.earningsPerShare = d.earningsPerShare;
 		this.debtEquityRatio = d.debtEquityRatio;
 	}
-	
+
 	public int getYear() {
 		return year;
 	}
@@ -75,14 +75,14 @@ public class FundamentalData {
 		}
 		return dividende.divide(close, new MathContext(10, RoundingMode.HALF_EVEN));
 	}
-	
+
 	public BigDecimal calculateYOC(InventoryEntry inventoryEntry) {
 		if (inventoryEntry.getQuantity().signum() <= 0) {
 			return BigDecimal.ZERO;
 		}
 		if (inventoryEntry.getAvgPrice().signum() == 0) {
 			return BigDecimal.ZERO;
-		}		
+		}
 		return dividende.divide(inventoryEntry.getAvgPrice(), new MathContext(10, RoundingMode.HALF_EVEN));
 	}
 }

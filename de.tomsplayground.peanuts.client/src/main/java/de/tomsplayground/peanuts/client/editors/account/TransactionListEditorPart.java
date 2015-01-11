@@ -110,7 +110,7 @@ public class TransactionListEditorPart extends EditorPart {
 				saldo.setText(PeanutsUtil.formatCurrency(account.getBalance(), account.getCurrency()));
 			}
 		}
-		
+
 		private void update(Transaction transaction) {
 			if (transaction == null) {
 				return;
@@ -136,7 +136,7 @@ public class TransactionListEditorPart extends EditorPart {
 	private Label saldo;
 
 	private static class AccountLabelProvider extends LabelProvider implements ITableLabelProvider,
-		ITableColorProvider {
+	ITableColorProvider {
 
 		private Color red;
 		private Account account;
@@ -232,7 +232,7 @@ public class TransactionListEditorPart extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		restoreState();
-		
+
 		top = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
@@ -256,33 +256,33 @@ public class TransactionListEditorPart extends EditorPart {
 		saldo = new Label(banner, SWT.NONE);
 
 		PatternFilter filter = new PatternFilter() {
-			 @Override
+			@Override
 			protected boolean isLeafMatch(Viewer viewer, Object element) {
-				 if (element instanceof Transaction) {
-					 Transaction t = (Transaction) element;
-					 StringBuffer text = new StringBuffer();
-					 if (t.getCategory() != null) {
+				if (element instanceof Transaction) {
+					Transaction t = (Transaction) element;
+					StringBuffer text = new StringBuffer();
+					if (t.getCategory() != null) {
 						text.append(t.getCategory().getName()).append(' ');
 					}
-					 text.append(t.getMemo()).append(' ');
-					 if (element instanceof LabeledTransaction) {
-						 LabeledTransaction t2 = (LabeledTransaction) element;
-						 text.append(t2.getLabel()).append(' ');
-					 }
-					 if (element instanceof InvestmentTransaction) {
-						 InvestmentTransaction t2 = (InvestmentTransaction) element;
-						 if (t2.getSecurity() != null) {
+					text.append(t.getMemo()).append(' ');
+					if (element instanceof LabeledTransaction) {
+						LabeledTransaction t2 = (LabeledTransaction) element;
+						text.append(t2.getLabel()).append(' ');
+					}
+					if (element instanceof InvestmentTransaction) {
+						InvestmentTransaction t2 = (InvestmentTransaction) element;
+						if (t2.getSecurity() != null) {
 							text.append(t2.getSecurity().getName());
 						}
-					 }
-					 return wordMatches(text.toString());
-				 }
-				 return true;
+					}
+					return wordMatches(text.toString());
+				}
+				return true;
 			}
 		};
 		FilteredTree filteredTree = new FilteredTree(top, SWT.MULTI | SWT.FULL_SELECTION, filter, true);
 		transactionTree = filteredTree.getViewer();
-		
+
 		transactionTree.addOpenListener(new IOpenListener() {
 			@Override
 			public void open(OpenEvent event) {
@@ -323,7 +323,7 @@ public class TransactionListEditorPart extends EditorPart {
 		Tree table = transactionTree.getTree();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-		
+
 		ControlListener saveSizeOnResize = new ControlListener() {
 			@Override
 			public void controlResized(ControlEvent e) {
@@ -334,7 +334,7 @@ public class TransactionListEditorPart extends EditorPart {
 			}
 		};
 		TreeColumn col;
-		
+
 		col = new TreeColumn(table, SWT.LEFT);
 		col.setText("Date");
 		col.setWidth((colWidth[0] > 0) ? colWidth[0] : 100);
@@ -489,11 +489,11 @@ public class TransactionListEditorPart extends EditorPart {
 				menuManager.add(addSplitTransaction);
 				menuManager.add(addInvestmentSplitTransaction);
 				boolean transactionSelected = false;
-				if (!transactionTree.getSelection().isEmpty() && 
-						((IStructuredSelection)transactionTree.getSelection()).getFirstElement() instanceof Transaction) {
+				if (!transactionTree.getSelection().isEmpty() &&
+					((IStructuredSelection)transactionTree.getSelection()).getFirstElement() instanceof Transaction) {
 					transactionSelected = true;
 				}
-				
+
 				boolean splitTransactionSelected = false;
 				if (transactionSelected) {
 					Transaction transaction = (Transaction) ((IStructuredSelection)transactionTree.getSelection()).getFirstElement();
@@ -504,7 +504,7 @@ public class TransactionListEditorPart extends EditorPart {
 				convertToSplitTransaction.setEnabled(splitTransactionSelected);
 				addSplitTransaction.setEnabled(splitTransactionSelected);
 				addInvestmentSplitTransaction.setEnabled(splitTransactionSelected);
-				
+
 				menuManager.add(duplicateTransactionAction);
 				duplicateTransactionAction.setEnabled(transactionSelected);
 				menuManager.add(new Separator());
@@ -516,7 +516,7 @@ public class TransactionListEditorPart extends EditorPart {
 		getSite().registerContextMenu(menuMgr, getSite().getSelectionProvider());
 		getSite().setSelectionProvider(transactionTree);
 		account.addPropertyChangeListener(propertyChangeListener);
-		
+
 //		List<Transaction> transactions = account.getTransactions();
 //		transactionTree.setInput(transactions);
 		transactionTree.setInput(account);
@@ -552,7 +552,7 @@ public class TransactionListEditorPart extends EditorPart {
 		tree.showSelection();
 		updateTransactionDetail(trans, null);
 	}
-	
+
 	@Override
 	public void dispose() {
 		Account account = ((AccountEditorInput) getEditorInput()).account;
@@ -561,7 +561,7 @@ public class TransactionListEditorPart extends EditorPart {
 		transactionDetails2.dispose();
 		super.dispose();
 	}
-	
+
 	private void updateTransactionDetail(ITransaction t, Transaction parentTransaction) {
 		ITransactionDetail newDetail;
 		if (t instanceof InvestmentTransaction) {
@@ -625,7 +625,7 @@ public class TransactionListEditorPart extends EditorPart {
 	public boolean isSaveAsAllowed() {
 		return false;
 	}
-	
+
 	public void restoreState() {
 		Account account = ((AccountEditorInput) getEditorInput()).account;
 		for (int i = 0; i < colWidth.length; i++ ) {

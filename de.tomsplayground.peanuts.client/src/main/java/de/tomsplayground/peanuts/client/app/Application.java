@@ -24,7 +24,7 @@ public class Application implements IApplication {
 					return IApplication.EXIT_OK;
 				}
 			} while (open != Window.OK);
-			
+
 			int returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor());
 			if (returnCode == PlatformUI.RETURN_RESTART) {
 				return IApplication.EXIT_RESTART;

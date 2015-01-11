@@ -30,7 +30,7 @@ public class DeletePriceHandler extends AbstractHandler {
 				Price p = (Price)iterator.next();
 				priceProvider.removePrice(p.getDay());
 			}
-			
+
 			if (activeEditor instanceof SecurityEditor) {
 				SecurityEditor se = (SecurityEditor)activeEditor;
 				if (se.getSelectedPage() instanceof PriceEditorPart) {

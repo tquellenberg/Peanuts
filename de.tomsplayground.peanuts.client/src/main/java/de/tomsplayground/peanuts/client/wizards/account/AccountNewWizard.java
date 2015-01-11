@@ -18,7 +18,7 @@ import de.tomsplayground.peanuts.domain.base.Account;
 public class AccountNewWizard extends Wizard implements INewWizard {
 
 	public static final String ID = "de.tomsplayground.peanuts.client.accountNewWizard";
-	
+
 	private AccountPage accountPage;
 	private IWorkbench workbench;
 
@@ -32,7 +32,7 @@ public class AccountNewWizard extends Wizard implements INewWizard {
 		accountPage = new AccountPage("");
 		addPage(accountPage);
 	}
-	
+
 	@Override
 	public boolean performFinish() {
 		String accontName = accountPage.getAccountName();
@@ -46,7 +46,7 @@ public class AccountNewWizard extends Wizard implements INewWizard {
 			return true;
 		} catch (PartInitException e) {
 			MessageDialog.openError(activeWorkbenchWindow.getShell(), "Error",
-					"Error opening editor:" + e.getMessage());
+				"Error opening editor:" + e.getMessage());
 		}
 		return false;
 	}

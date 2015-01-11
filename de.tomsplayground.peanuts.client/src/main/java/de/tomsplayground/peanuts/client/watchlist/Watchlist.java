@@ -25,23 +25,23 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 			getPropertyChangeSupport().firePropertyChange(evt);
 		}
 	};
-	
+
 	private final String name;
 	private final List<WatchEntry> entries = new ArrayList<WatchEntry>();
 
 	public Watchlist(String name) {
 		this.name = name;
 	}
-	
+
 	@Override
 	public String getName() {
 		return name;
 	}
-	
+
 	public List<WatchEntry> getEntries() {
 		return Collections.unmodifiableList(entries);
 	}
-	
+
 	public WatchEntry addEntry(Security security) {
 		for (WatchEntry entry : entries) {
 			if (entry.getSecurity().equals(security)) {
@@ -61,7 +61,7 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 		firePropertyChange("entries", null, watchEntry);
 		return watchEntry;
 	}
-	
+
 	public WatchEntry removeEntry(Security security) {
 		for (Iterator<WatchEntry> iterator = entries.iterator(); iterator.hasNext();) {
 			WatchEntry watchEntry = iterator.next();

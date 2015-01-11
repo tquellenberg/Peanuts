@@ -184,9 +184,9 @@ public class DetailPart extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		restoreState();
-		
+
 		inventory = Activator.getDefault().getAccountManager().getFullInventory();
-		
+
 		mapping = ((SecurityCategoryEditorInput) getEditorInput()).getSecurityCategoryMapping();
 
 		Composite top = new Composite(parent, SWT.NONE);
@@ -239,7 +239,7 @@ public class DetailPart extends EditorPart {
 			public void controlMoved(ControlEvent e) {
 			}
 		};
-		
+
 		TreeColumn col = new TreeColumn(tree, SWT.LEFT);
 		col.setText("Name");
 		col.setResizable(true);
@@ -251,7 +251,7 @@ public class DetailPart extends EditorPart {
 		col.setResizable(true);
 		col.setWidth((colWidth[1] > 0) ? colWidth[1] : 100);
 		col.addControlListener(saveSizeOnResize);
-		
+
 		Composite buttonList = new Composite(top, SWT.NONE);
 		buttonList.setLayout(new RowLayout());
 
@@ -283,7 +283,7 @@ public class DetailPart extends EditorPart {
 				}
 			}
 		});
-		
+
 		removeButton = new Button(buttonList, SWT.NONE);
 		removeButton.setText("Remove");
 		removeButton.addSelectionListener(new SelectionAdapter() {
@@ -298,7 +298,7 @@ public class DetailPart extends EditorPart {
 			}
 		});
 		removeButton.setEnabled(false);
-		
+
 		upButton = new Button(buttonList, SWT.NONE);
 		upButton.setText("Up");
 		upButton.addSelectionListener(new SelectionAdapter() {
@@ -344,10 +344,10 @@ public class DetailPart extends EditorPart {
 
 	private boolean singleCategorySelected(ITreeSelection selection) {
 		return (!selection.isEmpty()) &&
-				(selection.getPaths().length == 1) &&
-				(selection.getFirstElement() instanceof String);
+			(selection.getPaths().length == 1) &&
+			(selection.getFirstElement() instanceof String);
 	}
-	
+
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		// nothing to do

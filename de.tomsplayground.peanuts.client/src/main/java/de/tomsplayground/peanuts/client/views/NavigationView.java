@@ -71,7 +71,7 @@ public class NavigationView extends ViewPart {
 	private TreeParent root = new TreeParent("");
 
 	private PropertyChangeListener nameChangesListener = new PropertyChangeListener() {
-		
+
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			viewer.update(evt.getSource(), null);
@@ -102,7 +102,7 @@ public class NavigationView extends ViewPart {
 	};
 
 	private PropertyChangeListener propertyChangeListener;
-	
+
 	class TreeObject {
 		private String name;
 		private Object baseObject;
@@ -149,7 +149,7 @@ public class NavigationView extends ViewPart {
 			child.setParent(this);
 			if (child.baseObject instanceof ObservableModelObject) {
 				((ObservableModelObject) child.baseObject).addPropertyChangeListener("name", nameChangesListener);
-			}				
+			}
 		}
 
 		public void removeChild(TreeObject child) {
@@ -157,9 +157,9 @@ public class NavigationView extends ViewPart {
 			child.setParent(null);
 			if (child.baseObject instanceof ObservableModelObject) {
 				((ObservableModelObject) child.baseObject).removePropertyChangeListener(nameChangesListener);
-			}				
+			}
 		}
-		
+
 		public void setChildren(List<TreeObject> newChildren) {
 			for (TreeObject o : children) {
 				o.setParent(null);
@@ -173,7 +173,7 @@ public class NavigationView extends ViewPart {
 		public TreeObject[] getChildren() {
 			return children.toArray(new TreeObject[children.size()]);
 		}
-		
+
 		public TreeObject getChild(String name) {
 			for (TreeObject child : children) {
 				if (child.getName().equals(name)) {
@@ -248,7 +248,7 @@ public class NavigationView extends ViewPart {
 			return false;
 		}
 	}
-	
+
 	private void destroyModel(TreeObject element) {
 		if (element instanceof TreeParent) {
 			TreeParent parent = (TreeParent)element;
@@ -259,7 +259,7 @@ public class NavigationView extends ViewPart {
 			}
 		}
 	}
-	
+
 	private void updateModel() {
 		AccountManager accountManager = Activator.getDefault().getAccountManager();
 		updateElements(root, "Accounts", accountManager.getAccounts());
@@ -342,7 +342,7 @@ public class NavigationView extends ViewPart {
 					IEditorInput input = new ForecastEditorInput(forecast);
 					try {
 						getSite().getWorkbenchWindow().getActivePage().openEditor(input,
-								ForecastEditor.ID);
+							ForecastEditor.ID);
 					} catch (PartInitException e) {
 						e.printStackTrace();
 					}
@@ -351,7 +351,7 @@ public class NavigationView extends ViewPart {
 					IEditorInput input = new CreditEditorInput(credit);
 					try {
 						getSite().getWorkbenchWindow().getActivePage().openEditor(input,
-								CreditEditor.ID);
+							CreditEditor.ID);
 					} catch (PartInitException e) {
 						e.printStackTrace();
 					}
@@ -360,7 +360,7 @@ public class NavigationView extends ViewPart {
 					IEditorInput input = new SecurityCategoryEditorInput(credit);
 					try {
 						getSite().getWorkbenchWindow().getActivePage().openEditor(input,
-								SecurityCategoryEditor.ID);
+							SecurityCategoryEditor.ID);
 					} catch (PartInitException e) {
 						e.printStackTrace();
 					}
@@ -368,7 +368,7 @@ public class NavigationView extends ViewPart {
 			}
 		});
 		viewer.expandAll();
-		
+
 		MenuManager menu = new MenuManager("#popupMenu", "popupMenu");
 		menu.setRemoveAllWhenShown(true);
 		menu.addMenuListener(new IMenuListener() {
@@ -379,7 +379,7 @@ public class NavigationView extends ViewPart {
 		});
 		viewer.getTree().setMenu(menu.createContextMenu(viewer.getTree()));
 		getSite().registerContextMenu(menu, viewer);
-		
+
 		// Drag-Source
 		final Tree tree = viewer.getTree();
 		Transfer[] types = new Transfer[] { PeanutsTransfer.INSTANCE };
@@ -392,7 +392,7 @@ public class NavigationView extends ViewPart {
 			public void dragStart(DragSourceEvent event) {
 				TreeItem[] selection = tree.getSelection();
 				if (selection.length > 0 && selection[0].getData() instanceof Security) {
-					event.doit = true;					
+					event.doit = true;
 					dragSourceItem[0] = (Security) selection[0].getData();
 				} else {
 					event.doit = false;
@@ -421,7 +421,7 @@ public class NavigationView extends ViewPart {
 			}
 		});
 		actionBars.setGlobalActionHandler(ActionFactory.PROPERTIES.getId(), new PropertyDialogAction(getSite(), viewer));
-		
+
 		getSite().setSelectionProvider(viewer);
 	}
 
@@ -439,7 +439,7 @@ public class NavigationView extends ViewPart {
 		Activator.getDefault().getAccountManager().removePropertyChangeListener(propertyChangeListener);
 		super.dispose();
 	}
-	
+
 	@Override
 	public void setFocus() {
 		viewer.getControl().setFocus();

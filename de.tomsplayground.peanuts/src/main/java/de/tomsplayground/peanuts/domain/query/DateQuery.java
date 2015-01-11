@@ -83,5 +83,5 @@ public class DateQuery implements IQuery {
 			}
 		};
 	}
-	
+
 }

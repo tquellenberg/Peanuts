@@ -20,7 +20,7 @@ public class ImmutableListConverter extends AbstractCollectionConverter {
 
 	@Override
 	public boolean canConvert(@SuppressWarnings("rawtypes") Class type) {
-		return type.isInstance(ImmutableList.class) || 
+		return type.isInstance(ImmutableList.class) ||
 			type.equals(DummyImmutableList.class) ||
 			type.getName().equals("com.google.common.collect.RegularImmutableList");
 	}
@@ -46,5 +46,5 @@ public class ImmutableListConverter extends AbstractCollectionConverter {
 		}
 		return builder.build();
 	}
-	
+
 }

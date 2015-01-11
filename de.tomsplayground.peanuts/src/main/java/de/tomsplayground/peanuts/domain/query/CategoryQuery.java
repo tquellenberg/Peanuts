@@ -30,7 +30,7 @@ public class CategoryQuery implements IQuery {
 	public Set<Category> getCategories() {
 		return Collections.unmodifiableSet(categories);
 	}
-	
+
 	private boolean isOkay(Category category) {
 		if (category == null) {
 			return false;
@@ -47,5 +47,5 @@ public class CategoryQuery implements IQuery {
 			}
 		};
 	}
-	
+
 }

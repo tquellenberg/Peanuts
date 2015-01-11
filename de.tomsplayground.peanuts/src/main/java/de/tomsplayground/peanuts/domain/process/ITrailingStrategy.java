@@ -5,8 +5,8 @@ import java.math.BigDecimal;
 public interface ITrailingStrategy {
 
 	/**
-	 * Calculates the new stop value. 
-	 * 
+	 * Calculates the new stop value.
+	 *
 	 * @param stop Old stop value
 	 * @param price Current stock price
 	 * @return New stop value

@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
 public class AdjustedPrices {
-	
+
 	private final static MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	public ImmutableList<IPrice> adjustPrices(List<? extends IPrice> prices, StockSplit split) {
@@ -24,5 +24,5 @@ public class AdjustedPrices {
 		}
 		return builder.build();
 	}
-	
+
 }

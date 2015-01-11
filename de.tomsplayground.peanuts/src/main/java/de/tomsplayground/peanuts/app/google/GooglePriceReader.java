@@ -25,7 +25,7 @@ public class GooglePriceReader extends PriceProvider {
 
 	private URL url;
 	private final Reader reader;
-	
+
 	public GooglePriceReader(String ticker) throws IOException {
 		url = new URL("http://www.google.com/finance/historical?q=" + ticker + "&output=csv");
 		reader = new InputStreamReader(url.openStream(), "UTF-8");
@@ -60,13 +60,13 @@ public class GooglePriceReader extends PriceProvider {
 		}
 		csvReader.close();
 	}
-	
+
 	protected Day readDay(String dayStr) throws ParseException {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.US);
 		Date date = dateFormat.parse(dayStr);
 		return Day.fromDate(date);
 	}
-	
+
 	@Override
 	public String getName() {
 		return "Google";

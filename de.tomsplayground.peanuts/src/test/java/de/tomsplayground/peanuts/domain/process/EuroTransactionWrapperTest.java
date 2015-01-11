@@ -19,12 +19,12 @@ public class EuroTransactionWrapperTest {
 		Category cat = new Category("test", Category.Type.EXPENSE);
 		Transaction t = new Transaction(day, BigDecimal.TEN, cat, "memo");
 		EuroTransactionWrapper wrapper = new EuroTransactionWrapper(t, Currency.getInstance("DEM"));
-		
+
 		assertEquals(day, wrapper.getDay());
 		assertEquals(cat, wrapper.getCategory());
 		assertEquals("memo", wrapper.getMemo());
 	}
-	
+
 	@Test
 	public void splitTransaction() throws Exception {
 		Day day = new Day(2000, 5, 10);
@@ -32,7 +32,7 @@ public class EuroTransactionWrapperTest {
 		t.addSplit(new Transaction(day, BigDecimal.TEN));
 		t.addSplit(new Transaction(day, BigDecimal.TEN));
 		EuroTransactionWrapper wrapper = new EuroTransactionWrapper(t, Currency.getInstance("DEM"));
-		
+
 		assertEquals(2, wrapper.getSplits().size());
 		assertEquals(EuroTransactionWrapper.class, wrapper.getSplits().get(0).getClass());
 	}

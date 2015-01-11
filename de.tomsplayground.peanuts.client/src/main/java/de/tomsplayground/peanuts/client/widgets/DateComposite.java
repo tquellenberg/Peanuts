@@ -102,7 +102,7 @@ public class DateComposite extends Composite {
 		newDate.set(date.getYear(), date.getMonth(), date.getDay());
 		return newDate;
 	}
-	
+
 	public Day getDay() {
 		return new Day(date.getYear(), date.getMonth(), date.getDay());
 	}

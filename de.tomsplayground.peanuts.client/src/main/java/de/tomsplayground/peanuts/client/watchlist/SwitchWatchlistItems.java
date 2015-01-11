@@ -20,7 +20,7 @@ public class SwitchWatchlistItems extends CompoundContributionItem {
 	public SwitchWatchlistItems() {
 		super();
 	}
-	
+
 	public SwitchWatchlistItems(String id) {
 		super(id);
 	}

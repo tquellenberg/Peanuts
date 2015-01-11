@@ -28,7 +28,7 @@ public class SecurityCategoryNewWizard extends Wizard implements INewWizard {
 
 	@Override
 	public boolean performFinish() {
-		AccountManager accountManager = Activator.getDefault().getAccountManager();		
+		AccountManager accountManager = Activator.getDefault().getAccountManager();
 		SecurityCategoryMapping securityCategoryMapping = new SecurityCategoryMapping(page.getName(), page.getCategories());
 		accountManager.addSecurityCategoryMapping(securityCategoryMapping);
 		return true;

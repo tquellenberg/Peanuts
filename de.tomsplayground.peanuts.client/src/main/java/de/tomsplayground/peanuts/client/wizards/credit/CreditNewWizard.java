@@ -11,14 +11,14 @@ import de.tomsplayground.peanuts.domain.process.ICredit;
 public class CreditNewWizard extends Wizard implements INewWizard {
 
 	public static final String ID = "de.tomsplayground.peanuts.client.creditNewWizard";
-	
+
 	private BasePage basePage;
-	
+
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		// nothing to do
 	}
-	
+
 	@Override
 	public void addPages() {
 		basePage = new BasePage("Credit");

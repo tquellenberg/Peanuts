@@ -41,7 +41,7 @@ public class SaveAction extends Action {
 				} while (open != Window.OK);
 				Activator.getDefault().setPassPhrase(passowordDialog.getPassword());
 			}
-			
+
 			try {
 				Activator.getDefault().save(filename);
 			} catch (IOException e) {

@@ -12,7 +12,7 @@ import com.google.common.collect.Lists;
 import de.tomsplayground.util.Day;
 
 public class XIRR {
-	
+
 	private final BigDecimal minDistance = new BigDecimal("0.0000000001");
 
 	private static class Entry {
@@ -45,13 +45,13 @@ public class XIRR {
 			entry.delta = Days.daysBetween(minDate.getJodaDate(), entry.day.getJodaDate()).getDays();
 		}
 	}
-	
+
 	protected double entryVlaue(BigDecimal cashflow, int days, BigDecimal rate) {
-		return cashflow.doubleValue() / 
+		return cashflow.doubleValue() /
 			Math.pow(rate.add(BigDecimal.ONE).doubleValue(),
 				(double)days / (double)365);
 	}
-	
+
 	private void checkNegative() {
 		if (dates.get(dates.size()-1).cashflow.signum() == -1) {
 			for (Entry entry : dates) {
@@ -59,14 +59,14 @@ public class XIRR {
 			}
 		}
 	}
-	
+
 	public BigDecimal calculateValue() {
 		if (dates.isEmpty()) {
 			return BigDecimal.ZERO;
 		}
 		caluculateDates();
 		checkNegative();
-		
+
 		BigDecimal irrGuess = new BigDecimal("0.5");
 		BigDecimal rate = irrGuess;
 		boolean wasHi = false;
@@ -80,7 +80,7 @@ public class XIRR {
 				break;
 			}
 			if (irrGuess.compareTo(minDistance) < 0) {
-				 break;
+				break;
 			}
 			if (v > 0.0) {
 				if (wasHi) {

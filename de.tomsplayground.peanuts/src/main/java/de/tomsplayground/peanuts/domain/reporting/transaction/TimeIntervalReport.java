@@ -27,10 +27,10 @@ public class TimeIntervalReport extends ObservableModelObject {
 	final private Interval interval;
 	final private ImmutableList<ITransaction> transactions;
 	final private Inventory inventory;
-	
+
 	final private Day start;
 	final private Day end;
-	
+
 	final private List<BigDecimal> values = new ArrayList<BigDecimal>();
 	final private List<BigDecimal> inventoryValues = new ArrayList<BigDecimal>();
 	final private List<BigDecimal> investmentValues = new ArrayList<BigDecimal>();
@@ -38,12 +38,12 @@ public class TimeIntervalReport extends ObservableModelObject {
 	public TimeIntervalReport(ITransactionProvider account, Interval interval) {
 		this(account, interval, null);
 	}
-	
+
 	public TimeIntervalReport(ITransactionProvider account, Interval interval, IPriceProviderFactory priceProviderFactory) {
-		this.interval = interval;	
+		this.interval = interval;
 		this.transactions = account.getTransactions();
 		this.inventory = new Inventory(account, priceProviderFactory);
-		
+
 		inventory.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
@@ -51,7 +51,7 @@ public class TimeIntervalReport extends ObservableModelObject {
 				firePropertyChange("values", null, null);
 			}
 		});
-		
+
 		if (transactions.isEmpty()) {
 			start = new Day();
 			end = new Day();
@@ -89,7 +89,7 @@ public class TimeIntervalReport extends ObservableModelObject {
 			calculateValues();
 		}
 	}
-	
+
 	private void calculateValues() {
 		synchronized (inventoryValues) {
 			DateIterator dateIterator = dateIterator();
@@ -136,7 +136,7 @@ public class TimeIntervalReport extends ObservableModelObject {
 			return new ArrayList<BigDecimal>(values);
 		}
 	}
-	
+
 	public List<BigDecimal> getInventoryValues() {
 		synchronized (inventoryValues) {
 			return new ArrayList<BigDecimal>(inventoryValues);

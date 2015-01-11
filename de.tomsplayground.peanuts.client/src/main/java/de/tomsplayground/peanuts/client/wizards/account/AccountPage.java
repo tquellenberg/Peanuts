@@ -30,7 +30,7 @@ public class AccountPage extends WizardPage {
 	private Text accountName;
 	private Combo type;
 	private Combo currency;
-	
+
 	protected AccountPage(String pageName) {
 		super(pageName);
 		setPageComplete(false);
@@ -62,7 +62,7 @@ public class AccountPage extends WizardPage {
 		for (Type t : Account.Type.values()) {
 			type.add(t.name());
 		}
-		
+
 		setControl(contents);
 	}
 

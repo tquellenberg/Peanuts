@@ -64,7 +64,7 @@ public class TransactionDetails implements ITransactionDetail {
 	public TransactionDetails(Account account) {
 		this.account = account;
 	}
-	
+
 	@Override
 	public Composite createComposite(Composite parent) {
 		detailComposit = new Composite(parent, SWT.NONE);
@@ -155,7 +155,7 @@ public class TransactionDetails implements ITransactionDetail {
 	public void dispose() {
 		// nothing to do
 	}
-	
+
 	protected void readForm() {
 		try {
 			BigDecimal newAmount = PeanutsUtil.parseCurrency(amount.getText());

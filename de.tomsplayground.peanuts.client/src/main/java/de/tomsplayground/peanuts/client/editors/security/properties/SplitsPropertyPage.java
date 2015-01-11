@@ -55,14 +55,14 @@ public class SplitsPropertyPage extends PropertyPage {
 		public String getColumnText(Object element, int columnIndex) {
 			StockSplit split = (StockSplit) element;
 			switch (columnIndex) {
-			case 0:
-				return PeanutsUtil.formatDate(split.getDay());
-			case 1:
-				return String.valueOf(split.getFrom());
-			case 2:
-				return String.valueOf(split.getTo());
-			default:
-				return "";
+				case 0:
+					return PeanutsUtil.formatDate(split.getDay());
+				case 1:
+					return String.valueOf(split.getFrom());
+				case 2:
+					return String.valueOf(split.getTo());
+				default:
+					return "";
 			}
 		}
 	}
@@ -78,7 +78,7 @@ public class SplitsPropertyPage extends PropertyPage {
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		composite.setLayout(layout);
-		
+
 		IAdaptable adapter = getElement();
 		security = (Security)adapter.getAdapter(Security.class);
 

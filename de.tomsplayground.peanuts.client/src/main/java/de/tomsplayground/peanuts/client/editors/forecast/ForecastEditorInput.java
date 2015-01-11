@@ -10,11 +10,11 @@ import de.tomsplayground.peanuts.domain.reporting.forecast.Forecast;
 public class ForecastEditorInput implements IEditorInput {
 
 	private Forecast forecast;
-	
+
 	public ForecastEditorInput(Forecast forecast) {
 		this.forecast = forecast;
 	}
-	
+
 	@Override
 	public boolean exists() {
 		return true;

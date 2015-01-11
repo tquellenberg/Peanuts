@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 final class LoginDialog extends TitleAreaDialog {
-	
+
 	private Text filenameText;
 	private Text passwordText;
 
@@ -47,15 +47,15 @@ final class LoginDialog extends TitleAreaDialog {
 		gridLayout.marginWidth = 0;
 		fileChooserComposite.setLayout(gridLayout);
 		fileChooserComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
+
 		filenameText = new Text(fileChooserComposite, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 		filenameText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
+
 		Button fileChooserButton = new Button(fileChooserComposite, SWT.FLAT);
 		Image image = Activator.getDefault().getImageRegistry().get(Activator.IMAGE_LOAD_FILE);
 		fileChooserButton.setImage(image);
 		fileChooserButton.addSelectionListener(new SelectionListener() {
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog fileDialog = new FileDialog(LoginDialog.this.getShell(), SWT.OPEN);
@@ -66,7 +66,7 @@ final class LoginDialog extends TitleAreaDialog {
 					passwordText.setEnabled(selectedFilename.endsWith("."+Activator.FILE_EXTENSION_SECURE));
 				}
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				widgetSelected(e);
@@ -78,7 +78,7 @@ final class LoginDialog extends TitleAreaDialog {
 
 		passwordText = new Text(contents, SWT.SINGLE | SWT.BORDER | SWT.PASSWORD);
 		passwordText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
+
 		String filename = Activator.getDefault().getFilename();
 		if (StringUtils.isNotBlank(filename)) {
 			filenameText.setText(filename);
@@ -88,7 +88,7 @@ final class LoginDialog extends TitleAreaDialog {
 
 		return parentComposite;
 	}
-	
+
 	@Override
 	protected void okPressed() {
 		String password = passwordText.getText();
@@ -101,7 +101,7 @@ final class LoginDialog extends TitleAreaDialog {
 			setErrorMessage("Password must not be emtpy.");
 			return;
 		}
-		
+
 		Activator activator = Activator.getDefault();
 		activator.setPassPhrase(password);
 		try {

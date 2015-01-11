@@ -50,11 +50,11 @@ public class BasePage extends WizardPage {
 			}
 		});
 		forecastName.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		
+
 		label = new Label(top, SWT.NONE);
 		label.setText("From:");
 		startDate = new DateComposite(top, SWT.NONE);
-		
+
 		label = new Label(top, SWT.NONE);
 		label.setText("Start amount:");
 		startAmount = (new CalculatorText(top, SWT.SINGLE | SWT.BORDER)).getText();

@@ -14,11 +14,11 @@ import de.tomsplayground.peanuts.domain.process.Price;
 public class Scraping {
 
 	private final String url;
-	
+
 	public Scraping(String url) {
 		this.url = url;
 	}
-	
+
 	public Price scrap(String code) throws CompilationFailedException, InstantiationException, IllegalAccessException, IOException {
 		HtmlCleaner cleaner = new HtmlCleaner();
 		TagNode node = cleaner.clean(new URL(url));

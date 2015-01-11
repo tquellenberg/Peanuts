@@ -93,10 +93,10 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		loadAction = new LoadAction(window);
 		loadAction.setText("Load");
 		register(loadAction);
-		
+
 		propertiesAction = ActionFactory.PROPERTIES.create(window);
 		register(propertiesAction);
-		
+
 		preferenceAction = ActionFactory.PREFERENCES.create(window);
 		register(preferenceAction);
 
@@ -155,14 +155,14 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		IToolBarManager toolbar = new ToolBarManager(SWT.FLAT | SWT.RIGHT);
 		coolBar.add(new ToolBarContributionItem(toolbar, "main"));
 	}
-	
+
 	@Override
 	protected void fillStatusLine(final IStatusLineManager statusLine) {
 		statusLine.appendToGroup(StatusLineManager.MIDDLE_GROUP, new ContributionItem() {
 			@Override
 			public void fill(Composite parent) {
 				String text = Activator.getDefault().getFilename();
-				
+
 				GC gc = new GC(parent);
 				gc.setFont(parent.getFont());
 				FontMetrics fm = gc.getFontMetrics();
@@ -175,7 +175,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 				StatusLineLayoutData statusLineLayoutData = new StatusLineLayoutData();
 				statusLineLayoutData.heightHint = heightHint;
 				sep.setLayoutData(statusLineLayoutData);
-				
+
 				CLabel label = new CLabel(parent, SWT.SHADOW_NONE);
 				statusLineLayoutData = new StatusLineLayoutData();
 				statusLineLayoutData.widthHint = widthHint;

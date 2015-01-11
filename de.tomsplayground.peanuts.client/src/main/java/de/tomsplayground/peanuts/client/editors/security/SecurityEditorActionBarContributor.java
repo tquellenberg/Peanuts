@@ -30,8 +30,8 @@ public class SecurityEditorActionBarContributor extends MultiPageEditorActionBar
 					security.getConfigurationValue(SecurityPropertyPage.OVERRIDE_EXISTING_PRICE_DATA)).booleanValue());
 			}
 		});
-			
-		actionBars.setGlobalActionHandler(ActionFactory.PROPERTIES.getId(), 
+
+		actionBars.setGlobalActionHandler(ActionFactory.PROPERTIES.getId(),
 			new EditorInputPropertyDialogAction(part.getSite(), part.getEditorInput()));
 	}
 

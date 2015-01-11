@@ -28,11 +28,11 @@ import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
 public class StopLossPropertyPage extends PropertyPage {
-	
+
 	private Text stop;
 	private DateComposite date;
 	private Text trailingDistancePercent;
-	
+
 	public StopLossPropertyPage() {
 		noDefaultAndApplyButton();
 	}
@@ -45,10 +45,10 @@ public class StopLossPropertyPage extends PropertyPage {
 		date = createDateWithLabel(composite, "Start date");
 		stop = createTextWithLabel(composite, "Stop");
 		trailingDistancePercent = createTextWithLabel(composite, "Trailing distance in percent (0..100%)");
-		
+
 		IAdaptable adapter = getElement();
 		Security security = (Security)adapter.getAdapter(Security.class);
-		
+
 		ImmutableSet<StopLoss> stopLosses = Activator.getDefault().getAccountManager().getStopLosses(security);
 		if (! stopLosses.isEmpty()) {
 			StopLoss stopLoss = stopLosses.iterator().next();
@@ -100,7 +100,7 @@ public class StopLossPropertyPage extends PropertyPage {
 		if (! stopLosses.isEmpty()) {
 			accountManager.removeStopLoss(stopLosses.iterator().next());
 		}
-		
+
 		Day startDate = date.getDay();
 		BigDecimal stopValue;
 		try {

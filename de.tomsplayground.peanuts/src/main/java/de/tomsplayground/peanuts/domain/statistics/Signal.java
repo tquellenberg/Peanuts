@@ -13,7 +13,7 @@ public class Signal {
 		BUY,
 		SELL
 	}
-	
+
 	public Signal(Day day, Type type, IPrice price) {
 		this.day = day;
 		this.type = type;

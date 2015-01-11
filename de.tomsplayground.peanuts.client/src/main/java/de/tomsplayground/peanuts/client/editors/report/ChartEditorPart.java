@@ -51,10 +51,10 @@ import de.tomsplayground.peanuts.domain.reporting.transaction.TimeIntervalReport
 import de.tomsplayground.peanuts.domain.reporting.transaction.TimeIntervalReport.Interval;
 
 public class ChartEditorPart extends EditorPart {
-	
+
 	private static final String CHART_TYPE = "chartType";
 	private static final String TIMERANGE = "timerange";
-	
+
 	private boolean dirty = false;
 
 	private Combo displayType;
@@ -99,7 +99,7 @@ public class ChartEditorPart extends EditorPart {
 		JFreeChart chart = createChart(chartType, timerange);
 		chartFrame = new ChartComposite(body, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
+
 		displayType = new Combo(body, SWT.READ_ONLY);
 		displayType.add("in total");
 		displayType.add("per month");
@@ -118,7 +118,7 @@ public class ChartEditorPart extends EditorPart {
 				firePropertyChange(IEditorPart.PROP_DIRTY);
 			}
 		});
-		
+
 		displayTimerange = new Combo(body, SWT.READ_ONLY);
 		displayTimerange.add("all");
 		displayTimerange.add("three years");
@@ -138,8 +138,8 @@ public class ChartEditorPart extends EditorPart {
 					firePropertyChange(IEditorPart.PROP_DIRTY);
 				}
 			}
-		});		
-		
+		});
+
 		Report report = getReport();
 		report.addPropertyChangeListener(reportChangeListener);
 	}
@@ -151,23 +151,23 @@ public class ChartEditorPart extends EditorPart {
 	@Override
 	public void dispose() {
 		Report report = getReport();
-		report.removePropertyChangeListener(reportChangeListener);		
+		report.removePropertyChangeListener(reportChangeListener);
 		super.dispose();
 	}
-	
+
 	private JFreeChart createChart(String type, String timerange) {
 		JFreeChart chart;
 		SimpleDateFormat axisDateFormat;
 		if (type.equals("in total")) {
 			TimeSeriesCollection dataset = createTotalDataset();
 			chart = ChartFactory.createTimeSeriesChart(
-					getEditorInput().getName(), // title
-					"Date", // x-axis label
-					"Price", // y-axis label
-					dataset, // data
-					false, // create legend?
-					true, // generate tooltips?
-					false // generate URLs?
+				getEditorInput().getName(), // title
+				"Date", // x-axis label
+				"Price", // y-axis label
+				dataset, // data
+				false, // create legend?
+				true, // generate tooltips?
+				false // generate URLs?
 				);
 			timeChart = new TimeChart(chart, dataset);
 			timeChart.setChartType(timerange);
@@ -186,19 +186,19 @@ public class ChartEditorPart extends EditorPart {
 				axisDateFormat = new SimpleDateFormat("yyyy");
 			}
 			chart = ChartFactory.createXYBarChart(
-					getEditorInput().getName(), // title
-					"Date", // x-axis label
-					true,
-					"Price", // y-axis label
-					dataset, // data
-					PlotOrientation.VERTICAL,
-					false, // create legend?
-					true, // generate tooltips?
-					false // generate URLs?
+				getEditorInput().getName(), // title
+				"Date", // x-axis label
+				true,
+				"Price", // y-axis label
+				dataset, // data
+				PlotOrientation.VERTICAL,
+				false, // create legend?
+				true, // generate tooltips?
+				false // generate URLs?
 				);
 			timeChart = new TimeChart(chart, dataset);
 		}
-		
+
 		chart.setBackgroundPaint(Color.white);
 
 		XYPlot plot = (XYPlot) chart.getPlot();
@@ -256,10 +256,10 @@ public class ChartEditorPart extends EditorPart {
 		dataset.addSeries(s1);
 		for (TimeSeries timeSeries : forecastSeries) {
 			dataset.addSeries(timeSeries);
-		}		
+		}
 		return dataset;
 	}
-	
+
 	private TimeSeriesCollection createDeltaDataset(Interval interval, Class<? extends RegularTimePeriod> intervalClass) {
 		Report report = getReport();
 		TimeIntervalReport intervalReport = new TimeIntervalReport(report, interval, PriceProviderFactory.getInstance());

@@ -10,7 +10,7 @@ import org.eclipse.ui.part.MultiPageEditorPart;
 
 
 public class CreditEditor extends MultiPageEditorPart {
-	
+
 	public static final String ID = "de.tomsplayground.peanuts.client.creditEditor";
 
 	private CreditChartEditorPart chartEditorPart;

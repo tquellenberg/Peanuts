@@ -506,11 +506,11 @@ public class QifReaderTest extends TestCase {
 
 	public void testResolveComplementTransferTransactions() {
 		Transfer t1 = new Transfer(bankAccount, investmentAccount, new BigDecimal("10.00"),
-				new Day());
+			new Day());
 		bankAccount.addTransaction(t1.getTransferFrom());
 		investmentAccount.addTransaction(t1.getTransferTo());
 		Transfer t2 = new Transfer(investmentAccount, bankAccount, new BigDecimal("-10.00"),
-				new Day());
+			new Day());
 		investmentAccount.addTransaction(t2.getTransferFrom());
 		bankAccount.addTransaction(t2.getTransferTo());
 		qifReader.resolveComplementTransferTransactions();
@@ -523,14 +523,14 @@ public class QifReaderTest extends TestCase {
 
 	public void testResolveComplementSingleSplitTransferTransactions() {
 		Transfer t1 = new Transfer(bankAccount, investmentAccount, new BigDecimal("10.00"),
-				new Day());
+			new Day());
 		Transaction s1 = new Transaction(t1.getTransferFrom().getDay(),
 			t1.getTransferFrom().getAmount());
 		s1.addSplit(t1.getTransferFrom());
 		bankAccount.addTransaction(s1);
 		investmentAccount.addTransaction(t1.getTransferTo());
 		Transfer t2 = new Transfer(investmentAccount, bankAccount, new BigDecimal("-10.00"),
-				new Day());
+			new Day());
 		investmentAccount.addTransaction(t2.getTransferFrom());
 		bankAccount.addTransaction(t2.getTransferTo());
 		qifReader.resolveComplementTransferTransactions();
@@ -543,14 +543,14 @@ public class QifReaderTest extends TestCase {
 
 	public void testResolveComplementDubleSplitTransferTransactions() {
 		Transfer t1 = new Transfer(bankAccount, investmentAccount, new BigDecimal("10.00"),
-				new Day());
+			new Day());
 		Transaction s1 = new Transaction(t1.getTransferFrom().getDay(),
 			t1.getTransferFrom().getAmount());
 		s1.addSplit(t1.getTransferFrom());
 		bankAccount.addTransaction(s1);
 		investmentAccount.addTransaction(t1.getTransferTo());
 		Transfer t2 = new Transfer(investmentAccount, bankAccount, new BigDecimal("-10.00"),
-				new Day());
+			new Day());
 		Transaction s2 = new Transaction(t2.getTransferFrom().getDay(),
 			t2.getTransferFrom().getAmount());
 		s2.addSplit(t2.getTransferFrom());

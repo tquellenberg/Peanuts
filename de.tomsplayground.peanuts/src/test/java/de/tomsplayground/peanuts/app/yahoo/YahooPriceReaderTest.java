@@ -36,16 +36,16 @@ public class YahooPriceReaderTest extends TestCase {
 		Day date = price.getDay();
 		assertEquals(new Day(2007, 4, 23), date);
 	}
-	
+
 	@Test
 	public void testEmpty() throws IOException {
 		Reader in = new StringReader("");
 		YahooPriceReader reader = new YahooPriceReader(in, YahooPriceReader.Type.CURRENT);
-		
+
 		List<IPrice> prices = reader.getPrices();
 		assertEquals(0, prices.size());
 	}
-	
+
 	@Test
 	public void testReadCurrent2() throws IOException {
 		Reader in = new InputStreamReader(QifReaderTest.class.getResourceAsStream("/Yahoo_current2.csv"));

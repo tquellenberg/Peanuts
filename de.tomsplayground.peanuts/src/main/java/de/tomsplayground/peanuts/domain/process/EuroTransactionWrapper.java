@@ -23,7 +23,7 @@ public class EuroTransactionWrapper implements ITransaction {
 		this.transaction = transaction;
 		this.currency = currency;
 	}
-	
+
 	@Override
 	public BigDecimal getAmount() {
 		if (euroAmount == null) {
@@ -42,7 +42,7 @@ public class EuroTransactionWrapper implements ITransaction {
 	public Day getDay() {
 		return transaction.getDay();
 	}
-	
+
 	@Override
 	public String getMemo() {
 		return transaction.getMemo();

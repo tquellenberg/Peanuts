@@ -91,7 +91,7 @@ public class AccountEditorInput implements IEditorInput, ITransactionProviderInp
 	public Account getAccount() {
 		return account;
 	}
-	
+
 	@Override
 	public ITransactionProvider getTransactionProvider() {
 		return account;

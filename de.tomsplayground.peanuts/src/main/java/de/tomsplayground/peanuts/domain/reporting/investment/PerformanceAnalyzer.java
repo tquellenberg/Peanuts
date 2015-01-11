@@ -58,11 +58,11 @@ public class PerformanceAnalyzer {
 			}
 			xirr.add(date, amount);
 		}
-		
+
 		private BigDecimal invested() {
 			return marketValue1.add(additions).add(leavings);
 		}
-		
+
 		public int getYear() {
 			return year;
 		}
@@ -97,7 +97,7 @@ public class PerformanceAnalyzer {
 			return rate;
 		}
 	}
-	
+
 	public PerformanceAnalyzer(ITransactionProvider account, IPriceProviderFactory priceProviderFactory) {
 		this.account = account;
 		this.priceProviderFactory = priceProviderFactory;
@@ -106,7 +106,7 @@ public class PerformanceAnalyzer {
 		this.xirr5Year = new XIRR();
 		buidMarketValues();
 	}
-	
+
 	private void buidMarketValues() {
 		if (account.getMinDate() == null) {
 			return;
@@ -165,7 +165,7 @@ public class PerformanceAnalyzer {
 		}
 		value.add(to, BigDecimal.ZERO);
 	}
-	
+
 	private void calculateAdditionLeaving(Day from, Day to, XIRR xirr) {
 		ImmutableList<ITransaction> list = account.getTransactionsByDate(from, to);
 		for (ITransaction transaction : list) {
@@ -186,7 +186,7 @@ public class PerformanceAnalyzer {
 	public ImmutableList<Value> getValues() {
 		return values;
 	}
-	
+
 	public BigDecimal getFullGainingPercent() {
 		return xirrFull.calculateValue();
 	}

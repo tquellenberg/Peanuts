@@ -8,11 +8,11 @@ import de.tomsplayground.peanuts.domain.reporting.transaction.TimeIntervalReport
 import de.tomsplayground.util.Day;
 
 public class DateIterator implements Iterator<Day> {
-	
+
 	private final Calendar pointer;
 	private final Interval interval;
 	private final Day end;
-	
+
 	public DateIterator(Day start, Day end, Interval interval) {
 		if (end.before(start)) {
 			throw new IllegalArgumentException("end before start");
@@ -27,7 +27,7 @@ public class DateIterator implements Iterator<Day> {
 		Day result = Day.fromCalendar(pointer);
 		return !(result.after(end));
 	}
-	
+
 	@Override
 	public Day next() {
 		if (!hasNext()) {
@@ -53,7 +53,7 @@ public class DateIterator implements Iterator<Day> {
 		}
 		return result;
 	}
-	
+
 	public Day currentRangeEnd() {
 		return Day.fromCalendar(pointer);
 	}

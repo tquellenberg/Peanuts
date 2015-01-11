@@ -50,7 +50,7 @@ public class DevelopmentEditorPart extends EditorPart {
 		public StringTableLabelProvider(Color red) {
 			this.red = red;
 		}
-		
+
 		@Override
 		public Image getColumnImage(Object element, int columnIndex) {
 			return null;
@@ -90,7 +90,7 @@ public class DevelopmentEditorPart extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		restoreState();
-		
+
 		Composite top = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
@@ -111,7 +111,7 @@ public class DevelopmentEditorPart extends EditorPart {
 			public void controlMoved(ControlEvent e) {
 			}
 		};
-		
+
 		TableColumn col = new TableColumn(table, SWT.LEFT);
 		col.setText("Text");
 		col.setWidth((colWidth[0] > 0) ? colWidth[0] : 100);
@@ -137,7 +137,7 @@ public class DevelopmentEditorPart extends EditorPart {
 
 		tableViewer.setInput(generateValues());
 	}
-	
+
 	protected List<String[]> generateValues() {
 		List<String[]> result = new ArrayList<String[]>();
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
@@ -150,7 +150,7 @@ public class DevelopmentEditorPart extends EditorPart {
 		development(result, prices, Calendar.YEAR, -1, "One year");
 		development(result, prices, Calendar.YEAR, -3, "Three years");
 		development(result, prices, Calendar.YEAR, -5, "Five years");
-		
+
 		String stopLossValue = security.getConfigurationValue("STOPLOSS");
 		if (StringUtils.isNotEmpty(stopLossValue)) {
 			try {
@@ -169,7 +169,7 @@ public class DevelopmentEditorPart extends EditorPart {
 				// Okay
 			}
 		}
-		
+
 		return result;
 	}
 

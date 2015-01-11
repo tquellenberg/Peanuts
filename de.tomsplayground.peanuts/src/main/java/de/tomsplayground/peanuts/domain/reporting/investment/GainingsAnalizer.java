@@ -7,9 +7,9 @@ import com.google.common.base.Function;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 
 /**
- * 
+ *
  * Calculate realized gainings.
- * 
+ *
  */
 public class GainingsAnalizer extends Analyzer {
 
