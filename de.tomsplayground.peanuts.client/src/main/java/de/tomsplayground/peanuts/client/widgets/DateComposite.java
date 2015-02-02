@@ -27,8 +27,8 @@ import de.tomsplayground.util.Day;
 
 public class DateComposite extends Composite {
 
-	private Button dateButton;
-	private DateTime date;
+	private final Button dateButton;
+	private final DateTime date;
 	List<ModifyListener> modifyListener = new ArrayList<ModifyListener>();
 
 	public DateComposite(Composite parent, int style) {
@@ -104,6 +104,10 @@ public class DateComposite extends Composite {
 	}
 
 	public Day getDay() {
+		int year = date.getYear();
+		if (year < 1000) {
+			year += 2000;
+		}
 		return new Day(date.getYear(), date.getMonth(), date.getDay());
 	}
 

@@ -183,6 +183,13 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 		if (category != null) {
 			this.category = accountManager.getCategoryByPath(category.getPath());
 		}
+		if (day.year < 1900) {
+			int year = 2000;
+			if (day.year < 100) {
+				year = day.year + 2000;
+			}
+			day = new Day(year, day.month, day.day);
+		}
 		for (Transaction t : splits) {
 			if (t.getCategory() != null) {
 				t.setCategory(accountManager.getCategoryByPath(t.getCategory().getPath()));

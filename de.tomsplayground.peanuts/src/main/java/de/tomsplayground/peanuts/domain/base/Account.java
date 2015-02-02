@@ -3,6 +3,8 @@ package de.tomsplayground.peanuts.domain.base;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -282,6 +284,12 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 			transaction.addPropertyChangeListener(transactionChangeListener);
 			transaction.reconfigureAfterDeserialization(accountManager);
 		}
+		Collections.sort(transactions, new Comparator<Transaction>() {
+			@Override
+			public int compare(Transaction o1, Transaction o2) {
+				return o1.getDay().compareTo(o2.getDay());
+			}
+		});
 	}
 
 	public boolean isSplitTransaction(Transaction split) {
