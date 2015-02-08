@@ -19,6 +19,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.base.Category.Type;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
+import de.tomsplayground.peanuts.domain.calendar.CalendarEntry;
+import de.tomsplayground.peanuts.domain.calendar.SecurityCalendarEntry;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.process.EuroTransactionWrapper;
 import de.tomsplayground.peanuts.domain.process.ICredit;
@@ -42,13 +44,13 @@ public class AccountManager extends ObservableModelObject {
 	private ImmutableList<Security> securities = ImmutableList.of();
 
 	// FIXME: Do not use HashSet with mutable objects.
-	final private Set<Category> categories = new HashSet<Category>();
+	private final Set<Category> categories = new HashSet<Category>();
 
-	final private List<Report> reports = new ArrayList<Report>();
+	private final List<Report> reports = new ArrayList<Report>();
 
-	final private List<Forecast> forecasts = new ArrayList<Forecast>();
+	private final List<Forecast> forecasts = new ArrayList<Forecast>();
 
-	final private List<ICredit> credits = new ArrayList<ICredit>();
+	private final List<ICredit> credits = new ArrayList<ICredit>();
 
 	private ImmutableList<SavedTransaction> savedTransactions = ImmutableList.of();
 
@@ -57,6 +59,8 @@ public class AccountManager extends ObservableModelObject {
 	private Set<StopLoss> stopLosses = new HashSet<StopLoss>();
 
 	private List<SecurityCategoryMapping> securityCategoryMappings = new ArrayList<SecurityCategoryMapping>();
+
+	private List<CalendarEntry> calendarEntries = new ArrayList<CalendarEntry>();
 
 	private transient Inventory fullInventory;
 
@@ -119,8 +123,9 @@ public class AccountManager extends ObservableModelObject {
 				for (ITransaction t : account.getTransactions()) {
 					result.add(new EuroTransactionWrapper(t, account.getCurrency()));
 				}
-			} else
+			} else {
 				result.addAll(account.getTransactions());
+			}
 		}
 		Collections.sort(result, DAY_COMPARATOR);
 		return ImmutableList.copyOf(result);
@@ -286,11 +291,15 @@ public class AccountManager extends ObservableModelObject {
 		credits.clear();
 		stockSplits.clear();
 		stopLosses.clear();
+		calendarEntries.clear();
 		savedTransactions = ImmutableList.of();
 		securityCategoryMappings.clear();
 	}
 
 	public void reconfigureAfterDeserialization() {
+		if (calendarEntries == null) {
+			calendarEntries = new ArrayList<CalendarEntry>();
+		}
 		if (stopLosses == null) {
 			stopLosses = new HashSet<StopLoss>();
 		}
@@ -366,11 +375,13 @@ public class AccountManager extends ObservableModelObject {
 	private boolean isCategoryUsed(Category category) {
 		for (Account account : accounts) {
 			for (ITransaction transaction : account.getTransactions()) {
-				if (category.equals(transaction.getCategory()))
+				if (category.equals(transaction.getCategory())) {
 					return true;
+				}
 				for (ITransaction transaction2 : transaction.getSplits()) {
-					if (category.equals(transaction2.getCategory()))
+					if (category.equals(transaction2.getCategory())) {
 						return true;
+					}
 				}
 			}
 		}
@@ -380,11 +391,13 @@ public class AccountManager extends ObservableModelObject {
 	private void replaceAllCategories(Category categoryFrom, Category categoryTo) {
 		for (Account account : accounts) {
 			for (ITransaction transaction : account.getTransactions()) {
-				if (categoryFrom.equals(transaction.getCategory()))
+				if (categoryFrom.equals(transaction.getCategory())) {
 					transaction.setCategory(categoryTo);
+				}
 				for (ITransaction transaction2 : transaction.getSplits()) {
-					if (categoryFrom.equals(transaction2.getCategory()))
+					if (categoryFrom.equals(transaction2.getCategory())) {
 						transaction2.setCategory(categoryTo);
+					}
 				}
 			}
 		}
@@ -447,6 +460,39 @@ public class AccountManager extends ObservableModelObject {
 		boolean remove = stopLosses.remove(stopLoss);
 		if (remove) {
 			firePropertyChange("stopLoss", stopLoss, null);
+		}
+		return remove;
+	}
+
+	/**
+	 * Returns all calendar entry objects for the given security.
+	 */
+	public ImmutableSet<SecurityCalendarEntry> getCalendarEntries(final Security security) {
+		return ImmutableSet.copyOf(
+			Iterables.filter(Iterables.filter(calendarEntries, SecurityCalendarEntry.class), new Predicate<SecurityCalendarEntry>() {
+				@Override
+				public boolean apply(SecurityCalendarEntry calendarEntry) {
+					if (calendarEntry.getSecurity().equals(security)) {
+						return true;
+					}
+					return false;
+				}
+			}));
+	}
+
+	public ImmutableList<CalendarEntry> getCalendarEntries() {
+		return ImmutableList.copyOf(calendarEntries);
+	}
+
+	public void addCalendarEntry(CalendarEntry calendarEntry) {
+		calendarEntries.add(calendarEntry);
+		firePropertyChange("calendarEntry", null, calendarEntry);
+	}
+
+	public boolean removeCalendarEntry(CalendarEntry calendarEntry) {
+		boolean remove = calendarEntries.remove(calendarEntry);
+		if (remove) {
+			firePropertyChange("calendarEntry", calendarEntry, null);
 		}
 		return remove;
 	}

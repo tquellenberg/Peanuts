@@ -11,6 +11,7 @@ import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Category;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.calendar.SecurityCalendarEntry;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.process.BankTransaction;
 import de.tomsplayground.peanuts.domain.process.Credit;
@@ -54,7 +55,8 @@ public class PersistenceService implements IPersistenceService {
 			Credit.class,
 			StockSplit.class,
 			SecurityCategoryMapping.class,
-			StopLoss.class
+			StopLoss.class,
+			SecurityCalendarEntry.class
 		});
 	}
 

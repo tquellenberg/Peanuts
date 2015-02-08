@@ -71,6 +71,8 @@ public class Activator extends AbstractUIPlugin {
 	public static final String GREEN = "GREEN";
 	public static final String RED_BG = "RED_BG";
 	public static final String GREEN_BG = "GREEN_BG";
+	public static final String ACTIVE_ROW = "ACTIVE_ROW";
+	public static final String INACTIVE_ROW = "INACTIVE_ROW";
 
 	public static final String FILE_EXTENSION_XML = "bpx";
 	public static final String FILE_EXTENSION_SECURE = "bps";
@@ -238,6 +240,8 @@ public class Activator extends AbstractUIPlugin {
 			colorProvider.put(GREEN, new RGB(0x00, 0xC6, 0x18));
 			colorProvider.put(RED_BG, new RGB(0xFF, 0x7A, 0x73));
 			colorProvider.put(GREEN_BG, new RGB(0x66, 0xE2, 0x75));
+			colorProvider.put(ACTIVE_ROW, new RGB(0x38, 0x59, 0xBA));
+			colorProvider.put(INACTIVE_ROW, new RGB(0xB7, 0xBB, 0xC7));
 		}
 		return colorProvider;
 	}
