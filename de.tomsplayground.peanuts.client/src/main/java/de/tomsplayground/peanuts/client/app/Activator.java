@@ -46,7 +46,6 @@ import org.osgi.service.application.ApplicationHandle;
 
 import com.google.common.collect.ImmutableList;
 
-import de.tomsplayground.peanuts.client.editors.security.Scraping;
 import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
 import de.tomsplayground.peanuts.client.util.PeanutsAdapterFactory;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
@@ -56,6 +55,7 @@ import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.persistence.Persistence;
 import de.tomsplayground.peanuts.persistence.xstream.PersistenceService;
+import de.tomsplayground.peanuts.scraping.Scraping;
 
 /**
  * The activator class controls the plug-in life cycle

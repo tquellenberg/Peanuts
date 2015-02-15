@@ -121,6 +121,8 @@ public class ChartEditorPart extends EditorPart {
 
 		displayTimerange = new Combo(body, SWT.READ_ONLY);
 		displayTimerange.add("all");
+		displayTimerange.add("ten years");
+		displayTimerange.add("five years");
 		displayTimerange.add("three years");
 		displayTimerange.add("one year");
 		displayTimerange.add("this year");
