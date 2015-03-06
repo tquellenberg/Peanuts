@@ -11,6 +11,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
@@ -161,6 +162,17 @@ public class CalendarView extends ViewPart {
 
 		calendarListViewer.setComparator(new CalendarListViewerComparator());
 		calendarListViewer.setContentProvider(new ArrayContentProvider());
+		calendarListViewer.addFilter(new ViewerFilter() {
+			@Override
+			public boolean select(Viewer viewer, Object parentElement, Object element) {
+				Day now = new Day();
+				if (element instanceof CalendarEntry) {
+					CalendarEntry ce = (CalendarEntry)element;
+					return (ce.getDay().delta(now) < 14);
+				}
+				return true;
+			}
+		});
 		calendarListViewer.setInput(Activator.getDefault().getAccountManager().getCalendarEntries());
 	}
 
