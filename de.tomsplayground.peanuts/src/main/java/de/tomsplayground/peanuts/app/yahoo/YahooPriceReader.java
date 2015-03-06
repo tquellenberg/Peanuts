@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,11 +75,14 @@ public class YahooPriceReader extends PriceProvider {
 				try {
 					Day d = Day.fromString(values[0]);
 					if (d.year < 3000) {
-						BigDecimal open = values[1].length()==0?null:new BigDecimal(values[1]);
-						BigDecimal high = values[2].length()==0?null:new BigDecimal(values[2]);
-						BigDecimal low = values[3].length()==0?null:new BigDecimal(values[3]);
-						BigDecimal close = values[4].length()==0?null:new BigDecimal(values[4]);
-						setPrice(new Price(d, open, close, high, low));
+						BigDecimal open = getValue(values, 1);
+						BigDecimal high = getValue(values, 2);
+						BigDecimal low = getValue(values, 3);
+						BigDecimal close = getValue(values, 4);
+						Price price = new Price(d, open, close, high, low);
+						if (price.getValue().compareTo(BigDecimal.ZERO) > 0) {
+							setPrice(price);
+						}
 					}
 				} catch (NumberFormatException e) {
 					log.error("Value: " + Arrays.toString(values));
@@ -109,6 +113,18 @@ public class YahooPriceReader extends PriceProvider {
 			}
 		}
 		csvReader.close();
+	}
+
+	private BigDecimal getValue(String[] values, int col) {
+		if (col >= values.length || StringUtils.isBlank(values[col])) {
+			return null;
+		}
+		try {
+			return new BigDecimal(values[col]);
+		} catch (NumberFormatException e) {
+			log.error("Invalid input: " + Arrays.toString(values));
+			return null;
+		}
 	}
 
 	private BigDecimal readDecimal(String value) {

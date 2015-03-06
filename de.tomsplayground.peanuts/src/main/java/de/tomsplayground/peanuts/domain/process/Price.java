@@ -24,6 +24,9 @@ public class Price implements IPrice {
 		if (open == null && close == null) {
 			close = BigDecimal.ZERO;
 		}
+		if (open != null && close == null) {
+			close = open;
+		}
 		this.date = date;
 		this.open = open;
 		this.close = close;
