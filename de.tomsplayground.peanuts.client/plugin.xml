@@ -319,8 +319,24 @@
             allPopups="false"
             locationURI="menu:org.eclipse.ui.main.menu">
          <menu
-               id="file"
-               label="File">
+               id="edit"
+               label="Edit">
+            <command
+                  commandId="org.eclipse.ui.edit.cut"
+                  style="push">
+            </command>
+            <command
+                  commandId="org.eclipse.ui.edit.copy"
+                  style="push">
+            </command>
+            <command
+                  commandId="org.eclipse.ui.edit.paste"
+                  style="push">
+            </command>
+            <separator
+                  name="de.tomsplayground.peanuts.client.separator2"
+                  visible="true">
+            </separator>
             <command
                   commandId="org.eclipse.ui.edit.delete"
                   style="push">
@@ -341,6 +357,10 @@
          <command
                commandId="de.tomsplayground.peanuts.client.saveTransaction"
                icon="icons/date_add.png"
+               style="push">
+         </command>
+         <command
+               commandId="org.eclipse.ui.edit.copy"
                style="push">
          </command>
       </menuContribution>
@@ -560,6 +580,22 @@
               </iterate>
            </with>
         </activeWhen>
+      </handler>
+      <handler
+            class="de.tomsplayground.peanuts.client.editors.account.CopyInventoryEntries"
+            commandId="org.eclipse.ui.edit.copy">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <instanceof
+                        value="de.tomsplayground.peanuts.domain.base.InventoryEntry">
+                  </instanceof>
+               </iterate>
+            </with>
+         </activeWhen>
       </handler>
    </extension>
 

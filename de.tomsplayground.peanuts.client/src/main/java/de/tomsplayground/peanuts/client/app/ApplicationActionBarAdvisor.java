@@ -109,10 +109,12 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		IWorkbenchWindow window = getActionBarConfigurer().getWindowConfigurer().getWindow();
 
 		MenuManager fileMenu = new MenuManager("&File", IWorkbenchActionConstants.M_FILE);
+		MenuManager editMenu = new MenuManager("&Edit", IWorkbenchActionConstants.M_EDIT);
 		MenuManager windowMenu = new MenuManager("&Window", IWorkbenchActionConstants.M_WINDOW);
 		MenuManager helpMenu = new MenuManager("&Help", IWorkbenchActionConstants.M_HELP);
 
 		menuBar.add(fileMenu);
+		menuBar.add(editMenu);
 		menuBar.add(windowMenu);
 		// Add a group marker indicating where action set menus will appear.
 		menuBar.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
@@ -141,6 +143,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		fileMenu.add(propertiesAction);
 		fileMenu.add(new Separator());
 		fileMenu.add(quitAction);
+
+		// Edit
+		editMenu.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
 
 		// Window
 		windowMenu.add(ContributionItemFactory.VIEWS_SHORTLIST.create(window));
