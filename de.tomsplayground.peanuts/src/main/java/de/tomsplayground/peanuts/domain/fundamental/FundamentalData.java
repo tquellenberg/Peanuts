@@ -3,6 +3,9 @@ package de.tomsplayground.peanuts.domain.fundamental;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.Currency;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -18,6 +21,7 @@ public class FundamentalData {
 	private BigDecimal dividende;
 	private BigDecimal earningsPerShare;
 	private BigDecimal debtEquityRatio;
+	private String currency;
 
 	public FundamentalData() {
 		this.year = 2000;
@@ -31,6 +35,7 @@ public class FundamentalData {
 		this.dividende = d.dividende;
 		this.earningsPerShare = d.earningsPerShare;
 		this.debtEquityRatio = d.debtEquityRatio;
+		this.currency = d.currency;
 	}
 
 	public int getYear() {
@@ -84,5 +89,16 @@ public class FundamentalData {
 			return BigDecimal.ZERO;
 		}
 		return dividende.divide(inventoryEntry.getAvgPrice(), new MathContext(10, RoundingMode.HALF_EVEN));
+	}
+
+	public Currency getCurrency() {
+		if (StringUtils.isBlank(currency)) {
+			return Currency.getInstance("EUR");
+		}
+		return Currency.getInstance(currency);
+	}
+
+	public void setCurrency(Currency currency) {
+		this.currency = currency.getCurrencyCode();
 	}
 }

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Currency;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -20,6 +21,8 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -36,6 +39,7 @@ import org.eclipse.ui.part.EditorPart;
 import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.widgets.CurrencyComboViewer;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
@@ -53,6 +57,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 	private List<FundamentalData> fundamentalDatas;
 	private IPriceProvider priceProvider;
 	private InventoryEntry inventoryEntry;
+	private CurrencyComboViewer currencyComboViewer;
 
 	private class FundamentalDataTableLabelProvider extends LabelProvider implements ITableLabelProvider {
 		@Override
@@ -110,6 +115,10 @@ public class FundamentalDataEditorPart extends EditorPart {
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		top.setLayout(layout);
+
+		Composite metaComposite = new Composite(top, SWT.NONE);
+		metaComposite.setLayout(new GridLayout());
+		currencyComboViewer = new CurrencyComboViewer(metaComposite, SWT.NONE);
 
 		tableViewer = new TableViewer(top, SWT.FULL_SELECTION);
 		Table table = tableViewer.getTable();
@@ -246,7 +255,21 @@ public class FundamentalDataEditorPart extends EditorPart {
 		}
 
 		fundamentalDatas = cloneFundamentalData(security.getFundamentalDatas());
+		if (! fundamentalDatas.isEmpty()) {
+			currencyComboViewer.selectCurrency(fundamentalDatas.get(0).getCurrency());
+		}
 		tableViewer.setInput(fundamentalDatas);
+		currencyComboViewer.getCombo().addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				markDirty();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				markDirty();
+			}
+		});
 
 		MenuManager menuManager = new MenuManager();
 		menuManager.setRemoveAllWhenShown(true);
@@ -296,7 +319,12 @@ public class FundamentalDataEditorPart extends EditorPart {
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		security.setFundamentalDatas(cloneFundamentalData(fundamentalDatas));
+		List<FundamentalData> datas = cloneFundamentalData(fundamentalDatas);
+		Currency selectedCurrency = currencyComboViewer.getSelectedCurrency();
+		for (FundamentalData fundamentalData : datas) {
+			fundamentalData.setCurrency(selectedCurrency);
+		}
+		security.setFundamentalDatas(datas);
 		dirty = false;
 	}
 
