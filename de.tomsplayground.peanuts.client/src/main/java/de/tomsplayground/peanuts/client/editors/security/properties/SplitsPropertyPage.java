@@ -131,6 +131,9 @@ public class SplitsPropertyPage extends PropertyPage {
 
 			@Override
 			public void modify(Object element, String property, Object value) {
+				if (element == null) {
+					return;
+				}
 				StockSplit p = (StockSplit) ((TableItem) element).getData();
 				StockSplit newP = null;
 				if (property.equals("date")) {

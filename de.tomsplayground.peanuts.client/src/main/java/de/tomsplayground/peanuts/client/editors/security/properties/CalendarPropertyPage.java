@@ -122,6 +122,9 @@ public class CalendarPropertyPage extends PropertyPage {
 
 			@Override
 			public void modify(Object element, String property, Object value) {
+				if (element == null) {
+					return;
+				}
 				SecurityCalendarEntry p = (SecurityCalendarEntry) ((TableItem) element).getData();
 				SecurityCalendarEntry newP = null;
 				if (property.equals("date")) {
