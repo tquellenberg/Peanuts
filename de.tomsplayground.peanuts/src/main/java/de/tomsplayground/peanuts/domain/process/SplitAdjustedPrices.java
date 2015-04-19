@@ -8,7 +8,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
-public class AdjustedPrices {
+public class SplitAdjustedPrices {
 
 	private final static MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 

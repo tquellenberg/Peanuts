@@ -512,6 +512,16 @@
             </adapt>
          </enabledWhen>
       </page>
+      <page
+            class="de.tomsplayground.peanuts.client.editors.security.properties.CurrencyPropertyPage"
+            id="de.tomsplayground.peanuts.client.editors.security.currencyPage"
+            name="Security Currency">
+         <enabledWhen>
+            <adapt
+                  type="de.tomsplayground.peanuts.domain.base.Security">
+            </adapt>
+         </enabledWhen>
+      </page>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">

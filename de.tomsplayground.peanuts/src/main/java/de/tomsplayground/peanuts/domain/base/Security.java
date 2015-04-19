@@ -1,10 +1,12 @@
 package de.tomsplayground.peanuts.domain.base;
 
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -12,6 +14,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import de.tomsplayground.peanuts.config.ConfigurableSupport;
 import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
+import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 
 @XStreamAlias("security")
@@ -24,6 +27,9 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	private String ISIN;
 	private String WKN;
 	private String ticker;
+	private String currency;
+	// this prices for this security are exchange rates for this currency
+	private String exchangeCurrency;
 
 	final private Map<String, String> displayConfiguration = new HashMap<String, String>();
 
@@ -126,5 +132,31 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	@Override
 	public void putConfigurationValue(String key, String value) {
 		getConfigurableSupport().putConfigurationValue(key, value);
+	}
+
+	public Currency getCurrency() {
+		if (StringUtils.isBlank(currency)) {
+			return Currencies.getInstance().getDefaultCurrency();
+		}
+		return Currency.getInstance(currency);
+	}
+
+	public void setCurreny(Currency curreny) {
+		this.currency = curreny.getCurrencyCode();
+	}
+
+	public Currency getExchangeCurrency() {
+		if (StringUtils.isBlank(exchangeCurrency)) {
+			return null;
+		}
+		return Currency.getInstance(exchangeCurrency);
+	}
+
+	public void setExchangeCurreny(Currency curreny) {
+		if (curreny == null) {
+			this.exchangeCurrency = "";
+		} else {
+			this.exchangeCurrency = curreny.getCurrencyCode();
+		}
 	}
 }

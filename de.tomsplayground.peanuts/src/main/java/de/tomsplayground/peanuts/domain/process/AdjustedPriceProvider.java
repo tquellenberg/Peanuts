@@ -9,14 +9,12 @@ import com.google.common.collect.ImmutableList;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.util.Day;
 
-public class AdjustedPriceProvider extends ObservableModelObject implements IPriceProvider {
+public abstract class AdjustedPriceProvider extends ObservableModelObject implements IPriceProvider {
 
 	private final IPriceProvider rawPriceProvider;
-	private final ImmutableList<StockSplit> stockSplits;
 
-	public AdjustedPriceProvider(IPriceProvider rawPriceProvider, List<StockSplit> stockSplits) {
+	public AdjustedPriceProvider(IPriceProvider rawPriceProvider) {
 		this.rawPriceProvider = rawPriceProvider;
-		this.stockSplits = ImmutableList.copyOf(stockSplits);
 	}
 
 	@Override
@@ -29,13 +27,7 @@ public class AdjustedPriceProvider extends ObservableModelObject implements IPri
 		return adjust(rawPriceProvider.getPrices());
 	}
 
-	private ImmutableList<IPrice> adjust(ImmutableList<IPrice> prices) {
-		AdjustedPrices adjustedPrices = new AdjustedPrices();
-		for (StockSplit split : stockSplits) {
-			prices = adjustedPrices.adjustPrices(prices, split);
-		}
-		return prices;
-	}
+	abstract ImmutableList<IPrice> adjust(ImmutableList<IPrice> prices);
 
 	@Override
 	public ImmutableList<IPrice> getPrices(Day from, Day to) {
@@ -75,6 +67,10 @@ public class AdjustedPriceProvider extends ObservableModelObject implements IPri
 	@Override
 	public Day getMaxDate() {
 		return rawPriceProvider.getMaxDate();
+	}
+
+	public IPriceProvider getRawPriceProvider() {
+		return rawPriceProvider;
 	}
 
 }

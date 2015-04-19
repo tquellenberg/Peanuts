@@ -36,6 +36,7 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.client.app.Activator;
@@ -43,21 +44,26 @@ import de.tomsplayground.peanuts.client.widgets.CurrencyComboViewer;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
+import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
+import de.tomsplayground.peanuts.domain.fundamental.CurrencyAjustedFundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
+import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
 public class FundamentalDataEditorPart extends EditorPart {
 
 	private TableViewer tableViewer;
-	private final int colWidth[] = new int[7];
+	private final int colWidth[] = new int[9];
 	private boolean dirty = false;
 	private List<FundamentalData> fundamentalDatas;
 	private IPriceProvider priceProvider;
 	private InventoryEntry inventoryEntry;
 	private CurrencyComboViewer currencyComboViewer;
+	private CurrencyConverter currencyConverter;
 
 	private class FundamentalDataTableLabelProvider extends LabelProvider implements ITableLabelProvider {
 		@Override
@@ -74,15 +80,39 @@ public class FundamentalDataEditorPart extends EditorPart {
 				case 1:
 					return PeanutsUtil.formatCurrency(data.getDividende(), null);
 				case 2:
-					return PeanutsUtil.formatCurrency(data.getEarningsPerShare(), null);
+					if (currencyConverter != null) {
+						CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
+						return PeanutsUtil.formatCurrency(currencyAjustedData.getDividende(), null);
+					}
+					return PeanutsUtil.formatCurrency(data.getDividende(), null);
 				case 3:
-					return PeanutsUtil.formatQuantity(data.getDebtEquityRatio());
+					return PeanutsUtil.formatCurrency(data.getEarningsPerShare(), null);
 				case 4:
-					return PeanutsUtil.formatQuantity(data.calculatePeRatio(priceProvider));
+					if (currencyConverter != null) {
+						CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
+						return PeanutsUtil.formatCurrency(currencyAjustedData.getEarningsPerShare(), null);
+					}
+					return PeanutsUtil.formatCurrency(data.getEarningsPerShare(), null);
 				case 5:
-					return PeanutsUtil.formatPercent(data.calculateDivYield(priceProvider));
+					return PeanutsUtil.formatQuantity(data.getDebtEquityRatio());
 				case 6:
+					if (currencyConverter != null) {
+						CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
+						return PeanutsUtil.formatQuantity(currencyAjustedData.calculatePeRatio(priceProvider));
+					}
+					return PeanutsUtil.formatQuantity(data.calculatePeRatio(priceProvider));
+				case 7:
+					if (currencyConverter != null) {
+						CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
+						return PeanutsUtil.formatPercent(currencyAjustedData.calculateDivYield(priceProvider));
+					}
+					return PeanutsUtil.formatPercent(data.calculateDivYield(priceProvider));
+				case 8:
 					if (inventoryEntry != null && data.getYear() == (new Day()).year) {
+						if (currencyConverter != null) {
+							CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
+							return PeanutsUtil.formatPercent(currencyAjustedData.calculateYOC(inventoryEntry));
+						}
 						return PeanutsUtil.formatPercent(data.calculateYOC(inventoryEntry));
 					} else {
 						return "";
@@ -110,6 +140,8 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
+		final Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+
 		Composite top = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
@@ -118,7 +150,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 		Composite metaComposite = new Composite(top, SWT.NONE);
 		metaComposite.setLayout(new GridLayout());
-		currencyComboViewer = new CurrencyComboViewer(metaComposite, SWT.NONE);
+		currencyComboViewer = new CurrencyComboViewer(metaComposite, false);
 
 		tableViewer = new TableViewer(top, SWT.FULL_SELECTION);
 		Table table = tableViewer.getTable();
@@ -143,12 +175,24 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 		col = new TableColumn(table, SWT.LEFT);
 		col.setText("Dividende");
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 75);
+		col.setResizable(true);
+		colNumber++;
+
+		col = new TableColumn(table, SWT.LEFT);
+		col.setText("Dividende "+security.getCurrency().getSymbol());
 		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.setResizable(true);
 		colNumber++;
 
 		col = new TableColumn(table, SWT.LEFT);
 		col.setText("EPS");
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 75);
+		col.setResizable(true);
+		colNumber++;
+
+		col = new TableColumn(table, SWT.LEFT);
+		col.setText("EPS "+security.getCurrency().getSymbol());
 		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.setResizable(true);
 		colNumber++;
@@ -177,7 +221,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 		col.setResizable(true);
 		colNumber++;
 
-		tableViewer.setColumnProperties(new String[] { "year", "div", "EPS", "deRatio", "peRatio", "divYield", "YOC"});
+		tableViewer.setColumnProperties(new String[] { "year", "div", "div2", "EPS", "EPS2", "deRatio", "peRatio", "divYield", "YOC"});
 		tableViewer.setCellModifier(new ICellModifier() {
 
 			@Override
@@ -239,14 +283,15 @@ public class FundamentalDataEditorPart extends EditorPart {
 			}
 		});
 		tableViewer.setCellEditors(new CellEditor[] {new TextCellEditor(table), new TextCellEditor(table),
-			new TextCellEditor(table), new TextCellEditor(table)});
+			new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table)});
 
 		tableViewer.setLabelProvider(new FundamentalDataTableLabelProvider());
 		tableViewer.setContentProvider(new ArrayContentProvider());
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
+		ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
+		priceProvider = PriceProviderFactory.getInstance().getAdjustedPriceProvider(security, stockSplits);
+
 		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
 		for (InventoryEntry entry : inventory.getEntries()) {
 			if (entry.getSecurity().equals(security)) {
@@ -256,12 +301,23 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 		fundamentalDatas = cloneFundamentalData(security.getFundamentalDatas());
 		if (! fundamentalDatas.isEmpty()) {
-			currencyComboViewer.selectCurrency(fundamentalDatas.get(0).getCurrency());
+			Currency currency = fundamentalDatas.get(0).getCurrency();
+			currencyComboViewer.selectCurrency(currency);
+			ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
+			currencyConverter = exchangeRate.createCurrencyConverter(currency, security.getCurrency());
 		}
 		tableViewer.setInput(fundamentalDatas);
 		currencyComboViewer.getCombo().addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				Currency selectedCurrency = currencyComboViewer.getSelectedCurrency();
+				if (selectedCurrency.equals(security.getCurrency())) {
+					currencyConverter = null;
+				} else {
+					ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
+					currencyConverter = exchangeRate.createCurrencyConverter(selectedCurrency, security.getCurrency());
+				}
+				tableViewer.refresh();
 				markDirty();
 			}
 

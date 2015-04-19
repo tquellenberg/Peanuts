@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Currency;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +20,7 @@ import de.tomsplayground.peanuts.domain.base.Category.Type;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.calendar.CalendarEntry;
 import de.tomsplayground.peanuts.domain.calendar.SecurityCalendarEntry;
+import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.process.EuroTransactionWrapper;
 import de.tomsplayground.peanuts.domain.process.ICredit;
@@ -37,7 +37,7 @@ import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 import de.tomsplayground.util.Day;
 
 @XStreamAlias("accountmanager")
-public class AccountManager extends ObservableModelObject {
+public class AccountManager extends ObservableModelObject implements ISecurityProvider {
 
 	private ImmutableList<Account> accounts = ImmutableList.of();
 
@@ -95,7 +95,7 @@ public class AccountManager extends ObservableModelObject {
 				return account;
 			}
 		}
-		Account account = new Account(name, Currency.getInstance("EUR"), BigDecimal.ZERO, type, "");
+		Account account = new Account(name, Currencies.getInstance().getDefaultCurrency(), BigDecimal.ZERO, type, "");
 		List<Account> l = new ArrayList<Account>(accounts);
 		l.add(account);
 		Collections.sort(l, NAMED_COMPARATOR);
@@ -150,6 +150,7 @@ public class AccountManager extends ObservableModelObject {
 		return security;
 	}
 
+	@Override
 	public ImmutableList<Security> getSecurities() {
 		return securities;
 	}

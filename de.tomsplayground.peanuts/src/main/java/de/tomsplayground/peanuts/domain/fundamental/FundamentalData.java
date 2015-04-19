@@ -7,9 +7,11 @@ import java.util.Currency;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.collect.ImmutableList;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
+import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.util.Day;
@@ -63,22 +65,39 @@ public class FundamentalData {
 		this.debtEquityRatio = deptEquityRatio;
 	}
 
-	public BigDecimal calculatePeRatio(IPriceProvider priceProvider) {
-		IPrice price = priceProvider.getPrice(new Day(year, 11, 31));
-		BigDecimal close = price.getClose();
-		if (earningsPerShare.signum() == 0) {
+	private BigDecimal avgPrice(IPriceProvider priceProvider, int year) {
+		ImmutableList<IPrice> prices = priceProvider.getPrices(new Day(year,0,1), new Day(year, 11, 31));
+		if (prices.isEmpty()) {
 			return BigDecimal.ZERO;
 		}
-		return close.divide(earningsPerShare, new MathContext(10, RoundingMode.HALF_EVEN));
+		BigDecimal sum = BigDecimal.ZERO;
+		for (IPrice p : prices) {
+			sum = sum.add(p.getClose());
+		}
+		return sum.divide(new BigDecimal(prices.size()), new MathContext(10, RoundingMode.HALF_EVEN));
+	}
+
+	public BigDecimal calculatePeRatio(IPriceProvider priceProvider) {
+		BigDecimal price;
+		if (year == new Day().year) {
+			price =  priceProvider.getPrice(new Day()).getClose();
+		} else {
+			price = avgPrice(priceProvider, year);
+		}
+		BigDecimal eps = getEarningsPerShare();
+		if (eps.signum() == 0) {
+			return BigDecimal.ZERO;
+		}
+		return price.divide(eps, new MathContext(10, RoundingMode.HALF_EVEN));
 	}
 
 	public BigDecimal calculateDivYield(IPriceProvider priceProvider) {
-		IPrice price = priceProvider.getPrice(new Day(year, 11, 31));
+		IPrice price = priceProvider.getPrice(new Day(year, 11, 30));
 		BigDecimal close = price.getClose();
 		if (close.signum() == 0) {
 			return BigDecimal.ZERO;
 		}
-		return dividende.divide(close, new MathContext(10, RoundingMode.HALF_EVEN));
+		return getDividende().divide(close, new MathContext(10, RoundingMode.HALF_EVEN));
 	}
 
 	public BigDecimal calculateYOC(InventoryEntry inventoryEntry) {
@@ -88,12 +107,12 @@ public class FundamentalData {
 		if (inventoryEntry.getAvgPrice().signum() == 0) {
 			return BigDecimal.ZERO;
 		}
-		return dividende.divide(inventoryEntry.getAvgPrice(), new MathContext(10, RoundingMode.HALF_EVEN));
+		return getDividende().divide(inventoryEntry.getAvgPrice(), new MathContext(10, RoundingMode.HALF_EVEN));
 	}
 
 	public Currency getCurrency() {
 		if (StringUtils.isBlank(currency)) {
-			return Currency.getInstance("EUR");
+			return Currencies.getInstance().getDefaultCurrency();
 		}
 		return Currency.getInstance(currency);
 	}

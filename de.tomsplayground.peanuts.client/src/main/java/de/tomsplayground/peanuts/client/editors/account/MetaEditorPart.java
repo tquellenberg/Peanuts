@@ -1,7 +1,5 @@
 package de.tomsplayground.peanuts.client.editors.account;
 
-import java.util.Currency;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -29,7 +27,7 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.eclipse.ui.part.EditorPart;
 
-import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.widgets.CurrencyComboViewer;
 import de.tomsplayground.peanuts.domain.base.Account;
 
 public class MetaEditorPart extends EditorPart {
@@ -48,7 +46,7 @@ public class MetaEditorPart extends EditorPart {
 	private FormToolkit toolkit;
 
 	private Text accountName;
-	private Combo currency;
+	private CurrencyComboViewer currency;
 	private Combo accountType;
 	private AccountEditor editor;
 
@@ -92,9 +90,8 @@ public class MetaEditorPart extends EditorPart {
 			}});
 
 		toolkit.createLabel(sectionClient, "Currency");
-		currency = new Combo(sectionClient, SWT.READ_ONLY);
-		currency.setItems(Activator.getDefault().getCurrencies());
-		currency.addSelectionListener(new SelectionAdapter(){
+		currency = new CurrencyComboViewer(sectionClient, false);
+		currency.getCombo().addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				sectionPart.markDirty();
@@ -102,8 +99,9 @@ public class MetaEditorPart extends EditorPart {
 
 		toolkit.createLabel(sectionClient, "Type");
 		accountType = new Combo(sectionClient, SWT.READ_ONLY);
-		for (Account.Type t : Account.Type.values())
+		for (Account.Type t : Account.Type.values()) {
 			accountType.add(t.toString());
+		}
 		accountType.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -135,7 +133,7 @@ public class MetaEditorPart extends EditorPart {
 	protected void setValues() {
 		Account account = ((AccountEditorInput)getEditorInput()).getAccount();
 		accountName.setText(account.getName());
-		currency.setText(account.getCurrency().toString());
+		currency.selectCurrency(account.getCurrency());
 		accountType.setText(account.getType().toString());
 		active.setSelection(account.isActive());
 	}
@@ -155,8 +153,7 @@ public class MetaEditorPart extends EditorPart {
 		account.setName(accountName.getText());
 		String typeName = accountType.getItem(accountType.getSelectionIndex());
 		account.setType(Account.Type.valueOf(typeName));
-		String currencyName = currency.getItem(currency.getSelectionIndex());
-		account.setCurrency(Currency.getInstance(currencyName));
+		account.setCurrency(currency.getSelectedCurrency());
 		account.setActive(active.getSelection());
 		managedForm.commit(true);
 	}

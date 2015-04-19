@@ -14,7 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.widgets.CurrencyComboViewer;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.Account.Type;
 
@@ -29,7 +29,7 @@ public class AccountPage extends WizardPage {
 	};
 	private Text accountName;
 	private Combo type;
-	private Combo currency;
+	private CurrencyComboViewer currency;
 
 	protected AccountPage(String pageName) {
 		super(pageName);
@@ -53,8 +53,7 @@ public class AccountPage extends WizardPage {
 
 		label = new Label(contents, SWT.NONE);
 		label.setText("Currency:");
-		currency = new Combo(contents, SWT.READ_ONLY);
-		currency.setItems(Activator.getDefault().getCurrencies());
+		currency = new CurrencyComboViewer(contents, false);
 
 		label = new Label(contents, SWT.NONE);
 		label.setText("Type:");
@@ -75,7 +74,7 @@ public class AccountPage extends WizardPage {
 	}
 
 	public Currency getCurrency() {
-		return Currency.getInstance(currency.getText());
+		return currency.getSelectedCurrency();
 	}
 
 }

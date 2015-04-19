@@ -27,6 +27,7 @@ import de.tomsplayground.peanuts.domain.base.INamedElement;
 import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.base.TransactionProviderUtil;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
+import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.query.IQuery;
 import de.tomsplayground.util.Day;
@@ -156,7 +157,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 
 	@Override
 	public Currency getCurrency() {
-		return Currency.getInstance("EUR");
+		return Currencies.getInstance().getDefaultCurrency();
 	}
 
 	public BigDecimal getBalance(ITransaction t) {

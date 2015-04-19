@@ -14,12 +14,16 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import de.tomsplayground.peanuts.domain.currenncy.Currencies;
+
 public class CurrencyComboViewer {
 
 	private List<Currency> currencies;
 	private Combo combo;
+	private boolean optional;
 
-	public CurrencyComboViewer(Composite parent, int style) {
+	public CurrencyComboViewer(Composite parent, boolean optional) {
+		this.optional = optional;
 		combo = new Combo(parent, SWT.READ_ONLY);
 		currencies = Lists.newArrayList(Currency.getAvailableCurrencies());
 		Collections.sort(currencies, new Comparator<Currency>() {
@@ -28,11 +32,11 @@ public class CurrencyComboViewer {
 				return o1.getDisplayName().compareToIgnoreCase(o2.getDisplayName());
 			}
 		});
-		currencies.add(0, Currency.getInstance("USD"));
-		currencies.add(1, Currency.getInstance("EUR"));
-		currencies.add(2, Currency.getInstance("GBP"));
-		currencies.add(3, Currency.getInstance("CHF"));
-		currencies.add(4, Currency.getInstance("JPY"));
+
+		int index = 0;
+		for (Currency c : Currencies.getInstance().getMainCurrencies()) {
+			currencies.add(index++, c);
+		}
 
 		ArrayList<String> currencyNames = Lists.newArrayList(Iterables.transform(currencies, new Function<Currency, String>() {
 			@Override
@@ -40,10 +44,15 @@ public class CurrencyComboViewer {
 				return arg0.getDisplayName();
 			}
 		}));
+		if (optional) {
+			combo.add("");
+		}
 		for (String name : currencyNames) {
 			combo.add(name);
 		}
-		selectCurrency(Currency.getInstance("EUR"));
+		if (! optional) {
+			selectCurrency(Currencies.getInstance().getDefaultCurrency());
+		}
 	}
 
 	public Combo getCombo() {
@@ -53,12 +62,22 @@ public class CurrencyComboViewer {
 	public void selectCurrency(Currency currency) {
 		int indexOf = currencies.indexOf(currency);
 		if (indexOf >= 0) {
+			if (optional) {
+				indexOf++;
+			}
 			combo.select(indexOf);
 		}
 	}
 
 	public Currency getSelectedCurrency() {
-		return currencies.get(combo.getSelectionIndex());
+		int selectionIndex = combo.getSelectionIndex();
+		if (optional) {
+			if (selectionIndex == 0) {
+				return null;
+			}
+			selectionIndex--;
+		}
+		return currencies.get(selectionIndex);
 	}
 
 }

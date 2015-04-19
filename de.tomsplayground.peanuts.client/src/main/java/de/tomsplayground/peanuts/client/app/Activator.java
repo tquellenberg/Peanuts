@@ -50,6 +50,7 @@ import de.tomsplayground.peanuts.client.editors.security.properties.SecurityProp
 import de.tomsplayground.peanuts.client.util.PeanutsAdapterFactory;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
@@ -108,6 +109,7 @@ public class Activator extends AbstractUIPlugin {
 	private static ColorRegistry colorProvider;
 
 	private AccountManager accountManager;
+	private ExchangeRates exchangeRates;
 	private String passphrase;
 	private Job refreshPricesJob;
 
@@ -169,6 +171,13 @@ public class Activator extends AbstractUIPlugin {
 		if (refreshPricesJob != null) {
 			refreshPricesJob.cancel();
 		}
+	}
+
+	public ExchangeRates getExchangeRate() {
+		if (exchangeRates == null) {
+			exchangeRates = new ExchangeRates(PriceProviderFactory.getInstance(), accountManager);
+		}
+		return exchangeRates;
 	}
 
 	protected void applicationStarted() {

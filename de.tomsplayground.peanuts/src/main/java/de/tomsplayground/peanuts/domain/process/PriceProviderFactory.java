@@ -62,7 +62,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		if (stockSplits.isEmpty()) {
 			return rawPriceProvider;
 		}
-		return new AdjustedPriceProvider(rawPriceProvider, stockSplits);
+		return new SplitAdjustedPriceProvider(rawPriceProvider, stockSplits);
 	}
 
 	public void refresh(Security security, boolean overideExistingData) {
