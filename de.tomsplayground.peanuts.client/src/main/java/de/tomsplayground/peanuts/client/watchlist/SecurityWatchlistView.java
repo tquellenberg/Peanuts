@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Currency;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -61,6 +62,9 @@ import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
+import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
+import de.tomsplayground.peanuts.domain.fundamental.CurrencyAjustedFundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.statistics.Signal;
@@ -122,11 +126,11 @@ public class SecurityWatchlistView extends ViewPart {
 			BigDecimal peRatio1 = null;
 			BigDecimal peRatio2 = null;
 
-			FundamentalData data1 = w1.getSecurity().getCurrentFundamentalData();
+			FundamentalData data1 = getFundamentalData(w1.getSecurity());
 			if (data1 != null) {
 				peRatio1 = data1.calculatePeRatio(w1.getPriceProvider());
 			}
-			FundamentalData data2 = w2.getSecurity().getCurrentFundamentalData();
+			FundamentalData data2 = getFundamentalData(w2.getSecurity());
 			if (data2 != null) {
 				peRatio2 = data2.calculatePeRatio(w2.getPriceProvider());
 			}
@@ -139,11 +143,11 @@ public class SecurityWatchlistView extends ViewPart {
 			BigDecimal divYield1 = null;
 			BigDecimal divYield2 = null;
 
-			FundamentalData data1 = w1.getSecurity().getCurrentFundamentalData();
+			FundamentalData data1 = getFundamentalData(w1.getSecurity());
 			if (data1 != null) {
 				divYield1 = data1.calculateDivYield(w1.getPriceProvider());
 			}
-			FundamentalData data2 = w2.getSecurity().getCurrentFundamentalData();
+			FundamentalData data2 = getFundamentalData(w2.getSecurity());
 			if (data2 != null) {
 				divYield2 = data2.calculateDivYield(w2.getPriceProvider());
 			}
@@ -157,14 +161,14 @@ public class SecurityWatchlistView extends ViewPart {
 			BigDecimal yoc1 = null;
 			BigDecimal yoc2 = null;
 
-			FundamentalData data1 = w1.getSecurity().getCurrentFundamentalData();
+			FundamentalData data1 = getFundamentalData(w1.getSecurity());
 			if (data1 != null) {
 				InventoryEntry inventoryEntry = inventory.getEntry(w1.getSecurity());
 				if (inventoryEntry != null) {
 					yoc1 = data1.calculateYOC(inventoryEntry);
 				}
 			}
-			FundamentalData data2 = w2.getSecurity().getCurrentFundamentalData();
+			FundamentalData data2 = getFundamentalData(w2.getSecurity());
 			if (data2 != null) {
 				InventoryEntry inventoryEntry = inventory.getEntry(w2.getSecurity());
 				if (inventoryEntry != null) {
@@ -180,11 +184,11 @@ public class SecurityWatchlistView extends ViewPart {
 			BigDecimal deRatio1 = null;
 			BigDecimal deRatio2 = null;
 
-			FundamentalData data1 = w1.getSecurity().getCurrentFundamentalData();
+			FundamentalData data1 = getFundamentalData(w1.getSecurity());
 			if (data1 != null) {
 				deRatio1 = data1.getDebtEquityRatio();
 			}
-			FundamentalData data2 = w2.getSecurity().getCurrentFundamentalData();
+			FundamentalData data2 = getFundamentalData(w2.getSecurity());
 			if (data2 != null) {
 				deRatio2 = data2.getDebtEquityRatio();
 			}
@@ -289,19 +293,19 @@ public class SecurityWatchlistView extends ViewPart {
 					}
 					return PeanutsUtil.formatCurrency(price2.getClose(), null);
 				case 3:
-					FundamentalData data1 = security.getCurrentFundamentalData();
+					FundamentalData data1 = getFundamentalData(security);
 					if (data1 != null) {
 						return PeanutsUtil.format(data1.calculatePeRatio(watchEntry.getPriceProvider()), 1);
 					}
 					return "";
 				case 4:
-					FundamentalData data2 = security.getCurrentFundamentalData();
+					FundamentalData data2 = getFundamentalData(security);
 					if (data2 != null) {
 						return PeanutsUtil.formatPercent(data2.calculateDivYield(watchEntry.getPriceProvider()));
 					}
 					return "";
 				case 5:
-					FundamentalData data3 = security.getCurrentFundamentalData();
+					FundamentalData data3 = getFundamentalData(security);
 					if (data3 != null) {
 						Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
 						InventoryEntry inventoryEntry = inventory.getEntry(security);
@@ -311,7 +315,7 @@ public class SecurityWatchlistView extends ViewPart {
 					}
 					return "";
 				case 6:
-					FundamentalData data4 = security.getCurrentFundamentalData();
+					FundamentalData data4 = getFundamentalData(security);
 					if (data4 != null) {
 						return PeanutsUtil.format(data4.getDebtEquityRatio(), 2);
 					}
@@ -364,7 +368,7 @@ public class SecurityWatchlistView extends ViewPart {
 		public Color getForeground(Object element, int columnIndex) {
 			WatchEntry watchEntry = (WatchEntry) element;
 			if (columnIndex == 6) {
-				FundamentalData data4 = watchEntry.getSecurity().getCurrentFundamentalData();
+				FundamentalData data4 = getFundamentalData(watchEntry.getSecurity());
 				if (data4 != null && data4.getDebtEquityRatio() != null) {
 					if (data4.getDebtEquityRatio().intValue() > 100) {
 						return red;
@@ -718,6 +722,20 @@ public class SecurityWatchlistView extends ViewPart {
 		}
 		currentWatchList = WatchlistManager.getInstance().getCurrentWatchlist();
 		WatchlistManager.getInstance().addPropertyChangeListener(watchlistChangeListener);
+	}
+
+	private FundamentalData getFundamentalData(Security security) {
+		FundamentalData currentFundamentalData = security.getCurrentFundamentalData();
+		if (currentFundamentalData == null) {
+			return null;
+		}
+		Currency currency = currentFundamentalData.getCurrency();
+		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
+		CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(currency, security.getCurrency());
+		if (currencyConverter == null) {
+			return currentFundamentalData;
+		}
+		return new CurrencyAjustedFundamentalData(currentFundamentalData, currencyConverter);
 	}
 
 	public void removeSecurityFromCurrentWatchlist(Security security) {
