@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.IPageChangedListener;
+import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
@@ -24,6 +26,16 @@ public class SecurityCategoryEditor extends MultiPageEditorPart {
 		}
 		super.init(site, input);
 		setPartName(input.getName());
+
+		addPageChangedListener(new IPageChangedListener() {
+			@Override
+			public void pageChanged(PageChangedEvent event) {
+				if (event.getSelectedPage() instanceof PieEditorPart) {
+					PieEditorPart pieEditorPart = (PieEditorPart) event.getSelectedPage();
+					pieEditorPart.updateDataset();
+				}
+			}
+		});
 	}
 
 	@Override

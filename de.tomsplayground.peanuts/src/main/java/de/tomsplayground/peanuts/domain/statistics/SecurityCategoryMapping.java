@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.apache.commons.collections4.OrderedMap;
 import org.apache.commons.collections4.map.ListOrderedMap;
+import org.apache.commons.lang3.StringUtils;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -54,6 +55,9 @@ public class SecurityCategoryMapping extends ObservableModelObject implements IN
 	}
 
 	public void renameCategory(String oldName, String newName) {
+		if (StringUtils.isBlank(oldName) || StringUtils.isBlank(newName)) {
+			throw new IllegalArgumentException("Category names must not be empty");
+		}
 		for (Map.Entry<Security, String> entry : mapping.entrySet()) {
 			if (oldName.equals(entry.getValue())) {
 				entry.setValue(newName);
@@ -72,26 +76,42 @@ public class SecurityCategoryMapping extends ObservableModelObject implements IN
 	}
 
 	public void setCategory(Security security, String category) {
-		if (category != null && ! categories.contains(category)) {
-			categories.add(category);
-		}
-		mapping.put(security, category);
-	}
-
-	public void setSecuritiesForCategory(String category, Set<Security> securities) {
-		if (category != null && ! categories.contains(category)) {
-			categories.add(category);
-		}
-		for (Security security : getSecuritiesByCategory(category)) {
+		if (StringUtils.isBlank(category)) {
 			mapping.remove(security);
-		}
-		for (Security security : securities) {
+		} else {
+			if (! categories.contains(category)) {
+				categories.add(category);
+			}
 			mapping.put(security, category);
 		}
 	}
 
+	public void setSecuritiesForCategory(String category, Set<Security> securities) {
+		if (StringUtils.isBlank(category)) {
+			for (Security security : securities) {
+				mapping.remove(security);
+			}
+		} else {
+			if (! categories.contains(category)) {
+				categories.add(category);
+			}
+			for (Security security : getSecuritiesByCategory(category)) {
+				mapping.remove(security);
+			}
+			for (Security security : securities) {
+				mapping.put(security, category);
+			}
+		}
+	}
+
 	public Set<Security> getAllSecurities() {
-		return new HashSet<Security>(mapping.keySet());
+		HashSet<Security> result = new HashSet<Security>();
+		for (Map.Entry<Security, String> entry : mapping.entrySet()) {
+			if (StringUtils.isNoneBlank(entry.getValue())) {
+				result.add(entry.getKey());
+			}
+		}
+		return result;
 	}
 
 	public OrderedMap<String, BigDecimal> calculateCategoryValues(Inventory inventory) {
@@ -130,7 +150,11 @@ public class SecurityCategoryMapping extends ObservableModelObject implements IN
 	}
 
 	public String getCategory(Security security) {
-		return mapping.get(security);
+		String category = mapping.get(security);
+		if (category == null) {
+			return "";
+		}
+		return category;
 	}
 
 	private transient ConfigurableSupport configurableSupport;

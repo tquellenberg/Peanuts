@@ -46,7 +46,6 @@ public class PieEditorPart extends EditorPart {
 	private DefaultPieDataset dataset;
 
 	private final PropertyChangeListener inventoryChangeListener = new UniqueAsyncExecution() {
-
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
 			updateDataset();
@@ -111,7 +110,7 @@ public class PieEditorPart extends EditorPart {
 		});
 	}
 
-	private void updateDataset() {
+	public void updateDataset() {
 		SecurityCategoryMapping securityCategoryMapping = ((SecurityCategoryEditorInput) getEditorInput()).getSecurityCategoryMapping();
 		dataset.clear();
 
