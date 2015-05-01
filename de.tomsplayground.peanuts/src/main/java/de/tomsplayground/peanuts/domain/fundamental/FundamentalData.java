@@ -17,7 +17,7 @@ import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.util.Day;
 
 @XStreamAlias("fundamental")
-public class FundamentalData {
+public class FundamentalData implements Comparable<FundamentalData> {
 
 	private int year;
 	private BigDecimal dividende;
@@ -65,7 +65,7 @@ public class FundamentalData {
 		this.debtEquityRatio = deptEquityRatio;
 	}
 
-	private BigDecimal avgPrice(IPriceProvider priceProvider, int year) {
+	protected BigDecimal avgPrice(IPriceProvider priceProvider, int year) {
 		ImmutableList<IPrice> prices = priceProvider.getPrices(new Day(year,0,1), new Day(year, 11, 31));
 		if (prices.isEmpty()) {
 			return BigDecimal.ZERO;
@@ -79,10 +79,10 @@ public class FundamentalData {
 
 	public BigDecimal calculatePeRatio(IPriceProvider priceProvider) {
 		BigDecimal price;
-		if (year == new Day().year) {
+		if (getYear() >= new Day().year) {
 			price =  priceProvider.getPrice(new Day()).getClose();
 		} else {
-			price = avgPrice(priceProvider, year);
+			price = avgPrice(priceProvider, getYear());
 		}
 		BigDecimal eps = getEarningsPerShare();
 		if (eps.signum() == 0) {
@@ -119,5 +119,10 @@ public class FundamentalData {
 
 	public void setCurrency(Currency currency) {
 		this.currency = currency.getCurrencyCode();
+	}
+
+	@Override
+	public int compareTo(FundamentalData o) {
+		return Integer.compare(year, o.year);
 	}
 }

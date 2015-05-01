@@ -1,9 +1,12 @@
 package de.tomsplayground.peanuts.client.editors.security;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 
@@ -15,6 +18,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ICellModifier;
+import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
@@ -23,6 +27,7 @@ import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -36,7 +41,9 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.client.app.Activator;
@@ -46,6 +53,7 @@ import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
+import de.tomsplayground.peanuts.domain.fundamental.AvgFundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.CurrencyAjustedFundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
@@ -57,74 +65,199 @@ import de.tomsplayground.util.Day;
 public class FundamentalDataEditorPart extends EditorPart {
 
 	private TableViewer tableViewer;
-	private final int colWidth[] = new int[9];
+	private final int colWidth[] = new int[13];
 	private boolean dirty = false;
 	private List<FundamentalData> fundamentalDatas;
 	private IPriceProvider priceProvider;
 	private InventoryEntry inventoryEntry;
 	private CurrencyComboViewer currencyComboViewer;
 	private CurrencyConverter currencyConverter;
+	private List<Object> tableRows;
 
-	private class FundamentalDataTableLabelProvider extends LabelProvider implements ITableLabelProvider {
+	private class FundamentalDataTableLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 		@Override
 		public Image getColumnImage(Object element, int columnIndex) {
 			return null;
 		}
 
+		private FundamentalData getPreviousYear(FundamentalData data) {
+			final int prevYear = data.getYear() -1;
+			return Iterables.find(fundamentalDatas, new Predicate<FundamentalData>() {
+				@Override
+				public boolean apply(FundamentalData arg0) {
+					return arg0.getYear() == prevYear;
+				}
+			}, null);
+		}
+
+		private BigDecimal epsGrowth(FundamentalData data) {
+			FundamentalData previousYearData = getPreviousYear(data);
+			if (previousYearData != null) {
+				BigDecimal eps = data.getEarningsPerShare();
+				BigDecimal prevEps = previousYearData.getEarningsPerShare();
+				if (prevEps.signum() != 0) {
+					return eps.divide(prevEps, new MathContext(10, RoundingMode.HALF_EVEN)).subtract(BigDecimal.ONE);
+				}
+			}
+			return BigDecimal.ZERO;
+		}
+
+		private BigDecimal divGrowth(FundamentalData data) {
+			FundamentalData previousYearData = getPreviousYear(data);
+			if (previousYearData != null) {
+				BigDecimal div = data.getDividende();
+				BigDecimal prevDiv = previousYearData.getDividende();
+				if (prevDiv.signum() != 0) {
+					return div.divide(prevDiv, new MathContext(10, RoundingMode.HALF_EVEN)).subtract(BigDecimal.ONE);
+				}
+			}
+			return BigDecimal.ZERO;
+		}
+
+		private BigDecimal adjustedEpsGrowth(FundamentalData data) {
+			FundamentalData previousYearData = getPreviousYear(data);
+			if (previousYearData != null) {
+				BigDecimal eps = currencyAdjustedEPS(data);
+				BigDecimal prevEps = currencyAdjustedEPS(previousYearData);
+				if (prevEps.signum() != 0) {
+					return eps.divide(prevEps, new MathContext(10, RoundingMode.HALF_EVEN)).subtract(BigDecimal.ONE);
+				}
+			}
+			return BigDecimal.ZERO;
+		}
+
+		private BigDecimal adjustedDivGrowth(FundamentalData data) {
+			FundamentalData previousYearData = getPreviousYear(data);
+			if (previousYearData != null) {
+				BigDecimal div = currencyAdjustedDiv(data);
+				BigDecimal prevDiv = currencyAdjustedDiv(previousYearData);
+				if (prevDiv.signum() != 0) {
+					return div.divide(prevDiv, new MathContext(10, RoundingMode.HALF_EVEN)).subtract(BigDecimal.ONE);
+				}
+			}
+			return BigDecimal.ZERO;
+		}
+
+		private BigDecimal currencyAdjustedEPS(FundamentalData data) {
+			if (currencyConverter != null) {
+				CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
+				return currencyAjustedData.getEarningsPerShare();
+			}
+			return data.getEarningsPerShare();
+		}
+
+		private BigDecimal currencyAdjustedDiv(FundamentalData data) {
+			if (currencyConverter != null) {
+				CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
+				return currencyAjustedData.getDividende();
+			}
+			return data.getDividende();
+		}
+
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
-			FundamentalData data = (FundamentalData) element;
-			switch (columnIndex) {
-				case 0:
-					return String.valueOf(data.getYear());
-				case 1:
-					return PeanutsUtil.formatCurrency(data.getDividende(), null);
-				case 2:
-					if (currencyConverter != null) {
-						CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
-						return PeanutsUtil.formatCurrency(currencyAjustedData.getDividende(), null);
-					}
-					return PeanutsUtil.formatCurrency(data.getDividende(), null);
-				case 3:
-					return PeanutsUtil.formatCurrency(data.getEarningsPerShare(), null);
-				case 4:
-					if (currencyConverter != null) {
-						CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
-						return PeanutsUtil.formatCurrency(currencyAjustedData.getEarningsPerShare(), null);
-					}
-					return PeanutsUtil.formatCurrency(data.getEarningsPerShare(), null);
-				case 5:
-					return PeanutsUtil.formatQuantity(data.getDebtEquityRatio());
-				case 6:
-					if (currencyConverter != null) {
-						CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
-						return PeanutsUtil.formatQuantity(currencyAjustedData.calculatePeRatio(priceProvider));
-					}
-					return PeanutsUtil.formatQuantity(data.calculatePeRatio(priceProvider));
-				case 7:
-					if (currencyConverter != null) {
-						CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
-						return PeanutsUtil.formatPercent(currencyAjustedData.calculateDivYield(priceProvider));
-					}
-					return PeanutsUtil.formatPercent(data.calculateDivYield(priceProvider));
-				case 8:
-					if (inventoryEntry != null && data.getYear() == (new Day()).year) {
+			if (element instanceof AvgFundamentalData) {
+				AvgFundamentalData data = (AvgFundamentalData) element;
+				switch (columnIndex) {
+					case 0:
+						return "Avg";
+					case 6:
+						return PeanutsUtil.formatPercent(data.getAvgEpsChange().subtract(BigDecimal.ONE));
+					case 10:
+						return PeanutsUtil.formatQuantity(data.getAvgPE());
+					default:
+						return "";
+				}
+			} else {
+				FundamentalData data = (FundamentalData) element;
+				switch (columnIndex) {
+					case 0:
+						return String.valueOf(data.getYear());
+					case 1:
+						return PeanutsUtil.formatCurrency(data.getDividende(), null);
+					case 2:
+						return PeanutsUtil.formatPercent(divGrowth(data));
+					case 3:
+						return PeanutsUtil.formatCurrency(currencyAdjustedDiv(data), null);
+					case 4:
+						return PeanutsUtil.formatPercent(adjustedDivGrowth(data));
+					case 5:
+						return PeanutsUtil.formatCurrency(data.getEarningsPerShare(), null);
+					case 6:
+						return PeanutsUtil.formatPercent(epsGrowth(data));
+					case 7:
+						return PeanutsUtil.formatCurrency(currencyAdjustedEPS(data), null);
+					case 8:
+						return PeanutsUtil.formatPercent(adjustedEpsGrowth(data));
+					case 9:
+						return PeanutsUtil.formatQuantity(data.getDebtEquityRatio());
+					case 10:
 						if (currencyConverter != null) {
 							CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
-							return PeanutsUtil.formatPercent(currencyAjustedData.calculateYOC(inventoryEntry));
+							return PeanutsUtil.formatQuantity(currencyAjustedData.calculatePeRatio(priceProvider));
 						}
-						return PeanutsUtil.formatPercent(data.calculateYOC(inventoryEntry));
-					} else {
+						return PeanutsUtil.formatQuantity(data.calculatePeRatio(priceProvider));
+					case 11:
+						if (currencyConverter != null) {
+							CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
+							return PeanutsUtil.formatPercent(currencyAjustedData.calculateDivYield(priceProvider));
+						}
+						return PeanutsUtil.formatPercent(data.calculateDivYield(priceProvider));
+					case 12:
+						if (inventoryEntry != null && data.getYear() == (new Day()).year) {
+							if (currencyConverter != null) {
+								CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
+								return PeanutsUtil.formatPercent(currencyAjustedData.calculateYOC(inventoryEntry));
+							}
+							return PeanutsUtil.formatPercent(data.calculateYOC(inventoryEntry));
+						} else {
+							return "";
+						}
+					default:
 						return "";
-					}
-				default:
-					return "";
+				}
 			}
 		}
 		@Override
 		public String getText(Object element) {
-			FundamentalData data = (FundamentalData) element;
-			return String.valueOf(data.getYear());
+			if (element instanceof FundamentalData) {
+				FundamentalData data = (FundamentalData) element;
+				return String.valueOf(data.getYear());
+			}
+			return "";
+		}
+
+		@Override
+		public Color getBackground(Object element, int columnIndex) {
+			return null;
+		}
+
+		@Override
+		public Color getForeground(Object element, int columnIndex) {
+			if (element instanceof FundamentalData) {
+				FundamentalData data = (FundamentalData) element;
+				if (columnIndex == 2) {
+					if (divGrowth(data).signum() == -1) {
+						return Activator.getDefault().getColorProvider().get(Activator.RED);
+					}
+				}
+				if (columnIndex == 4) {
+					if (adjustedDivGrowth(data).signum() == -1) {
+						return Activator.getDefault().getColorProvider().get(Activator.RED);
+					}
+				}
+				if (columnIndex == 6) {
+					if (epsGrowth(data).signum() == -1) {
+						return Activator.getDefault().getColorProvider().get(Activator.RED);
+					}
+				}
+				if (columnIndex == 8) {
+					if (adjustedEpsGrowth(data).signum() == -1) {
+						return Activator.getDefault().getColorProvider().get(Activator.RED);
+					}
+				}
+			}
+			return null;
 		}
 	}
 
@@ -160,9 +293,16 @@ public class FundamentalDataEditorPart extends EditorPart {
 		int colNumber = 0;
 		TableColumn col = new TableColumn(table, SWT.LEFT);
 		col.setText("Year");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 80);
 		col.setResizable(true);
 		ViewerComparator comparator = new ViewerComparator() {
+			@Override
+			public int category(Object element) {
+				if (element instanceof AvgFundamentalData) {
+					return 99;
+				}
+				return 0;
+			}
 			@Override
 			public boolean isSorterProperty(Object element, String property) {
 				return "year".equals(property);
@@ -173,55 +313,80 @@ public class FundamentalDataEditorPart extends EditorPart {
 		table.setSortDirection(SWT.UP);
 		colNumber++;
 
-		col = new TableColumn(table, SWT.LEFT);
+		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Dividende");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 75);
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
 		col.setResizable(true);
 		colNumber++;
 
-		col = new TableColumn(table, SWT.LEFT);
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Change %");
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setResizable(true);
+		colNumber++;
+
+		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Dividende "+security.getCurrency().getSymbol());
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
 		col.setResizable(true);
 		colNumber++;
 
-		col = new TableColumn(table, SWT.LEFT);
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Change %");
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setResizable(true);
+		colNumber++;
+
+		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("EPS");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 75);
-		col.setResizable(true);
-		colNumber++;
-
-		col = new TableColumn(table, SWT.LEFT);
-		col.setText("EPS "+security.getCurrency().getSymbol());
 		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.setResizable(true);
 		colNumber++;
 
-		col = new TableColumn(table, SWT.LEFT);
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Change %");
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setResizable(true);
+		colNumber++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("EPS "+security.getCurrency().getSymbol());
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setResizable(true);
+		colNumber++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Change %");
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setResizable(true);
+		colNumber++;
+
+		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("D/E ratio");
 		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.setResizable(true);
 		colNumber++;
 
-		col = new TableColumn(table, SWT.LEFT);
+		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("P/E ratio");
 		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.setResizable(true);
 		colNumber++;
 
-		col = new TableColumn(table, SWT.LEFT);
+		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Div yield");
 		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.setResizable(true);
 		colNumber++;
 
-		col = new TableColumn(table, SWT.LEFT);
+		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("YOC");
 		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.setResizable(true);
 		colNumber++;
 
-		tableViewer.setColumnProperties(new String[] { "year", "div", "div2", "EPS", "EPS2", "deRatio", "peRatio", "divYield", "YOC"});
+		tableViewer.setColumnProperties(new String[] { "year", "div", "divgr", "div2", "div2gr",
+			"EPS", "EPSgr", "EPS2", "EPS2gr", "deRatio", "peRatio", "divYield", "YOC"});
 		tableViewer.setCellModifier(new ICellModifier() {
 
 			@Override
@@ -283,6 +448,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 			}
 		});
 		tableViewer.setCellEditors(new CellEditor[] {new TextCellEditor(table), new TextCellEditor(table),
+			new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table),
 			new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table)});
 
 		tableViewer.setLabelProvider(new FundamentalDataTableLabelProvider());
@@ -306,7 +472,12 @@ public class FundamentalDataEditorPart extends EditorPart {
 			ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
 			currencyConverter = exchangeRate.createCurrencyConverter(currency, security.getCurrency());
 		}
-		tableViewer.setInput(fundamentalDatas);
+
+		tableRows = new ArrayList<Object>();
+		tableRows.addAll(fundamentalDatas);
+		tableRows.add(new AvgFundamentalData(fundamentalDatas, priceProvider, currencyConverter));
+		tableViewer.setInput(tableRows);
+
 		currencyComboViewer.getCombo().addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -345,6 +516,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 		for (FundamentalData d : datas) {
 			fundamentalDatas.add(new FundamentalData(d));
 		}
+		Collections.sort(fundamentalDatas);
 		return fundamentalDatas;
 	}
 
@@ -359,6 +531,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 			public void run() {
 				FundamentalData fundamentalData = new FundamentalData();
 				fundamentalDatas.add(fundamentalData);
+				tableRows.add(fundamentalData);
 				tableViewer.add(fundamentalData);
 				markDirty();
 			}
@@ -367,6 +540,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 	public void deleteFundamentalData(Collection<FundamentalData> data) {
 		if (fundamentalDatas.removeAll(data)) {
+			tableRows.removeAll(data);
 			tableViewer.remove(data.toArray());
 			markDirty();
 		}
