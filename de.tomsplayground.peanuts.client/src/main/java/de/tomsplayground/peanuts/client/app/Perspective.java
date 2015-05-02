@@ -3,7 +3,7 @@ package de.tomsplayground.peanuts.client.app;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
-import de.tomsplayground.peanuts.client.views.NavigationView;
+import de.tomsplayground.peanuts.client.navigation.NavigationView;
 import de.tomsplayground.peanuts.client.wizards.security.SecurityNewWizard;
 
 

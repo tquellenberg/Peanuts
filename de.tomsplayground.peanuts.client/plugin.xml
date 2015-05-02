@@ -28,7 +28,7 @@
       <view
             allowMultiple="false"
             category="de.tomsplayground.peanuts.client.category1"
-            class="de.tomsplayground.peanuts.client.views.NavigationView"
+            class="de.tomsplayground.peanuts.client.navigation.NavigationView"
             icon="icons/chart_organisation.png"
             id="de.tomsplayground.peanuts.client.navigationView"
             name="Navigation">
@@ -143,6 +143,15 @@
                name="savedTransaction"
                optional="true">
          </commandParameter>
+      </command>
+      <command
+            defaultHandler="de.tomsplayground.peanuts.client.navigation.ToggleDeletedFilterHandler"
+            id="de.tomsplayground.peanuts.client.toggleDeletedFilter.cmd"
+            name="Toggle Deleted Filter">
+         <state
+               class="org.eclipse.jface.commands.ToggleState"
+               id="de.tomsplayground.peanuts.client.toggleDeletedFilter.state">
+         </state>
       </command>
    </extension>
    <extension
@@ -375,6 +384,28 @@
             </dynamic>
          </menu>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:de.tomsplayground.peanuts.client.navigationView">
+         <command
+               commandId="de.tomsplayground.peanuts.client.toggleDeletedFilter.cmd"
+               icon="icons/page_delete.png"
+               label="Toggle Filter"
+               style="toggle">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:de.tomsplayground.peanuts.client.navigationView">
+         <command
+               commandId="org.eclipse.ui.edit.delete"
+               style="push">
+         </command>
+         <command
+               commandId="org.eclipse.ui.file.revert"
+               style="push">
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -576,6 +607,46 @@
          </activeWhen>
       </handler>
       <handler
+            class="de.tomsplayground.peanuts.client.navigation.DeleteFromNavigationHandler"
+            commandId="org.eclipse.ui.edit.delete">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <instanceof
+                        value="de.tomsplayground.peanuts.domain.base.IDeletable">
+                  </instanceof>
+                  <test
+                        property="de.tomsplayground.peanuts.modelObject.deleted"
+                        value="false">
+                  </test>
+               </iterate>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.tomsplayground.peanuts.client.navigation.DeleteFromNavigationHandler"
+            commandId="org.eclipse.ui.file.revert">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <instanceof
+                        value="de.tomsplayground.peanuts.domain.base.IDeletable">
+                  </instanceof>
+                  <test
+                        property="de.tomsplayground.peanuts.modelObject.deleted"
+                        value="true">
+                  </test>
+               </iterate>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
             class="de.tomsplayground.peanuts.client.savedtransaction.SaveTransactionHandler"
             commandId="de.tomsplayground.peanuts.client.saveTransaction">
         <activeWhen>
@@ -607,6 +678,26 @@
             </with>
          </activeWhen>
       </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.decorators">
+      <decorator
+            class="de.tomsplayground.peanuts.client.navigation.NavigationLabelDecorator"
+            id="de.tomsplayground.peanuts.client.deleted"
+            label="Deleted"
+            lightweight="true"
+            state="true">
+      </decorator>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="de.tomsplayground.peanuts.client.navigation.NavigationPropertyTester"
+            id="de.tomsplayground.peanuts.client.isDeleted"
+            namespace="de.tomsplayground.peanuts.modelObject"
+            properties="deleted"
+            type="de.tomsplayground.peanuts.domain.base.IDeletable">
+      </propertyTester>
    </extension>
 
 </plugin>

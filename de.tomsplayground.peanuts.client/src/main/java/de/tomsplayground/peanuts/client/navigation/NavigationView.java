@@ -1,10 +1,13 @@
-package de.tomsplayground.peanuts.client.views;
+package de.tomsplayground.peanuts.client.navigation;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.eclipse.core.commands.IStateListener;
+import org.eclipse.core.commands.State;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -18,6 +21,7 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
@@ -56,6 +60,7 @@ import de.tomsplayground.peanuts.client.editors.securitycategory.SecurityCategor
 import de.tomsplayground.peanuts.client.editors.securitycategory.SecurityCategoryEditorInput;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
+import de.tomsplayground.peanuts.domain.base.IDeletable;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
@@ -68,17 +73,32 @@ public class NavigationView extends ViewPart {
 	public static final String ID = "de.tomsplayground.peanuts.client.navigationView";
 
 	private TreeViewer viewer;
-	private TreeParent root = new TreeParent("");
+	private final TreeParent root = new TreeParent("");
 
-	private PropertyChangeListener nameChangesListener = new PropertyChangeListener() {
-
+	private final PropertyChangeListener nameChangesListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			viewer.update(evt.getSource(), null);
 		}
 	};
+	private final PropertyChangeListener deleteChangesListener = new PropertyChangeListener() {
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			viewer.refresh();
+		}
+	};
 
-	IWorkbenchAdapter workbenchAdapter = new IWorkbenchAdapter() {
+	private final ViewerFilter deletedFilter = new ViewerFilter() {
+		@Override
+		public boolean select(Viewer viewer, Object parentElement, Object element) {
+			if (element instanceof IDeletable) {
+				return ! ((IDeletable)element).isDeleted();
+			}
+			return true;
+		}
+	};
+
+	private final IWorkbenchAdapter workbenchAdapter = new IWorkbenchAdapter() {
 
 		@Override
 		public Object[] getChildren(Object o) {
@@ -104,8 +124,8 @@ public class NavigationView extends ViewPart {
 	private PropertyChangeListener propertyChangeListener;
 
 	class TreeObject {
-		private String name;
-		private Object baseObject;
+		private final String name;
+		private final Object baseObject;
 
 		private TreeParent parent;
 
@@ -137,7 +157,7 @@ public class NavigationView extends ViewPart {
 	}
 
 	class TreeParent extends TreeObject implements IAdaptable {
-		private List<TreeObject> children;
+		private final List<TreeObject> children;
 
 		public TreeParent(String name) {
 			super(name, null);
@@ -149,6 +169,8 @@ public class NavigationView extends ViewPart {
 			child.setParent(this);
 			if (child.baseObject instanceof ObservableModelObject) {
 				((ObservableModelObject) child.baseObject).addPropertyChangeListener("name", nameChangesListener);
+				((ObservableModelObject) child.baseObject).addPropertyChangeListener("deleted", deleteChangesListener);
+
 			}
 		}
 
@@ -157,6 +179,7 @@ public class NavigationView extends ViewPart {
 			child.setParent(null);
 			if (child.baseObject instanceof ObservableModelObject) {
 				((ObservableModelObject) child.baseObject).removePropertyChangeListener(nameChangesListener);
+				((ObservableModelObject) child.baseObject).removePropertyChangeListener(deleteChangesListener);
 			}
 		}
 
@@ -230,10 +253,11 @@ public class NavigationView extends ViewPart {
 				Object result[] = new Object[children.length];
 				for (int i = 0; i < children.length; i++ ) {
 					TreeObject treeObject = children[i];
-					if (treeObject.getBaseObject() != null)
+					if (treeObject.getBaseObject() != null) {
 						result[i] = treeObject.getBaseObject();
-					else
+					} else {
 						result[i] = treeObject;
+					}
 				}
 				return result;
 			}
@@ -293,7 +317,7 @@ public class NavigationView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		viewer.setContentProvider(new ViewContentProvider());
-		viewer.setLabelProvider(new WorkbenchLabelProvider());
+		viewer.setLabelProvider(WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider());
 		updateModel();
 		viewer.setInput(root);
 		propertyChangeListener = new PropertyChangeListener() {
@@ -304,6 +328,20 @@ public class NavigationView extends ViewPart {
 			}
 		};
 		Activator.getDefault().getAccountManager().addPropertyChangeListener(propertyChangeListener);
+
+		viewer.addFilter(deletedFilter);
+		State deletedFilterState = ToggleDeletedFilterHandler.getDeletedFilterState();
+		deletedFilterState.addListener(new IStateListener() {
+			@Override
+			public void handleStateChange(State state, Object oldValue) {
+				if (ArrayUtils.contains(viewer.getFilters(), deletedFilter)) {
+					viewer.removeFilter(deletedFilter);
+				} else {
+					viewer.addFilter(deletedFilter);
+				}
+			}
+		});
+
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
 
 			@Override
@@ -410,7 +448,6 @@ public class NavigationView extends ViewPart {
 				// nothing to do
 			}
 		});
-
 
 		IActionBars actionBars = getViewSite().getActionBars();
 		actionBars.setGlobalActionHandler(ActionFactory.REFRESH.getId(), new Action("Refresh") {

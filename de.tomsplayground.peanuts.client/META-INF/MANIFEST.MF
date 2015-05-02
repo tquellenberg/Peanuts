@@ -32,6 +32,7 @@ Bundle-ClassPath: .,
  lib/slf4j-api-1.7.6.jar
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.ui.forms
+ org.eclipse.ui.forms,
+ org.eclipse.core.expressions
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Tom's Playground

@@ -18,7 +18,7 @@ import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 
 @XStreamAlias("security")
-public class Security extends ObservableModelObject implements INamedElement, IConfigurable {
+public class Security extends ObservableModelObject implements INamedElement, IConfigurable, IDeletable {
 
 	// Core
 	private String name;
@@ -30,6 +30,7 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	private String currency;
 	// this prices for this security are exchange rates for this currency
 	private String exchangeCurrency;
+	private boolean deleted;
 
 	final private Map<String, String> displayConfiguration = new HashMap<String, String>();
 
@@ -158,5 +159,19 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 		} else {
 			this.exchangeCurrency = curreny.getCurrencyCode();
 		}
+	}
+
+	@Override
+	public boolean isDeleted() {
+		return deleted;
+	}
+
+	@Override
+	public void setDeleted(boolean deleted) {
+		if (this.deleted == deleted) {
+			return;
+		}
+		this.deleted = deleted;
+		firePropertyChange("deleted", Boolean.valueOf(!deleted), Boolean.valueOf(deleted));
 	}
 }

@@ -25,7 +25,8 @@ import de.tomsplayground.peanuts.domain.process.Transaction;
 import de.tomsplayground.util.Day;
 
 @XStreamAlias("account")
-public class Account extends ObservableModelObject implements ITransferLocation, ITransactionProvider, INamedElement, IConfigurable {
+public class Account extends ObservableModelObject implements ITransferLocation, ITransactionProvider,
+	INamedElement, IConfigurable, IDeletable {
 
 	public enum Type {
 		UNKNOWN,
@@ -151,7 +152,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	public void setActive(boolean active) {
 		boolean oldActive = this.active;
 		this.active = active;
-		firePropertyChange("active", Boolean.valueOf(oldActive), Boolean.valueOf(active));
+		firePropertyChange("deleted", Boolean.valueOf(oldActive), Boolean.valueOf(active));
 	}
 
 	@Override
@@ -322,5 +323,15 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	@Override
 	public void putConfigurationValue(String key, String value) {
 		getConfigurableSupport().putConfigurationValue(key, value);
+	}
+
+	@Override
+	public boolean isDeleted() {
+		return ! active;
+	}
+
+	@Override
+	public void setDeleted(boolean deleted) {
+		setActive(! deleted);
 	}
 }
