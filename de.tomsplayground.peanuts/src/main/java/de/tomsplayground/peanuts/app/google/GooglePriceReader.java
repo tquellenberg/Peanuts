@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVReader;
+import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProvider;
 import de.tomsplayground.util.Day;
@@ -26,13 +27,15 @@ public class GooglePriceReader extends PriceProvider {
 	private URL url;
 	private final Reader reader;
 
-	public GooglePriceReader(String ticker) throws IOException {
+	public GooglePriceReader(Security security, String ticker) throws IOException {
+		super(security);
 		url = new URL("http://www.google.com/finance/historical?q=" + ticker + "&output=csv");
 		reader = new InputStreamReader(url.openStream(), "UTF-8");
 		read();
 	}
 
-	public GooglePriceReader(Reader reader) throws IOException {
+	public GooglePriceReader(Security security, Reader reader) throws IOException {
+		super(security);
 		this.reader = reader;
 		read();
 	}

@@ -22,6 +22,14 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 	private final PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
+			if (evt.getSource() instanceof Security) {
+				Security s = (Security) evt.getSource();
+				getEntry(s).refreshCache();
+			}
+			if (evt.getSource() instanceof IPriceProvider) {
+				IPriceProvider pp = (IPriceProvider) evt.getSource();
+				getEntry(pp.getSecurity()).refreshCache();
+			}
 			getPropertyChangeSupport().firePropertyChange(evt);
 		}
 	};
@@ -42,11 +50,18 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 		return Collections.unmodifiableList(entries);
 	}
 
-	public WatchEntry addEntry(Security security) {
+	public WatchEntry getEntry(Security security) {
 		for (WatchEntry entry : entries) {
 			if (entry.getSecurity().equals(security)) {
-				return null;
+				return entry;
 			}
+		}
+		return null;
+	}
+
+	public WatchEntry addEntry(Security security) {
+		if (getEntry(security) != null) {
+			return null;
 		}
 		security.addPropertyChangeListener(propertyChangeListener);
 		IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
@@ -56,7 +71,7 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 		}
 		ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
 		IPriceProvider adjustedPriceProvider = PriceProviderFactory.getInstance().getAdjustedPriceProvider(security, stockSplits);
-		WatchEntry watchEntry = new WatchEntry(security, priceProvider, adjustedPriceProvider);
+		WatchEntry watchEntry = new WatchEntry(security, adjustedPriceProvider);
 		entries.add(watchEntry);
 		firePropertyChange("entries", null, watchEntry);
 		return watchEntry;

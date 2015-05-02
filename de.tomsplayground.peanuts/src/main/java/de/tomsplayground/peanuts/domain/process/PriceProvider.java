@@ -7,6 +7,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
+import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
@@ -14,10 +15,17 @@ import de.tomsplayground.util.Day;
 
 public abstract class PriceProvider extends ObservableModelObject implements IPriceProvider {
 
+	private final Security security;
 	private ImmutableList<IPrice> prices = ImmutableList.of();
 
-	public PriceProvider() {
+	public PriceProvider(Security security) {
 		super();
+		this.security = security;
+	}
+
+	@Override
+	public Security getSecurity() {
+		return security;
 	}
 
 	@Override

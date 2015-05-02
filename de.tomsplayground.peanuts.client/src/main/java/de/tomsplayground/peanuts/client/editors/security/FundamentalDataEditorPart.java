@@ -164,7 +164,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 					case 6:
 						return PeanutsUtil.formatPercent(data.getAvgEpsChange().subtract(BigDecimal.ONE));
 					case 10:
-						return PeanutsUtil.formatQuantity(data.getAvgPE());
+						return PeanutsUtil.format(data.getAvgPE(), 1);
 					default:
 						return "";
 				}
@@ -194,9 +194,9 @@ public class FundamentalDataEditorPart extends EditorPart {
 					case 10:
 						if (currencyConverter != null) {
 							CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
-							return PeanutsUtil.formatQuantity(currencyAjustedData.calculatePeRatio(priceProvider));
+							return PeanutsUtil.format(currencyAjustedData.calculatePeRatio(priceProvider), 1);
 						}
-						return PeanutsUtil.formatQuantity(data.calculatePeRatio(priceProvider));
+						return PeanutsUtil.format(data.calculatePeRatio(priceProvider), 1);
 					case 11:
 						if (currencyConverter != null) {
 							CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);

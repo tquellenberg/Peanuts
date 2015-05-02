@@ -6,6 +6,7 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import com.google.common.collect.ImmutableList;
 
+import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.util.Day;
 
@@ -67,6 +68,11 @@ public abstract class AdjustedPriceProvider extends ObservableModelObject implem
 	@Override
 	public Day getMaxDate() {
 		return rawPriceProvider.getMaxDate();
+	}
+
+	@Override
+	public Security getSecurity() {
+		return rawPriceProvider.getSecurity();
 	}
 
 	public IPriceProvider getRawPriceProvider() {

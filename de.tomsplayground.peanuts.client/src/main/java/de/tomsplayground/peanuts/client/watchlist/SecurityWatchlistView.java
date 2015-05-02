@@ -5,7 +5,6 @@ import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Currency;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -60,12 +59,7 @@ import de.tomsplayground.peanuts.client.editors.security.SecurityEditor;
 import de.tomsplayground.peanuts.client.editors.security.SecurityEditorInput;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.domain.base.Inventory;
-import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
-import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
-import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
-import de.tomsplayground.peanuts.domain.fundamental.CurrencyAjustedFundamentalData;
-import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.statistics.Signal;
 import de.tomsplayground.peanuts.domain.statistics.Signal.Type;
@@ -88,7 +82,7 @@ public class SecurityWatchlistView extends ViewPart {
 
 	private TableViewer securityListViewer;
 	private Watchlist currentWatchList;
-	private final int colWidth[] = new int[16];
+	private final int colWidth[] = new int[18];
 
 	private static abstract class WatchEntryViewerComparator extends ViewerComparator {
 		enum SORT {
@@ -123,34 +117,32 @@ public class SecurityWatchlistView extends ViewPart {
 	private final WatchEntryViewerComparator peRatioComparator = new WatchEntryViewerComparator() {
 		@Override
 		public int compare(WatchEntry w1, WatchEntry w2) {
-			BigDecimal peRatio1 = null;
-			BigDecimal peRatio2 = null;
-
-			FundamentalData data1 = getFundamentalData(w1.getSecurity());
-			if (data1 != null) {
-				peRatio1 = data1.calculatePeRatio(w1.getPriceProvider());
-			}
-			FundamentalData data2 = getFundamentalData(w2.getSecurity());
-			if (data2 != null) {
-				peRatio2 = data2.calculatePeRatio(w2.getPriceProvider());
-			}
+			BigDecimal peRatio1 = w1.getPeRatio();
+			BigDecimal peRatio2 = w2.getPeRatio();
+			return ObjectUtils.compare(peRatio2, peRatio1, true);
+		}
+	};
+	private final WatchEntryViewerComparator peAvgComparator = new WatchEntryViewerComparator() {
+		@Override
+		public int compare(WatchEntry w1, WatchEntry w2) {
+			BigDecimal peRatio1 = w1.getAvgPE();
+			BigDecimal peRatio2 = w2.getAvgPE();
+			return ObjectUtils.compare(peRatio2, peRatio1, true);
+		}
+	};
+	private final WatchEntryViewerComparator peDeltaComparator = new WatchEntryViewerComparator() {
+		@Override
+		public int compare(WatchEntry w1, WatchEntry w2) {
+			BigDecimal peRatio1 = w1.getPeDelta();
+			BigDecimal peRatio2 = w2.getPeDelta();
 			return ObjectUtils.compare(peRatio2, peRatio1, true);
 		}
 	};
 	private final WatchEntryViewerComparator divYieldComparator = new WatchEntryViewerComparator() {
 		@Override
 		public int compare(WatchEntry w1, WatchEntry w2) {
-			BigDecimal divYield1 = null;
-			BigDecimal divYield2 = null;
-
-			FundamentalData data1 = getFundamentalData(w1.getSecurity());
-			if (data1 != null) {
-				divYield1 = data1.calculateDivYield(w1.getPriceProvider());
-			}
-			FundamentalData data2 = getFundamentalData(w2.getSecurity());
-			if (data2 != null) {
-				divYield2 = data2.calculateDivYield(w2.getPriceProvider());
-			}
+			BigDecimal divYield1 = w1.getDivYield();
+			BigDecimal divYield2 = w2.getDivYield();
 			return ObjectUtils.compare(divYield1, divYield2);
 		}
 	};
@@ -158,40 +150,16 @@ public class SecurityWatchlistView extends ViewPart {
 		@Override
 		public int compare(WatchEntry w1, WatchEntry w2) {
 			Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
-			BigDecimal yoc1 = null;
-			BigDecimal yoc2 = null;
-
-			FundamentalData data1 = getFundamentalData(w1.getSecurity());
-			if (data1 != null) {
-				InventoryEntry inventoryEntry = inventory.getEntry(w1.getSecurity());
-				if (inventoryEntry != null) {
-					yoc1 = data1.calculateYOC(inventoryEntry);
-				}
-			}
-			FundamentalData data2 = getFundamentalData(w2.getSecurity());
-			if (data2 != null) {
-				InventoryEntry inventoryEntry = inventory.getEntry(w2.getSecurity());
-				if (inventoryEntry != null) {
-					yoc2 = data2.calculateYOC(inventoryEntry);
-				}
-			}
+			BigDecimal yoc1 = w1.getYOC(inventory.getEntry(w1.getSecurity()));
+			BigDecimal yoc2 = w2.getYOC(inventory.getEntry(w2.getSecurity()));
 			return ObjectUtils.compare(yoc1, yoc2);
 		}
 	};
 	private final WatchEntryViewerComparator deRatioComparator = new WatchEntryViewerComparator() {
 		@Override
 		public int compare(WatchEntry w1, WatchEntry w2) {
-			BigDecimal deRatio1 = null;
-			BigDecimal deRatio2 = null;
-
-			FundamentalData data1 = getFundamentalData(w1.getSecurity());
-			if (data1 != null) {
-				deRatio1 = data1.getDebtEquityRatio();
-			}
-			FundamentalData data2 = getFundamentalData(w2.getSecurity());
-			if (data2 != null) {
-				deRatio2 = data2.getDebtEquityRatio();
-			}
+			BigDecimal deRatio1 = w1.getDebtEquityRatio();
+			BigDecimal deRatio2 = w2.getDebtEquityRatio();
 			return ObjectUtils.compare(deRatio1, deRatio2);
 		}
 	};
@@ -276,10 +244,10 @@ public class SecurityWatchlistView extends ViewPart {
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
 			WatchEntry watchEntry = (WatchEntry) element;
-			Security security = watchEntry.getSecurity();
 			switch (columnIndex) {
-				case 0: return security.getName();
-
+				case 0:
+					Security security = watchEntry.getSecurity();
+					return security.getName();
 				case 1:
 					IPrice price = watchEntry.getPrice();
 					if (price == null) {
@@ -293,54 +261,63 @@ public class SecurityWatchlistView extends ViewPart {
 					}
 					return PeanutsUtil.formatCurrency(price2.getClose(), null);
 				case 3:
-					FundamentalData data1 = getFundamentalData(security);
+					BigDecimal data1 = watchEntry.getPeRatio();
 					if (data1 != null) {
-						return PeanutsUtil.format(data1.calculatePeRatio(watchEntry.getPriceProvider()), 1);
+						return PeanutsUtil.format(data1, 1);
 					}
 					return "";
 				case 4:
-					FundamentalData data2 = getFundamentalData(security);
-					if (data2 != null) {
-						return PeanutsUtil.formatPercent(data2.calculateDivYield(watchEntry.getPriceProvider()));
+					BigDecimal avgPe = watchEntry.getAvgPE();
+					if (avgPe != null) {
+						return PeanutsUtil.format(avgPe, 1);
 					}
 					return "";
 				case 5:
-					FundamentalData data3 = getFundamentalData(security);
-					if (data3 != null) {
-						Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
-						InventoryEntry inventoryEntry = inventory.getEntry(security);
-						if (inventoryEntry != null) {
-							return PeanutsUtil.formatPercent(data3.calculateYOC(inventoryEntry));
-						}
+					BigDecimal peDelta = watchEntry.getPeDelta();
+					if (peDelta != null) {
+						return PeanutsUtil.formatPercent(peDelta);
 					}
 					return "";
 				case 6:
-					FundamentalData data4 = getFundamentalData(security);
-					if (data4 != null) {
-						return PeanutsUtil.format(data4.getDebtEquityRatio(), 2);
+					BigDecimal data2 = watchEntry.getDivYield();
+					if (data2 != null) {
+						return PeanutsUtil.formatPercent(data2);
 					}
 					return "";
 				case 7:
+					Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
+					BigDecimal data3 = watchEntry.getYOC(inventory.getEntry(watchEntry.getSecurity()));
+					if (data3 != null) {
+						return PeanutsUtil.formatPercent(data3);
+					}
+					return "";
+				case 8:
+					BigDecimal data4 = watchEntry.getDebtEquityRatio();
+					if (data4 != null) {
+						return PeanutsUtil.format(data4, 2);
+					}
+					return "";
+				case 9:
 					Signal signal = watchEntry.getSignal();
 					if (signal != null) {
 						return signal.type.toString() + " " + PeanutsUtil.formatDate(signal.price.getDay());
 					}
 					return "";
-				case 8:
-					return PeanutsUtil.formatCurrency(watchEntry.getDayChangeAbsolut(), null);
-				case 9:
-					return PeanutsUtil.formatPercent(watchEntry.getDayChange());
 				case 10:
-					return PeanutsUtil.formatPercent(watchEntry.getPerformance(7, 0, 0));
+					return PeanutsUtil.formatCurrency(watchEntry.getDayChangeAbsolut(), null);
 				case 11:
-					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 1, 0));
+					return PeanutsUtil.formatPercent(watchEntry.getDayChange());
 				case 12:
-					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 6, 0));
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(7, 0, 0));
 				case 13:
-					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 1));
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 1, 0));
 				case 14:
-					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 3));
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 6, 0));
 				case 15:
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 1));
+				case 16:
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 3));
+				case 17:
 					return PeanutsUtil.formatPercent(watchEntry.getCustomPerformance());
 				default:
 					break;
@@ -350,7 +327,7 @@ public class SecurityWatchlistView extends ViewPart {
 
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
-			if (columnIndex == 7) {
+			if (columnIndex == 9) {
 				WatchEntry watchEntry = (WatchEntry) element;
 				if (watchEntry.getSignal() != null) {
 					if (watchEntry.getSignal().type == Type.BUY) {
@@ -367,29 +344,39 @@ public class SecurityWatchlistView extends ViewPart {
 		@Override
 		public Color getForeground(Object element, int columnIndex) {
 			WatchEntry watchEntry = (WatchEntry) element;
-			if (columnIndex == 6) {
-				FundamentalData data4 = getFundamentalData(watchEntry.getSecurity());
-				if (data4 != null && data4.getDebtEquityRatio() != null) {
-					if (data4.getDebtEquityRatio().intValue() > 100) {
+			if (columnIndex == 5) {
+				BigDecimal peDelta = watchEntry.getPeDelta();
+				if (peDelta != null) {
+					if (peDelta.compareTo(new BigDecimal(0.05)) > 0) {
 						return red;
 					}
-					if (data4.getDebtEquityRatio().intValue() < 40) {
+					if (peDelta.compareTo(new BigDecimal(-0.05)) < 0) {
 						return green;
 					}
 				}
-			} else if (columnIndex == 8 || columnIndex == 9) {
+			} else if (columnIndex == 8) {
+				BigDecimal data4 = watchEntry.getDebtEquityRatio();
+				if (data4 != null) {
+					if (data4.intValue() > 100) {
+						return red;
+					}
+					if (data4.intValue() < 40) {
+						return green;
+					}
+				}
+			} else if (columnIndex == 10 || columnIndex == 11) {
 				return (watchEntry.getDayChangeAbsolut().signum() == -1) ? red : green;
-			} else if (columnIndex == 10) {
-				return (watchEntry.getPerformance(7, 0, 0).signum() == -1) ? red : green;
-			} else if (columnIndex == 11) {
-				return (watchEntry.getPerformance(0, 1, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 12) {
-				return (watchEntry.getPerformance(0, 6, 0).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(7, 0, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 13) {
-				return (watchEntry.getPerformance(0, 0, 1).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(0, 1, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 14) {
-				return (watchEntry.getPerformance(0, 0, 3).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(0, 6, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 15) {
+				return (watchEntry.getPerformance(0, 0, 1).signum() == -1) ? red : green;
+			} else if (columnIndex == 16) {
+				return (watchEntry.getPerformance(0, 0, 3).signum() == -1) ? red : green;
+			} else if (columnIndex == 17) {
 				return (watchEntry.getCustomPerformance().signum() == -1) ? red : green;
 			}
 			return null;
@@ -506,6 +493,30 @@ public class SecurityWatchlistView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				setSorting((TableColumn)e.widget, peRatioComparator);
+			}
+		});
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("P/E avg");
+		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
+		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, peAvgComparator);
+			}
+		});
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("P/E +-");
+		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
+		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, peDeltaComparator);
 			}
 		});
 		colNum++;
@@ -722,20 +733,6 @@ public class SecurityWatchlistView extends ViewPart {
 		}
 		currentWatchList = WatchlistManager.getInstance().getCurrentWatchlist();
 		WatchlistManager.getInstance().addPropertyChangeListener(watchlistChangeListener);
-	}
-
-	private FundamentalData getFundamentalData(Security security) {
-		FundamentalData currentFundamentalData = security.getCurrentFundamentalData();
-		if (currentFundamentalData == null) {
-			return null;
-		}
-		Currency currency = currentFundamentalData.getCurrency();
-		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
-		CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(currency, security.getCurrency());
-		if (currencyConverter == null) {
-			return currentFundamentalData;
-		}
-		return new CurrencyAjustedFundamentalData(currentFundamentalData, currencyConverter);
 	}
 
 	public void removeSecurityFromCurrentWatchlist(Security security) {

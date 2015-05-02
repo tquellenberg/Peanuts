@@ -1,7 +1,7 @@
 package de.tomsplayground.peanuts.domain.process;
 
-import static de.tomsplayground.peanuts.Helper.assertEquals;
-import static org.junit.Assert.assertEquals;
+import static de.tomsplayground.peanuts.Helper.*;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,7 +21,7 @@ public class StopLossTest {
 		ITrailingStrategy strategy = new NoTrailingStrategy();
 		StopLoss stopLoss = new StopLoss(security, start, startPrice, strategy);
 
-		IPriceProvider priceProvider = new PriceProvider() {
+		IPriceProvider priceProvider = new PriceProvider(null) {
 			@Override
 			public String getName() {
 				return "Dummy";
@@ -47,7 +47,7 @@ public class StopLossTest {
 		ITrailingStrategy strategy = new PercentTrailingStrategy(new BigDecimal("0.1"));
 		StopLoss stopLoss = new StopLoss(security, start, startPrice, strategy);
 
-		IPriceProvider priceProvider = new PriceProvider() {
+		IPriceProvider priceProvider = new PriceProvider(null) {
 			@Override
 			public String getName() {
 				return "Dummy";

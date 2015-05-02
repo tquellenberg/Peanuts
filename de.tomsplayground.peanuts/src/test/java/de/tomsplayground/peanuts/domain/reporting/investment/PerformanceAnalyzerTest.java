@@ -31,6 +31,9 @@ public class PerformanceAnalyzerTest {
 	private IPriceProviderFactory priceProviderFactory;
 
 	private static class SimplePriceProvider extends PriceProvider {
+		SimplePriceProvider() {
+			super(null);
+		}
 
 		@Override
 		public String getName() {

@@ -13,7 +13,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import de.tomsplayground.peanuts.app.quicken.QifReaderTest;
-import de.tomsplayground.peanuts.app.yahoo.YahooPriceReader;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.util.Day;
 
@@ -22,7 +21,7 @@ public class YahooPriceReaderTest extends TestCase {
 	@Test
 	public void testRead() throws IOException {
 		Reader in = new InputStreamReader(QifReaderTest.class.getResourceAsStream("/Yahoo.csv"));
-		YahooPriceReader reader = new YahooPriceReader(in);
+		YahooPriceReader reader = new YahooPriceReader(null, in);
 		IOUtils.closeQuietly(in);
 
 		List<IPrice> prices = reader.getPrices();
@@ -40,7 +39,7 @@ public class YahooPriceReaderTest extends TestCase {
 	@Test
 	public void testEmpty() throws IOException {
 		Reader in = new StringReader("");
-		YahooPriceReader reader = new YahooPriceReader(in, YahooPriceReader.Type.CURRENT);
+		YahooPriceReader reader = new YahooPriceReader(null, in, YahooPriceReader.Type.CURRENT);
 
 		List<IPrice> prices = reader.getPrices();
 		assertEquals(0, prices.size());
@@ -49,7 +48,7 @@ public class YahooPriceReaderTest extends TestCase {
 	@Test
 	public void testReadCurrent2() throws IOException {
 		Reader in = new InputStreamReader(QifReaderTest.class.getResourceAsStream("/Yahoo_current2.csv"));
-		YahooPriceReader reader = new YahooPriceReader(in, YahooPriceReader.Type.CURRENT);
+		YahooPriceReader reader = new YahooPriceReader(null, in, YahooPriceReader.Type.CURRENT);
 		IOUtils.closeQuietly(in);
 
 		List<IPrice> prices = reader.getPrices();

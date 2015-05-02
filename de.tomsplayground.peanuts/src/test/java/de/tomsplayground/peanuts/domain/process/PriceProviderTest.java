@@ -23,7 +23,7 @@ public class PriceProviderTest {
 
 	@Before
 	public void setUp() {
-		pp = new PriceProvider() {
+		pp = new PriceProvider(null) {
 			@Override
 			public String getName() {
 				return "";

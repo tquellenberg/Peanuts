@@ -4,12 +4,15 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
+import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.util.Day;
 
 
 public interface IPriceProvider {
 
 	String getName();
+
+	Security getSecurity();
 
 	ImmutableList<IPrice> getPrices();
 

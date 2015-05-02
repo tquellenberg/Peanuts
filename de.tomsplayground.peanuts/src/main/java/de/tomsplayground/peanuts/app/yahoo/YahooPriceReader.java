@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVReader;
+import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProvider;
 import de.tomsplayground.util.Day;
@@ -35,7 +36,7 @@ public class YahooPriceReader extends PriceProvider {
 	private final CSVReader csvReader;
 	private final Type type;
 
-	public static YahooPriceReader forTicker(String ticker, Type type) throws IOException {
+	public static YahooPriceReader forTicker(Security security, String ticker, Type type) throws IOException {
 		URL url;
 		if (type == Type.CURRENT) {
 			url = new URL("http://download.finance.yahoo.com/d/quotes.csv?f=sl1d1t1c1ohgv&s=" +
@@ -49,14 +50,15 @@ public class YahooPriceReader extends PriceProvider {
 		URLConnection connection = url.openConnection();
 		connection.setConnectTimeout(1000*10);
 		String str = IOUtils.toString(connection.getInputStream());
-		return new YahooPriceReader(new StringReader(str), type);
+		return new YahooPriceReader(security, new StringReader(str), type);
 	}
 
-	public YahooPriceReader(Reader reader) throws IOException {
-		this(reader, Type.HISTORICAL);
+	public YahooPriceReader(Security security, Reader reader) throws IOException {
+		this(security, reader, Type.HISTORICAL);
 	}
 
-	public YahooPriceReader(Reader reader, Type type) throws IOException {
+	public YahooPriceReader(Security security, Reader reader, Type type) throws IOException {
+		super(security);
 		if (type == Type.HISTORICAL) {
 			csvReader = new CSVReader(reader, ',', '"');
 		} else {

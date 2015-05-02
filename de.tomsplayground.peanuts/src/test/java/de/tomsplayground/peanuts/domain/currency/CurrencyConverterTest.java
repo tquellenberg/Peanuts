@@ -25,7 +25,7 @@ public class CurrencyConverterTest {
 
 	@Before
 	public void setup() {
-		priceProvider = new EmptyPriceProvider();
+		priceProvider = new EmptyPriceProvider(null);
 		currencyConverter = new CurrencyConverter(priceProvider, EURO, DOLLAR);
 	}
 

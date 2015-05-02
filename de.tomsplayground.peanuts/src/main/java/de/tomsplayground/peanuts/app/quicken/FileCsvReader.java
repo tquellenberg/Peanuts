@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import au.com.bytecode.opencsv.CSVReader;
+import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProvider;
 import de.tomsplayground.util.Day;
@@ -16,9 +17,10 @@ import de.tomsplayground.util.Day;
 public class FileCsvReader extends PriceProvider {
 
 	private final DateFormat dateFormat = new SimpleDateFormat("dd.MM.yy");
-	private CSVReader csvReader;
+	private final CSVReader csvReader;
 
-	public FileCsvReader(Reader reader) {
+	public FileCsvReader(Security security, Reader reader) {
+		super(security);
 		csvReader = new CSVReader(reader, '\t');
 	}
 

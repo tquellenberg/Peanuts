@@ -96,6 +96,9 @@ public class TimeIntervalReportTest {
 	}
 
 	private static class SimplePriceProvider extends PriceProvider {
+		SimplePriceProvider() {
+			super(null);
+		}
 		@Override
 		public String getName() {
 			return "test";
