@@ -27,8 +27,15 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.progress.WorkbenchJob;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
 import de.tomsplayground.peanuts.app.yahoo.YahooSecurity;
 import de.tomsplayground.peanuts.app.yahoo.YahooSecuritySearcher;
+import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.domain.base.AccountManager;
+import de.tomsplayground.peanuts.domain.base.Security;
 
 public class SecurityNewWizardPage extends WizardPage {
 
@@ -40,6 +47,29 @@ public class SecurityNewWizardPage extends WizardPage {
 		public void modifyText(ModifyEvent e) {
 			Text t = (Text)e.getSource();
 			setPageComplete(StringUtils.isNotBlank(t.getText()));
+		}
+	};
+	private final ModifyListener checkdublicateISINListener = new ModifyListener() {
+		@Override
+		public void modifyText(ModifyEvent e) {
+			Text t = (Text)e.getSource();
+			final String isin = t.getText();
+			if (StringUtils.isNotBlank(isin)) {
+				AccountManager accountManager = Activator.getDefault().getAccountManager();
+				Optional<Security> tryFind = Iterables.tryFind(accountManager.getSecurities(), new Predicate<Security>() {
+					@Override
+					public boolean apply(Security input) {
+						return StringUtils.equalsIgnoreCase(input.getISIN(), isin);
+					};
+				});
+				if (tryFind.isPresent()) {
+					setErrorMessage("Security with this ISIN already exists");
+					setPageComplete(false);
+				} else {
+					setErrorMessage(null);
+					setPageComplete(true);
+				}
+			}
 		}
 	};
 	private class RefreshJob extends WorkbenchJob {
@@ -110,6 +140,7 @@ public class SecurityNewWizardPage extends WizardPage {
 		isin = new Text(contents, SWT.SINGLE | SWT.BORDER);
 		isin.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		isin.addModifyListener(checkNotEmptyListener);
+		isin.addModifyListener(checkdublicateISINListener);
 
 		label = new Label(contents, SWT.NONE);
 		label.setText("Ticker:");
