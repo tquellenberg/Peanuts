@@ -286,7 +286,7 @@ public class ChartEditorPart extends EditorPart {
 
 	@Override
 	public void setFocus() {
-		// nothing to do
+		displayType.setFocus();
 	}
 
 	@Override

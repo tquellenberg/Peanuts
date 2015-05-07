@@ -57,6 +57,8 @@ public class PieEditorPart extends EditorPart {
 		}
 	};
 
+	private ChartComposite chartFrame;
+
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		if ( !(input instanceof SecurityCategoryEditorInput)) {
@@ -97,7 +99,7 @@ public class PieEditorPart extends EditorPart {
 		dataset = new DefaultPieDataset();
 		updateDataset();
 		createChart();
-		ChartComposite chartFrame = new ChartComposite(top, SWT.NONE, chart, true);
+		chartFrame = new ChartComposite(top, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		dateChooser.addModifyListener(new ModifyListener() {
@@ -163,7 +165,7 @@ public class PieEditorPart extends EditorPart {
 
 	@Override
 	public void setFocus() {
-		// nothing to do
+		chartFrame.setFocus();
 	}
 
 }

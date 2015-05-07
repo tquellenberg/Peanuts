@@ -236,7 +236,7 @@ public class ValueChartEditorPart extends EditorPart {
 
 	@Override
 	public void setFocus() {
-		// nothing to do
+		displayType.setFocus();
 	}
 
 }

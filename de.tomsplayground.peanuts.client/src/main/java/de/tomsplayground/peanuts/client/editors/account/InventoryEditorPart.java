@@ -732,7 +732,7 @@ public class InventoryEditorPart extends EditorPart {
 
 	@Override
 	public void setFocus() {
-		// nothing to do
+		treeViewer.getTree().setFocus();
 	}
 
 	public void restoreState() {

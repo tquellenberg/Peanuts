@@ -50,13 +50,15 @@ public class AllAccountsPieView extends ViewPart {
 		}
 	};
 
+	private ChartComposite chartFrame;
+
 	@Override
 	public void createPartControl(Composite parent) {
 		shell = parent.getShell();
 
 		dataset = new DefaultPieDataset();
 		createChart();
-		ChartComposite chartFrame = new ChartComposite(parent, SWT.NONE, chart, true);
+		chartFrame = new ChartComposite(parent, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		Activator.getDefault().getAccountManager().addPropertyChangeListener(accountChangeListener);
 		updateControls();
@@ -104,7 +106,7 @@ public class AllAccountsPieView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		// nothing to do
+		chartFrame.setFocus();
 	}
 
 }

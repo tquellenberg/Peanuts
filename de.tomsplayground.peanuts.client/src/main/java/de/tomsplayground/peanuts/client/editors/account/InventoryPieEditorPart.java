@@ -62,6 +62,7 @@ public class InventoryPieEditorPart extends EditorPart {
 			return getSite().getShell().getDisplay();
 		}
 	};
+	private ChartComposite chartFrame;
 
 
 	@Override
@@ -115,7 +116,7 @@ public class InventoryPieEditorPart extends EditorPart {
 
 		dataset = new DefaultPieDataset();
 		createChart();
-		ChartComposite chartFrame = new ChartComposite(top, SWT.NONE, chart, true);
+		chartFrame = new ChartComposite(top, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		dateChooser.addModifyListener(new ModifyListener() {
@@ -195,7 +196,7 @@ public class InventoryPieEditorPart extends EditorPart {
 
 	@Override
 	public void setFocus() {
-		// nothing to do
+		chartFrame.setFocus();
 	}
 
 }

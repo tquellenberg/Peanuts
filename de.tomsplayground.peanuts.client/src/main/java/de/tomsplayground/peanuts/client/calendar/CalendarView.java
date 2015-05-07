@@ -183,6 +183,7 @@ public class CalendarView extends ViewPart {
 
 	@Override
 	public void setFocus() {
+		calendarListViewer.getTable().setFocus();
 	}
 
 }

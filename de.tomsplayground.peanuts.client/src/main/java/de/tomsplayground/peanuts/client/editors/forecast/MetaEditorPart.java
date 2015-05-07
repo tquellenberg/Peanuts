@@ -189,7 +189,7 @@ public class MetaEditorPart extends EditorPart {
 
 	@Override
 	public void setFocus() {
-		// nothing to do
+		forecastName.setFocus();
 	}
 
 	@Override

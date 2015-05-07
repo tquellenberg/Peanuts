@@ -771,7 +771,7 @@ public class SecurityWatchlistView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		// nothing to do
+		securityListViewer.getTable().setFocus();
 	}
 
 	protected void setSorting(TableColumn column, WatchEntryViewerComparator newComparator) {
