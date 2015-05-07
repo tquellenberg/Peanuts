@@ -98,28 +98,28 @@ public class AvgFundamentalData {
 
 	public BigDecimal getAvgEpsChange() {
 		List<FundamentalData> historicData = getHistoricData();
-		ArrayList<FundamentalData> nonEmptyDatas = Lists.newArrayList(Iterables.filter(historicData, new Predicate<FundamentalData>() {
+		ArrayList<FundamentalData> validDatas = Lists.newArrayList(Iterables.filter(historicData, new Predicate<FundamentalData>() {
 			@Override
 			public boolean apply(FundamentalData input) {
-				return (input.getEarningsPerShare().signum() != 0);
+				return (input.getEarningsPerShare().signum() > 0);
 			}
 		}));
 
-		if (nonEmptyDatas.size() < 2) {
+		if (validDatas.size() < 2) {
 			return BigDecimal.ZERO;
 		}
 		int i = 1;
-		FundamentalData d1 = nonEmptyDatas.get(0);
+		FundamentalData d1 = validDatas.get(0);
 		double avg = 1;
-		while (i < nonEmptyDatas.size()) {
-			FundamentalData d2 = nonEmptyDatas.get(i);
+		while (i < validDatas.size()) {
+			FundamentalData d2 = validDatas.get(i);
 			BigDecimal change = d2.getEarningsPerShare().divide(d1.getEarningsPerShare(), new MathContext(10, RoundingMode.HALF_EVEN));
 			avg = avg * change.doubleValue();
 			// Next
 			i++;
 			d1 = d2;
 		}
-		return new BigDecimal(Math.pow(avg, 1.0 / (historicData.size()-1)), new MathContext(10, RoundingMode.HALF_EVEN));
+		return new BigDecimal(Math.pow(avg, 1.0 / (validDatas.size()-1)), new MathContext(10, RoundingMode.HALF_EVEN));
 	}
 
 }
