@@ -59,7 +59,7 @@ public class AvgFundamentalData {
 		adjustedData = Lists.newArrayList(Iterables.filter(adjustedData, new Predicate<FundamentalData>() {
 			@Override
 			public boolean apply(FundamentalData input) {
-				return input.calculatePeRatio(priceProvider).signum() != 0;
+				return input.calculatePeRatio(priceProvider).signum() > 0;
 			}
 		}));
 		if (adjustedData.isEmpty()) {

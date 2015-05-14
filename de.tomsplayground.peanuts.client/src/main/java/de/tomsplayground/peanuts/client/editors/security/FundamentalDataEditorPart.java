@@ -229,6 +229,15 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
+			if (element instanceof FundamentalData) {
+				if (columnIndex == 5) {
+					FundamentalData data = (FundamentalData) element;
+					BigDecimal earningsPerShare = data.getEarningsPerShare();
+					if (earningsPerShare.signum() < 0) {
+						return Activator.getDefault().getColorProvider().get(Activator.RED_BG);
+					}
+				}
+			}
 			return null;
 		}
 
