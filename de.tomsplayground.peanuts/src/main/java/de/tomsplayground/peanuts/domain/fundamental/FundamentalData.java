@@ -20,6 +20,7 @@ import de.tomsplayground.util.Day;
 public class FundamentalData implements Comparable<FundamentalData> {
 
 	private int year;
+	private int ficalYearEndsMonth;
 	private BigDecimal dividende;
 	private BigDecimal earningsPerShare;
 	private BigDecimal debtEquityRatio;
@@ -30,6 +31,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		this.dividende = BigDecimal.ZERO;
 		this.earningsPerShare = BigDecimal.ZERO;
 		this.debtEquityRatio = BigDecimal.ZERO;
+		this.ficalYearEndsMonth = 0;
 	}
 
 	public FundamentalData(FundamentalData d) {
@@ -38,6 +40,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		this.earningsPerShare = d.earningsPerShare;
 		this.debtEquityRatio = d.debtEquityRatio;
 		this.currency = d.currency;
+		this.ficalYearEndsMonth = d.ficalYearEndsMonth;
 	}
 
 	public int getYear() {
@@ -66,7 +69,9 @@ public class FundamentalData implements Comparable<FundamentalData> {
 	}
 
 	protected BigDecimal avgPrice(IPriceProvider priceProvider, int year) {
-		ImmutableList<IPrice> prices = priceProvider.getPrices(new Day(year,0,1), new Day(year, 11, 31));
+		Day from = new Day(year,0,1).addMonth(getFicalYearEndsMonth());
+		Day to = new Day(year, 11, 31).addMonth(getFicalYearEndsMonth());
+		ImmutableList<IPrice> prices = priceProvider.getPrices(from, to);
 		if (prices.isEmpty()) {
 			return BigDecimal.ZERO;
 		}
@@ -92,12 +97,16 @@ public class FundamentalData implements Comparable<FundamentalData> {
 	}
 
 	public BigDecimal calculateDivYield(IPriceProvider priceProvider) {
-		IPrice price = priceProvider.getPrice(new Day(year, 11, 30));
+		IPrice price = priceProvider.getPrice(getFiscalEndDay());
 		BigDecimal close = price.getClose();
 		if (close.signum() == 0) {
 			return BigDecimal.ZERO;
 		}
 		return getDividende().divide(close, new MathContext(10, RoundingMode.HALF_EVEN));
+	}
+
+	protected Day getFiscalEndDay() {
+		return new Day(year, 11, 30).addMonth(getFicalYearEndsMonth());
 	}
 
 	public BigDecimal calculateYOC(InventoryEntry inventoryEntry) {
@@ -124,5 +133,13 @@ public class FundamentalData implements Comparable<FundamentalData> {
 	@Override
 	public int compareTo(FundamentalData o) {
 		return Integer.compare(year, o.year);
+	}
+
+	public int getFicalYearEndsMonth() {
+		return ficalYearEndsMonth;
+	}
+
+	public void setFicalYearEndsMonth(int ficalYearEndsMonth) {
+		this.ficalYearEndsMonth = ficalYearEndsMonth;
 	}
 }

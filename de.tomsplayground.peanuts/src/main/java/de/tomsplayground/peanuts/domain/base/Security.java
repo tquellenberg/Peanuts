@@ -27,6 +27,7 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	private String ISIN;
 	private String WKN;
 	private String ticker;
+	private String morningstarSymbol;
 	private String currency;
 	// this prices for this security are exchange rates for this currency
 	private String exchangeCurrency;
@@ -173,5 +174,16 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 		}
 		this.deleted = deleted;
 		firePropertyChange("deleted", Boolean.valueOf(!deleted), Boolean.valueOf(deleted));
+	}
+
+	public String getMorningstarSymbol() {
+		if (morningstarSymbol == null) {
+			return "";
+		}
+		return morningstarSymbol;
+	}
+
+	public void setMorningstarSymbol(String morningstarSymbol) {
+		this.morningstarSymbol = morningstarSymbol;
 	}
 }

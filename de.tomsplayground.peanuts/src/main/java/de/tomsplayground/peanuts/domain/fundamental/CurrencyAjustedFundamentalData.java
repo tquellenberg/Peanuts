@@ -20,12 +20,12 @@ public class CurrencyAjustedFundamentalData extends FundamentalData {
 
 	@Override
 	public BigDecimal getDividende() {
-		return currencyConverter.convert(super.getDividende(), new Day(super.getYear(), 11, 30));
+		return currencyConverter.convert(super.getDividende(), getFiscalEndDay());
 	}
 
 	@Override
 	public BigDecimal getEarningsPerShare() {
-		return currencyConverter.convert(super.getEarningsPerShare(), new Day(super.getYear(), 11, 30));
+		return currencyConverter.convert(super.getEarningsPerShare(), getFiscalEndDay());
 	}
 
 	@Override

@@ -15,6 +15,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
+import de.tomsplayground.peanuts.domain.process.CurrencyAdjustedPriceProvider;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.util.Day;
 
@@ -43,6 +44,13 @@ public class AvgFundamentalData {
 		return adjustedData;
 	}
 
+	private IPriceProvider getPriceProvider() {
+		if (currencyConverter == null) {
+			return priceProvider;
+		}
+		return new CurrencyAdjustedPriceProvider(priceProvider, currencyConverter.getInvertedCurrencyConverter());
+	}
+
 	private List<FundamentalData> getHistoricData() {
 		final int currentYear = new Day().year;
 		return Lists.newArrayList(Iterables.filter(datas, new Predicate<FundamentalData>(){
@@ -54,12 +62,13 @@ public class AvgFundamentalData {
 	}
 
 	public BigDecimal getAvgPE() {
-		List<FundamentalData> adjustedData = getAdjustedData(getHistoricData());
+		List<FundamentalData> adjustedData = getHistoricData();
+		final IPriceProvider pp = getPriceProvider();
 		// remove zero
 		adjustedData = Lists.newArrayList(Iterables.filter(adjustedData, new Predicate<FundamentalData>() {
 			@Override
 			public boolean apply(FundamentalData input) {
-				return input.calculatePeRatio(priceProvider).signum() > 0;
+				return input.calculatePeRatio(pp).signum() > 0;
 			}
 		}));
 		if (adjustedData.isEmpty()) {
@@ -68,7 +77,7 @@ public class AvgFundamentalData {
 		double sum = 0;
 		Map<FundamentalData, BigDecimal> peRatio = Maps.newHashMap();
 		for (FundamentalData fundamentalData : adjustedData) {
-			BigDecimal ratio = fundamentalData.calculatePeRatio(priceProvider);
+			BigDecimal ratio = fundamentalData.calculatePeRatio(pp);
 			peRatio.put(fundamentalData, ratio);
 			sum += ratio.doubleValue();
 		}
@@ -90,14 +99,21 @@ public class AvgFundamentalData {
 			adjustedData.remove(spike);
 			sum = 0;
 			for (FundamentalData fundamentalData : adjustedData) {
-				sum += fundamentalData.calculatePeRatio(priceProvider).doubleValue();
+				sum += fundamentalData.calculatePeRatio(pp).doubleValue();
 			}
 		}
 		return new BigDecimal(sum / adjustedData.size());
 	}
 
 	public BigDecimal getAvgEpsChange() {
-		List<FundamentalData> historicData = getHistoricData();
+		return getAvgEpsChange(getHistoricData());
+	}
+
+	public BigDecimal getCurrencyAdjustedAvgEpsChange() {
+		return getAvgEpsChange(getAdjustedData(getHistoricData()));
+	}
+
+	private BigDecimal getAvgEpsChange(List<FundamentalData> historicData) {
 		ArrayList<FundamentalData> validDatas = Lists.newArrayList(Iterables.filter(historicData, new Predicate<FundamentalData>() {
 			@Override
 			public boolean apply(FundamentalData input) {
