@@ -1,5 +1,6 @@
 package de.tomsplayground.peanuts.client.editors.security;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,8 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.MultiPageEditorPart;
+
+import de.tomsplayground.peanuts.client.app.Activator;
 
 public class SecurityEditor extends MultiPageEditorPart {
 
@@ -51,6 +54,11 @@ public class SecurityEditor extends MultiPageEditorPart {
 		int pageCount = getPageCount();
 		for (int i = 0; i < pageCount; i++) {
 			getEditor(i).doSave(monitor);
+		}
+		try {
+			Activator.getDefault().save(Activator.getDefault().getFilename());
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		firePropertyChange(IEditorPart.PROP_DIRTY);
 	}
