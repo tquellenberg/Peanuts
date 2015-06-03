@@ -148,4 +148,15 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 		return new LocalDate(year, month+1, day);
 	}
 
+	public Day adjustWorkday() {
+		int i = toCalendar().get(Calendar.DAY_OF_WEEK);
+		if (i == Calendar.SUNDAY) {
+			return addDays(-2);
+		}
+		if (i == Calendar.SATURDAY) {
+			return addDays(-1);
+		}
+		return this;
+	}
+
 }

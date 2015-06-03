@@ -82,7 +82,7 @@ public class SecurityWatchlistView extends ViewPart {
 
 	private TableViewer securityListViewer;
 	private Watchlist currentWatchList;
-	private final int colWidth[] = new int[18];
+	private final int colWidth[] = new int[19];
 
 	private static abstract class WatchEntryViewerComparator extends ViewerComparator {
 		enum SORT {
@@ -135,6 +135,14 @@ public class SecurityWatchlistView extends ViewPart {
 		public int compare(WatchEntry w1, WatchEntry w2) {
 			BigDecimal peRatio1 = w1.getPeDelta();
 			BigDecimal peRatio2 = w2.getPeDelta();
+			return ObjectUtils.compare(peRatio2, peRatio1, true);
+		}
+	};
+	private final WatchEntryViewerComparator earningsComparator = new WatchEntryViewerComparator() {
+		@Override
+		public int compare(WatchEntry w1, WatchEntry w2) {
+			BigDecimal peRatio1 = w1.getCurrencyAdjustedAvgEpsChange();
+			BigDecimal peRatio2 = w2.getCurrencyAdjustedAvgEpsChange();
 			return ObjectUtils.compare(peRatio2, peRatio1, true);
 		}
 	};
@@ -279,45 +287,51 @@ public class SecurityWatchlistView extends ViewPart {
 					}
 					return "";
 				case 6:
+					BigDecimal v = watchEntry.getCurrencyAdjustedAvgEpsChange();
+					if (v != null) {
+						return PeanutsUtil.formatPercent(v);
+					}
+					return "";
+				case 7:
 					BigDecimal data2 = watchEntry.getDivYield();
 					if (data2 != null) {
 						return PeanutsUtil.formatPercent(data2);
 					}
 					return "";
-				case 7:
+				case 8:
 					Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
 					BigDecimal data3 = watchEntry.getYOC(inventory.getEntry(watchEntry.getSecurity()));
 					if (data3 != null) {
 						return PeanutsUtil.formatPercent(data3);
 					}
 					return "";
-				case 8:
+				case 9:
 					BigDecimal data4 = watchEntry.getDebtEquityRatio();
 					if (data4 != null) {
 						return PeanutsUtil.format(data4, 2);
 					}
 					return "";
-				case 9:
+				case 10:
 					Signal signal = watchEntry.getSignal();
 					if (signal != null) {
 						return signal.type.toString() + " " + PeanutsUtil.formatDate(signal.price.getDay());
 					}
 					return "";
-				case 10:
-					return PeanutsUtil.formatCurrency(watchEntry.getDayChangeAbsolut(), null);
 				case 11:
-					return PeanutsUtil.formatPercent(watchEntry.getDayChange());
+					return PeanutsUtil.formatCurrency(watchEntry.getDayChangeAbsolut(), null);
 				case 12:
-					return PeanutsUtil.formatPercent(watchEntry.getPerformance(7, 0, 0));
+					return PeanutsUtil.formatPercent(watchEntry.getDayChange());
 				case 13:
-					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 1, 0));
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(7, 0, 0));
 				case 14:
-					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 6, 0));
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 1, 0));
 				case 15:
-					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 1));
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 6, 0));
 				case 16:
-					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 3));
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 1));
 				case 17:
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 3));
+				case 18:
 					return PeanutsUtil.formatPercent(watchEntry.getCustomPerformance());
 				default:
 					break;
@@ -327,7 +341,7 @@ public class SecurityWatchlistView extends ViewPart {
 
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
-			if (columnIndex == 9) {
+			if (columnIndex == 10) {
 				WatchEntry watchEntry = (WatchEntry) element;
 				if (watchEntry.getSignal() != null) {
 					if (watchEntry.getSignal().type == Type.BUY) {
@@ -354,7 +368,17 @@ public class SecurityWatchlistView extends ViewPart {
 						return green;
 					}
 				}
-			} else if (columnIndex == 8) {
+			} else if (columnIndex == 6) {
+				BigDecimal v = watchEntry.getCurrencyAdjustedAvgEpsChange();
+				if (v != null) {
+					if (v.compareTo(new BigDecimal(0.03)) > 0) {
+						return green;
+					}
+					if (v.compareTo(new BigDecimal(-0.03)) < 0) {
+						return red;
+					}
+				}
+			} else if (columnIndex == 9) {
 				BigDecimal data4 = watchEntry.getDebtEquityRatio();
 				if (data4 != null) {
 					if (data4.intValue() > 100) {
@@ -364,19 +388,19 @@ public class SecurityWatchlistView extends ViewPart {
 						return green;
 					}
 				}
-			} else if (columnIndex == 10 || columnIndex == 11) {
+			} else if (columnIndex == 11 || columnIndex == 12) {
 				return (watchEntry.getDayChangeAbsolut().signum() == -1) ? red : green;
-			} else if (columnIndex == 12) {
-				return (watchEntry.getPerformance(7, 0, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 13) {
-				return (watchEntry.getPerformance(0, 1, 0).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(7, 0, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 14) {
-				return (watchEntry.getPerformance(0, 6, 0).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(0, 1, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 15) {
-				return (watchEntry.getPerformance(0, 0, 1).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(0, 6, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 16) {
-				return (watchEntry.getPerformance(0, 0, 3).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(0, 0, 1).signum() == -1) ? red : green;
 			} else if (columnIndex == 17) {
+				return (watchEntry.getPerformance(0, 0, 3).signum() == -1) ? red : green;
+			} else if (columnIndex == 18) {
 				return (watchEntry.getCustomPerformance().signum() == -1) ? red : green;
 			}
 			return null;
@@ -517,6 +541,18 @@ public class SecurityWatchlistView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				setSorting((TableColumn)e.widget, peDeltaComparator);
+			}
+		});
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Earnings +-");
+		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
+		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, earningsComparator);
 			}
 		});
 		colNum++;

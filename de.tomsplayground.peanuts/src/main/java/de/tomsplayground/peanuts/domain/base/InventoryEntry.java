@@ -1,7 +1,6 @@
 package de.tomsplayground.peanuts.domain.base;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
 
 import com.google.common.collect.ImmutableList;
 
@@ -64,19 +63,8 @@ public class InventoryEntry {
 		return gaining;
 	}
 
-	private Day adjustWorkday(Day d) {
-		int i = d.toCalendar().get(Calendar.DAY_OF_WEEK);
-		if (i == Calendar.SUNDAY) {
-			return d.addDays(-2);
-		}
-		if (i == Calendar.SATURDAY) {
-			return d.addDays(-1);
-		}
-		return d;
-	}
-
 	public BigDecimal getChange(Day from, Day to) {
-		return getMarketValue(to).subtract(getMarketValue(adjustWorkday(from)));
+		return getMarketValue(to).subtract(getMarketValue(from.adjustWorkday()));
 	}
 
 	public IPrice getPrice(Day day) {

@@ -22,6 +22,8 @@ public class SecurityPropertyPage extends PropertyPage {
 	private Text wkn;
 	private Text isin;
 	private Text ticker;
+	private Text morningstarSymbol;
+	private Text fourTradersUrl;
 	private Button overridePriceDate;
 
 	public SecurityPropertyPage() {
@@ -37,6 +39,8 @@ public class SecurityPropertyPage extends PropertyPage {
 		wkn = createTextWithLabel(composite, "WKN");
 		isin = createTextWithLabel(composite, "Isin");
 		ticker = createTextWithLabel(composite, "Ticker");
+		morningstarSymbol = createTextWithLabel(composite, "Morningstar");
+		fourTradersUrl = createTextWithLabel(composite, "4-Traders Url");
 
 		Label label = new Label(composite, SWT.NONE);
 		label.setText("Override existing price data");
@@ -48,6 +52,8 @@ public class SecurityPropertyPage extends PropertyPage {
 		wkn.setText(StringUtils.defaultString(security.getWKN()));
 		isin.setText(StringUtils.defaultString(security.getISIN()));
 		ticker.setText(StringUtils.defaultString(security.getTicker()));
+		morningstarSymbol.setText(StringUtils.defaultString(security.getMorningstarSymbol()));
+		fourTradersUrl.setText(StringUtils.defaultString(security.getConfigurationValue("fourTrasdersUrl")));
 		overridePriceDate.setSelection(Boolean.valueOf(security.getConfigurationValue(OVERRIDE_EXISTING_PRICE_DATA)).booleanValue());
 
 		return composite;
@@ -72,6 +78,8 @@ public class SecurityPropertyPage extends PropertyPage {
 		security.setWKN(wkn.getText());
 		security.setISIN(isin.getText());
 		security.setTicker(ticker.getText());
+		security.setMorningstarSymbol(morningstarSymbol.getText());
+		security.putConfigurationValue("fourTrasdersUrl", fourTradersUrl.getText());
 		return super.performOk();
 	}
 

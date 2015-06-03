@@ -10,11 +10,15 @@ import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ICellModifier;
@@ -52,6 +56,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import de.tomsplayground.peanuts.app.fourtraders.FourTraders;
 import de.tomsplayground.peanuts.app.morningstar.KeyRatios;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.widgets.CurrencyComboViewer;
@@ -97,14 +102,22 @@ public class FundamentalDataEditorPart extends EditorPart {
 			}, null);
 		}
 
+		private BigDecimal growth(BigDecimal now, BigDecimal prev) {
+			if (prev.signum() == -1 && now.signum() == 1) {
+				return BigDecimal.ZERO;
+			}
+			if (prev.signum() != 0) {
+				return now.subtract(prev).divide(prev.abs(), new MathContext(10, RoundingMode.HALF_EVEN));
+			}
+			return BigDecimal.ZERO;
+		}
+
 		private BigDecimal epsGrowth(FundamentalData data) {
 			FundamentalData previousYearData = getPreviousYear(data);
 			if (previousYearData != null) {
 				BigDecimal eps = data.getEarningsPerShare();
 				BigDecimal prevEps = previousYearData.getEarningsPerShare();
-				if (prevEps.signum() != 0) {
-					return eps.divide(prevEps, new MathContext(10, RoundingMode.HALF_EVEN)).subtract(BigDecimal.ONE);
-				}
+				return growth(eps, prevEps);
 			}
 			return BigDecimal.ZERO;
 		}
@@ -114,9 +127,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 			if (previousYearData != null) {
 				BigDecimal div = data.getDividende();
 				BigDecimal prevDiv = previousYearData.getDividende();
-				if (prevDiv.signum() != 0) {
-					return div.divide(prevDiv, new MathContext(10, RoundingMode.HALF_EVEN)).subtract(BigDecimal.ONE);
-				}
+				return growth(div, prevDiv);
 			}
 			return BigDecimal.ZERO;
 		}
@@ -126,9 +137,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 			if (previousYearData != null) {
 				BigDecimal eps = currencyAdjustedEPS(data);
 				BigDecimal prevEps = currencyAdjustedEPS(previousYearData);
-				if (prevEps.signum() != 0) {
-					return eps.divide(prevEps, new MathContext(10, RoundingMode.HALF_EVEN)).subtract(BigDecimal.ONE);
-				}
+				return growth(eps, prevEps);
 			}
 			return BigDecimal.ZERO;
 		}
@@ -277,6 +286,10 @@ public class FundamentalDataEditorPart extends EditorPart {
 						return Activator.getDefault().getColorProvider().get(Activator.RED);
 					}
 				}
+				FundamentalData currentFundamentalData = getSecurity().getCurrentFundamentalData();
+				if (currentFundamentalData != null && currentFundamentalData.getYear() == data.getYear()) {
+					return Activator.getDefault().getColorProvider().get(Activator.ACTIVE_ROW);
+				}
 			}
 			return null;
 		}
@@ -294,7 +307,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		final Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		final Security security = getSecurity();
 
 		Composite top = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
@@ -303,7 +316,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 		top.setLayout(layout);
 
 		Composite metaComposite = new Composite(top, SWT.NONE);
-		metaComposite.setLayout(new GridLayout(4, false));
+		metaComposite.setLayout(new GridLayout(5, false));
 		currencyComboViewer = new CurrencyComboViewer(metaComposite, false);
 		new Label(metaComposite, SWT.NONE).setText("Morningstar symbol:");
 		final Text morningstarSymbol = new Text(metaComposite, SWT.NONE);
@@ -323,20 +336,37 @@ public class FundamentalDataEditorPart extends EditorPart {
 		morningStartSymbolGo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String symbol = morningstarSymbol.getText();
-				for (FundamentalData newData : new KeyRatios().readUrl(symbol)) {
-					for (FundamentalData oldData : fundamentalDatas) {
-						if (newData.getYear() == oldData.getYear()) {
-							fundamentalDatas.remove(oldData);
-							tableRows.remove(oldData);
-							break;
-						}
-					}
-					fundamentalDatas.add(newData);
-					tableRows.add(newData);
+				try {
+					updateFundamentaData(new KeyRatios().readUrl(morningstarSymbol.getText()));
+				} catch (RuntimeException ex) {
+					ex.printStackTrace();
 				}
-				markDirty();
-				tableViewer.refresh(true);
+			}
+		});
+
+		Button fourTradersGo = new Button(metaComposite, SWT.PUSH);
+		fourTradersGo.setText("Load data from 4-Traders");
+		fourTradersGo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					FourTraders fourTraders = new FourTraders();
+					String financialsUrl = security.getConfigurationValue("fourTrasdersUrl");
+					if (StringUtils.isBlank(financialsUrl)) {
+						financialsUrl = fourTraders.scrapFinancialsUrl(security.getISIN());
+					}
+					if (StringUtils.isNotBlank(financialsUrl)) {
+						security.putConfigurationValue("fourTrasdersUrl", financialsUrl);
+						List<FundamentalData> newDatas = fourTraders.scrapFinancials(financialsUrl);
+						updateFundamentaData(newDatas);
+					} else {
+						String errorText = "No unique result could be found for "+security.getISIN();
+						IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, errorText);
+						ErrorDialog.openError(getSite().getShell(), errorText, null, status);
+					}
+				} catch (RuntimeException ex) {
+					ex.printStackTrace();
+				}
 			}
 		});
 
@@ -581,6 +611,22 @@ public class FundamentalDataEditorPart extends EditorPart {
 		getSite().setSelectionProvider(tableViewer);
 	}
 
+	private void updateFundamentaData(List<FundamentalData> newDatas) {
+		for (FundamentalData newData : newDatas) {
+			for (FundamentalData oldData : fundamentalDatas) {
+				if (newData.getYear() == oldData.getYear()) {
+					fundamentalDatas.remove(oldData);
+					tableRows.remove(oldData);
+					break;
+				}
+			}
+			fundamentalDatas.add(newData);
+			tableRows.add(newData);
+		}
+		markDirty();
+		tableViewer.refresh(true);
+	}
+
 	private List<FundamentalData> cloneFundamentalData(Collection<FundamentalData> datas) {
 		List<FundamentalData> fundamentalDatas = new ArrayList<FundamentalData>();
 		for (FundamentalData d : datas) {
@@ -618,7 +664,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		Security security = getSecurity();
 		List<FundamentalData> datas = cloneFundamentalData(fundamentalDatas);
 		Currency selectedCurrency = currencyComboViewer.getSelectedCurrency();
 		for (FundamentalData fundamentalData : datas) {
@@ -626,6 +672,10 @@ public class FundamentalDataEditorPart extends EditorPart {
 		}
 		security.setFundamentalDatas(datas);
 		dirty = false;
+	}
+
+	private Security getSecurity() {
+		return ((SecurityEditorInput) getEditorInput()).getSecurity();
 	}
 
 	@Override

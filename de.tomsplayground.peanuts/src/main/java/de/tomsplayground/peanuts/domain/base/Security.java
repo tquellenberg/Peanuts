@@ -9,6 +9,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.config.ConfigurableSupport;
@@ -16,6 +18,7 @@ import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
+import de.tomsplayground.util.Day;
 
 @XStreamAlias("security")
 public class Security extends ObservableModelObject implements INamedElement, IConfigurable, IDeletable {
@@ -101,13 +104,14 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 		if (fundamentalDatas.isEmpty()) {
 			return null;
 		}
-		FundamentalData result = fundamentalDatas.get(0);
-		for (FundamentalData data : fundamentalDatas) {
-			if (data.getYear() > result.getYear()) {
-				result = data;
+		final Day now = new Day();
+		return Iterables.find(fundamentalDatas, new Predicate<FundamentalData>() {
+			@Override
+			public boolean apply(FundamentalData input) {
+				int delta = now.delta(input.getFiscalEndDay());
+				return delta > 0 && delta <= 360;
 			}
-		}
-		return result;
+		}, null);
 	}
 
 	public void setFundamentalDatas(List<FundamentalData> fundamentalDatas) {

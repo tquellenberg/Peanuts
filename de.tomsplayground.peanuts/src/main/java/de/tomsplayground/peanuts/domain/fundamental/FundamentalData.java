@@ -105,7 +105,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		return getDividende().divide(close, new MathContext(10, RoundingMode.HALF_EVEN));
 	}
 
-	protected Day getFiscalEndDay() {
+	public Day getFiscalEndDay() {
 		return new Day(year, 11, 30).addMonth(getFicalYearEndsMonth());
 	}
 

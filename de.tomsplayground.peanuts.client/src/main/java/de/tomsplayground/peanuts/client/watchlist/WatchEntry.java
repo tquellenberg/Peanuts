@@ -6,6 +6,9 @@ import java.math.RoundingMode;
 import java.util.Currency;
 import java.util.List;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
@@ -32,6 +35,8 @@ public class WatchEntry {
 	BigDecimal avgPe = null;
 	BigDecimal peDelta = null;
 	BigDecimal peRatio = null;
+
+	private BigDecimal currencyAdjustedAvgEpsChange;
 
 	WatchEntry(Security security, IPriceProvider adjustedPriceProvider) {
 		this.security = security;
@@ -66,25 +71,17 @@ public class WatchEntry {
 	}
 
 	public BigDecimal getDayChangeAbsolut() {
-		List<IPrice> prices = adjustedPriceProvider.getPrices();
-		if (prices.size() < 2) {
-			return BigDecimal.ZERO;
-		}
-
-		IPrice price1 = prices.get(prices.size() - 2);
-		IPrice price2 = prices.get(prices.size() - 1);
+		Day now = new Day();
+		IPrice price1 = adjustedPriceProvider.getPrice(now.addDays(-1).adjustWorkday());
+		IPrice price2 = adjustedPriceProvider.getPrice(now);
 
 		return price2.getClose().subtract(price1.getClose());
 	}
 
 	public BigDecimal getDayChange() {
-		List<IPrice> prices = adjustedPriceProvider.getPrices();
-		if (prices.size() < 2) {
-			return BigDecimal.ZERO;
-		}
-
-		IPrice price1 = prices.get(prices.size() - 2);
-		IPrice price2 = prices.get(prices.size() - 1);
+		Day now = new Day();
+		IPrice price1 = adjustedPriceProvider.getPrice(now.addDays(-1).adjustWorkday());
+		IPrice price2 = adjustedPriceProvider.getPrice(now);
 
 		if (price1.getClose().signum() == 0) {
 			return BigDecimal.ZERO;
@@ -129,17 +126,20 @@ public class WatchEntry {
 	}
 
 	private FundamentalData getCurrentFundamentalData() {
-		FundamentalData currentFundamentalData = security.getCurrentFundamentalData();
-		if (currentFundamentalData == null) {
+		return adjust(security.getCurrentFundamentalData());
+	}
+
+	private FundamentalData adjust(FundamentalData fundamentalData) {
+		if (fundamentalData == null) {
 			return null;
 		}
-		Currency currency = currentFundamentalData.getCurrency();
+		Currency currency = fundamentalData.getCurrency();
 		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
 		CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(currency, security.getCurrency());
 		if (currencyConverter == null) {
-			return currentFundamentalData;
+			return fundamentalData;
 		}
-		return new CurrencyAjustedFundamentalData(currentFundamentalData, currencyConverter);
+		return new CurrencyAjustedFundamentalData(fundamentalData, currencyConverter);
 	}
 
 	private AvgFundamentalData getAvgFundamentalData() {
@@ -157,9 +157,26 @@ public class WatchEntry {
 		if (peRatio != null) {
 			return peRatio;
 		}
-		FundamentalData data1 = getCurrentFundamentalData();
+		final FundamentalData data1 = getCurrentFundamentalData();
 		if (data1 != null) {
 			peRatio = data1.calculatePeRatio(adjustedPriceProvider);
+			FundamentalData dataNextYear = Iterables.find(security.getFundamentalDatas(), new Predicate<FundamentalData>() {
+				@Override
+				public boolean apply(FundamentalData input) {
+					return input.getYear() == data1.getYear() + 1;
+				}
+			}, null);
+			if (dataNextYear != null) {
+				dataNextYear = adjust(dataNextYear);
+				final Day now = new Day();
+				int daysThisYear = now.delta(data1.getFiscalEndDay());
+				if (daysThisYear < 360) {
+					float thisYear = (peRatio.floatValue() * daysThisYear);
+					BigDecimal peRatio2 = dataNextYear.calculatePeRatio(adjustedPriceProvider);
+					float nextYear = (peRatio2.floatValue() * (360 - daysThisYear));
+					peRatio = new BigDecimal((thisYear + nextYear) / 360);
+				}
+			}
 		}
 		return peRatio;
 	}
@@ -202,16 +219,27 @@ public class WatchEntry {
 		return avgPe;
 	}
 
+	public BigDecimal getCurrencyAdjustedAvgEpsChange() {
+		if (currencyAdjustedAvgEpsChange != null) {
+			return currencyAdjustedAvgEpsChange;
+		}
+		AvgFundamentalData avgFundamentalData = getAvgFundamentalData();
+		if (avgFundamentalData != null) {
+			currencyAdjustedAvgEpsChange = avgFundamentalData.getCurrencyAdjustedAvgEpsChange().subtract(BigDecimal.ONE);
+		}
+		return currencyAdjustedAvgEpsChange;
+	}
+
 	public BigDecimal getPeDelta() {
 		if (peDelta != null) {
 			return peDelta;
 		}
-		FundamentalData d1 = getCurrentFundamentalData();
-		AvgFundamentalData d2 = getAvgFundamentalData();
-		if (d1 != null && d2 != null && d2.getAvgPE().signum() > 0) {
-			BigDecimal v1 = d1.calculatePeRatio(getPriceProvider());
-			BigDecimal v2 = d2.getAvgPE();
+		BigDecimal v1 = getPeRatio();
+		BigDecimal v2 = getAvgPE();
+		if (v1 != null && v2 != null && v2.signum() > 0) {
 			peDelta = v1.divide(v2, MC).subtract(BigDecimal.ONE);
+		} else {
+			peDelta = null;
 		}
 		return peDelta;
 	}
@@ -221,5 +249,6 @@ public class WatchEntry {
 		avgPe = null;
 		peDelta = null;
 		peRatio = null;
+		currencyAdjustedAvgEpsChange = null;
 	}
 }
