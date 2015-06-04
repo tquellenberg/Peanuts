@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import java.util.Currency;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -25,6 +26,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 	private BigDecimal earningsPerShare;
 	private BigDecimal debtEquityRatio;
 	private String currency;
+	private DateTime lastModifyDate;
 
 	public FundamentalData() {
 		this.year = 2000;
@@ -32,6 +34,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		this.earningsPerShare = BigDecimal.ZERO;
 		this.debtEquityRatio = BigDecimal.ZERO;
 		this.ficalYearEndsMonth = 0;
+		this.lastModifyDate = new DateTime();
 	}
 
 	public FundamentalData(FundamentalData d) {
@@ -41,6 +44,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		this.debtEquityRatio = d.debtEquityRatio;
 		this.currency = d.currency;
 		this.ficalYearEndsMonth = d.ficalYearEndsMonth;
+		this.lastModifyDate = d.lastModifyDate;
 	}
 
 	public int getYear() {
@@ -141,5 +145,12 @@ public class FundamentalData implements Comparable<FundamentalData> {
 
 	public void setFicalYearEndsMonth(int ficalYearEndsMonth) {
 		this.ficalYearEndsMonth = ficalYearEndsMonth;
+	}
+
+	public DateTime getLastModifyDate() {
+		return lastModifyDate;
+	}
+	public void updateLastModifyDate() {
+		lastModifyDate = new DateTime();
 	}
 }

@@ -50,6 +50,8 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -77,7 +79,7 @@ import de.tomsplayground.util.Day;
 public class FundamentalDataEditorPart extends EditorPart {
 
 	private TableViewer tableViewer;
-	private final int colWidth[] = new int[14];
+	private final int colWidth[] = new int[15];
 	private boolean dirty = false;
 	private List<FundamentalData> fundamentalDatas;
 	private IPriceProvider priceProvider;
@@ -234,6 +236,12 @@ public class FundamentalDataEditorPart extends EditorPart {
 						} else {
 							return "";
 						}
+					case 14:
+						DateTime lastModifyDate = data.getLastModifyDate();
+						if (lastModifyDate != null) {
+							return DateTimeFormat.shortDateTime().print(lastModifyDate);
+						}
+						return "";
 					default:
 						return "";
 				}
@@ -400,7 +408,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Fiscal Year");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 40);
 		col.setResizable(true);
 		colNumber++;
 
@@ -476,8 +484,14 @@ public class FundamentalDataEditorPart extends EditorPart {
 		col.setResizable(true);
 		colNumber++;
 
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Date");
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 120);
+		col.setResizable(true);
+		colNumber++;
+
 		tableViewer.setColumnProperties(new String[] { "year", "fiscalYear", "div", "divgr", "div2", "div2gr",
-			"EPS", "EPSgr", "EPS2", "EPS2gr", "deRatio", "peRatio", "divYield", "YOC"});
+			"EPS", "EPSgr", "EPS2", "EPS2gr", "deRatio", "peRatio", "divYield", "YOC", "date"});
 		tableViewer.setCellModifier(new ICellModifier() {
 
 			@Override
@@ -510,6 +524,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 						Integer newYear = Integer.valueOf((String) value);
 						if (newYear.intValue() != p.getYear()) {
 							p.setYear(newYear.intValue());
+							p.updateLastModifyDate();
 							tableViewer.update(p, new String[]{property});
 							markDirty();
 						}
@@ -517,6 +532,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 						Integer newFiscalYear = Integer.valueOf((String) value);
 						if (newFiscalYear.intValue() != p.getFicalYearEndsMonth()) {
 							p.setFicalYearEndsMonth(newFiscalYear.intValue());
+							p.updateLastModifyDate();
 							tableViewer.update(p, new String[]{property});
 							markDirty();
 						}
@@ -524,6 +540,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 						BigDecimal v = PeanutsUtil.parseCurrency((String) value);
 						if (! v.equals(p.getDividende())) {
 							p.setDividende(v);
+							p.updateLastModifyDate();
 							tableViewer.update(p, new String[]{property});
 							markDirty();
 						}
@@ -531,13 +548,15 @@ public class FundamentalDataEditorPart extends EditorPart {
 						BigDecimal v = PeanutsUtil.parseCurrency((String) value);
 						if (! v.equals(p.getEarningsPerShare())) {
 							p.setEarningsPerShare(v);
+							p.updateLastModifyDate();
 							tableViewer.update(p, new String[]{property});
 							markDirty();
 						}
 					} else if (property.equals("deRatio")) {
 						BigDecimal v = PeanutsUtil.parseCurrency((String) value);
 						if (! v.equals(p.getDebtEquityRatio())) {
-							p.setDebtEquityRatio(v);;
+							p.setDebtEquityRatio(v);
+							p.updateLastModifyDate();
 							tableViewer.update(p, new String[]{property});
 							markDirty();
 						}
@@ -549,7 +568,8 @@ public class FundamentalDataEditorPart extends EditorPart {
 		});
 		tableViewer.setCellEditors(new CellEditor[] {new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table),
 			new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table),
-			new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table)});
+			new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table),
+			new TextCellEditor(table)});
 
 		tableViewer.setLabelProvider(new FundamentalDataTableLabelProvider());
 		tableViewer.setContentProvider(new ArrayContentProvider());
@@ -613,15 +633,23 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 	private void updateFundamentaData(List<FundamentalData> newDatas) {
 		for (FundamentalData newData : newDatas) {
+			if (newData.getDividende().signum() == 0 && newData.getEarningsPerShare().signum() == 0) {
+				continue;
+			}
+			boolean dataExists = false;
 			for (FundamentalData oldData : fundamentalDatas) {
 				if (newData.getYear() == oldData.getYear()) {
-					fundamentalDatas.remove(oldData);
-					tableRows.remove(oldData);
+					oldData.setDividende(newData.getDividende());
+					oldData.setEarningsPerShare(newData.getEarningsPerShare());
+					oldData.updateLastModifyDate();
+					dataExists = true;
 					break;
 				}
 			}
-			fundamentalDatas.add(newData);
-			tableRows.add(newData);
+			if (! dataExists) {
+				fundamentalDatas.add(newData);
+				tableRows.add(newData);
+			}
 		}
 		markDirty();
 		tableViewer.refresh(true);
