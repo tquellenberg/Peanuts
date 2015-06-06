@@ -355,9 +355,9 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 
 	public void removeCategory(Category categoryToRemove) {
 		if (categories.contains(categoryToRemove)) {
-			// Top level Category; check for transactions
+			// Top level BasicData; check for transactions
 			if (isCategoryUsed(categoryToRemove)) {
-				throw new IllegalStateException("Can't remove category. Category is in use.");
+				throw new IllegalStateException("Can't remove category. BasicData is in use.");
 			}
 			categories.remove(categoryToRemove);
 			firePropertyChange("category", categoryToRemove, null);

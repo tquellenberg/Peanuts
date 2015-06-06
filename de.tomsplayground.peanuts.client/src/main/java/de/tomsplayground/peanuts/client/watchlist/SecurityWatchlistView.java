@@ -143,7 +143,7 @@ public class SecurityWatchlistView extends ViewPart {
 		public int compare(WatchEntry w1, WatchEntry w2) {
 			BigDecimal peRatio1 = w1.getCurrencyAdjustedAvgEpsChange();
 			BigDecimal peRatio2 = w2.getCurrencyAdjustedAvgEpsChange();
-			return ObjectUtils.compare(peRatio2, peRatio1, true);
+			return ObjectUtils.compare(peRatio1, peRatio2, true);
 		}
 	};
 	private final WatchEntryViewerComparator divYieldComparator = new WatchEntryViewerComparator() {

@@ -71,6 +71,9 @@ public class CurrencyComboViewer {
 
 	public Currency getSelectedCurrency() {
 		int selectionIndex = combo.getSelectionIndex();
+		if (selectionIndex == -1) {
+			return null;
+		}
 		if (optional) {
 			if (selectionIndex == 0) {
 				return null;

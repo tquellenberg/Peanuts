@@ -207,7 +207,7 @@ public class CategoryTreeView extends ViewPart {
 				} else {
 					type = (Type) objects[0];
 				}
-				Category cat = new Category("New Category", type);
+				Category cat = new Category("New BasicData", type);
 				cat.setParent(parentCategory);
 				Activator.getDefault().getAccountManager().addCategory(cat);
 				viewer.refresh(true);

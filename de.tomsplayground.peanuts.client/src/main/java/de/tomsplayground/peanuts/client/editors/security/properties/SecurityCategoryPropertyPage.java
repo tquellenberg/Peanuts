@@ -19,6 +19,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 
+import de.tomsplayground.peanuts.app.morningstar.BasicData;
+import de.tomsplayground.peanuts.app.morningstar.SectorIndustry;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Security;
@@ -54,7 +56,7 @@ public class SecurityCategoryPropertyPage extends PropertyPage {
 	@Override
 	protected Control createContents(Composite parent) {
 		IAdaptable adapter = getElement();
-		Security security = (Security)adapter.getAdapter(Security.class);
+		final Security security = (Security)adapter.getAdapter(Security.class);
 		AccountManager accountManager = Activator.getDefault().getAccountManager();
 
 		Composite composite = new Composite(parent,SWT.NONE);
@@ -98,6 +100,34 @@ public class SecurityCategoryPropertyPage extends PropertyPage {
 		gridData.grabExcessHorizontalSpace = true;
 		iconTextField.setLayoutData(gridData);
 		iconTextField.setText(iconText);
+
+		label1 = new Label(composite, SWT.NONE);
+		label1.setText("Sector");
+
+		Button button2 = new Button(composite, SWT.BORDER);
+		button2.setText("Read from Morningstar");
+		button2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);
+			}
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				SectorIndustry sectorIndustry = new BasicData().readUrl(security.getMorningstarSymbol());
+				for (Combo combo : combos) {
+					SecurityCategoryMapping securityCategoryMapping = (SecurityCategoryMapping) combo.getData();
+					if (StringUtils.equals(securityCategoryMapping.getName(), "Sector")) {
+						combo.setText(sectorIndustry.getSector());
+					}
+					if (StringUtils.equals(securityCategoryMapping.getName(), "Industry")) {
+						combo.setText(sectorIndustry.getIndustry());
+					}
+				}
+			}
+		});
+		if (StringUtils.isBlank(security.getMorningstarSymbol())) {
+			button2.setEnabled(false);
+		}
 
 		List<SecurityCategoryMapping> securityCategoryMappings = accountManager.getSecurityCategoryMappings();
 		for (SecurityCategoryMapping securityCategoryMapping : securityCategoryMappings) {

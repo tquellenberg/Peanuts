@@ -56,7 +56,7 @@ public class SecurityCategoryMapping extends ObservableModelObject implements IN
 
 	public void renameCategory(String oldName, String newName) {
 		if (StringUtils.isBlank(oldName) || StringUtils.isBlank(newName)) {
-			throw new IllegalArgumentException("Category names must not be empty");
+			throw new IllegalArgumentException("BasicData names must not be empty");
 		}
 		for (Map.Entry<Security, String> entry : mapping.entrySet()) {
 			if (oldName.equals(entry.getValue())) {

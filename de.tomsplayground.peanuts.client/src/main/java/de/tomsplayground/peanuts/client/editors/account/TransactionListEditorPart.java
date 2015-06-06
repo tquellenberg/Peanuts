@@ -360,7 +360,7 @@ public class TransactionListEditorPart extends EditorPart {
 		col.addControlListener(saveSizeOnResize);
 
 		col = new TreeColumn(table, SWT.LEFT);
-		col.setText("Category");
+		col.setText("BasicData");
 		col.setWidth((colWidth[4] > 0) ? colWidth[4] : 150);
 		col.setResizable(true);
 		col.addControlListener(saveSizeOnResize);

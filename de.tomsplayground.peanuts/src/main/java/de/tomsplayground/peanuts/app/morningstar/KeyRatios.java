@@ -23,7 +23,6 @@ public class KeyRatios {
 	private final static String URL = "http://financials.morningstar.com/ajax/exportKR2CSV.html?&callback=?&t=SYMBOL&region=usa&culture=en-US&cur=&order=asc";
 
 	public static void main(String[] args) {
-//		Reader reader =  new FileReader(new File("/Users/quelle/Entwicklung/git/Peanuts/de.tomsplayground.peanuts/src/test/resources/morningstarKeyRatios.csv"));
 		List<FundamentalData> data = new KeyRatios().readUrl("XNAS:VIAB");
 		System.out.println(ToStringBuilder.reflectionToString(data));
 	}

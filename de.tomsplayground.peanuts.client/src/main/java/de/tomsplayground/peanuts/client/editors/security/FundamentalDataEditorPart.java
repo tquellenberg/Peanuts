@@ -641,6 +641,9 @@ public class FundamentalDataEditorPart extends EditorPart {
 				if (newData.getYear() == oldData.getYear()) {
 					oldData.setDividende(newData.getDividende());
 					oldData.setEarningsPerShare(newData.getEarningsPerShare());
+					if (newData.getFicalYearEndsMonth() != 0) {
+						oldData.setFicalYearEndsMonth(newData.getFicalYearEndsMonth());
+					}
 					oldData.updateLastModifyDate();
 					dataExists = true;
 					break;
