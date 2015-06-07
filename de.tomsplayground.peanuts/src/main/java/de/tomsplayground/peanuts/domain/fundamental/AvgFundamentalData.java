@@ -7,12 +7,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.process.CurrencyAdjustedPriceProvider;
@@ -75,33 +73,34 @@ public class AvgFundamentalData {
 			return BigDecimal.ZERO;
 		}
 		double sum = 0;
-		Map<FundamentalData, BigDecimal> peRatio = Maps.newHashMap();
+//		Map<FundamentalData, BigDecimal> peRatio = Maps.newHashMap();
 		for (FundamentalData fundamentalData : adjustedData) {
-			BigDecimal ratio = fundamentalData.calculatePeRatio(pp);
-			peRatio.put(fundamentalData, ratio);
-			sum += ratio.doubleValue();
+			double ratio = fundamentalData.calculatePeRatio(pp).doubleValue();
+//			peRatio.put(fundamentalData, ratio);
+			ratio = Math.min(ratio, 25.0);
+			sum += ratio;
 		}
-		final double avg = sum / adjustedData.size();
-		// calculate deviation
-		double maxDeviation = 0.0;
-		FundamentalData spike = null;
-		for (Map.Entry<FundamentalData, BigDecimal> entry : peRatio.entrySet()) {
-			double deviation = entry.getValue().divide(new BigDecimal(avg), new MathContext(10, RoundingMode.HALF_EVEN))
-				.subtract(BigDecimal.ONE)
-				.abs().doubleValue();
-			if (deviation > 0.3 && deviation > maxDeviation) {
-				maxDeviation = deviation;
-				spike = entry.getKey();
-			}
-		}
-		if (spike != null) {
-			// remove spikes
-			adjustedData.remove(spike);
-			sum = 0;
-			for (FundamentalData fundamentalData : adjustedData) {
-				sum += fundamentalData.calculatePeRatio(pp).doubleValue();
-			}
-		}
+//		final double avg = sum / adjustedData.size();
+//		// calculate deviation
+//		double maxDeviation = 0.0;
+//		FundamentalData spike = null;
+//		for (Map.Entry<FundamentalData, BigDecimal> entry : peRatio.entrySet()) {
+//			double deviation = entry.getValue().divide(new BigDecimal(avg), new MathContext(10, RoundingMode.HALF_EVEN))
+//				.subtract(BigDecimal.ONE)
+//				.abs().doubleValue();
+//			if (deviation > 0.3 && deviation > maxDeviation) {
+//				maxDeviation = deviation;
+//				spike = entry.getKey();
+//			}
+//		}
+//		if (spike != null) {
+//			// remove spikes
+//			adjustedData.remove(spike);
+//			sum = 0;
+//			for (FundamentalData fundamentalData : adjustedData) {
+//				sum += fundamentalData.calculatePeRatio(pp).doubleValue();
+//			}
+//		}
 		return new BigDecimal(sum / adjustedData.size());
 	}
 
