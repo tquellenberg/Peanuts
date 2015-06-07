@@ -6,6 +6,8 @@ import java.math.RoundingMode;
 import java.util.Currency;
 import java.util.List;
 
+import org.joda.time.DateTime;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
@@ -242,6 +244,18 @@ public class WatchEntry {
 			peDelta = null;
 		}
 		return peDelta;
+	}
+
+	public DateTime getFundamentalDataDate() {
+		List<FundamentalData> fundamentalDatas = security.getFundamentalDatas();
+		DateTime d = null;
+		for (FundamentalData fundamentalData : fundamentalDatas) {
+			if (fundamentalData.getLastModifyDate() != null &&
+				(d == null || fundamentalData.getLastModifyDate().isAfter(d))) {
+				d = fundamentalData.getLastModifyDate();
+			}
+		}
+		return d;
 	}
 
 	public void refreshCache() {
