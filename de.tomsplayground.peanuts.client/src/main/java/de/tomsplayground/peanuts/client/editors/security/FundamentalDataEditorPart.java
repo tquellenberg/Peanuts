@@ -259,7 +259,9 @@ public class FundamentalDataEditorPart extends EditorPart {
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
 			if (element instanceof FundamentalData) {
-				if (columnIndex == 6) {
+				if (((FundamentalData) element).isIgnoreInAvgCalculation()) {
+					return Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW);
+				} else if (columnIndex == 6) {
 					FundamentalData data = (FundamentalData) element;
 					BigDecimal earningsPerShare = data.getEarningsPerShare();
 					if (earningsPerShare.signum() < 0) {
@@ -378,7 +380,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 			}
 		});
 
-		tableViewer = new TableViewer(top, SWT.FULL_SELECTION);
+		tableViewer = new TableViewer(top, SWT.FULL_SELECTION | SWT.MULTI);
 		Table table = tableViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
@@ -496,7 +498,8 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 			@Override
 			public boolean canModify(Object element, String property) {
-				return Lists.newArrayList("year", "fiscalYear", "div", "EPS", "deRatio").contains(property);
+				return (element instanceof FundamentalData) &&
+					Lists.newArrayList("year", "fiscalYear", "div", "EPS", "deRatio").contains(property);
 			}
 
 			@Override
@@ -689,6 +692,14 @@ public class FundamentalDataEditorPart extends EditorPart {
 		if (fundamentalDatas.removeAll(data)) {
 			tableRows.removeAll(data);
 			tableViewer.remove(data.toArray());
+			markDirty();
+		}
+	}
+
+	public void ignoreFundamentalData(Collection<FundamentalData> data) {
+		for (FundamentalData fundamentalData : data) {
+			fundamentalData.setIgnoreInAvgCalculation(! fundamentalData.isIgnoreInAvgCalculation());
+			tableViewer.refresh();
 			markDirty();
 		}
 	}

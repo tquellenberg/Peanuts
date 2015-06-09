@@ -238,7 +238,7 @@ public class WatchEntry {
 		}
 		BigDecimal v1 = getPeRatio();
 		BigDecimal v2 = getAvgPE();
-		if (v1 != null && v2 != null && v2.signum() > 0) {
+		if (v1 != null && v2 != null && v1.signum() > 0 && v2.signum() > 0) {
 			peDelta = v1.divide(v2, MC).subtract(BigDecimal.ONE);
 		} else {
 			peDelta = null;

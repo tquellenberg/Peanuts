@@ -63,7 +63,7 @@ public class FourTraders {
 				xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[8]/td[" + i + "]/text()");
 				result = xPather.evaluateAgainstNode(tagNode);
 				try {
-					BigDecimal eps = new BigDecimal(result[0].toString().replace(',', '.'));
+					BigDecimal eps = parseNumber(result[0].toString());
 					if (isPence) {
 						eps = eps.divide(new BigDecimal(100));
 					}
@@ -76,7 +76,7 @@ public class FourTraders {
 				xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[9]/td[" + i + "]/text()");
 				result = xPather.evaluateAgainstNode(tagNode);
 				try {
-					BigDecimal dividend = new BigDecimal(result[0].toString().replace(',', '.'));
+					BigDecimal dividend = parseNumber(result[0].toString());
 					if (isPence) {
 						dividend = dividend.divide(new BigDecimal(100));
 					}
@@ -93,6 +93,10 @@ public class FourTraders {
 			e.printStackTrace();
 		}
 		return fundamentalDatas;
+	}
+
+	private BigDecimal parseNumber(String r) {
+		return new BigDecimal(StringUtils.remove(r.replace(',', '.'), ' '));
 	}
 
 	public String scrapFinancialsUrl(String isin) {

@@ -323,6 +323,11 @@
                commandId="org.eclipse.ui.edit.delete"
                style="push">
          </command>
+         <command
+               commandId="de.tomsplayground.peanuts.client.ignore"
+               label="Ignore"
+               style="push">
+         </command>
       </menuContribution>
       <menuContribution
             allPopups="false"
@@ -673,6 +678,20 @@
                      operator="and">
                   <instanceof
                         value="de.tomsplayground.peanuts.domain.base.InventoryEntry">
+                  </instanceof>
+               </iterate>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.tomsplayground.peanuts.client.editors.security.IgnoreFundamentalDataHandler"
+            commandId="de.tomsplayground.peanuts.client.ignore">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <iterate>
+                  <instanceof
+                        value="de.tomsplayground.peanuts.domain.fundamental.FundamentalData">
                   </instanceof>
                </iterate>
             </with>

@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Currency;
@@ -26,15 +27,17 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYPointerAnnotation;
 import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
+import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
+import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -56,6 +59,11 @@ import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
+import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
+import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
+import de.tomsplayground.peanuts.domain.fundamental.AvgFundamentalData;
+import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
+import de.tomsplayground.peanuts.domain.process.CurrencyAdjustedPriceProvider;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
@@ -156,6 +164,7 @@ public class ChartEditorPart extends EditorPart {
 	private TimeChart timeChart;
 	private TimeSeries stopLoss;
 	private TimeSeries compareToPriceTimeSeries;
+	private XYPlot pricePlot;
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -185,7 +194,7 @@ public class ChartEditorPart extends EditorPart {
 			signalAnnotations = timeChart.addSignals(createSignals());
 		}
 
-		addOrderAnnotations(chart);
+		addOrderAnnotations();
 
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 
@@ -200,10 +209,10 @@ public class ChartEditorPart extends EditorPart {
 			marker.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
 			marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
 
-			((XYPlot)chart.getPlot()).addRangeMarker(marker);
+			pricePlot.addRangeMarker(marker);
 		}
 
-		addSplitAnnotations(chart, Activator.getDefault().getAccountManager().getStockSplits(security));
+		addSplitAnnotations(Activator.getDefault().getAccountManager().getStockSplits(security));
 
 		displayType = new Combo(body, SWT.READ_ONLY);
 		displayType.add("all");
@@ -236,18 +245,18 @@ public class ChartEditorPart extends EditorPart {
 		Activator.getDefault().getAccountManager().addPropertyChangeListener(accountManagerChangeListener);
 	}
 
-	protected void addSplitAnnotations(JFreeChart chart, List<StockSplit> splits) {
+	protected void addSplitAnnotations(List<StockSplit> splits) {
 		for (StockSplit stockSplit : splits) {
 			de.tomsplayground.util.Day day = stockSplit.getDay();
 			long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
 			ValueMarker valueMarker = new ValueMarker(x);
 			valueMarker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
 			valueMarker.setLabel("Split "+stockSplit.getFrom()+":"+stockSplit.getTo());
-			((XYPlot)chart.getPlot()).addDomainMarker(valueMarker);
+			pricePlot.addDomainMarker(valueMarker);
 		}
 	}
 
-	protected void addOrderAnnotations(final JFreeChart chart) {
+	protected void addOrderAnnotations() {
 		ImmutableList<InvestmentTransaction> transactions = getOrders();
 		for (InvestmentTransaction investmentTransaction : transactions) {
 			de.tomsplayground.util.Day day = investmentTransaction.getDay();
@@ -274,14 +283,10 @@ public class ChartEditorPart extends EditorPart {
 				case INCOME:
 					t = " +"+PeanutsUtil.formatCurrency(investmentTransaction.getAmount(), Currency.getInstance("EUR"));
 					pointerAnnotation = new XYPointerAnnotation(t, x, y, Math.PI / 2);
-					swtColor = Activator.getDefault().getColorProvider().get(Activator.GREEN);
-					c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
 					break;
 				case EXPENSE:
 					t = " -"+PeanutsUtil.formatCurrency(investmentTransaction.getAmount(), Currency.getInstance("EUR"));
 					pointerAnnotation = new XYPointerAnnotation(t, x, y, 3* Math.PI / 2);
-					swtColor = Activator.getDefault().getColorProvider().get(Activator.RED);
-					c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
 					break;
 			}
 			if (pointerAnnotation != null) {
@@ -290,7 +295,7 @@ public class ChartEditorPart extends EditorPart {
 				pointerAnnotation.setToolTipText(PeanutsUtil.formatDate(day) + " " + t);
 				pointerAnnotation.setArrowWidth(5);
 				pointerAnnotation.setLabelOffset(5);
-				((XYPlot)chart.getPlot()).addAnnotation(pointerAnnotation);
+				pricePlot.addAnnotation(pointerAnnotation);
 			}
 		}
 	}
@@ -324,44 +329,115 @@ public class ChartEditorPart extends EditorPart {
 	 */
 	private JFreeChart createChart() {
 
-		JFreeChart chart = ChartFactory.createTimeSeriesChart(getEditorInput().getName(), // title
-			"Date", // x-axis label
-			"Price", // y-axis label
-			dataset, // data
-			true, // create legend?
-			true, // generate tooltips?
-			false // generate URLs?
-			);
-
+		DateAxis axis = new DateAxis("Date");
+		axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
+		CombinedDomainXYPlot combiPlot = new CombinedDomainXYPlot(axis);
+		combiPlot.setDrawingSupplier(new PeanutsDrawingSupplier());
+		JFreeChart chart = new JFreeChart(getEditorInput().getName(), combiPlot);
 		chart.setBackgroundPaint(Color.white);
 
-		XYPlot plot = (XYPlot) chart.getPlot();
-		plot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);
-		plot.setDomainGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
-		plot.setRangeGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
-		plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
-		plot.setDomainCrosshairVisible(true);
-		plot.setRangeCrosshairVisible(true);
-		plot.setDrawingSupplier(new PeanutsDrawingSupplier());
-		XYItemRenderer renderer = plot.getRenderer();
-		if (renderer instanceof XYLineAndShapeRenderer) {
-			renderer.setSeriesPaint(0, Color.BLACK);
-			int nextPos = 1;
-			if (isShowAvg()) {
-				renderer.setSeriesStroke(1, new BasicStroke(2.0f));
-				renderer.setSeriesStroke(2, new BasicStroke(2.0f));
-				nextPos = 3;
-			}
-			// Stop loss
-			renderer.setSeriesPaint(nextPos, Color.GREEN);
-			// Compare to
-			renderer.setSeriesPaint(nextPos + 1, Color.LIGHT_GRAY);
+		StandardXYItemRenderer renderer = new StandardXYItemRenderer();
+		renderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
+		renderer.setSeriesPaint(0, Color.BLACK);
+		int nextPos = 1;
+		if (isShowAvg()) {
+			renderer.setSeriesStroke(1, new BasicStroke(2.0f));
+			renderer.setSeriesStroke(2, new BasicStroke(2.0f));
+			nextPos = 3;
 		}
+		// Stop loss
+		renderer.setSeriesPaint(nextPos, Color.GREEN);
+		// Compare to
+		renderer.setSeriesPaint(nextPos + 1, Color.LIGHT_GRAY);
 
-		DateAxis axis = (DateAxis) plot.getDomainAxis();
-		axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
+		pricePlot = new XYPlot(dataset, null, new NumberAxis("Price"), renderer);
+		combiPlot.add(pricePlot, 70);
+		pricePlot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);
+		pricePlot.setDomainGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
+		pricePlot.setRangeGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
+		pricePlot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
+		pricePlot.setDomainCrosshairVisible(true);
+		pricePlot.setRangeCrosshairVisible(true);
+
+		XYAreaRenderer xyAreaRenderer = new XYAreaRenderer();
+		xyAreaRenderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
+		xyAreaRenderer.setSeriesPaint(0, new PeanutsDrawingSupplier().getNextPaint());
+		NumberAxis rangeAxis = new NumberAxis("PE-ratio");
+		rangeAxis.setAutoRange(false);
+		rangeAxis.setRange(-7.0, 7.0);
+		XYPlot plot2 = new XYPlot(createPeRatioDataset(), null, rangeAxis, xyAreaRenderer);
+		plot2.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
+		plot2.setDomainCrosshairVisible(true);
+		plot2.setRangeCrosshairVisible(true);
+		combiPlot.add(plot2, 30);
 
 		return chart;
+	}
+
+	private FundamentalData getFundamentalDataForYear(final de.tomsplayground.util.Day day) {
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		List<FundamentalData> fundamentalDatas = security.getFundamentalDatas();
+		return Iterables.find(fundamentalDatas, new Predicate<FundamentalData>() {
+			@Override
+			public boolean apply(FundamentalData input) {
+				int delta = day.delta(input.getFiscalEndDay());
+				return delta > 0 && delta <= 360;
+			}
+		}, null);
+	}
+
+	private TimeSeriesCollection createPeRatioDataset() {
+		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		List<FundamentalData> fundamentalDatas = security.getFundamentalDatas();
+		if (fundamentalDatas.isEmpty()) {
+			return timeSeriesCollection;
+		}
+
+		Currency currency = fundamentalDatas.get(0).getCurrency();
+		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
+		CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(currency, security.getCurrency());
+
+		AvgFundamentalData avgFundamentalData = new AvgFundamentalData(fundamentalDatas, priceProvider, currencyConverter);
+		BigDecimal avgPE = avgFundamentalData.getAvgPE();
+
+		IPriceProvider pp = priceProvider;
+		if (currencyConverter != null) {
+			pp = new CurrencyAdjustedPriceProvider(priceProvider, currencyConverter.getInvertedCurrencyConverter());
+		}
+
+		TimeSeries timeSeries = new TimeSeries("PE-ratio", Day.class);
+		for (IPrice price : pp.getPrices()) {
+			de.tomsplayground.util.Day day = price.getDay();
+			final FundamentalData data = getFundamentalDataForYear(day);
+			if (data != null && data.getEarningsPerShare().signum() != 0) {
+				BigDecimal peRatio = price.getClose().divide(data.getEarningsPerShare(), new MathContext(10, RoundingMode.HALF_EVEN));
+
+				FundamentalData dataNextYear = Iterables.find(security.getFundamentalDatas(), new Predicate<FundamentalData>() {
+					@Override
+					public boolean apply(FundamentalData input) {
+						return input.getYear() == data.getYear() + 1;
+					}
+				}, null);
+				if (dataNextYear != null && dataNextYear.getEarningsPerShare().signum() != 0) {
+					int daysThisYear = day.delta(data.getFiscalEndDay());
+					if (daysThisYear < 360) {
+						float thisYear = (peRatio.floatValue() * daysThisYear);
+						BigDecimal peRatio2 = price.getClose().divide(dataNextYear.getEarningsPerShare(), new MathContext(10, RoundingMode.HALF_EVEN));
+						float nextYear = (peRatio2.floatValue() * (360 - daysThisYear));
+						peRatio = new BigDecimal((thisYear + nextYear) / 360);
+					}
+				}
+				if (peRatio.signum() == 1) {
+					peRatio = peRatio.subtract(avgPE);
+					timeSeries.add(new Day(day.day, day.month+1, day.year), peRatio.doubleValue());
+				}
+			}
+		}
+
+		timeSeriesCollection.addSeries(timeSeries);
+		return timeSeriesCollection;
 	}
 
 	private void createDataset() {

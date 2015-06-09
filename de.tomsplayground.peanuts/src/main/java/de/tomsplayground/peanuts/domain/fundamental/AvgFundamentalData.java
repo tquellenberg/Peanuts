@@ -50,11 +50,11 @@ public class AvgFundamentalData {
 	}
 
 	private List<FundamentalData> getHistoricData() {
-		final int currentYear = new Day().year;
+		final Day now = new Day();
 		return Lists.newArrayList(Iterables.filter(datas, new Predicate<FundamentalData>(){
 			@Override
 			public boolean apply(FundamentalData input) {
-				return input.getYear() < currentYear;
+				return input.getFiscalEndDay().before(now);
 			}
 		}));
 	}
@@ -66,57 +66,34 @@ public class AvgFundamentalData {
 		adjustedData = Lists.newArrayList(Iterables.filter(adjustedData, new Predicate<FundamentalData>() {
 			@Override
 			public boolean apply(FundamentalData input) {
-				return input.calculatePeRatio(pp).signum() > 0;
+				return input.calculatePeRatio(pp).signum() > 0 && ! input.isIgnoreInAvgCalculation();
 			}
 		}));
 		if (adjustedData.isEmpty()) {
 			return BigDecimal.ZERO;
 		}
 		double sum = 0;
-//		Map<FundamentalData, BigDecimal> peRatio = Maps.newHashMap();
 		for (FundamentalData fundamentalData : adjustedData) {
 			double ratio = fundamentalData.calculatePeRatio(pp).doubleValue();
-//			peRatio.put(fundamentalData, ratio);
-			ratio = Math.min(ratio, 25.0);
+			ratio = Math.min(ratio, 35.0);
 			sum += ratio;
 		}
-//		final double avg = sum / adjustedData.size();
-//		// calculate deviation
-//		double maxDeviation = 0.0;
-//		FundamentalData spike = null;
-//		for (Map.Entry<FundamentalData, BigDecimal> entry : peRatio.entrySet()) {
-//			double deviation = entry.getValue().divide(new BigDecimal(avg), new MathContext(10, RoundingMode.HALF_EVEN))
-//				.subtract(BigDecimal.ONE)
-//				.abs().doubleValue();
-//			if (deviation > 0.3 && deviation > maxDeviation) {
-//				maxDeviation = deviation;
-//				spike = entry.getKey();
-//			}
-//		}
-//		if (spike != null) {
-//			// remove spikes
-//			adjustedData.remove(spike);
-//			sum = 0;
-//			for (FundamentalData fundamentalData : adjustedData) {
-//				sum += fundamentalData.calculatePeRatio(pp).doubleValue();
-//			}
-//		}
 		return new BigDecimal(sum / adjustedData.size());
 	}
 
 	public BigDecimal getAvgEpsChange() {
-		return getAvgEpsChange(getHistoricData());
+		return getAvgEpsChange(datas);
 	}
 
 	public BigDecimal getCurrencyAdjustedAvgEpsChange() {
-		return getAvgEpsChange(getAdjustedData(getHistoricData()));
+		return getAvgEpsChange(getAdjustedData(datas));
 	}
 
 	private BigDecimal getAvgEpsChange(List<FundamentalData> historicData) {
 		ArrayList<FundamentalData> validDatas = Lists.newArrayList(Iterables.filter(historicData, new Predicate<FundamentalData>() {
 			@Override
 			public boolean apply(FundamentalData input) {
-				return (input.getEarningsPerShare().signum() > 0);
+				return (input.getEarningsPerShare().signum() > 0) && ! input.isIgnoreInAvgCalculation();
 			}
 		}));
 

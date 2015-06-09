@@ -27,6 +27,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 	private BigDecimal debtEquityRatio;
 	private String currency;
 	private DateTime lastModifyDate;
+	private boolean ignoreInAvgCalculation;
 
 	public FundamentalData() {
 		this.year = 2000;
@@ -45,6 +46,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		this.currency = d.currency;
 		this.ficalYearEndsMonth = d.ficalYearEndsMonth;
 		this.lastModifyDate = d.lastModifyDate;
+		this.ignoreInAvgCalculation = d.ignoreInAvgCalculation;
 	}
 
 	public int getYear() {
@@ -73,8 +75,8 @@ public class FundamentalData implements Comparable<FundamentalData> {
 	}
 
 	protected BigDecimal avgPrice(IPriceProvider priceProvider, int year) {
-		Day from = new Day(year,0,1).addMonth(getFicalYearEndsMonth());
-		Day to = new Day(year, 11, 31).addMonth(getFicalYearEndsMonth());
+		Day from = new Day(year,0,1).addMonth(getFicalYearEndsMonth()-6);
+		Day to = new Day(year, 11, 31).addMonth(getFicalYearEndsMonth()-6);
 		ImmutableList<IPrice> prices = priceProvider.getPrices(from, to);
 		if (prices.isEmpty()) {
 			return BigDecimal.ZERO;
@@ -152,5 +154,12 @@ public class FundamentalData implements Comparable<FundamentalData> {
 	}
 	public void updateLastModifyDate() {
 		lastModifyDate = new DateTime();
+	}
+
+	public void setIgnoreInAvgCalculation(boolean ignoreInAvgCalculation) {
+		this.ignoreInAvgCalculation = ignoreInAvgCalculation;
+	}
+	public boolean isIgnoreInAvgCalculation() {
+		return ignoreInAvgCalculation;
 	}
 }
