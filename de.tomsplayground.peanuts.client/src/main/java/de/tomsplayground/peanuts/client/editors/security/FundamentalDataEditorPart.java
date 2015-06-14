@@ -91,6 +91,14 @@ public class FundamentalDataEditorPart extends EditorPart {
 	private class FundamentalDataTableLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 		@Override
 		public Image getColumnImage(Object element, int columnIndex) {
+			if (columnIndex == 0) {
+				if (element instanceof FundamentalData) {
+					FundamentalData data = (FundamentalData)element;
+					if (data.isLocked()) {
+						return Activator.getDefault().getImage("icons/lock.png");
+					}
+				}
+			}
 			return null;
 		}
 
@@ -181,9 +189,17 @@ public class FundamentalDataEditorPart extends EditorPart {
 					case 0:
 						return "Avg";
 					case 7:
-						return PeanutsUtil.formatPercent(data.getAvgEpsChange().subtract(BigDecimal.ONE));
+						BigDecimal avgEpsGrowth = data.getAvgEpsGrowth();
+						if (avgEpsGrowth == null) {
+							return "";
+						}
+						return PeanutsUtil.formatPercent(avgEpsGrowth.subtract(BigDecimal.ONE));
 					case 9:
-						return PeanutsUtil.formatPercent(data.getCurrencyAdjustedAvgEpsChange().subtract(BigDecimal.ONE));
+						BigDecimal currencyAdjustedAvgEpsGrowth = data.getCurrencyAdjustedAvgEpsGrowth();
+						if (currencyAdjustedAvgEpsGrowth == null) {
+							return "";
+						}
+						return PeanutsUtil.formatPercent(currencyAdjustedAvgEpsGrowth.subtract(BigDecimal.ONE));
 					case 11:
 						return PeanutsUtil.format(data.getAvgPE(), 1);
 					default:
@@ -498,7 +514,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 			@Override
 			public boolean canModify(Object element, String property) {
-				return (element instanceof FundamentalData) &&
+				return (element instanceof FundamentalData) && !((FundamentalData)element).isLocked() &&
 					Lists.newArrayList("year", "fiscalYear", "div", "EPS", "deRatio").contains(property);
 			}
 
@@ -642,12 +658,14 @@ public class FundamentalDataEditorPart extends EditorPart {
 			boolean dataExists = false;
 			for (FundamentalData oldData : fundamentalDatas) {
 				if (newData.getYear() == oldData.getYear()) {
-					oldData.setDividende(newData.getDividende());
-					oldData.setEarningsPerShare(newData.getEarningsPerShare());
-					if (newData.getFicalYearEndsMonth() != 0) {
-						oldData.setFicalYearEndsMonth(newData.getFicalYearEndsMonth());
+					if (! oldData.isLocked()) {
+						oldData.setDividende(newData.getDividende());
+						oldData.setEarningsPerShare(newData.getEarningsPerShare());
+						if (newData.getFicalYearEndsMonth() != 0) {
+							oldData.setFicalYearEndsMonth(newData.getFicalYearEndsMonth());
+						}
+						oldData.updateLastModifyDate();
 					}
-					oldData.updateLastModifyDate();
 					dataExists = true;
 					break;
 				}
@@ -699,6 +717,14 @@ public class FundamentalDataEditorPart extends EditorPart {
 	public void ignoreFundamentalData(Collection<FundamentalData> data) {
 		for (FundamentalData fundamentalData : data) {
 			fundamentalData.setIgnoreInAvgCalculation(! fundamentalData.isIgnoreInAvgCalculation());
+			tableViewer.refresh();
+			markDirty();
+		}
+	}
+
+	public void lockFundamentalData(Collection<FundamentalData> data) {
+		for (FundamentalData fundamentalData : data) {
+			fundamentalData.setLocked(! fundamentalData.isLocked());
 			tableViewer.refresh();
 			markDirty();
 		}

@@ -45,6 +45,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -56,7 +57,9 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.editors.ITransactionProviderInput;
@@ -74,6 +77,7 @@ import de.tomsplayground.peanuts.domain.process.InvestmentTransaction.Type;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzedInvestmentTransaction;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
+import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
@@ -424,12 +428,12 @@ public class InventoryEditorPart extends EditorPart {
 		layout.marginWidth = 0;
 		top.setLayout(layout);
 		// top banner
-		Composite banner = new Composite(top, SWT.NONE);
+		final Composite banner = new Composite(top, SWT.NONE);
 		banner.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		layout = new GridLayout();
 		layout.marginHeight = 5;
 		layout.marginWidth = 10;
-		layout.numColumns = 2;
+		layout.numColumns = 11;
 		banner.setLayout(layout);
 		Font boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT);
 
@@ -442,19 +446,52 @@ public class InventoryEditorPart extends EditorPart {
 		l.setText("Gainings:");
 		l.setFont(boldFont);
 		gainingLabel = new Label(banner, SWT.NONE);
-		gainingLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 
 		l = new Label(banner, SWT.NONE);
 		l.setFont(boldFont);
 		l.setText("Market value:");
 		marketValueLabel = new Label(banner, SWT.NONE);
-		marketValueLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 
 		l = new Label(banner, SWT.NONE);
 		l.setFont(boldFont);
 		l.setText("Change:");
 		changeLabel = new Label(banner, SWT.NONE);
-		changeLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+
+
+		l = new Label(banner, SWT.NONE);
+		l.setFont(boldFont);
+		l.setText("Filter:");
+		List<SecurityCategoryMapping> securityCategoryMappings = Activator.getDefault().getAccountManager().getSecurityCategoryMappings();
+		final Combo filterCombo1 = new Combo(banner, SWT.DROP_DOWN | SWT.READ_ONLY);
+		final Combo filterCombo2 = new Combo(banner, SWT.DROP_DOWN | SWT.READ_ONLY);
+		for (SecurityCategoryMapping securityCategoryMapping : securityCategoryMappings) {
+			filterCombo1.add(securityCategoryMapping.getName());
+		}
+		filterCombo1.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				List<SecurityCategoryMapping> securityCategoryMappings = Activator.getDefault().getAccountManager().getSecurityCategoryMappings();
+				final String name = ((Combo)e.widget).getText();
+				SecurityCategoryMapping securityCategoryMapping = Iterables.find(securityCategoryMappings, new Predicate<SecurityCategoryMapping>() {
+					@Override
+					public boolean apply(SecurityCategoryMapping input) {
+						return input.getName().equals(name);
+					}
+				}, null);
+				if (securityCategoryMapping != null) {
+					filterCombo2.setItems(securityCategoryMapping.getCategories().toArray(new String[0]));
+					filterCombo2.add("", 0);
+					banner.layout();
+					treeViewer.refresh();
+				}
+			}
+		});
+		filterCombo2.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				treeViewer.refresh();
+			}
+		});
 
 
 		ITransactionProvider account = getTransactions();
@@ -465,6 +502,28 @@ public class InventoryEditorPart extends EditorPart {
 		}
 
 		treeViewer = new TreeViewer(top);
+		treeViewer.addFilter(new ViewerFilter() {
+			@Override
+			public boolean select(Viewer viewer, Object parentElement, Object element) {
+				final String name = filterCombo1.getText();
+				String value = filterCombo2.getText();
+				if (StringUtils.isBlank(name) || StringUtils.isBlank(value)) {
+					return true;
+				}
+				List<SecurityCategoryMapping> securityCategoryMappings = Activator.getDefault().getAccountManager().getSecurityCategoryMappings();
+				SecurityCategoryMapping securityCategoryMapping = Iterables.find(securityCategoryMappings, new Predicate<SecurityCategoryMapping>() {
+					@Override
+					public boolean apply(SecurityCategoryMapping input) {
+						return input.getName().equals(name);
+					}
+				}, null);
+				if (securityCategoryMapping != null) {
+					Security security = ((InventoryEntry)element).getSecurity();
+					return securityCategoryMapping.getSecuritiesByCategory(value).contains(security);
+				}
+				return false;
+			}
+		});
 		Tree tree = treeViewer.getTree();
 		ColumnViewerToolTipSupport.enableFor(treeViewer);
 		tree.setHeaderVisible(true);

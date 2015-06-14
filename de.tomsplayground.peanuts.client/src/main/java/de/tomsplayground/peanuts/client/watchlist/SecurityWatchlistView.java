@@ -151,17 +151,17 @@ public class SecurityWatchlistView extends ViewPart {
 	private final WatchEntryViewerComparator earningsComparator = new WatchEntryViewerComparator() {
 		@Override
 		public int compare(WatchEntry w1, WatchEntry w2) {
-			BigDecimal peRatio1 = w1.getCurrencyAdjustedAvgEpsChange();
-			BigDecimal peRatio2 = w2.getCurrencyAdjustedAvgEpsChange();
+			BigDecimal peRatio1 = w1.getCurrencyAdjustedReturn();
+			BigDecimal peRatio2 = w2.getCurrencyAdjustedReturn();
 			return ObjectUtils.compare(peRatio1, peRatio2, true);
 		}
 	};
-	private final WatchEntryViewerComparator divYieldComparator = new WatchEntryViewerComparator() {
+	private final WatchEntryViewerComparator robustnessComparator = new WatchEntryViewerComparator() {
 		@Override
 		public int compare(WatchEntry w1, WatchEntry w2) {
-			BigDecimal divYield1 = w1.getDivYield();
-			BigDecimal divYield2 = w2.getDivYield();
-			return ObjectUtils.compare(divYield1, divYield2);
+			BigDecimal v1 = w1.getRobustness();
+			BigDecimal v2 = w2.getRobustness();
+			return ObjectUtils.compare(v1, v2);
 		}
 	};
 	private final WatchEntryViewerComparator yocComparator = new WatchEntryViewerComparator() {
@@ -173,12 +173,12 @@ public class SecurityWatchlistView extends ViewPart {
 			return ObjectUtils.compare(yoc1, yoc2);
 		}
 	};
-	private final WatchEntryViewerComparator deRatioComparator = new WatchEntryViewerComparator() {
+	private final WatchEntryViewerComparator scoreComparator = new WatchEntryViewerComparator() {
 		@Override
 		public int compare(WatchEntry w1, WatchEntry w2) {
-			BigDecimal deRatio1 = w1.getDebtEquityRatio();
-			BigDecimal deRatio2 = w2.getDebtEquityRatio();
-			return ObjectUtils.compare(deRatio1, deRatio2);
+			BigDecimal v1 = w1.getScore();
+			BigDecimal v2 = w2.getScore();
+			return ObjectUtils.compare(v1, v2);
 		}
 	};
 	private static final class PerformanceComparator extends WatchEntryViewerComparator{
@@ -297,13 +297,13 @@ public class SecurityWatchlistView extends ViewPart {
 					}
 					return "";
 				case 6:
-					BigDecimal v = watchEntry.getCurrencyAdjustedAvgEpsChange();
+					BigDecimal v = watchEntry.getCurrencyAdjustedReturn();
 					if (v != null) {
 						return PeanutsUtil.formatPercent(v);
 					}
 					return "";
 				case 7:
-					BigDecimal data2 = watchEntry.getDivYield();
+					BigDecimal data2 = watchEntry.getRobustness();
 					if (data2 != null) {
 						return PeanutsUtil.formatPercent(data2);
 					}
@@ -316,7 +316,7 @@ public class SecurityWatchlistView extends ViewPart {
 					}
 					return "";
 				case 9:
-					BigDecimal data4 = watchEntry.getDebtEquityRatio();
+					BigDecimal data4 = watchEntry.getScore();
 					if (data4 != null) {
 						return PeanutsUtil.format(data4, 2);
 					}
@@ -377,23 +377,33 @@ public class SecurityWatchlistView extends ViewPart {
 					}
 				}
 			} else if (columnIndex == 6) {
-				BigDecimal v = watchEntry.getCurrencyAdjustedAvgEpsChange();
+				BigDecimal v = watchEntry.getCurrencyAdjustedReturn();
 				if (v != null) {
-					if (v.compareTo(new BigDecimal(0.03)) > 0) {
+					if (v.compareTo(new BigDecimal(0.05)) > 0) {
 						return green;
 					}
-					if (v.compareTo(new BigDecimal(-0.03)) < 0) {
+					if (v.compareTo(new BigDecimal(0.0)) < 0) {
+						return red;
+					}
+				}
+			} else if (columnIndex == 7) {
+				BigDecimal v = watchEntry.getRobustness();
+				if (v != null) {
+					if (v.compareTo(new BigDecimal(0.6)) > 0) {
+						return green;
+					}
+					if (v.compareTo(new BigDecimal(0.3)) < 0) {
 						return red;
 					}
 				}
 			} else if (columnIndex == 9) {
-				BigDecimal data4 = watchEntry.getDebtEquityRatio();
+				BigDecimal data4 = watchEntry.getScore();
 				if (data4 != null) {
-					if (data4.intValue() > 100) {
-						return red;
-					}
-					if (data4.intValue() < 40) {
+					if (data4.doubleValue() > 0.6) {
 						return green;
+					}
+					if (data4.doubleValue() < 0.4) {
+						return red;
 					}
 				}
 			} else if (columnIndex == 11) {
@@ -560,7 +570,7 @@ public class SecurityWatchlistView extends ViewPart {
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Earnings +-");
+		col.setText("Return");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
 		col.addSelectionListener(new SelectionAdapter() {
@@ -572,13 +582,13 @@ public class SecurityWatchlistView extends ViewPart {
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Div yield");
+		col.setText("Robustness");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
 		col.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setSorting((TableColumn)e.widget, divYieldComparator);
+				setSorting((TableColumn)e.widget, robustnessComparator);
 			}
 		});
 		colNum++;
@@ -596,13 +606,13 @@ public class SecurityWatchlistView extends ViewPart {
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("D/E");
+		col.setText("Score");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
 		col.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setSorting((TableColumn)e.widget, deRatioComparator);
+				setSorting((TableColumn)e.widget, scoreComparator);
 			}
 		});
 		colNum++;

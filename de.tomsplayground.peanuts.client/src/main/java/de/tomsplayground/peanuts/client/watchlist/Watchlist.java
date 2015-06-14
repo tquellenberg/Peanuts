@@ -82,7 +82,7 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 			WatchEntry watchEntry = iterator.next();
 			if (watchEntry.getSecurity().equals(security)) {
 				iterator.remove();
-				IPriceProvider priceProvider = watchEntry.getPriceProvider();
+				IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
 				if (priceProvider instanceof ObservableModelObject) {
 					ObservableModelObject ob = (ObservableModelObject) priceProvider;
 					ob.removePropertyChangeListener(propertyChangeListener);

@@ -28,6 +28,8 @@ public class FundamentalData implements Comparable<FundamentalData> {
 	private String currency;
 	private DateTime lastModifyDate;
 	private boolean ignoreInAvgCalculation;
+	private boolean locked;
+	private String note;
 
 	public FundamentalData() {
 		this.year = 2000;
@@ -47,6 +49,8 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		this.ficalYearEndsMonth = d.ficalYearEndsMonth;
 		this.lastModifyDate = d.lastModifyDate;
 		this.ignoreInAvgCalculation = d.ignoreInAvgCalculation;
+		this.locked = d.locked;
+		this.note = d.note;
 	}
 
 	public int getYear() {
@@ -161,5 +165,18 @@ public class FundamentalData implements Comparable<FundamentalData> {
 	}
 	public boolean isIgnoreInAvgCalculation() {
 		return ignoreInAvgCalculation;
+	}
+
+	public void setLocked(boolean locked) {
+		this.locked = locked;
+	}
+	public boolean isLocked() {
+		return locked;
+	}
+	public String getNote() {
+		return StringUtils.defaultString(note);
+	}
+	public void setNote(String note) {
+		this.note = StringUtils.defaultString(note);
 	}
 }

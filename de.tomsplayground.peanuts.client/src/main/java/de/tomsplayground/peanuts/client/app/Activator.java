@@ -25,11 +25,7 @@ import javax.crypto.spec.PBEParameterSpec;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.resource.ColorRegistry;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -44,19 +40,12 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.service.application.ApplicationHandle;
 
-import com.google.common.collect.ImmutableList;
-
-import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
 import de.tomsplayground.peanuts.client.util.PeanutsAdapterFactory;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
-import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
-import de.tomsplayground.peanuts.domain.process.IPriceProvider;
-import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.persistence.Persistence;
 import de.tomsplayground.peanuts.persistence.xstream.PersistenceService;
-import de.tomsplayground.peanuts.scraping.Scraping;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -111,7 +100,6 @@ public class Activator extends AbstractUIPlugin {
 	private AccountManager accountManager;
 	private ExchangeRates exchangeRates;
 	private String passphrase;
-	private Job refreshPricesJob;
 
 	/**
 	 * The constructor
@@ -168,9 +156,9 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	protected void applicationStopping() {
-		if (refreshPricesJob != null) {
-			refreshPricesJob.cancel();
-		}
+	}
+
+	protected void applicationStarted() {
 	}
 
 	public ExchangeRates getExchangeRate() {
@@ -178,41 +166,6 @@ public class Activator extends AbstractUIPlugin {
 			exchangeRates = new ExchangeRates(PriceProviderFactory.getInstance(), accountManager);
 		}
 		return exchangeRates;
-	}
-
-	protected void applicationStarted() {
-		refreshPricesJob = new Job("Refresh investment prices") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				try {
-					PriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
-					ImmutableList<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
-					monitor.beginTask("Refresh investment prices", securities.size());
-					for (Security security : securities) {
-						monitor.subTask("Refreshing " + security.getName());
-						priceProviderFactory.refresh(security, Boolean.valueOf(
-							security.getConfigurationValue(SecurityPropertyPage.OVERRIDE_EXISTING_PRICE_DATA)).booleanValue());
-						Scraping scraping = new Scraping(security);
-						Price price = scraping.execute();
-						if (price != null) {
-							IPriceProvider priceProvider = priceProviderFactory.getPriceProvider(security);
-							priceProvider.setPrice(price);
-							priceProviderFactory.saveToLocal(security, priceProvider);
-						}
-						monitor.worked(1);
-						if (monitor.isCanceled()) {
-							return Status.CANCEL_STATUS;
-						}
-					}
-				} finally {
-					monitor.done();
-				}
-				return Status.OK_STATUS;
-			}
-		};
-		refreshPricesJob.setUser(false);
-		refreshPricesJob.setSystem(false);
-		refreshPricesJob.schedule();
 	}
 
 	@Override

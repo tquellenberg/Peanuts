@@ -350,7 +350,9 @@ public class ChartEditorPart extends EditorPart {
 		// Compare to
 		renderer.setSeriesPaint(nextPos + 1, Color.LIGHT_GRAY);
 
-		pricePlot = new XYPlot(dataset, null, new NumberAxis("Price"), renderer);
+		NumberAxis rangeAxis2 = new NumberAxis("Price");
+		rangeAxis2.setAutoRange(true);
+		pricePlot = new XYPlot(dataset, null, rangeAxis2, renderer);
 		combiPlot.add(pricePlot, 70);
 		pricePlot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);
 		pricePlot.setDomainGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);

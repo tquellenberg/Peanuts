@@ -37,6 +37,7 @@ public class WatchEntry {
 	BigDecimal avgPe = null;
 	BigDecimal peDelta = null;
 	BigDecimal peRatio = null;
+	BigDecimal robustness = null;
 
 	private BigDecimal currencyAdjustedAvgEpsChange;
 
@@ -210,6 +211,39 @@ public class WatchEntry {
 		return null;
 	}
 
+	public BigDecimal getRobustness() {
+		if (robustness != null) {
+			return robustness;
+		}
+		AvgFundamentalData avgFundamentalData = getAvgFundamentalData();
+		if (avgFundamentalData != null) {
+			robustness = avgFundamentalData.getRobustness();
+		}
+		return robustness;
+	}
+
+	public BigDecimal getScore() {
+		BigDecimal score = BigDecimal.ZERO;
+		BigDecimal v = getPeDelta();
+		if (v == null) {
+			return null;
+		}
+		score = score.add(v.negate());
+
+		v = getCurrencyAdjustedReturn();
+		if (v == null) {
+			return null;
+		}
+		score = score.add(v);
+
+		v = getRobustness();
+		if (v == null) {
+			return null;
+		}
+		score = score.add(v.divide(new BigDecimal(2), MC));
+		return score;
+	}
+
 	public BigDecimal getAvgPE() {
 		if (avgPe != null) {
 			return avgPe;
@@ -221,13 +255,21 @@ public class WatchEntry {
 		return avgPe;
 	}
 
-	public BigDecimal getCurrencyAdjustedAvgEpsChange() {
+	public BigDecimal getCurrencyAdjustedReturn() {
 		if (currencyAdjustedAvgEpsChange != null) {
 			return currencyAdjustedAvgEpsChange;
 		}
 		AvgFundamentalData avgFundamentalData = getAvgFundamentalData();
 		if (avgFundamentalData != null) {
-			currencyAdjustedAvgEpsChange = avgFundamentalData.getCurrencyAdjustedAvgEpsChange().subtract(BigDecimal.ONE);
+			BigDecimal currencyAdjustedAvgEpsGrowth = avgFundamentalData.getCurrencyAdjustedAvgEpsGrowth();
+			if (currencyAdjustedAvgEpsGrowth == null) {
+				return null;
+			}
+			currencyAdjustedAvgEpsChange = currencyAdjustedAvgEpsGrowth.subtract(BigDecimal.ONE);
+			BigDecimal divYield = getDivYield();
+			if (divYield != null) {
+				currencyAdjustedAvgEpsChange = currencyAdjustedAvgEpsChange.add(divYield);
+			}
 		}
 		return currencyAdjustedAvgEpsChange;
 	}
@@ -263,6 +305,7 @@ public class WatchEntry {
 		avgPe = null;
 		peDelta = null;
 		peRatio = null;
+		robustness = null;
 		currencyAdjustedAvgEpsChange = null;
 	}
 }

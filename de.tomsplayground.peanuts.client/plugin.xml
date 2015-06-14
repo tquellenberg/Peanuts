@@ -153,6 +153,11 @@
                id="de.tomsplayground.peanuts.client.toggleDeletedFilter.state">
          </state>
       </command>
+      <command
+            defaultHandler="de.tomsplayground.peanuts.client.actions.UpdateAllSecurityPrices"
+            id="de.tomsplayground.peanuts.client.updateAllPrices.cmd"
+            name="Update Security Prices">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -328,6 +333,12 @@
                label="Ignore"
                style="push">
          </command>
+         <command
+               commandId="de.tomsplayground.peanuts.client.lock"
+               icon="icons/lock.png"
+               label="Lock"
+               style="push">
+         </command>
       </menuContribution>
       <menuContribution
             allPopups="false"
@@ -353,6 +364,14 @@
             </separator>
             <command
                   commandId="org.eclipse.ui.edit.delete"
+                  style="push">
+            </command>
+         </menu>
+         <menu
+               id="file"
+               label="File">
+            <command
+                  commandId="de.tomsplayground.peanuts.client.updateAllPrices.cmd"
                   style="push">
             </command>
          </menu>
@@ -686,6 +705,20 @@
       <handler
             class="de.tomsplayground.peanuts.client.editors.security.IgnoreFundamentalDataHandler"
             commandId="de.tomsplayground.peanuts.client.ignore">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <iterate>
+                  <instanceof
+                        value="de.tomsplayground.peanuts.domain.fundamental.FundamentalData">
+                  </instanceof>
+               </iterate>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.tomsplayground.peanuts.client.editors.security.LockFundamentalDataHandler"
+            commandId="de.tomsplayground.peanuts.client.lock">
          <activeWhen>
             <with
                   variable="selection">
