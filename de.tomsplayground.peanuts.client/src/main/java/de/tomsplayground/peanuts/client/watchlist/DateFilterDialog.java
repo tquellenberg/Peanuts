@@ -47,9 +47,10 @@ public class DateFilterDialog extends Dialog {
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		datePickerFrom = new DateComposite(composite, SWT.NONE);
 		datePickerFrom.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		if (startDay != null) {
-			datePickerFrom.setDate(startDay.toCalendar());
+		if (startDay == null) {
+			startDay = new Day();
 		}
+		datePickerFrom.setDate(startDay.toCalendar());
 		datePickerFrom.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
@@ -62,9 +63,10 @@ public class DateFilterDialog extends Dialog {
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		datePickerTo = new DateComposite(composite, SWT.NONE);
 		datePickerTo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		if (endDay != null) {
-			datePickerTo.setDate(endDay.toCalendar());
+		if (endDay == null) {
+			endDay = new Day();
 		}
+		datePickerTo.setDate(endDay.toCalendar());
 		datePickerTo.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
