@@ -36,6 +36,7 @@ public class SecurityEditor extends MultiPageEditorPart {
 		createEditorPage(new FundamentalDataEditorPart(), "Fundamentals");
 		createEditorPage(new ScrapingEditorPart(), "Scraping");
 		createEditorPage(new DevelopmentEditorPart(), "Development");
+		createEditorPage(new NotesEditorPart(), "Notes");
 	}
 
 	private void createEditorPage(IEditorPart editor, String name) {

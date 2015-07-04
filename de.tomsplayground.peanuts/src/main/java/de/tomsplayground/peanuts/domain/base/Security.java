@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.domain.base;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -18,6 +20,7 @@ import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
+import de.tomsplayground.peanuts.domain.note.Note;
 import de.tomsplayground.util.Day;
 
 @XStreamAlias("security")
@@ -39,6 +42,8 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	final private Map<String, String> displayConfiguration = new HashMap<String, String>();
 
 	private List<FundamentalData> fundamentalDatas = new ArrayList<FundamentalData>();
+
+	private List<Note> notes = new ArrayList<Note>();
 
 	public Security(String name) {
 		this.name = name;
@@ -93,6 +98,9 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	public void reconfigureAfterDeserialization(@SuppressWarnings("unused")AccountManager accountManager) {
 		if (fundamentalDatas == null) {
 			fundamentalDatas = new ArrayList<FundamentalData>();
+		}
+		if (notes == null) {
+			notes = new ArrayList<Note>();
 		}
 	}
 
@@ -190,4 +198,23 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	public void setMorningstarSymbol(String morningstarSymbol) {
 		this.morningstarSymbol = morningstarSymbol;
 	}
+
+	public ImmutableList<Note> getNotes() {
+		return ImmutableList.copyOf(notes);
+	}
+
+	public void addNote(Note note) {
+		notes.add(note);
+		Collections.sort(notes);
+		firePropertyChange("notes", null, note);
+	}
+
+	public boolean remoteNote(Note note) {
+		boolean remove = notes.remove(note);
+		if (remove) {
+			firePropertyChange("notes", note, null);
+		}
+		return remove;
+	}
+
 }
