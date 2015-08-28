@@ -6,8 +6,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
@@ -16,6 +20,7 @@ import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.StockSplit;
+import de.tomsplayground.peanuts.domain.watchlist.WatchlistConfiguration;
 
 public class Watchlist extends ObservableModelObject implements INamedElement {
 
@@ -34,20 +39,29 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 		}
 	};
 
-	private final String name;
 	private final List<WatchEntry> entries = new ArrayList<WatchEntry>();
+	private final WatchlistConfiguration configuration;
 
-	public Watchlist(String name) {
-		this.name = name;
+	public Watchlist(WatchlistConfiguration configuration) {
+		this.configuration = configuration;;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return configuration.getName();
 	}
 
 	public List<WatchEntry> getEntries() {
 		return Collections.unmodifiableList(entries);
+	}
+
+	public Set<Security> getSecurities() {
+		return Sets.newHashSet(Iterables.transform(entries, new Function<WatchEntry, Security>() {
+			@Override
+			public Security apply(WatchEntry input) {
+				return input.getSecurity();
+			}
+		}));
 	}
 
 	public WatchEntry getEntry(Security security) {
@@ -93,5 +107,9 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 			}
 		}
 		return null;
+	}
+
+	public WatchlistConfiguration getConfiguration() {
+		return configuration;
 	}
 }

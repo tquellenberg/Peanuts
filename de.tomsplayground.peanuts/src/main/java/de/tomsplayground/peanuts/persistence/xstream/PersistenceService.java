@@ -26,6 +26,8 @@ import de.tomsplayground.peanuts.domain.query.DateQuery;
 import de.tomsplayground.peanuts.domain.reporting.forecast.Forecast;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
+import de.tomsplayground.peanuts.domain.watchlist.CategoryFilter;
+import de.tomsplayground.peanuts.domain.watchlist.WatchlistConfiguration;
 import de.tomsplayground.peanuts.persistence.IPersistenceService;
 
 public class PersistenceService implements IPersistenceService {
@@ -58,7 +60,9 @@ public class PersistenceService implements IPersistenceService {
 			SecurityCategoryMapping.class,
 			StopLoss.class,
 			SecurityCalendarEntry.class,
-			Note.class
+			Note.class,
+			WatchlistConfiguration.class,
+			CategoryFilter.class
 		});
 	}
 

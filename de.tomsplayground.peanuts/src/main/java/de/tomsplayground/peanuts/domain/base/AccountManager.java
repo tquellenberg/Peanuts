@@ -34,6 +34,7 @@ import de.tomsplayground.peanuts.domain.reporting.forecast.Forecast;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
+import de.tomsplayground.peanuts.domain.watchlist.WatchlistConfiguration;
 import de.tomsplayground.util.Day;
 
 @XStreamAlias("accountmanager")
@@ -61,6 +62,8 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	private List<SecurityCategoryMapping> securityCategoryMappings = new ArrayList<SecurityCategoryMapping>();
 
 	private List<CalendarEntry> calendarEntries = new ArrayList<CalendarEntry>();
+
+	private List<WatchlistConfiguration> watchlistConfigurations = new ArrayList<WatchlistConfiguration>();
 
 	private transient Inventory fullInventory;
 
@@ -293,11 +296,15 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 		stockSplits.clear();
 		stopLosses.clear();
 		calendarEntries.clear();
+		watchlistConfigurations.clear();
 		savedTransactions = ImmutableList.of();
 		securityCategoryMappings.clear();
 	}
 
 	public void reconfigureAfterDeserialization() {
+		if (watchlistConfigurations == null) {
+			watchlistConfigurations = new ArrayList<WatchlistConfiguration>();
+		}
 		if (calendarEntries == null) {
 			calendarEntries = new ArrayList<CalendarEntry>();
 		}
@@ -463,6 +470,23 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 			firePropertyChange("stopLoss", stopLoss, null);
 		}
 		return remove;
+	}
+
+	public ImmutableSet<WatchlistConfiguration> getWatchlsts() {
+		return ImmutableSet.copyOf(watchlistConfigurations);
+	}
+
+	public void addWatchlist(WatchlistConfiguration watchlistConfiguration) {
+		watchlistConfigurations.add(watchlistConfiguration);
+		firePropertyChange("watchlist", null, watchlistConfiguration);
+	}
+
+	public boolean removeWatchlist(WatchlistConfiguration watchlistConfiguration) {
+		boolean removed = watchlistConfigurations.remove(watchlistConfiguration);
+		if (removed) {
+			firePropertyChange("watchlist", watchlistConfiguration, null);
+		}
+		return removed;
 	}
 
 	/**

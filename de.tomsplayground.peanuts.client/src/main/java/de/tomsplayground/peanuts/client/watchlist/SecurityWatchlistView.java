@@ -3,11 +3,6 @@ package de.tomsplayground.peanuts.client.watchlist;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,8 +46,6 @@ import org.eclipse.ui.dialogs.PropertyDialogAction;
 import org.eclipse.ui.part.ViewPart;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-
-import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.dnd.PeanutsTransfer;
@@ -181,6 +174,14 @@ public class SecurityWatchlistView extends ViewPart {
 			return ObjectUtils.compare(v1, v2);
 		}
 	};
+	private final WatchEntryViewerComparator changeComparator = new WatchEntryViewerComparator() {
+		@Override
+		public int compare(WatchEntry w1, WatchEntry w2) {
+			BigDecimal v1 = w1.getDayChange();
+			BigDecimal v2 = w2.getDayChange();
+			return ObjectUtils.compare(v1, v2);
+		}
+	};
 	private static final class PerformanceComparator extends WatchEntryViewerComparator{
 		private final int day;
 		private final int month;
@@ -217,6 +218,8 @@ public class SecurityWatchlistView extends ViewPart {
 					setContentDescription(currentWatchList.getName());
 					securityListViewer.setInput(currentWatchList);
 					securityListViewer.refresh();
+				} else if (evt.getPropertyName().equals("watchlistName")) {
+					watchlistRenamed((String)evt.getNewValue());
 				} else {
 					securityListViewer.refresh();
 				}
@@ -627,6 +630,12 @@ public class SecurityWatchlistView extends ViewPart {
 		col.setText("Change");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, changeComparator);
+			}
+		});
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
@@ -775,18 +784,9 @@ public class SecurityWatchlistView extends ViewPart {
 	}
 
 	private void initWatchlists() {
-		ImmutableList<Security> allSecurities = Activator.getDefault().getAccountManager().getSecurities();
-		for (Security security : allSecurities) {
-			for (String watchlistName : getWatchlistNamesForSecurity(security)) {
-				Watchlist watchlist = WatchlistManager.getInstance().getWatchlist(watchlistName);
-				if (watchlist == null) {
-					watchlist = WatchlistManager.getInstance().addWatchlist(watchlistName);
-				}
-				watchlist.addEntry(security);
-			}
-		}
-		currentWatchList = WatchlistManager.getInstance().getCurrentWatchlist();
+		WatchlistManager.getInstance().init();
 		WatchlistManager.getInstance().addPropertyChangeListener(watchlistChangeListener);
+		currentWatchList = WatchlistManager.getInstance().getCurrentWatchlist();
 	}
 
 	public void removeSecurityFromCurrentWatchlist(Security security) {
@@ -795,9 +795,7 @@ public class SecurityWatchlistView extends ViewPart {
 		// remove from viewer
 		securityListViewer.remove(entry);
 		// update DisplayConfiguration
-		Set<String> list = new HashSet<String>(getWatchlistNamesForSecurity(security));
-		list.remove(currentWatchList.getName());
-		security.putConfigurationValue(ID, StringUtils.join(list, ','));
+		WatchlistManager.getInstance().removeSecurityFromWatchlist(security, currentWatchList);
 	}
 
 	private void addSecurityToCurrentWatchlist(Security security) {
@@ -809,18 +807,11 @@ public class SecurityWatchlistView extends ViewPart {
 			securityListViewer.reveal(entry);
 		}
 		// update DisplayConfiguration
-		Set<String> list = new HashSet<String>(getWatchlistNamesForSecurity(security));
-		list.add(currentWatchList.getName());
-		security.putConfigurationValue(ID, StringUtils.join(list, ','));
+		WatchlistManager.getInstance().addSecurityToWatchlist(security, currentWatchList);
 	}
 
-	private List<String> getWatchlistNamesForSecurity(Security security) {
-		String watchListsStr = security.getConfigurationValue(ID);
-		String[] watchLists = StringUtils.split(watchListsStr, ',');
-		if (watchLists != null) {
-			return Arrays.asList(watchLists);
-		}
-		return Collections.emptyList();
+	private void watchlistRenamed(String newName) {
+		setContentDescription(newName);
 	}
 
 	@Override
