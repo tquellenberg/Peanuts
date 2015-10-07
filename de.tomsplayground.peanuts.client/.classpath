@@ -23,7 +23,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/de.tomsplayground.peanuts-0.1-SNAPSHOT.jar" sourcepath="/de.tomsplayground.peanuts"/>
 	<classpathentry exported="true" kind="lib" path="lib/swtgraphics2d.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gnujaxp.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/de.tomsplayground.peanuts"/>
 	<classpathentry kind="output" path="bin"/>

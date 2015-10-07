@@ -14,7 +14,8 @@
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Xms512M -Xmx512M -XX:MaxPermSize=128M</vmArgs>
+      <vmArgs>-Xms512M -Xmx1024M
+      </vmArgs>
    </launcherArgs>
 
    <windowImages/>
