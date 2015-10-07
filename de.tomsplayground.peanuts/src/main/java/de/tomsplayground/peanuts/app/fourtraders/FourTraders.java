@@ -38,7 +38,7 @@ public class FourTraders {
 			TagNode tagNode = htmlCleaner.clean(new URL(financialsUrl));
 
 			boolean isPence = false;
-			XPather xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[8]/td[1]/text()");
+			XPather xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[9]/td[1]/text()");
 			Object[] result = xPather.evaluateAgainstNode(tagNode);
 			if (result.length > 0) {
 				String currency = StringUtils.substringBetween(result[0].toString(), "(", ")");
@@ -60,7 +60,7 @@ public class FourTraders {
 					continue;
 				}
 
-				xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[8]/td[" + i + "]/text()");
+				xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[9]/td[" + i + "]/text()");
 				result = xPather.evaluateAgainstNode(tagNode);
 				try {
 					BigDecimal eps = parseNumber(result[0].toString());
@@ -73,7 +73,7 @@ public class FourTraders {
 					continue;
 				}
 
-				xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[9]/td[" + i + "]/text()");
+				xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[10]/td[" + i + "]/text()");
 				result = xPather.evaluateAgainstNode(tagNode);
 				try {
 					BigDecimal dividend = parseNumber(result[0].toString());
