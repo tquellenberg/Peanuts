@@ -9,8 +9,10 @@ import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVReader;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProvider;
 import de.tomsplayground.util.Day;
@@ -70,6 +73,7 @@ public class YahooPriceReader extends PriceProvider {
 
 	private void read() throws IOException {
 		String values[];
+		List<IPrice> prices = new ArrayList<>();
 		if (type == Type.HISTORICAL) {
 			// Skip header
 			csvReader.readNext();
@@ -83,7 +87,7 @@ public class YahooPriceReader extends PriceProvider {
 						BigDecimal close = getValue(values, 4);
 						Price price = new Price(d, open, close, high, low);
 						if (price.getValue().compareTo(BigDecimal.ZERO) > 0) {
-							setPrice(price);
+							prices.add(price);
 						}
 					}
 				} catch (NumberFormatException e) {
@@ -105,7 +109,7 @@ public class YahooPriceReader extends PriceProvider {
 						BigDecimal open = readDecimal(values[startPos]);
 						BigDecimal high = readDecimal(values[startPos+1]);
 						BigDecimal low = readDecimal(values[startPos+2]);
-						setPrice(new Price(d, open, close, high, low));
+						prices.add(new Price(d, open, close, high, low));
 					}
 				} catch (ParseException e) {
 					log.error(e.getMessage()+ " Value: " + Arrays.toString(values), e);
@@ -114,6 +118,7 @@ public class YahooPriceReader extends PriceProvider {
 				log.error("Invalid input: " + Arrays.toString(values));
 			}
 		}
+		setPrices(prices, true);
 		csvReader.close();
 	}
 

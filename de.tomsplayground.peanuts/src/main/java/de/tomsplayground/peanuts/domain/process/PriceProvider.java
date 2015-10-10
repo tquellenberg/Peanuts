@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 
 import com.google.common.base.Predicate;
@@ -104,9 +105,19 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 	@Override
 	public void setPrices(List<? extends IPrice> prices, boolean overideExistingData) {
 		boolean change = false;
-		for (IPrice price : prices) {
-			IPrice oldValue = setPriceInternal(price, overideExistingData);
-			change = change || oldValue == null || ! oldValue.equals(price);
+		if (this.prices.isEmpty()) {
+			this.prices = ImmutableList.copyOf(prices.stream().sorted(new Comparator<IPrice>() {
+				@Override
+				public int compare(IPrice o1, IPrice o2) {
+					return o1.getDay().compareTo(o2.getDay());
+				}
+			}).iterator());
+			change = true;
+		} else {
+			for (IPrice price : prices) {
+				IPrice oldValue = setPriceInternal(price, overideExistingData);
+				change = change || oldValue == null || ! oldValue.equals(price);
+			}
 		}
 		if (change) {
 			firePropertyChange("prices", null, prices);
