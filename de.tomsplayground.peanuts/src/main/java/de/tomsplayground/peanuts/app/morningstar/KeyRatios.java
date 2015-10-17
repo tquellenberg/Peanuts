@@ -10,15 +10,18 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import au.com.bytecode.opencsv.CSVReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
+import au.com.bytecode.opencsv.CSVReader;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 
 public class KeyRatios {
+
+	private final static Logger log = LoggerFactory.getLogger(KeyRatios.class);
 
 	private final static String URL = "http://financials.morningstar.com/ajax/exportKR2CSV.html?&callback=?&t=SYMBOL&region=usa&culture=en-US&cur=&order=asc";
 
@@ -29,12 +32,16 @@ public class KeyRatios {
 
 	public List<FundamentalData> readUrl(String symbol) {
 		InputStreamReader reader = null;
+		URL url = null;
 		try {
-			URL url = new URL(StringUtils.replace(URL, "SYMBOL", symbol));
+			url = new URL(StringUtils.replace(URL, "SYMBOL", symbol));
 			reader = new InputStreamReader(url.openStream(), "UTF-8");
 			return readFile(reader);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Problem with '"+symbol+ "' " + url, e);
+		} catch (RuntimeException e) {
+			log.error("Problem with '"+symbol+ "' " + url, e);
+			throw e;
 		} finally {
 			IOUtils.closeQuietly(reader);
 		}
