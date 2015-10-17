@@ -96,22 +96,18 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	}
 
 	public BigDecimal getBalance() {
-		BigDecimal balance = startBalance;
-		for (Transaction t : transactions) {
-			balance = balance.add(t.getAmount());
-		}
+		BigDecimal balance = transactions.parallelStream()
+				.map(Transaction::getAmount)
+				.reduce(startBalance, BigDecimal::add);
 		return balance;
 	}
 
 	@Override
 	public BigDecimal getBalance(Day date) {
-		BigDecimal balance = startBalance;
-		for (Transaction t : transactions) {
-			if (t.getDay().compareTo(date) > 0) {
-				break;
-			}
-			balance = balance.add(t.getAmount());
-		}
+		BigDecimal balance = transactions.parallelStream()
+			.filter(t -> (t.getDay().compareTo(date) <= 0))
+			.map(Transaction::getAmount)
+			.reduce(startBalance, BigDecimal::add);
 		return balance;
 	}
 

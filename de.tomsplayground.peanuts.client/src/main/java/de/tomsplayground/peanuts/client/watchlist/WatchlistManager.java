@@ -56,7 +56,7 @@ public class WatchlistManager extends ObservableModelObject {
 		// Manually added securities
 		for (Security security : Activator.getDefault().getAccountManager().getSecurities()) {
 			for (String watchlistName : getWatchlistNamesForSecurity(security)) {
-				Watchlist watchlist = getWatchlist(watchlistName);
+				Watchlist watchlist = getWatchlistByName(watchlistName);
 				if (watchlist == null) {
 					watchlist = addWatchlist(watchlistName);
 				}
@@ -65,7 +65,7 @@ public class WatchlistManager extends ObservableModelObject {
 		}
 		// Configuration based securities
 		for (WatchlistConfiguration config : Activator.getDefault().getAccountManager().getWatchlsts()) {
-			Watchlist watchlist = getWatchlist(config.getName());
+			Watchlist watchlist = getWatchlistByName(config.getName());
 			if (watchlist == null) {
 				watchlist = addWatchlist(config.getName());
 			}
@@ -114,7 +114,7 @@ public class WatchlistManager extends ObservableModelObject {
 
 	void setCurrentWatchlist(String name) {
 		Watchlist oldCurrentWatchlist = currentWatchlist;
-		currentWatchlist = getWatchlist(name);
+		currentWatchlist = getWatchlistByName(name);
 		firePropertyChange("currentWatchlist", oldCurrentWatchlist, currentWatchlist);
 	}
 
@@ -169,7 +169,7 @@ public class WatchlistManager extends ObservableModelObject {
 		return result;
 	}
 
-	public Watchlist getWatchlist(String name) {
+	public Watchlist getWatchlistByName(String name) {
 		for (Watchlist list : watchlists) {
 			if (list.getName().equals(name)) {
 				return list;

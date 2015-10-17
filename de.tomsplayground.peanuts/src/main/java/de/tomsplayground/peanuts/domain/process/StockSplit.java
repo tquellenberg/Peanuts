@@ -34,7 +34,7 @@ public class StockSplit implements ITimedElement {
 	}
 
 	public BigDecimal getRatio() {
-		return new BigDecimal(to).divide(new BigDecimal(from), new MathContext(10, RoundingMode.HALF_EVEN));
+		return new BigDecimal(from).divide(new BigDecimal(to), new MathContext(10, RoundingMode.HALF_EVEN));
 	}
 
 	public Security getSecurity() {

@@ -1,10 +1,14 @@
 package de.tomsplayground.peanuts.domain.base;
 
+import static java.util.stream.Collectors.groupingBy;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -23,7 +27,7 @@ import de.tomsplayground.util.Day;
 
 public class Inventory extends ObservableModelObject {
 
-	private final Map<Security, InventoryEntry> entryMap = new HashMap<Security, InventoryEntry>();
+	private final ConcurrentHashMap<Security, InventoryEntry> entryMap = new ConcurrentHashMap<Security, InventoryEntry>();
 	private final AnalyzerFactory analizerFactory;
 	private final IPriceProviderFactory priceProviderFactory;
 	private final ITransactionProvider account;
@@ -117,86 +121,84 @@ public class Inventory extends ObservableModelObject {
 	}
 
 	private void setTransactions(ImmutableList<? extends ITransaction> transactions) {
+		List<InvestmentTransaction> invests = new ArrayList<>();
 		for (ITransaction transaction : transactions) {
 			if (transaction instanceof InvestmentTransaction) {
-				InvestmentTransaction invTrans = (InvestmentTransaction) transaction;
-				addTransaction(invTrans);
+				invests.add((InvestmentTransaction) transaction);
 			} else {
 				for (ITransaction t2 : transaction.getSplits()) {
 					if (t2 instanceof InvestmentTransaction) {
-						InvestmentTransaction invTrans = (InvestmentTransaction) t2;
-						addTransaction(invTrans);
+						invests.add((InvestmentTransaction) t2);
 					}
 				}
 			}
 		}
+		invests.stream()
+			.collect(groupingBy(InvestmentTransaction::getSecurity))
+			.entrySet()
+			.parallelStream()
+			.forEach(e -> addTransactions(e.getKey(), e.getValue()));
 	}
 
-	private void addTransaction(InvestmentTransaction invTrans) {
-		InventoryEntry inventoryEntry = getInventoryEntry(invTrans.getSecurity());
-		Type type = invTrans.getType();
-		if (type == InvestmentTransaction.Type.BUY ||
-			type == InvestmentTransaction.Type.SELL) {
-			if (analizerFactory != null) {
-				Iterable<InvestmentTransaction> transations = Iterables.concat(
-					inventoryEntry.getTransactions(),
-					ImmutableList.of(invTrans));
-				IAnalyzer analizer = analizerFactory.getAnalizer();
-				Iterable<AnalyzedInvestmentTransaction> analyzedTransactions = analizer.getAnalyzedTransactions(transations);
-				invTrans = Iterables.getLast(analyzedTransactions);
+	private void addTransactions(Security security, List<InvestmentTransaction> invTrans) {
+		InventoryEntry inventoryEntry = getInventoryEntry(security);
+		for (InvestmentTransaction t : invTrans) {			
+			Type type = t.getType();
+			if (type == InvestmentTransaction.Type.BUY ||
+				type == InvestmentTransaction.Type.SELL) {
+				if (analizerFactory != null) {
+					Iterable<InvestmentTransaction> transations = Iterables.concat(
+							inventoryEntry.getTransactions(),
+							ImmutableList.of(t));
+					IAnalyzer analizer = analizerFactory.getAnalizer();
+					Iterable<AnalyzedInvestmentTransaction> analyzedTransactions = analizer.getAnalyzedTransactions(transations);
+					t = Iterables.getLast(analyzedTransactions);
+				}
+				inventoryEntry.add(t);
+			} else {
+				inventoryEntry.add(t);
 			}
-			inventoryEntry.add(invTrans);
-		} else {
-			inventoryEntry.add(invTrans);
 		}
 	}
 
 	public InventoryEntry getInventoryEntry(Security security) {
-		synchronized (entryMap) {
-			if ( !entryMap.containsKey(security)) {
-				IPriceProvider priceprovider = null;
-				if (priceProviderFactory != null) {
-					priceprovider = priceProviderFactory.getPriceProvider(security);
-					if (priceprovider instanceof ObservableModelObject) {
-						ObservableModelObject ob = (ObservableModelObject) priceprovider;
-						ob.addPropertyChangeListener(priceProviderChangeListener);
-					}
+		if ( !entryMap.containsKey(security)) {
+			IPriceProvider priceprovider = null;
+			if (priceProviderFactory != null) {
+				priceprovider = priceProviderFactory.getPriceProvider(security);
+				if (priceprovider instanceof ObservableModelObject) {
+					ObservableModelObject ob = (ObservableModelObject) priceprovider;
+					ob.addPropertyChangeListener(priceProviderChangeListener);
 				}
-				entryMap.put(security, new InventoryEntry(security, priceprovider));
 			}
-			return entryMap.get(security);
+			entryMap.putIfAbsent(security, new InventoryEntry(security, priceprovider));
 		}
+		return entryMap.get(security);
 	}
 
 	public BigDecimal getGainings() {
-		BigDecimal gainings = BigDecimal.ZERO;
 		synchronized (entryMap) {
-			for (InventoryEntry entry : entryMap.values()) {
-				gainings = gainings.add(entry.getGaining());
-			}
+			return entryMap.values().parallelStream()
+					.map(e -> e.getGaining())
+					.reduce(BigDecimal.ZERO, BigDecimal::add);
 		}
-		return gainings;
 	}
 
 	public BigDecimal getMarketValue() {
-		BigDecimal sum = BigDecimal.ZERO;
 		synchronized (entryMap) {
-			for (InventoryEntry entry : entryMap.values()) {
-				sum = sum.add(entry.getMarketValue(day));
-			}
+			return entryMap.values().parallelStream()
+				.map(e -> e.getMarketValue(day))
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
 		}
-		return sum;
 	}
 
 	public BigDecimal getDayChange() {
-		BigDecimal sum = BigDecimal.ZERO;
 		Day fromDay = day.addDays(-1);
 		synchronized (entryMap) {
-			for (InventoryEntry entry : entryMap.values()) {
-				sum = sum.add(entry.getChange(fromDay, day));
-			}
+			return entryMap.values().parallelStream()
+					.map(e -> e.getChange(fromDay, day))
+					.reduce(BigDecimal.ZERO, BigDecimal::add);
 		}
-		return sum;
 	}
 
 }
