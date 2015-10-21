@@ -49,6 +49,11 @@ public class EuroTransactionWrapper implements ITransaction {
 	}
 
 	@Override
+	public boolean hasSplits() {
+		return transaction.hasSplits();
+	}
+
+	@Override
 	public ImmutableList<ITransaction> getSplits() {
 		return ImmutableList.<ITransaction>copyOf(Collections2.transform(transaction.getSplits(), new Function<ITransaction, EuroTransactionWrapper>() {
 			@Override

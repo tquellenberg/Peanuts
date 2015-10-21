@@ -14,6 +14,8 @@ public interface ITransaction extends ITimedElement {
 
 	String getMemo();
 
+	boolean hasSplits();
+
 	ImmutableList<ITransaction> getSplits();
 
 	void setCategory(Category categoryTo);

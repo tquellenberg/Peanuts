@@ -13,6 +13,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Iterables;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -217,6 +218,19 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	@Override
 	public ImmutableList<ITransaction> getTransactions() {
 		return ImmutableList.<ITransaction>copyOf(transactions);
+	}
+
+	@Override
+	public ImmutableList<ITransaction> getFlatTransactions() {
+		Builder<ITransaction> builder = ImmutableList.builder();
+		for (Transaction transaction : transactions) {
+			if (transaction.hasSplits()) {
+				builder.addAll(transaction.getSplits());
+			} else {
+				builder.add(transaction);
+			}
+		}
+		return builder.build();
 	}
 
 	/**

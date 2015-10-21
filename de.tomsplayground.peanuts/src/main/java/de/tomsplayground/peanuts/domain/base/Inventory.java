@@ -1,13 +1,12 @@
 package de.tomsplayground.peanuts.domain.base;
 
-import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.*;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.ImmutableList;
@@ -142,7 +141,7 @@ public class Inventory extends ObservableModelObject {
 
 	private void addTransactions(Security security, List<InvestmentTransaction> invTrans) {
 		InventoryEntry inventoryEntry = getInventoryEntry(security);
-		for (InvestmentTransaction t : invTrans) {			
+		for (InvestmentTransaction t : invTrans) {
 			Type type = t.getType();
 			if (type == InvestmentTransaction.Type.BUY ||
 				type == InvestmentTransaction.Type.SELL) {

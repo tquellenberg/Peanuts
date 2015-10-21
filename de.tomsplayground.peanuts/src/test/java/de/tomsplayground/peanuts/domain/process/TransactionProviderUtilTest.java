@@ -28,6 +28,10 @@ public class TransactionProviderUtilTest {
 			return trList;
 		}
 		@Override
+		public ImmutableList<ITransaction> getFlatTransactions() {
+			return getTransactions();
+		}
+		@Override
 		public ImmutableList<ITransaction> getTransactionsByDate(Day from, Day to) {
 			return null;
 		}
@@ -55,6 +59,10 @@ public class TransactionProviderUtilTest {
 			@Override
 			public ImmutableList<ITransaction> getTransactions() {
 				return ImmutableList.of();
+			}
+			@Override
+			public ImmutableList<ITransaction> getFlatTransactions() {
+				return getTransactions();
 			}
 			@Override
 			public ImmutableList<ITransaction> getTransactionsByDate(Day from, Day to) {

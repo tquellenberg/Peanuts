@@ -2,19 +2,18 @@ package de.tomsplayground.peanuts.domain.reporting.transaction;
 
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -110,22 +109,34 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 
 	@Override
 	public ImmutableList<ITransaction> getTransactions() {
+		// In reports, the transactions are always flat.
+		return getFlatTransactions();
+	}
+
+	@Override
+	public ImmutableList<ITransaction> getFlatTransactions() {
 		if (result == null) {
-			Collection<ITransaction> transactions = new ArrayList<ITransaction>();
-			for (ITransaction transaction : AccountManager.getTransactions(accounts)) {
-				List<ITransaction> splits = transaction.getSplits();
-				if (! splits.isEmpty()) {
-					transactions.addAll(splits);
-				} else {
-					transactions.add(transaction);
-				}
-			}
-			for (IQuery query : queries) {
-				transactions = Collections2.filter(transactions, query.getPredicate());
-			}
-			result = ImmutableList.copyOf(transactions);
+			ImmutableList<ITransaction> transactions = AccountManager.getFlatTransactions(accounts);
+			result = transactions.parallelStream()
+				.filter(queryPredicate())
+				.sorted(AccountManager.DAY_COMPARATOR)
+				.collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf));
 		}
 		return result;
+	}
+
+	private Predicate<ITransaction> queryPredicate() {
+		return new Predicate<ITransaction>() {
+			@Override
+			public boolean test(ITransaction t) {
+				for (IQuery query : queries) {
+					if (! query.getPredicate().apply(t)) {
+						return false;
+					}
+				}
+				return true;
+			}
+		};
 	}
 
 	@Override
@@ -148,11 +159,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 
 	@Override
 	public BigDecimal getBalance(Day date) {
-		BigDecimal balance = BigDecimal.ZERO;
-		for (Account account : accounts) {
-			balance = balance.add(account.getBalance(date));
-		}
-		return balance;
+		return BigDecimal.ZERO;
 	}
 
 	@Override

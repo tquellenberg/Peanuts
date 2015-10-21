@@ -156,6 +156,11 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 	}
 
 	@Override
+	public boolean hasSplits() {
+		return ! splits.isEmpty();
+	}
+
+	@Override
 	public ImmutableList<ITransaction> getSplits() {
 		return ImmutableList.<ITransaction>copyOf(splits);
 	}

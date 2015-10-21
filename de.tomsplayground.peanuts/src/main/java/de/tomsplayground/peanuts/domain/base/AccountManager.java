@@ -74,7 +74,7 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 		}
 	};
 
-	private static final Comparator<ITimedElement> DAY_COMPARATOR = new Comparator<ITimedElement>() {
+	public static final Comparator<ITimedElement> DAY_COMPARATOR = new Comparator<ITimedElement>() {
 		@Override
 		public int compare(ITimedElement o1, ITimedElement o2) {
 			return o1.getDay().compareTo(o2.getDay());
@@ -118,19 +118,18 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	/**
 	 * @return Transactions of given accounts, sorted by date.
 	 */
-	public static ImmutableList<ITransaction> getTransactions(Set<Account> accountList) {
+	public static ImmutableList<ITransaction> getFlatTransactions(Set<Account> accountList) {
 		List<ITransaction> result = new ArrayList<ITransaction>();
 		for (Account account : accountList) {
 			if (account.getCurrency().getCurrencyCode().equals("DEM")) {
 				// Convert to EURO
-				for (ITransaction t : account.getTransactions()) {
+				for (ITransaction t : account.getFlatTransactions()) {
 					result.add(new EuroTransactionWrapper(t, account.getCurrency()));
 				}
 			} else {
-				result.addAll(account.getTransactions());
+				result.addAll(account.getFlatTransactions());
 			}
 		}
-		Collections.sort(result, DAY_COMPARATOR);
 		return ImmutableList.copyOf(result);
 	}
 
