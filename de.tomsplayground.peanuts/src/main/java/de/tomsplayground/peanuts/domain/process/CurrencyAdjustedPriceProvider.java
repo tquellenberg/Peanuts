@@ -1,9 +1,8 @@
 package de.tomsplayground.peanuts.domain.process;
 
-import java.math.BigDecimal;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
 
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 
@@ -18,12 +17,9 @@ public class CurrencyAdjustedPriceProvider extends AdjustedPriceProvider {
 
 	@Override
 	ImmutableList<IPrice> adjust(ImmutableList<IPrice> prices) {
-		Builder<IPrice> builder = ImmutableList.builder();
-		for (IPrice price : prices) {
-			BigDecimal ratio = currencyConverter.getRatio(price.getDay());
-			builder.add(new AdjustedPrice(price, ratio));
-		}
-		return builder.build();
+		return prices.parallelStream()
+			.map(p -> new AdjustedPrice(p, currencyConverter.getRatio(p.getDay())))
+			.collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf));
 	}
 
 }
