@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.google.common.base.Predicate;
@@ -19,6 +20,8 @@ import de.tomsplayground.util.Day;
 
 public class AvgFundamentalData {
 
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
+	
 	private final List<FundamentalData> datas;
 	private final IPriceProvider priceProvider;
 	private final CurrencyConverter currencyConverter;
@@ -83,15 +86,22 @@ public class AvgFundamentalData {
 		if (adjustedData.isEmpty()) {
 			return BigDecimal.ZERO;
 		}
-		double sum = 0;
-		for (FundamentalData fundamentalData : adjustedData) {
-			double ratio = fundamentalData.calculatePeRatio(pp).doubleValue();
-			ratio = Math.min(ratio, 35.0);
-			sum += ratio;
-		}
-		return new BigDecimal(sum / adjustedData.size());
-	}
 
+		Collections.sort(adjustedData, new Comparator<FundamentalData>() {
+			@Override
+			public int compare(FundamentalData o1, FundamentalData o2) {
+				return o1.calculatePeRatio(pp).compareTo(o2.calculatePeRatio(pp));
+			}
+		});
+		if (adjustedData.size() % 2 == 1) {
+			return adjustedData.get(adjustedData.size() / 2).calculatePeRatio(pp);
+		} else {
+			BigDecimal pe1 = adjustedData.get(adjustedData.size() / 2).calculatePeRatio(pp);
+			BigDecimal pe2 = adjustedData.get(adjustedData.size() / 2 - 1).calculatePeRatio(pp);
+			return pe1.add(pe2).divide(new BigDecimal("2"), MC);
+		}
+	}
+	
 	public BigDecimal getRobustness() {
 		List<FundamentalData> adjustedData = getAdjustedData(getHistoricAndCurrentData());
 		adjustedData = Lists.newArrayList(Iterables.filter(adjustedData, new Predicate<FundamentalData>() {
