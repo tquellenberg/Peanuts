@@ -41,7 +41,7 @@ public class FourTraders {
 			XPather xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[9]/td[1]/text()");
 			Object[] result = xPather.evaluateAgainstNode(tagNode);
 			if (result.length > 0) {
-				String currency = StringUtils.substringBetween(result[0].toString(), "(", ")");
+				String currency = StringUtils.trim(StringUtils.substringBetween(result[0].toString(), "(", ")"));
 				if (StringUtils.equals(currency, "PNC")) {
 					isPence = true;
 				}
