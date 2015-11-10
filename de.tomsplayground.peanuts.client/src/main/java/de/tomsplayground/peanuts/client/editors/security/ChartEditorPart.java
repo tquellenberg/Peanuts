@@ -405,6 +405,9 @@ public class ChartEditorPart extends EditorPart {
 
 		AvgFundamentalData avgFundamentalData = new AvgFundamentalData(fundamentalDatas, priceProvider, currencyConverter);
 		BigDecimal avgPE = avgFundamentalData.getAvgPE();
+		if (avgPE.signum() == 0) {
+			return timeSeriesCollection;
+		}
 
 		IPriceProvider pp = priceProvider;
 		if (currencyConverter != null) {
