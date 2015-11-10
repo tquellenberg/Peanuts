@@ -77,6 +77,8 @@ import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class ChartEditorPart extends EditorPart {
 
+	private static final BigDecimal HUNDRED = new BigDecimal(100);
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 	private static final String CHART_TYPE = "chartType";
 	boolean dirty = false;
 	private Combo displayType;
@@ -328,6 +330,9 @@ public class ChartEditorPart extends EditorPart {
 	 * @return A chart.
 	 */
 	private JFreeChart createChart() {
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		List<FundamentalData> fundamentalDatas = security.getFundamentalDatas();
+		boolean showPEratioChart = ! fundamentalDatas.isEmpty();
 
 		DateAxis axis = new DateAxis("Date");
 		axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
@@ -353,7 +358,7 @@ public class ChartEditorPart extends EditorPart {
 		NumberAxis rangeAxis2 = new NumberAxis("Price");
 		rangeAxis2.setAutoRange(true);
 		pricePlot = new XYPlot(dataset, null, rangeAxis2, renderer);
-		combiPlot.add(pricePlot, 70);
+		combiPlot.add(pricePlot, showPEratioChart ? 70 : 100);
 		pricePlot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);
 		pricePlot.setDomainGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
 		pricePlot.setRangeGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
@@ -361,18 +366,19 @@ public class ChartEditorPart extends EditorPart {
 		pricePlot.setDomainCrosshairVisible(true);
 		pricePlot.setRangeCrosshairVisible(true);
 
-		XYAreaRenderer xyAreaRenderer = new XYAreaRenderer();
-		xyAreaRenderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
-		xyAreaRenderer.setSeriesPaint(0, new PeanutsDrawingSupplier().getNextPaint());
-		NumberAxis rangeAxis = new NumberAxis("PE-ratio");
-		rangeAxis.setAutoRange(false);
-		rangeAxis.setRange(-7.0, 7.0);
-		XYPlot plot2 = new XYPlot(createPeRatioDataset(), null, rangeAxis, xyAreaRenderer);
-		plot2.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
-		plot2.setDomainCrosshairVisible(true);
-		plot2.setRangeCrosshairVisible(true);
-		combiPlot.add(plot2, 30);
-
+		if (showPEratioChart) {
+			XYAreaRenderer xyAreaRenderer = new XYAreaRenderer();
+			xyAreaRenderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
+			xyAreaRenderer.setSeriesPaint(0, new PeanutsDrawingSupplier().getNextPaint());
+			NumberAxis rangeAxis = new NumberAxis("PE delta %");
+			rangeAxis.setAutoRange(false);
+			rangeAxis.setRange(-25.0, 25.0);
+			XYPlot plot2 = new XYPlot(createPeRatioDataset(), null, rangeAxis, xyAreaRenderer);
+			plot2.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
+			plot2.setDomainCrosshairVisible(true);
+			plot2.setRangeCrosshairVisible(true);
+			combiPlot.add(plot2, 30);
+		}
 		return chart;
 	}
 
@@ -393,10 +399,6 @@ public class ChartEditorPart extends EditorPart {
 
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		List<FundamentalData> fundamentalDatas = security.getFundamentalDatas();
-		if (fundamentalDatas.isEmpty()) {
-			return timeSeriesCollection;
-		}
-
 		Currency currency = fundamentalDatas.get(0).getCurrency();
 		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
 		CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(currency, security.getCurrency());
@@ -409,12 +411,12 @@ public class ChartEditorPart extends EditorPart {
 			pp = new CurrencyAdjustedPriceProvider(priceProvider, currencyConverter.getInvertedCurrencyConverter());
 		}
 
-		TimeSeries timeSeries = new TimeSeries("PE-ratio", Day.class);
+		TimeSeries timeSeries = new TimeSeries("PE delta %", Day.class);
 		for (IPrice price : pp.getPrices()) {
 			de.tomsplayground.util.Day day = price.getDay();
 			final FundamentalData data = getFundamentalDataForYear(day);
 			if (data != null && data.getEarningsPerShare().signum() != 0) {
-				BigDecimal peRatio = price.getClose().divide(data.getEarningsPerShare(), new MathContext(10, RoundingMode.HALF_EVEN));
+				BigDecimal peRatio = price.getClose().divide(data.getEarningsPerShare(), MC);
 
 				FundamentalData dataNextYear = Iterables.find(security.getFundamentalDatas(), new Predicate<FundamentalData>() {
 					@Override
@@ -426,13 +428,13 @@ public class ChartEditorPart extends EditorPart {
 					int daysThisYear = day.delta(data.getFiscalEndDay());
 					if (daysThisYear < 360) {
 						float thisYear = (peRatio.floatValue() * daysThisYear);
-						BigDecimal peRatio2 = price.getClose().divide(dataNextYear.getEarningsPerShare(), new MathContext(10, RoundingMode.HALF_EVEN));
+						BigDecimal peRatio2 = price.getClose().divide(dataNextYear.getEarningsPerShare(), MC);
 						float nextYear = (peRatio2.floatValue() * (360 - daysThisYear));
 						peRatio = new BigDecimal((thisYear + nextYear) / 360);
 					}
 				}
 				if (peRatio.signum() == 1) {
-					peRatio = peRatio.subtract(avgPE);
+					peRatio = peRatio.subtract(avgPE).divide(avgPE, MC).multiply(HUNDRED, MC);
 					timeSeries.add(new Day(day.day, day.month+1, day.year), peRatio.doubleValue());
 				}
 			}
