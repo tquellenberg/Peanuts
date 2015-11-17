@@ -159,7 +159,11 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 
 	@Override
 	public BigDecimal getBalance(Day date) {
-		return BigDecimal.ZERO;
+		BigDecimal balance = BigDecimal.ZERO;
+		for (Account account : accounts) {
+			balance = balance.add(account.getBalance(date));
+		}
+		return balance;
 	}
 
 	@Override
