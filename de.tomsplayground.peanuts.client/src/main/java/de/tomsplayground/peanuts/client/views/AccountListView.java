@@ -296,6 +296,7 @@ public class AccountListView extends ViewPart {
 		for (Entry<Account, Inventory> entry : inventories.entrySet()) {
 			entry.getKey().removePropertyChangeListener(propertyChangeListener);
 			entry.getValue().removePropertyChangeListener(propertyChangeListener);
+			entry.getValue().dispose();
 		}
 	}
 

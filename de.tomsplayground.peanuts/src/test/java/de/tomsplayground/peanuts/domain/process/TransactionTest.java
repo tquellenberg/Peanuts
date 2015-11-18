@@ -4,10 +4,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Category;
 import de.tomsplayground.util.Day;
+import junit.framework.TestCase;
 
 public class TransactionTest extends TestCase {
 
@@ -103,8 +103,10 @@ public class TransactionTest extends TestCase {
 		assertEquals(new BigDecimal("110.00"), trans.getAmount());
 	}
 
-	public void testClose() {
+	public void testClone() {
 		Transaction trans = new Transaction(new Day(), new BigDecimal("100.00"));
+		Transaction split = new Transaction(new Day(), new BigDecimal("100.00"));
+		trans.addSplit(split);
 
 		Transaction clone = (Transaction) trans.clone();
 		assertNotNull(clone.splitChangeListener);

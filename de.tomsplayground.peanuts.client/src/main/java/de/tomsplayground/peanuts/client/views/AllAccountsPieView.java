@@ -69,6 +69,7 @@ public class AllAccountsPieView extends ViewPart {
 		Activator.getDefault().getAccountManager().removePropertyChangeListener(accountChangeListener);
 		for (Inventory i : inventories.values()) {
 			i.removePropertyChangeListener(accountChangeListener);
+			i.dispose();
 		}
 	}
 

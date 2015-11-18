@@ -143,6 +143,7 @@ public class PerformanceAnalyzer {
 			}
 			elements.add(value);
 		}
+		inventory.dispose();
 		xirrFull.add(now, elements.get(elements.size()-1).marketValue2.negate());
 		xirr10Year.add(now, elements.get(elements.size()-1).marketValue2.negate());
 		xirr5Year.add(now, elements.get(elements.size()-1).marketValue2.negate());

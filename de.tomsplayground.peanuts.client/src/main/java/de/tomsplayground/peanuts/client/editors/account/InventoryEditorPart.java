@@ -766,6 +766,7 @@ public class InventoryEditorPart extends EditorPart {
 	@Override
 	public void dispose() {
 		inventory.removePropertyChangeListener(inventoryChangeListener);
+		inventory.dispose();
 		super.dispose();
 	}
 

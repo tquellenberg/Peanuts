@@ -43,7 +43,6 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 		this.amount = amount;
 		this.category = category;
 		this.memo = memo;
-		initListener();
 	}
 
 	public Transaction(Transaction t) {
@@ -119,14 +118,16 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 
 	protected void setSplits(List<Transaction> splits) {
 		if (splits == null || splits.isEmpty()) {
-			this.splits.clear();
 			return;
+		}
+		for (Transaction transaction : this.splits) {
+			transaction.removePropertyChangeListener("amount", getSplitChangeListener());
 		}
 		this.splits.clear();
 		this.splits.addAll(splits);
 		for (Transaction split : splits) {
 			split.setDay(day);
-			split.addPropertyChangeListener("amount", splitChangeListener);
+			split.addPropertyChangeListener("amount", getSplitChangeListener());
 		}
 		adjustAmount();
 	}
@@ -173,8 +174,8 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 	@Override
 	public Object clone() {
 		Transaction t = (Transaction) super.clone();
-		t.initListener();
 		t.splits = new ArrayList<Transaction>();
+		t.splitChangeListener = null;
 		ArrayList<Transaction> splitClones = new ArrayList<Transaction>();
 		for (Transaction split : splits) {
 			splitClones.add((Transaction) split.clone());
@@ -184,7 +185,6 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 	}
 
 	public void reconfigureAfterDeserialization(AccountManager accountManager) {
-		initListener();
 		if (category != null) {
 			this.category = accountManager.getCategoryByPath(category.getPath());
 		}
@@ -202,17 +202,20 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 			if (! t.getDay().equals(day)) {
 				t.setDay(day);
 			}
-			t.addPropertyChangeListener("amount", splitChangeListener);
+			t.addPropertyChangeListener("amount", getSplitChangeListener());
 		}
 	}
 
-	private void initListener() {
-		splitChangeListener = new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				adjustAmount();
-			}
-		};
+	private PropertyChangeListener getSplitChangeListener() {
+		if (splitChangeListener == null) {
+			splitChangeListener = new PropertyChangeListener() {
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) {
+					adjustAmount();
+				}
+			};
+		}
+		return splitChangeListener;
 	}
 
 }

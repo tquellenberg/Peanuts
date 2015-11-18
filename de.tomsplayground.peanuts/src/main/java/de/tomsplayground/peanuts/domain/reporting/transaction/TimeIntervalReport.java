@@ -35,22 +35,28 @@ public class TimeIntervalReport extends ObservableModelObject {
 	final private List<BigDecimal> inventoryValues = new ArrayList<BigDecimal>();
 	final private List<BigDecimal> investmentValues = new ArrayList<BigDecimal>();
 
+	PropertyChangeListener inventoriyListener = new PropertyChangeListener() {
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			calculateValues();
+			firePropertyChange("values", null, null);
+		}
+	};
+
 	public TimeIntervalReport(ITransactionProvider account, Interval interval) {
 		this(account, interval, null);
+	}
+
+	public void dispose() {
+		inventory.removePropertyChangeListener(inventoriyListener);
+		inventory.dispose();
 	}
 
 	public TimeIntervalReport(ITransactionProvider account, Interval interval, IPriceProviderFactory priceProviderFactory) {
 		this.interval = interval;
 		this.transactions = account.getTransactions();
 		this.inventory = new Inventory(account, priceProviderFactory);
-
-		inventory.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				calculateValues();
-				firePropertyChange("values", null, null);
-			}
-		});
+		inventory.addPropertyChangeListener(inventoriyListener);
 
 		if (transactions.isEmpty()) {
 			start = new Day();

@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -19,7 +20,6 @@ import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction.Type;
-import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzedInvestmentTransaction;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.domain.reporting.investment.IAnalyzer;
 import de.tomsplayground.util.Day;
@@ -31,6 +31,8 @@ public class Inventory extends ObservableModelObject {
 	private final IPriceProviderFactory priceProviderFactory;
 	private final ITransactionProvider account;
 	private Day day;
+
+	private final List<ObservableModelObject> registeredPriceProvider = new CopyOnWriteArrayList<>();
 
 	private final PropertyChangeListener priceProviderChangeListener = new PropertyChangeListener() {
 		@Override
@@ -78,6 +80,16 @@ public class Inventory extends ObservableModelObject {
 		if (account instanceof ObservableModelObject) {
 			ObservableModelObject a = (ObservableModelObject) account;
 			a.addPropertyChangeListener(transactionChangeListener);
+		}
+	}
+
+	public void dispose() {
+		if (account instanceof ObservableModelObject) {
+			ObservableModelObject a = (ObservableModelObject) account;
+			a.removePropertyChangeListener(transactionChangeListener);
+		}
+		for (ObservableModelObject observableModelObject : registeredPriceProvider) {
+			observableModelObject.removePropertyChangeListener(priceProviderChangeListener);
 		}
 	}
 
@@ -150,8 +162,7 @@ public class Inventory extends ObservableModelObject {
 							inventoryEntry.getTransactions(),
 							ImmutableList.of(t));
 					IAnalyzer analizer = analizerFactory.getAnalizer();
-					Iterable<AnalyzedInvestmentTransaction> analyzedTransactions = analizer.getAnalyzedTransactions(transations);
-					t = Iterables.getLast(analyzedTransactions);
+					t = Iterables.getLast(analizer.getAnalyzedTransactions(transations));
 				}
 				inventoryEntry.add(t);
 			} else {
@@ -168,6 +179,7 @@ public class Inventory extends ObservableModelObject {
 				if (priceprovider instanceof ObservableModelObject) {
 					ObservableModelObject ob = (ObservableModelObject) priceprovider;
 					ob.addPropertyChangeListener(priceProviderChangeListener);
+					registeredPriceProvider.add(ob);
 				}
 			}
 			entryMap.putIfAbsent(security, new InventoryEntry(security, priceprovider));

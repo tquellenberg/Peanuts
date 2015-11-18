@@ -127,6 +127,7 @@ public class ValueChartEditorPart extends EditorPart {
 	@Override
 	public void dispose() {
 		intervalReport.removePropertyChangeListener(changeListener);
+		intervalReport.dispose();
 		super.dispose();
 	}
 

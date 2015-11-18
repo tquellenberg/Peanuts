@@ -171,6 +171,7 @@ public class InventoryPieEditorPart extends EditorPart {
 	@Override
 	public void dispose() {
 		inventory.removePropertyChangeListener(inventoryChangeListener);
+		inventory.dispose();
 		super.dispose();
 	}
 

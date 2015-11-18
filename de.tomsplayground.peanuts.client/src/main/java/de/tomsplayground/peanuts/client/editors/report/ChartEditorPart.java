@@ -259,6 +259,7 @@ public class ChartEditorPart extends EditorPart {
 		for (TimeSeries timeSeries : forecastSeries) {
 			dataset.addSeries(timeSeries);
 		}
+		intervalReport.dispose();
 		return dataset;
 	}
 
@@ -280,6 +281,7 @@ public class ChartEditorPart extends EditorPart {
 		}
 		TimeSeriesCollection dataset = new TimeSeriesCollection();
 		dataset.addSeries(s1);
+		intervalReport.dispose();
 
 		return dataset;
 	}
