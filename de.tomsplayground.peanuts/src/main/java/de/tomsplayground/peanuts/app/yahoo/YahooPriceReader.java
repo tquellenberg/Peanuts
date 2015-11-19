@@ -46,7 +46,7 @@ public class YahooPriceReader extends PriceProvider {
 				ticker);
 		} else {
 			Calendar today = Calendar.getInstance();
-			url = new URL("http://ichart.finance.yahoo.com/table.csv?g=d&a=0&b=3&c=2000" +
+			url = new URL("http://real-chart.finance.yahoo.com/table.csv?g=d&a=0&b=3&c=2000" +
 				"&d=" + today.get(Calendar.MONTH) + "&e=" + today.get(Calendar.DAY_OF_MONTH) +
 				"&f=" + today.get(Calendar.YEAR) + "&s=" + ticker);
 		}
