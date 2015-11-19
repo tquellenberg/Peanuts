@@ -138,22 +138,18 @@ public class PeanutsUtil {
 	public static int binarySearch(List<? extends ITimedElement> prices, Day date) {
 		int low = 0;
 		int high = prices.size() - 1;
-
 		while (low <= high) {
 			int mid = (low + high) >> 1;
-		ITimedElement midVal = prices.get(mid);
-		int cmp = midVal.getDay().compareTo(date);
-
-		if (cmp < 0) {
-			low = mid + 1;
-		} else if (cmp > 0) {
-			high = mid - 1;
+			int cmp = prices.get(mid).getDay().compareTo(date);
+			if (cmp < 0) {
+				low = mid + 1;
+			} else if (cmp > 0) {
+				high = mid - 1;
+			} else {
+				return mid; // key found
+			}
 		}
-		else {
-			return mid; // key found
-		}
-		}
-		return -(low +1); // key not found
+		return -(low + 1); // key not found
 	}
 
 }

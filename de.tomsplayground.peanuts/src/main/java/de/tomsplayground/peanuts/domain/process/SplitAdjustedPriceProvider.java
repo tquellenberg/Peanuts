@@ -24,14 +24,15 @@ public class SplitAdjustedPriceProvider extends AdjustedPriceProvider {
 			.collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf));
 	}
 
-	private IPrice adjust(IPrice price) {
+	@Override
+	IPrice adjust(IPrice price) {
 		BigDecimal splitRatio = getSplitRatio(price.getDay());
 		if (splitRatio.compareTo(BigDecimal.ONE) != 0) {
 			return new AdjustedPrice(price, splitRatio);
 		}
 		return price;
 	}
-	
+
 	private BigDecimal getSplitRatio(Day day) {
 		return stockSplits.stream()
 			.filter(sp -> day.before(sp.getDay()))

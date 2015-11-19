@@ -75,8 +75,9 @@ public class InventoryEntry {
 	}
 
 	public BigDecimal getMarketValue(Day day) {
-		if (priceprovider != null && getQuantity().compareTo(BigDecimal.ZERO) != 0) {
-			return getPrice(day).getValue().multiply(getQuantity());
+		BigDecimal quantity = getQuantity();
+		if (priceprovider != null && quantity.signum() != 0) {
+			return priceprovider.getPrice(day).getValue().multiply(quantity);
 		}
 		return BigDecimal.ZERO;
 	}

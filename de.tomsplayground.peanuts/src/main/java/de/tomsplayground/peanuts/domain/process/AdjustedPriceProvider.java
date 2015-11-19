@@ -29,6 +29,7 @@ public abstract class AdjustedPriceProvider extends ObservableModelObject implem
 	}
 
 	abstract ImmutableList<IPrice> adjust(ImmutableList<IPrice> prices);
+	abstract IPrice adjust(IPrice price);
 
 	@Override
 	public ImmutableList<IPrice> getPrices(Day from, Day to) {
@@ -37,7 +38,7 @@ public abstract class AdjustedPriceProvider extends ObservableModelObject implem
 
 	@Override
 	public IPrice getPrice(Day date) {
-		return adjust(ImmutableList.of(rawPriceProvider.getPrice(date))).get(0);
+		return adjust(rawPriceProvider.getPrice(date));
 	}
 
 	@Override

@@ -132,6 +132,9 @@ public class Inventory extends ObservableModelObject {
 	}
 
 	private void setTransactions(ImmutableList<? extends ITransaction> transactions) {
+		if (transactions.isEmpty()) {
+			return;
+		}
 		List<InvestmentTransaction> invests = new ArrayList<>();
 		for (ITransaction transaction : transactions) {
 			if (transaction instanceof InvestmentTransaction) {

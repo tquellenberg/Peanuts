@@ -22,4 +22,8 @@ public class CurrencyAdjustedPriceProvider extends AdjustedPriceProvider {
 			.collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf));
 	}
 
+	@Override
+	IPrice adjust(IPrice price) {
+		return new AdjustedPrice(price, currencyConverter.getRatio(price.getDay()));
+	}
 }
