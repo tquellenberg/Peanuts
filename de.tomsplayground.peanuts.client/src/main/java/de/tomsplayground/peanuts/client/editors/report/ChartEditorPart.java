@@ -120,14 +120,9 @@ public class ChartEditorPart extends EditorPart {
 		});
 
 		displayTimerange = new Combo(body, SWT.READ_ONLY);
-		displayTimerange.add("all");
-		displayTimerange.add("ten years");
-		displayTimerange.add("five years");
-		displayTimerange.add("three years");
-		displayTimerange.add("one year");
-		displayTimerange.add("this year");
-		displayTimerange.add("6 month");
-		displayTimerange.add("1 month");
+		for (TimeChart.RANGE r : TimeChart.RANGE.values()) {
+			displayTimerange.add(r.getName());
+		}
 		displayTimerange.setText(timerange);
 		displayTimerange.addSelectionListener(new SelectionAdapter(){
 			@Override

@@ -99,14 +99,9 @@ public class ValueChartEditorPart extends EditorPart {
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		displayType = new Combo(body, SWT.READ_ONLY);
-		displayType.add("all");
-		displayType.add("ten years");
-		displayType.add("five years");
-		displayType.add("three years");
-		displayType.add("one year");
-		displayType.add("this year");
-		displayType.add("6 month");
-		displayType.add("1 month");
+		for (TimeChart.RANGE r : TimeChart.RANGE.values()) {
+			displayType.add(r.getName());
+		}
 		displayType.setText(chartType);
 		displayType.addSelectionListener(new SelectionAdapter(){
 			@Override

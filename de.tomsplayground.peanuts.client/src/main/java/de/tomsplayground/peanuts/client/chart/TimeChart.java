@@ -28,9 +28,42 @@ import de.tomsplayground.peanuts.domain.statistics.Signal.Type;
 
 public class TimeChart {
 
+	public enum RANGE {
+		ALL("all"),
+		TEN_YEARS("ten years"),
+		SEVEN_YEARS("seven years"),
+		FIVE_YEARS("five years"),
+		THREE_YEARS("three years"),
+		TWO_YEARS("two years"),
+		ONE_YEARS("one year"),
+		THIS_YEARS("this year"),
+		SIX_MONTHS("6 months"),
+		ONE_MONTHS("one month");
+
+		private String name;
+
+		RANGE(String text) {
+			this.name = text;
+		}
+		public String getName() {
+			return name;
+		}
+		public static RANGE fromName(String name) {
+			for (RANGE r : RANGE.values()) {
+				if (name.equals("6 month")) {
+					return SIX_MONTHS;
+				}
+				if (r.name.equals(name)) {
+					return r;
+				}
+			}
+			throw new IllegalArgumentException("Name: " +name);
+		}
+	};
+
 	final private JFreeChart chart;
 	final private TimeSeriesCollection series;
-	private String type;
+	private RANGE type;
 
 	final static private Drawable buyDrawable = new Drawable() {
 		@Override
@@ -58,7 +91,7 @@ public class TimeChart {
 	}
 
 	public void setChartType(String type) {
-		this.type = type;
+		this.type = RANGE.fromName(type);
 		XYPlot plot = getPlot();
 		DateAxis dateAxis = ((DateAxis)plot.getDomainAxis());
 		Calendar to = Calendar.getInstance();
@@ -73,25 +106,27 @@ public class TimeChart {
 
 	public Calendar getFromDate() {
 		Calendar from = Calendar.getInstance();
-		if (type.equals("ten years")) {
-			from.add(Calendar.YEAR, -10);
-		} else if (type.equals("five years")) {
-			from.add(Calendar.YEAR, -5);
-		} else if (type.equals("three years")) {
-			from.add(Calendar.YEAR, -3);
-		} else if (type.equals("two years")) {
-			from.add(Calendar.YEAR, -2);
-		} else if (type.equals("one year")) {
-			from.add(Calendar.YEAR, -1);
-		} else if (type.equals("this year")) {
-			from.set(Calendar.DAY_OF_MONTH, 1);
-			from.set(Calendar.MONTH, 0);
-		} else if (type.equals("6 month")) {
-			from.add(Calendar.MONTH, -6);
-		} else if (type.equals("1 month")) {
-			from.add(Calendar.MONTH, -1);
-		} else {
-			from = null;
+		switch(type) {
+			case TEN_YEARS: from.add(Calendar.YEAR, -10);
+						break;
+			case SEVEN_YEARS: from.add(Calendar.YEAR, -7);
+						break;
+			case FIVE_YEARS: from.add(Calendar.YEAR, -5);
+						break;
+			case THREE_YEARS: from.add(Calendar.YEAR, -3);
+						break;
+			case TWO_YEARS: from.add(Calendar.YEAR, -2);
+						break;
+			case ONE_YEARS: from.add(Calendar.YEAR, -1);
+						break;
+			case THIS_YEARS: from.set(Calendar.DAY_OF_MONTH, 1);
+							 from.set(Calendar.MONTH, 0);
+						break;
+			case SIX_MONTHS: from.add(Calendar.MONTH, -6);
+						break;
+			case ONE_MONTHS: from.add(Calendar.MONTH, -1);
+						break;
+			default: from = null;
 		}
 		return from;
 	}

@@ -217,15 +217,9 @@ public class ChartEditorPart extends EditorPart {
 		addSplitAnnotations(Activator.getDefault().getAccountManager().getStockSplits(security));
 
 		displayType = new Combo(body, SWT.READ_ONLY);
-		displayType.add("all");
-		displayType.add("ten years");
-		displayType.add("five years");
-		displayType.add("three years");
-		displayType.add("two years");
-		displayType.add("one year");
-		displayType.add("this year");
-		displayType.add("6 month");
-		displayType.add("1 month");
+		for (TimeChart.RANGE r : TimeChart.RANGE.values()) {
+			displayType.add(r.getName());
+		}
 		String chartType = StringUtils.defaultString(security.getConfigurationValue(CHART_TYPE), "all");
 		displayType.setText(chartType);
 		timeChart.setChartType(chartType);

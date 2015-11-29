@@ -150,6 +150,7 @@ public class DevelopmentEditorPart extends EditorPart {
 		development(result, prices, Calendar.YEAR, -1, "One year");
 		development(result, prices, Calendar.YEAR, -3, "Three years");
 		development(result, prices, Calendar.YEAR, -5, "Five years");
+		development(result, prices, Calendar.YEAR, -7, "Seven years");
 
 		String stopLossValue = security.getConfigurationValue("STOPLOSS");
 		if (StringUtils.isNotEmpty(stopLossValue)) {
