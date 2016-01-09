@@ -21,11 +21,16 @@ public class Price implements IPrice {
 		if (date == null) {
 			throw new IllegalArgumentException("date");
 		}
-		if (open == null && close == null) {
-			close = BigDecimal.ZERO;
-		}
-		if (open != null && close == null) {
-			close = open;
+		if (close == null) {
+			if (open != null) {
+				close = open;
+			} else if (high != null) {
+				close = high;
+			} else if (low != null) {
+				close = low;
+			} else {
+				close = BigDecimal.ZERO;
+			}
 		}
 		this.date = date;
 		this.open = open;
