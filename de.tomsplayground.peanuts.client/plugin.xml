@@ -164,6 +164,11 @@
             id="de.tomsplayground.peanuts.client.updateAllPrices.cmd"
             name="Update Security Prices">
       </command>
+      <command
+            defaultHandler="de.tomsplayground.peanuts.client.editors.account.AccountValueExport"
+            id="de.tomsplayground.peanuts.client.exportAccountValues.cmd"
+            name="Account value export">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -402,6 +407,10 @@
          </command>
          <command
                commandId="org.eclipse.ui.edit.copy"
+               style="push">
+         </command>
+         <command
+               commandId="de.tomsplayground.peanuts.client.exportAccountValues.cmd"
                style="push">
          </command>
       </menuContribution>

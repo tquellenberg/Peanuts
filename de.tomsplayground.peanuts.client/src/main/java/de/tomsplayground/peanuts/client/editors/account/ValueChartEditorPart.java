@@ -44,6 +44,7 @@ import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.reporting.transaction.DateIterator;
 import de.tomsplayground.peanuts.domain.reporting.transaction.TimeIntervalReport;
+import de.tomsplayground.peanuts.domain.statistics.AccountValueData;
 
 public class ValueChartEditorPart extends EditorPart {
 
@@ -233,6 +234,25 @@ public class ValueChartEditorPart extends EditorPart {
 	@Override
 	public void setFocus() {
 		displayType.setFocus();
+	}
+
+	public AccountValueData getAccountValueData() {
+		AccountValueData accountValueData = new AccountValueData();
+		List<BigDecimal> values = intervalReport.getValues();
+		DateIterator dateIterator = intervalReport.dateIterator();
+		List<BigDecimal> inventoryValues = intervalReport.getInventoryValues();
+		List<BigDecimal> investmentValues = intervalReport.getInvestmentValues();
+		BigDecimal sum = BigDecimal.ZERO;
+		Iterator<BigDecimal> valueIter = inventoryValues.iterator();
+		Iterator<BigDecimal> investmentIter = investmentValues.iterator();
+		for (BigDecimal v : values) {
+			sum = sum.add(v);
+			de.tomsplayground.util.Day d = dateIterator.next();
+			BigDecimal v1 = sum.add(valueIter.next());
+			BigDecimal v2 = investmentIter.next();
+			accountValueData.add(d, v1, v2);
+		}
+		return accountValueData;
 	}
 
 }

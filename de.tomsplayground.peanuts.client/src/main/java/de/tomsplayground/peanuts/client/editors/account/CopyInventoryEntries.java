@@ -13,7 +13,6 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
@@ -26,7 +25,6 @@ public class CopyInventoryEntries extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		System.out.println("CopyInventoryEntries.execute()");
 		ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
-		IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
 		Clipboard cb = new Clipboard(Display.getDefault());
 		String content = "";
 		if (currentSelection instanceof IStructuredSelection) {
