@@ -52,6 +52,10 @@ public class FourTraders {
 
 				xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[2]/td[" + i + "]/text()");
 				result = xPather.evaluateAgainstNode(tagNode);
+				if (result.length == 0) {
+					// Okay
+					continue;
+				}
 				try {
 					int year = Integer.parseInt(result[0].toString());
 					fundamentalData.setYear(year);

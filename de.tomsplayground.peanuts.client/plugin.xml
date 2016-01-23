@@ -169,6 +169,11 @@
             id="de.tomsplayground.peanuts.client.exportAccountValues.cmd"
             name="Account value export">
       </command>
+      <command
+            defaultHandler="de.tomsplayground.peanuts.client.actions.Update4TraderFundamentalData"
+            id="de.tomsplayground.peanuts.client.updateAllFundamentalData.cmd"
+            name="Update fundamental data">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -393,6 +398,10 @@
                label="File">
             <command
                   commandId="de.tomsplayground.peanuts.client.updateAllPrices.cmd"
+                  style="push">
+            </command>
+            <command
+                  commandId="de.tomsplayground.peanuts.client.updateAllFundamentalData.cmd"
                   style="push">
             </command>
          </menu>

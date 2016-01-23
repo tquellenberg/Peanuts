@@ -30,15 +30,17 @@ public class UpdateAllSecurityPrices extends AbstractHandler {
 					ImmutableList<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
 					monitor.beginTask("Refresh investment prices", securities.size());
 					for (Security security : securities) {
-						monitor.subTask("Refreshing " + security.getName());
-						priceProviderFactory.refresh(security, Boolean.valueOf(
-							security.getConfigurationValue(SecurityPropertyPage.OVERRIDE_EXISTING_PRICE_DATA)).booleanValue());
-						Scraping scraping = new Scraping(security);
-						Price price = scraping.execute();
-						if (price != null) {
-							IPriceProvider priceProvider = priceProviderFactory.getPriceProvider(security);
-							priceProvider.setPrice(price);
-							priceProviderFactory.saveToLocal(security, priceProvider);
+						if (! security.isDeleted()) {
+							monitor.subTask("Refreshing " + security.getName());
+							priceProviderFactory.refresh(security, Boolean.valueOf(
+								security.getConfigurationValue(SecurityPropertyPage.OVERRIDE_EXISTING_PRICE_DATA)).booleanValue());
+							Scraping scraping = new Scraping(security);
+							Price price = scraping.execute();
+							if (price != null) {
+								IPriceProvider priceProvider = priceProviderFactory.getPriceProvider(security);
+								priceProvider.setPrice(price);
+								priceProviderFactory.saveToLocal(security, priceProvider);
+							}
 						}
 						monitor.worked(1);
 						if (monitor.isCanceled()) {

@@ -375,24 +375,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 		fourTradersGo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				try {
-					FourTraders fourTraders = new FourTraders();
-					String financialsUrl = security.getConfigurationValue("fourTrasdersUrl");
-					if (StringUtils.isBlank(financialsUrl)) {
-						financialsUrl = fourTraders.scrapFinancialsUrl(security.getISIN());
-					}
-					if (StringUtils.isNotBlank(financialsUrl)) {
-						security.putConfigurationValue("fourTrasdersUrl", financialsUrl);
-						List<FundamentalData> newDatas = fourTraders.scrapFinancials(financialsUrl);
-						updateFundamentaData(newDatas);
-					} else {
-						String errorText = "No unique result could be found for "+security.getISIN();
-						IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, errorText);
-						ErrorDialog.openError(getSite().getShell(), errorText, null, status);
-					}
-				} catch (RuntimeException ex) {
-					ex.printStackTrace();
-				}
+				update4TradersData(security);
 			}
 		});
 
@@ -648,6 +631,26 @@ public class FundamentalDataEditorPart extends EditorPart {
 		table.setMenu(menuManager.createContextMenu(table));
 		getSite().registerContextMenu(menuManager, tableViewer);
 		getSite().setSelectionProvider(tableViewer);
+	}
+
+	private void update4TradersData(final Security security) {
+		try {
+			FourTraders fourTraders = new FourTraders();
+			String financialsUrl = security.getConfigurationValue("fourTrasdersUrl");
+			if (StringUtils.isBlank(financialsUrl)) {
+				financialsUrl = fourTraders.scrapFinancialsUrl(security.getISIN());
+				security.putConfigurationValue("fourTrasdersUrl", financialsUrl);
+			}
+			if (StringUtils.isNotBlank(financialsUrl)) {
+				updateFundamentaData(fourTraders.scrapFinancials(financialsUrl));
+			} else {
+				String errorText = "No unique result could be found for "+security.getISIN();
+				IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, errorText);
+				ErrorDialog.openError(getSite().getShell(), errorText, null, status);
+			}
+		} catch (RuntimeException ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	private void updateFundamentaData(List<FundamentalData> newDatas) {
