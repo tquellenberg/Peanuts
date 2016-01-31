@@ -47,7 +47,7 @@ public class FourTraders {
 				}
 			}
 
-			for (int i = 5; i < 8; i++) {
+			for (int i = 4; i < 8; i++) {
 				FundamentalData fundamentalData = new FundamentalData();
 
 				xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[2]/td[" + i + "]/text()");

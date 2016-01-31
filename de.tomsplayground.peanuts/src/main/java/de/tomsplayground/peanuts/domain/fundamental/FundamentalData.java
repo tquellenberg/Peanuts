@@ -171,4 +171,18 @@ public class FundamentalData implements Comparable<FundamentalData> {
 	public boolean isLocked() {
 		return locked;
 	}
+
+	public void update(FundamentalData newData) {
+		if (locked) {
+			return;
+		}
+		if (newData.getDividende().signum() > 0) {
+			setDividende(newData.getDividende());
+		}
+		setEarningsPerShare(newData.getEarningsPerShare());
+		if (newData.getFicalYearEndsMonth() != 0) {
+			setFicalYearEndsMonth(newData.getFicalYearEndsMonth());
+		}
+		updateLastModifyDate();
+	}
 }

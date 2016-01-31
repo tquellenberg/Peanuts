@@ -105,14 +105,7 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 			boolean dataExists = false;
 			for (FundamentalData oldData : fundamentalDatas) {
 				if (newData.getYear() == oldData.getYear()) {
-					if (! oldData.isLocked()) {
-						oldData.setDividende(newData.getDividende());
-						oldData.setEarningsPerShare(newData.getEarningsPerShare());
-						if (newData.getFicalYearEndsMonth() != 0) {
-							oldData.setFicalYearEndsMonth(newData.getFicalYearEndsMonth());
-						}
-						oldData.updateLastModifyDate();
-					}
+					oldData.update(newData);
 					dataExists = true;
 					break;
 				}
