@@ -50,6 +50,9 @@ public class TimeChart {
 		}
 		public static RANGE fromName(String name) {
 			for (RANGE r : RANGE.values()) {
+				if (name.equals("1 month")) {
+					return ONE_MONTHS;
+				}
 				if (name.equals("6 month")) {
 					return SIX_MONTHS;
 				}
