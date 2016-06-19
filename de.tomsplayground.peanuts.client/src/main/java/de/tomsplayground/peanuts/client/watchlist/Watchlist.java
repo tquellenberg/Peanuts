@@ -39,16 +39,24 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 		}
 	};
 
+	private String name;
 	private final List<WatchEntry> entries = new ArrayList<WatchEntry>();
 	private final WatchlistConfiguration configuration;
 
 	public Watchlist(WatchlistConfiguration configuration) {
-		this.configuration = configuration;;
+		this.name = configuration.getName();
+		this.configuration = configuration;
 	}
 
 	@Override
 	public String getName() {
-		return configuration.getName();
+		return name;
+	}
+
+	public void setName(String name) {
+		String oldName = this.name;
+		this.name = name;
+		firePropertyChange("name", oldName, name);
 	}
 
 	public List<WatchEntry> getEntries() {

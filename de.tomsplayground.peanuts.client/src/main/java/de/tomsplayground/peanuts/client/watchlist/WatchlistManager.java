@@ -6,6 +6,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -21,10 +22,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.watchlist.WatchlistConfiguration;
-import de.tomsplayground.peanuts.domain.watchlist.WatchlistConfiguration.Type;
 import de.tomsplayground.util.Day;
 
 public class WatchlistManager extends ObservableModelObject {
@@ -85,24 +86,25 @@ public class WatchlistManager extends ObservableModelObject {
 		}
 		newSecurities.addAll(getSecuritiesByConfiguration(watchlist.getConfiguration()));
 
-		for (Security  s : Sets.filter(currentSecurities, not(in(newSecurities)))) {
+		for (Security s : Sets.filter(currentSecurities, not(in(newSecurities)))) {
 			watchlist.removeEntry(s);
 		}
-		for (Security  s : Sets.filter(newSecurities, not(in(currentSecurities)))) {
+		for (Security s : Sets.filter(newSecurities, not(in(currentSecurities)))) {
 			watchlist.addEntry(s);
 		}
 	}
 
 	private List<Security> getSecuritiesByConfiguration(final WatchlistConfiguration configuration) {
-		List<Security> result = Lists.newArrayList();;
-		if (configuration.getType().equals(Type.MANUAL)) {
-			return result;
-		}
-		if (configuration.getType().equals(Type.ALL_SECURITIES)) {
-			result = Activator.getDefault().getAccountManager().getSecurities();
-		}
-		if (configuration.getType().equals(Type.MY_SECURITIES)) {
-			result = Activator.getDefault().getAccountManager().getSecurities();
+		Collection<Security> result = null;
+		switch (configuration.getType()) {
+			case MANUAL:
+				return Lists.newArrayList();
+			case ALL_SECURITIES:
+				result = Activator.getDefault().getAccountManager().getSecurities();
+				break;
+			case MY_SECURITIES:
+				Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
+				result = inventory.getSecurities();
 		}
 		return Lists.newArrayList(Iterables.filter(result, new Predicate<Security>() {
 			@Override
@@ -147,16 +149,14 @@ public class WatchlistManager extends ObservableModelObject {
 	public void update(WatchlistConfiguration watchlistConfiguration) {
 		String oldName = currentWatchlist.getName();
 		String newName = watchlistConfiguration.getName();
-		if (! StringUtils.equals(watchlistConfiguration.getName(), oldName)) {
-
+		if (! StringUtils.equals(newName, oldName)) {
 			for (WatchEntry entry : currentWatchlist.getEntries()) {
 				Set<String> list = new HashSet<String>(getWatchlistNamesForSecurity(entry.getSecurity()));
 				list.remove(oldName);
 				list.add(newName);
 				entry.getSecurity().putConfigurationValue(SecurityWatchlistView.ID, StringUtils.join(list, ','));
 			}
-
-			firePropertyChange("watchlistName", oldName, watchlistConfiguration.getName());
+			currentWatchlist.setName(newName);
 		}
 		refreshSecuritiesForWatchlist(currentWatchlist);
 	}

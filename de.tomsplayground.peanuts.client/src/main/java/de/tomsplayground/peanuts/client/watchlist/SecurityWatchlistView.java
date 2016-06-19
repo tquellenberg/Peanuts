@@ -215,11 +215,11 @@ public class SecurityWatchlistView extends ViewPart {
 			if (! securityListViewer.getTable().isDisposed()) {
 				if (evt.getPropertyName().equals("currentWatchlist")) {
 					currentWatchList = (Watchlist) evt.getNewValue();
-					setContentDescription(currentWatchList.getName());
+					showWatchlistName(currentWatchList);
 					securityListViewer.setInput(currentWatchList);
 					securityListViewer.refresh();
-				} else if (evt.getPropertyName().equals("watchlistName")) {
-					watchlistRenamed((String)evt.getNewValue());
+				} else if (evt.getPropertyName().equals("name")) {
+					showWatchlistName(currentWatchList);
 				} else {
 					securityListViewer.refresh();
 				}
@@ -431,7 +431,7 @@ public class SecurityWatchlistView extends ViewPart {
 	@Override
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
 		super.init(site, memento);
-		setContentDescription(WatchlistManager.getInstance().getCurrentWatchlist().getName());
+		showWatchlistName(WatchlistManager.getInstance().getCurrentWatchlist());
 		if (memento != null) {
 			for (int i = 0; i < colWidth.length; i++ ) {
 				Integer width = memento.getInteger("col" + i);
@@ -810,8 +810,12 @@ public class SecurityWatchlistView extends ViewPart {
 		WatchlistManager.getInstance().addSecurityToWatchlist(security, currentWatchList);
 	}
 
-	private void watchlistRenamed(String newName) {
-		setContentDescription(newName);
+	private void showWatchlistName(Watchlist watchlist) {
+		if (watchlist.getConfiguration() != null) {
+			setContentDescription(watchlist.getName() + " ("+watchlist.getConfiguration().getType()+")");
+		} else {
+			setContentDescription(watchlist.getName());
+		}
 	}
 
 	@Override
