@@ -25,7 +25,7 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 
 	private final static int MAX_SECURITY_UPDATED_PER_RUN = 10;
 
-	private final static int MAX_AGE_BEFORE_UPDATE = 21;
+	private final static int MAX_AGE_BEFORE_UPDATE = 28;
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
