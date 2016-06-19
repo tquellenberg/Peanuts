@@ -59,6 +59,9 @@ public class WatchlistConfiguration {
 	}
 
 	public boolean accept(Security security) {
+		if (security.isDeleted()) {
+			return false;
+		}
 		for (ISecuriityFilter iSecuriityFilter : filters) {
 			if (! iSecuriityFilter.accept(security)) {
 				return false;
