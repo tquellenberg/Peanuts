@@ -41,7 +41,7 @@ import de.tomsplayground.util.Day;
 public class DevelopmentEditorPart extends EditorPart {
 
 	private TableViewer tableViewer;
-	private final int colWidth[] = new int[3];
+	private final int colWidth[] = new int[5];
 
 	private static class StringTableLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 
@@ -119,14 +119,26 @@ public class DevelopmentEditorPart extends EditorPart {
 		col.addControlListener(saveSizeOnResize);
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Value");
+		col.setText("Start");
 		col.setWidth((colWidth[1] > 0) ? colWidth[1] : 100);
 		col.setResizable(true);
 		col.addControlListener(saveSizeOnResize);
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Percent");
+		col.setText("Change");
 		col.setWidth((colWidth[2] > 0) ? colWidth[2] : 100);
+		col.setResizable(true);
+		col.addControlListener(saveSizeOnResize);
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Change %");
+		col.setWidth((colWidth[3] > 0) ? colWidth[3] : 100);
+		col.setResizable(true);
+		col.addControlListener(saveSizeOnResize);
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Anual change %");
+		col.setWidth((colWidth[4] > 0) ? colWidth[4] : 100);
 		col.setResizable(true);
 		col.addControlListener(saveSizeOnResize);
 
@@ -151,6 +163,7 @@ public class DevelopmentEditorPart extends EditorPart {
 		development(result, prices, Calendar.YEAR, -3, "Three years");
 		development(result, prices, Calendar.YEAR, -5, "Five years");
 		development(result, prices, Calendar.YEAR, -7, "Seven years");
+		development(result, prices, Calendar.YEAR, -10, "Ten years");
 
 		String stopLossValue = security.getConfigurationValue("STOPLOSS");
 		if (StringUtils.isNotEmpty(stopLossValue)) {
@@ -183,11 +196,15 @@ public class DevelopmentEditorPart extends EditorPart {
 		IPrice price2 = prices.getPrice(to);
 		BigDecimal diff = price2.getValue().subtract(price1.getValue());
 		if (price1.getValue().compareTo(BigDecimal.ZERO) != 0) {
-			BigDecimal diffPercent = diff.divide(price1.getValue(), new MathContext(10, RoundingMode.HALF_EVEN)).movePointRight(2);
-			diffPercent = diffPercent.setScale(2, RoundingMode.HALF_EVEN);
-			result.add(new String[]{text, PeanutsUtil.formatCurrency(diff, null), diffPercent.toString()+" %"});
+			BigDecimal anualDiff = price2.getValue().divide(price1.getValue(), new MathContext(10, RoundingMode.HALF_EVEN));
+			anualDiff = new BigDecimal(Math.pow(anualDiff.doubleValue(), 360.0 / from.delta(to))).subtract(BigDecimal.ONE);
+			anualDiff = anualDiff.movePointRight(2).setScale(2, RoundingMode.HALF_EVEN);
+
+			BigDecimal diffPercent = diff.divide(price1.getValue(), new MathContext(10, RoundingMode.HALF_EVEN));
+			diffPercent = diffPercent.movePointRight(2).setScale(2, RoundingMode.HALF_EVEN);
+			result.add(new String[]{text, PeanutsUtil.formatCurrency(price1.getValue(), null), PeanutsUtil.formatCurrency(diff, null), diffPercent.toString()+" %", anualDiff.toString()+" %"});
 		} else {
-			result.add(new String[]{text, PeanutsUtil.formatCurrency(diff, null), "NaN"});
+			result.add(new String[]{text, PeanutsUtil.formatCurrency(price1.getValue(), null), PeanutsUtil.formatCurrency(diff, null), "-", "-"});
 		}
 	}
 
