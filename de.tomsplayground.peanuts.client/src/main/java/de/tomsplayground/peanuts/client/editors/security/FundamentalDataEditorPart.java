@@ -563,7 +563,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 							markDirty();
 						}
 					}
-				} catch (ParseException e) {
+				} catch (ParseException | NumberFormatException e) {
 					// Okay
 				}
 			}
