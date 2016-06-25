@@ -3,12 +3,10 @@ package de.tomsplayground.peanuts.client.editors.security;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ITableColorProvider;
@@ -30,11 +28,16 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
+import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
+import de.tomsplayground.peanuts.domain.process.StopLoss;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
@@ -59,7 +62,11 @@ public class DevelopmentEditorPart extends EditorPart {
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
 			String[] strings = (String[]) element;
-			return strings[columnIndex];
+			if (columnIndex < strings.length) {
+				return strings[columnIndex];
+			} else {
+				return "";
+			}
 		}
 
 		@Override
@@ -69,9 +76,12 @@ public class DevelopmentEditorPart extends EditorPart {
 
 		@Override
 		public Color getForeground(Object element, int columnIndex) {
-			String v = ((String[]) element)[columnIndex];
-			if (columnIndex > 0 && v.startsWith("-")) {
-				return red;
+			String[] strings = (String[]) element;
+			if (columnIndex < strings.length) {
+				String v = strings[columnIndex];
+				if (columnIndex > 0 && v.startsWith("-")) {
+					return red;
+				}
 			}
 			return null;
 		}
@@ -165,22 +175,22 @@ public class DevelopmentEditorPart extends EditorPart {
 		development(result, prices, Calendar.YEAR, -7, "Seven years");
 		development(result, prices, Calendar.YEAR, -10, "Ten years");
 
-		String stopLossValue = security.getConfigurationValue("STOPLOSS");
-		if (StringUtils.isNotEmpty(stopLossValue)) {
-			try {
-				BigDecimal stopLoss = PeanutsUtil.parseQuantity(stopLossValue);
+		ImmutableSet<StopLoss> stopLosses = Activator.getDefault().getAccountManager().getStopLosses(security);
+		if (! stopLosses.isEmpty()) {
+			ImmutableList<Price> stopPrices = stopLosses.iterator().next().getPrices(prices);
+			if (! stopPrices.isEmpty()) {
+				BigDecimal stopLoss = stopPrices.get(stopPrices.size()-1).getValue();
 				IPrice price = prices.getPrice(prices.getMaxDate());
 				if (price.getValue().compareTo(BigDecimal.ZERO) != 0) {
-					BigDecimal percent = stopLoss.divide(price.getValue(), new MathContext(10, RoundingMode.HALF_EVEN));
-					percent = percent.subtract(BigDecimal.ONE);
+					BigDecimal delta = price.getValue().subtract(stopLoss);
+					BigDecimal percent = delta.divide(price.getValue(), new MathContext(10, RoundingMode.HALF_EVEN));
 					percent = percent.movePointRight(2);
 					percent = percent.setScale(2, RoundingMode.HALF_EVEN);
-					result.add(new String[]{"Stop Loss", PeanutsUtil.formatCurrency(stopLoss, null), percent.toString()+" %"});
+					result.add(new String[]{"Stop Loss", PeanutsUtil.formatCurrency(stopLoss, null),
+						PeanutsUtil.formatCurrency(delta, null), percent.toString()+" %"});
 				} else {
-					result.add(new String[]{"Stop Loss", PeanutsUtil.formatCurrency(stopLoss, null), "NaN"});
+					result.add(new String[]{"Stop Loss", PeanutsUtil.formatCurrency(stopLoss, null)});
 				}
-			} catch (ParseException e) {
-				// Okay
 			}
 		}
 
