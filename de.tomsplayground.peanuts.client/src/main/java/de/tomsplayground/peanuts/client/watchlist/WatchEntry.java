@@ -6,6 +6,8 @@ import java.math.RoundingMode;
 import java.util.Currency;
 import java.util.List;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.joda.time.DateTime;
 
 import com.google.common.base.Predicate;
@@ -307,5 +309,10 @@ public class WatchEntry {
 		peRatio = null;
 		robustness = null;
 		currencyAdjustedAvgEpsChange = null;
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append(security.getName()).build();
 	}
 }

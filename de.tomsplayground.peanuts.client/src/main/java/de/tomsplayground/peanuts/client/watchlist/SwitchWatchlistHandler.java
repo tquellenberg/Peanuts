@@ -5,6 +5,8 @@ import java.util.Map;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
 
@@ -13,7 +15,10 @@ public class SwitchWatchlistHandler extends AbstractHandler implements IElementU
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		String watchlistName = event.getParameter(SwitchWatchlistItems.WATCHLIST_NAME);
-		WatchlistManager.getInstance().setCurrentWatchlist(watchlistName);
+		Event trigger = (Event)event.getTrigger();
+		if (((MenuItem)trigger.widget).getSelection()) {
+			WatchlistManager.getInstance().setCurrentWatchlist(watchlistName);
+		}
 		return null;
 	}
 

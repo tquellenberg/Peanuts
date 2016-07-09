@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Security;
 
 @XStreamAlias("watchlist")
@@ -58,12 +59,12 @@ public class WatchlistConfiguration {
 		this.sorting = sorting;
 	}
 
-	public boolean accept(Security security) {
+	public boolean accept(Security security, AccountManager accountManager) {
 		if (security.isDeleted()) {
 			return false;
 		}
 		for (ISecuriityFilter iSecuriityFilter : filters) {
-			if (! iSecuriityFilter.accept(security)) {
+			if (! iSecuriityFilter.accept(security, accountManager)) {
 				return false;
 			}
 		}
