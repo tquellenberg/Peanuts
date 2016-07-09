@@ -252,6 +252,15 @@ public class ChartEditorPart extends EditorPart {
 		}
 	}
 
+	private BigDecimal getSplitRatio(de.tomsplayground.util.Day day) {
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
+		return stockSplits.stream()
+			.filter(sp -> day.before(sp.getDay()))
+			.map(sp -> sp.getRatio())
+			.reduce(BigDecimal.ONE, BigDecimal::multiply);
+	}
+
 	protected void addOrderAnnotations() {
 		ImmutableList<InvestmentTransaction> transactions = getOrders();
 		for (InvestmentTransaction investmentTransaction : transactions) {
@@ -266,13 +275,15 @@ public class ChartEditorPart extends EditorPart {
 			switch (investmentTransaction.getType()) {
 				case BUY:
 					t = "+"+investmentTransaction.getQuantity();
-					pointerAnnotation = new XYPointerAnnotation(t, x, y, Math.PI / 2);
+					BigDecimal adjustedPrice = investmentTransaction.getPrice().multiply(getSplitRatio(day));
+					pointerAnnotation = new XYPointerAnnotation(t, x, adjustedPrice.doubleValue(), Math.PI / 2);
 					swtColor = Activator.getDefault().getColorProvider().get(Activator.GREEN);
 					c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
 					break;
 				case SELL:
 					t = "-"+investmentTransaction.getQuantity();
-					pointerAnnotation = new XYPointerAnnotation(t, x, y, 3* Math.PI / 2);
+					adjustedPrice = investmentTransaction.getPrice().multiply(getSplitRatio(day));
+					pointerAnnotation = new XYPointerAnnotation(t, x, adjustedPrice.doubleValue(), 3* Math.PI / 2);
 					swtColor = Activator.getDefault().getColorProvider().get(Activator.RED);
 					c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
 					break;
