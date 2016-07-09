@@ -8,6 +8,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -119,5 +122,10 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 
 	public WatchlistConfiguration getConfiguration() {
 		return configuration;
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append(name).build();
 	}
 }

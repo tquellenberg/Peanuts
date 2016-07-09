@@ -109,7 +109,7 @@ public class WatchlistManager extends ObservableModelObject {
 		return Lists.newArrayList(Iterables.filter(result, new Predicate<Security>() {
 			@Override
 			public boolean apply(Security security) {
-				return configuration.accept(security);
+				return configuration.accept(security, Activator.getDefault().getAccountManager());
 			}
 		}));
 	}
@@ -118,6 +118,7 @@ public class WatchlistManager extends ObservableModelObject {
 		Watchlist oldCurrentWatchlist = currentWatchlist;
 		currentWatchlist = getWatchlistByName(name);
 		firePropertyChange("currentWatchlist", oldCurrentWatchlist, currentWatchlist);
+		refreshSecuritiesForWatchlist(currentWatchlist);
 	}
 
 	public Watchlist getCurrentWatchlist() {
