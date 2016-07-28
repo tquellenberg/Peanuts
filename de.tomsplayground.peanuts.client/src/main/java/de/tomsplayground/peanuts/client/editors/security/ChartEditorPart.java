@@ -377,7 +377,7 @@ public class ChartEditorPart extends EditorPart {
 			xyAreaRenderer.setSeriesPaint(0, new PeanutsDrawingSupplier().getNextPaint());
 			NumberAxis rangeAxis = new NumberAxis("PE delta %");
 			rangeAxis.setAutoRange(false);
-			rangeAxis.setRange(-25.0, 25.0);
+			rangeAxis.setRange(-27.0, 27.0);
 			XYPlot plot2 = new XYPlot(createPeRatioDataset(), null, rangeAxis, xyAreaRenderer);
 			plot2.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
 			plot2.setDomainCrosshairVisible(true);
