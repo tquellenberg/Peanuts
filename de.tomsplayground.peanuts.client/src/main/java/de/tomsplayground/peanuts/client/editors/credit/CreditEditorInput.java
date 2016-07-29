@@ -9,7 +9,7 @@ import de.tomsplayground.peanuts.domain.process.Credit;
 
 public class CreditEditorInput implements IEditorInput {
 
-	private Credit credit;
+	private final Credit credit;
 
 	public CreditEditorInput(Credit credit) {
 		this.credit = credit;
@@ -22,7 +22,13 @@ public class CreditEditorInput implements IEditorInput {
 
 	@Override
 	public boolean equals(Object obj) {
-		if ( !getClass().equals(obj.getClass())) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
+			return true;
+		}
+		if (obj.getClass() != getClass()) {
 			return false;
 		}
 		return credit.equals(((CreditEditorInput) obj).credit);

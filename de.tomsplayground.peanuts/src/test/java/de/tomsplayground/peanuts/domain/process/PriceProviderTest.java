@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,10 +38,10 @@ public class PriceProviderTest {
 		pp.setPrice(price1);
 
 		IPrice price = pp.getPrice(c1);
-		Assert.assertEquals(price1, price);
+		assertEquals(price1, price);
 
 		price = pp.getPrice(dateAfterC1);
-		Assert.assertEquals(price1, price);
+		assertEquals(price1, price);
 	}
 
 	@Test
@@ -51,8 +50,8 @@ public class PriceProviderTest {
 		pp.setPrice(new Price(c1, BigDecimal.ZERO));
 		pp.setPrice(new Price(dateAfterC1, BigDecimal.ZERO));
 
-		Assert.assertTrue(pp.getMinDate().equals(c1));
-		Assert.assertTrue(pp.getMaxDate().equals(dateAfterC1));
+		assertEquals(c1, pp.getMinDate());
+		assertEquals(dateAfterC1, pp.getMaxDate());
 	}
 
 	@Test
@@ -71,9 +70,9 @@ public class PriceProviderTest {
 		prices.add(new Price(dateAfterC1, BigDecimal.ZERO));
 		pp.setPrices(prices, true);
 
-		Assert.assertTrue(pp.getMinDate().equals(c1));
-		Assert.assertTrue(pp.getMaxDate().equals(dateAfterC1));
-		Assert.assertEquals(2, pp.getPrices().size());
+		assertEquals(c1, pp.getMinDate());
+		assertEquals(dateAfterC1, pp.getMaxDate());
+		assertEquals(2, pp.getPrices().size());
 
 		assertEquals(pp, lastEvent[0].getSource());
 		assertEquals("prices", lastEvent[0].getPropertyName());
@@ -84,8 +83,8 @@ public class PriceProviderTest {
 		pp.setPrice(new Price(dateAfterC1, BigDecimal.ZERO));
 		pp.setPrice(new Price(c1, BigDecimal.ZERO));
 
-		Assert.assertTrue(pp.getMinDate().equals(c1));
-		Assert.assertTrue(pp.getMaxDate().equals(dateAfterC1));
+		assertEquals(c1, pp.getMinDate());
+		assertEquals(dateAfterC1, pp.getMaxDate());
 	}
 
 	@Test

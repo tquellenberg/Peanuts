@@ -106,8 +106,6 @@ public class DetailPart extends EditorPart {
 			content = (SecurityCategoryMapping)inputElement;
 			List<String> categories = content.getCategories();
 			if (! content.getAllSecurities().containsAll(getSecuritiesInInventory())) {
-				List<Security> securities = new ArrayList<Security>(getSecuritiesInInventory());
-				securities.removeAll(content.getAllSecurities());
 				categories.add(WITHOUT_CATEGORY);
 			}
 			return categories.toArray(new String[0]);

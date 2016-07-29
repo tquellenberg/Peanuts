@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +26,7 @@ public class BasicData {
 		InputStreamReader reader = null;
 		try {
 			URL url = new URL(StringUtils.replace(URL, "SYMBOL", symbol));
-			reader = new InputStreamReader(url.openStream(), "UTF-8");
+			reader = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8);
 			return readFile(reader);
 		} catch (IOException e) {
 			e.printStackTrace();

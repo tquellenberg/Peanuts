@@ -199,7 +199,8 @@ public class SecurityWatchlistView extends ViewPart {
 	private final WatchEntryViewerComparator customPerformanceComparator = new WatchEntryViewerComparator() {
 		@Override
 		public int compare(WatchEntry w1, WatchEntry w2) {
-			return w1.getCustomPerformance().compareTo(w2.getCustomPerformance());
+			WatchlistManager manager = WatchlistManager.getInstance();
+			return manager.getCustomPerformance(w1).compareTo(manager.getCustomPerformance(w2));
 		}
 	};
 
@@ -343,7 +344,8 @@ public class SecurityWatchlistView extends ViewPart {
 				case 16:
 					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 3));
 				case 17:
-					return PeanutsUtil.formatPercent(watchEntry.getCustomPerformance());
+					WatchlistManager manager = WatchlistManager.getInstance();
+					return PeanutsUtil.formatPercent(manager.getCustomPerformance(watchEntry));
 				default:
 					break;
 			}
@@ -372,30 +374,30 @@ public class SecurityWatchlistView extends ViewPart {
 			if (columnIndex == 5) {
 				BigDecimal peDelta = watchEntry.getPeDelta();
 				if (peDelta != null) {
-					if (peDelta.compareTo(new BigDecimal(0.05)) > 0) {
+					if (peDelta.compareTo(new BigDecimal("0.05")) > 0) {
 						return red;
 					}
-					if (peDelta.compareTo(new BigDecimal(-0.05)) < 0) {
+					if (peDelta.compareTo(new BigDecimal("-0.05")) < 0) {
 						return green;
 					}
 				}
 			} else if (columnIndex == 6) {
 				BigDecimal v = watchEntry.getCurrencyAdjustedReturn();
 				if (v != null) {
-					if (v.compareTo(new BigDecimal(0.05)) > 0) {
+					if (v.compareTo(new BigDecimal("0.05")) > 0) {
 						return green;
 					}
-					if (v.compareTo(new BigDecimal(0.0)) < 0) {
+					if (v.compareTo(new BigDecimal("0.0")) < 0) {
 						return red;
 					}
 				}
 			} else if (columnIndex == 7) {
 				BigDecimal v = watchEntry.getRobustness();
 				if (v != null) {
-					if (v.compareTo(new BigDecimal(0.6)) > 0) {
+					if (v.compareTo(new BigDecimal("0.6")) > 0) {
 						return green;
 					}
-					if (v.compareTo(new BigDecimal(0.3)) < 0) {
+					if (v.compareTo(new BigDecimal("0.3")) < 0) {
 						return red;
 					}
 				}
@@ -422,7 +424,8 @@ public class SecurityWatchlistView extends ViewPart {
 			} else if (columnIndex == 16) {
 				return (watchEntry.getPerformance(0, 0, 3).signum() == -1) ? red : green;
 			} else if (columnIndex == 17) {
-				return (watchEntry.getCustomPerformance().signum() == -1) ? red : green;
+				WatchlistManager manager = WatchlistManager.getInstance();
+				return (manager.getCustomPerformance(watchEntry).signum() == -1) ? red : green;
 			}
 			return null;
 		}

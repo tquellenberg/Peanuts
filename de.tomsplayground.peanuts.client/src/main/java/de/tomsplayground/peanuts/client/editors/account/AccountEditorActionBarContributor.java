@@ -11,7 +11,6 @@ import org.eclipse.ui.part.MultiPageEditorActionBarContributor;
 public class AccountEditorActionBarContributor extends MultiPageEditorActionBarContributor {
 
 	private CsvTransactionImportAction csvImportAction;
-	private IEditorPart editorPart;
 
 	@Override
 	public void contributeToMenu(IMenuManager menuManager) {
@@ -28,8 +27,7 @@ public class AccountEditorActionBarContributor extends MultiPageEditorActionBarC
 
 	@Override
 	public void setActiveEditor(IEditorPart part) {
-		this.editorPart = part;
-		csvImportAction.setEditorPart(editorPart);
+		csvImportAction.setEditorPart(part);
 		super.setActiveEditor(part);
 		IActionBars actionBars = part.getEditorSite().getActionBars();
 		actionBars.setGlobalActionHandler(ActionFactory.PROPERTIES.getId(),

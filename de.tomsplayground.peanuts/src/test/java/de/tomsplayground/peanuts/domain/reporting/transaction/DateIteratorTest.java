@@ -1,8 +1,8 @@
 package de.tomsplayground.peanuts.domain.reporting.transaction;
 
-import java.util.NoSuchElementException;
+import static org.junit.Assert.*;
 
-import junit.framework.Assert;
+import java.util.NoSuchElementException;
 
 import org.junit.Test;
 
@@ -17,11 +17,11 @@ public class DateIteratorTest {
 		Day end = new Day(2010, 11, 2);
 		DateIterator dateIterator = new DateIterator(start, end, Interval.DAY);
 
-		Assert.assertTrue(dateIterator.hasNext());
-		Assert.assertEquals(start, dateIterator.next());
-		Assert.assertTrue(dateIterator.hasNext());
-		Assert.assertEquals(end, dateIterator.next());
-		Assert.assertFalse(dateIterator.hasNext());
+		assertTrue(dateIterator.hasNext());
+		assertEquals(start, dateIterator.next());
+		assertTrue(dateIterator.hasNext());
+		assertEquals(end, dateIterator.next());
+		assertFalse(dateIterator.hasNext());
 	}
 
 	@Test
@@ -30,15 +30,15 @@ public class DateIteratorTest {
 		Day end = new Day(2011, 0, 1);
 		DateIterator dateIterator = new DateIterator(start, end, Interval.MONTH);
 
-		Assert.assertTrue(dateIterator.hasNext());
-		Assert.assertEquals(start, dateIterator.next());
-		Assert.assertEquals(end, dateIterator.currentRangeEnd());
+		assertTrue(dateIterator.hasNext());
+		assertEquals(start, dateIterator.next());
+		assertEquals(end, dateIterator.currentRangeEnd());
 
-		Assert.assertTrue(dateIterator.hasNext());
-		Assert.assertEquals(end, dateIterator.next());
-		Assert.assertEquals(new Day(2011, 1, 1), dateIterator.currentRangeEnd());
+		assertTrue(dateIterator.hasNext());
+		assertEquals(end, dateIterator.next());
+		assertEquals(new Day(2011, 1, 1), dateIterator.currentRangeEnd());
 
-		Assert.assertFalse(dateIterator.hasNext());
+		assertFalse(dateIterator.hasNext());
 	}
 
 	@Test(expected = NoSuchElementException.class)
@@ -50,7 +50,6 @@ public class DateIteratorTest {
 		dateIterator.next();
 	}
 
-	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void exceptionOnWrongArguments() {
 		Day start = new Day(2010, 11, 2);

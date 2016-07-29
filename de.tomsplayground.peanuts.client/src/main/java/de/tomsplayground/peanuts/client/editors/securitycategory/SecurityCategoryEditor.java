@@ -1,8 +1,5 @@
 package de.tomsplayground.peanuts.client.editors.securitycategory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IPageChangedListener;
@@ -16,8 +13,6 @@ import org.eclipse.ui.part.MultiPageEditorPart;
 public class SecurityCategoryEditor extends MultiPageEditorPart {
 
 	public static final String ID = "de.tomsplayground.peanuts.client.securityCategoryEditor";
-
-	private final List<IEditorPart> editors = new ArrayList<IEditorPart>();
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -48,10 +43,8 @@ public class SecurityCategoryEditor extends MultiPageEditorPart {
 		try {
 			int pageIndex = addPage(editor, getEditorInput());
 			setPageText(pageIndex, name);
-			editors.add(editor);
 		} catch (PartInitException e) {
-			ErrorDialog.openError(getSite().getShell(), "Error creating nested editor", null,
-				e.getStatus());
+			ErrorDialog.openError(getSite().getShell(), "Error creating nested editor", null, e.getStatus());
 		}
 	}
 

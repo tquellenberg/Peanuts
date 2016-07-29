@@ -20,7 +20,13 @@ public class ReportEditorInput implements IEditorInput, ITransactionProviderInpu
 
 	@Override
 	public boolean equals(Object obj) {
-		if ( !getClass().equals(obj.getClass())) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
+			return true;
+		}
+		if (obj.getClass() != getClass()) {
 			return false;
 		}
 		return report.equals(((ReportEditorInput) obj).report);

@@ -109,16 +109,6 @@ public class WatchEntry {
 		return getPerformance(minDay, maxDay);
 	}
 
-	public BigDecimal getCustomPerformance() {
-		WatchlistManager manager = WatchlistManager.getInstance();
-		if (manager.isCustomPerformanceRangeSet()) {
-			Day from = manager.getPerformanceFrom();
-			Day to = manager.getPerformanceTo();
-			return getPerformance(from, to);
-		}
-		return BigDecimal.ZERO;
-	}
-
 	public BigDecimal getPerformance(Day minDay, Day maxDay) {
 		IPrice price1 = adjustedPriceProvider.getPrice(minDay);
 		IPrice price2 = adjustedPriceProvider.getPrice(maxDay);

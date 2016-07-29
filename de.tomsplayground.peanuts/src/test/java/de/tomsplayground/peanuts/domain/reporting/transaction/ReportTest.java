@@ -20,14 +20,13 @@ public class ReportTest {
 
 	private AccountManager accountManager;
 	private Account account1;
-	private Account account2;
 
 	@Before
 	public void setup() {
 		accountManager = new AccountManager();
 		account1 = accountManager.getOrCreateAccount("test1", Account.Type.BANK);
 		account1.addTransaction(new BankTransaction(new Day(), new BigDecimal("10.00"), ""));
-		account2 = accountManager.getOrCreateAccount("test2", Account.Type.BANK);
+		Account account2 = accountManager.getOrCreateAccount("test2", Account.Type.BANK);
 		account2.addTransaction(new BankTransaction(new Day(), new BigDecimal("20.00"), ""));
 	}
 

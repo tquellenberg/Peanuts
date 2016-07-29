@@ -27,13 +27,11 @@ public class CategoryLabelProvider extends LabelProvider {
 			type = (Category.Type) element;
 		}
 		if (type != null) {
-			if (type.equals(Category.Type.EXPENSE)) {
-				return Activator.getDefault().getImageRegistry().get(
-					Activator.IMAGE_CATEGORY_EXPENSE);
+			if (type == Category.Type.EXPENSE) {
+				return Activator.getDefault().getImageRegistry().get(Activator.IMAGE_CATEGORY_EXPENSE);
 			}
-			if (type.equals(Category.Type.INCOME)) {
-				return Activator.getDefault().getImageRegistry().get(
-					Activator.IMAGE_CATEGORY_INCOME);
+			if (type == Category.Type.INCOME) {
+				return Activator.getDefault().getImageRegistry().get(Activator.IMAGE_CATEGORY_INCOME);
 			}
 			return Activator.getDefault().getImageRegistry().get(Activator.IMAGE_CATEGORY);
 		}

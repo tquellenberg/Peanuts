@@ -99,8 +99,7 @@ public class TransactionDetails implements ITransactionDetail {
 		accountComposite = new AccountComposite(composite, SWT.NONE, account);
 		accountComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 
-		@SuppressWarnings("unused")
-		Label emptyGridCell = new Label(group, SWT.NONE);
+		new Label(group, SWT.NONE);
 
 		amount = (new CalculatorText(group, SWT.SINGLE | SWT.BORDER)).getText();
 		amount.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));

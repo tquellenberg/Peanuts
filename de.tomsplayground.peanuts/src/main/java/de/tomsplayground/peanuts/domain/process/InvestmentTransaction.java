@@ -75,7 +75,7 @@ public class InvestmentTransaction extends Transaction {
 	}
 
 	public static BigDecimal calculateAmount(Type type, BigDecimal price, BigDecimal quantity, BigDecimal commission) {
-		return (type.equals(Type.SELL) || type.equals(Type.INCOME) ?
+		return (type == Type.SELL || type == Type.INCOME ?
 				price.multiply(quantity).setScale(2,BigDecimal.ROUND_HALF_UP) :
 				price.multiply(quantity).setScale(2,BigDecimal.ROUND_HALF_UP).negate())
 			.subtract(commission);

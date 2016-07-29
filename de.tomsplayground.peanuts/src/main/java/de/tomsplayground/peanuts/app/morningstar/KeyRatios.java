@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -35,7 +36,7 @@ public class KeyRatios {
 		URL url = null;
 		try {
 			url = new URL(StringUtils.replace(URL, "SYMBOL", symbol));
-			reader = new InputStreamReader(url.openStream(), "UTF-8");
+			reader = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8);
 			return readFile(reader);
 		} catch (IOException e) {
 			log.error("Problem with '"+symbol+ "' " + url, e);

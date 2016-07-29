@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -24,13 +25,12 @@ public class GooglePriceReader extends PriceProvider {
 
 	private final static Logger log = LoggerFactory.getLogger(GooglePriceReader.class);
 
-	private URL url;
 	private final Reader reader;
 
 	public GooglePriceReader(Security security, String ticker) throws IOException {
 		super(security);
-		url = new URL("http://www.google.com/finance/historical?q=" + ticker + "&output=csv");
-		reader = new InputStreamReader(url.openStream(), "UTF-8");
+		URL url = new URL("http://www.google.com/finance/historical?q=" + ticker + "&output=csv");
+		reader = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8);
 		read();
 	}
 

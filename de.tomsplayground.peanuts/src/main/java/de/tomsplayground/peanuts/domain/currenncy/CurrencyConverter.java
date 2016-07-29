@@ -49,17 +49,9 @@ public class CurrencyConverter {
 			throw new RuntimeException("Rate must not be zero. Date:"+day);
 		}
 		if (inverse) {
-			if (from.equals(from) && to.equals(to)) {
-				return value.divide(rate, MC);
-			} else {
-				return value.multiply(rate, MC);
-			}
+			return value.divide(rate, MC);
 		} else {
-			if (from.equals(from) && to.equals(to)) {
-				return value.multiply(rate, MC);
-			} else {
-				return value.divide(rate, MC);
-			}
+			return value.multiply(rate, MC);
 		}
 	}
 

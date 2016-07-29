@@ -23,7 +23,7 @@ public class Note implements Comparable<Note> {
 	public String getText() {
 		return StringUtils.defaultString(text);
 	}
-	public void updateModificationDate() {
+	public final void updateModificationDate() {
 		this.modificationDate = new DateTime();
 	}
 	public DateTime getModificationDate() {

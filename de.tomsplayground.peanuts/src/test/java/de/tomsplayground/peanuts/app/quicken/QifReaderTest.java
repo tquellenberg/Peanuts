@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
 
-import junit.framework.TestCase;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Category;
@@ -21,6 +21,7 @@ import de.tomsplayground.peanuts.domain.process.Transaction;
 import de.tomsplayground.peanuts.domain.process.Transfer;
 import de.tomsplayground.peanuts.domain.process.TransferTransaction;
 import de.tomsplayground.util.Day;
+import junit.framework.TestCase;
 
 public class QifReaderTest extends TestCase {
 
@@ -53,7 +54,7 @@ public class QifReaderTest extends TestCase {
 
 	public void testEncoding() throws IOException {
 		qifReader.read(new InputStreamReader(QifReaderTest.class.getResourceAsStream("/test.QIF"),
-			"ISO-8859-1"));
+			StandardCharsets.ISO_8859_1));
 
 		ITransaction transaction = accountManager.getOrCreateAccount("Advance", Account.Type.BANK).getTransactions().get(
 			0);

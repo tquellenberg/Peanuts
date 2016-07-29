@@ -21,7 +21,6 @@ public class AccountEditor extends MultiPageEditorPart {
 	private TransactionListEditorPart accountEditorPart;
 
 	private final List<IEditorPart> editors = new ArrayList<IEditorPart>();
-	private MetaEditorPart metaEditorPart;
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -44,7 +43,7 @@ public class AccountEditor extends MultiPageEditorPart {
 		} else if (((AccountEditorInput) getEditorInput()).getAccount().getType() == Account.Type.CREDIT) {
 			createEditorPage(new CreditChartEditorPart(), "Credit");
 		}
-		metaEditorPart = new MetaEditorPart();
+		MetaEditorPart metaEditorPart = new MetaEditorPart();
 		metaEditorPart.initialize(this);
 		createEditorPage(metaEditorPart, "Meta Data");
 	}

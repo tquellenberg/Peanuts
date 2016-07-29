@@ -4,6 +4,7 @@ import static com.google.common.base.Predicates.*;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -112,6 +113,13 @@ public class WatchlistManager extends ObservableModelObject {
 				return configuration.accept(security, Activator.getDefault().getAccountManager());
 			}
 		}));
+	}
+
+	public BigDecimal getCustomPerformance(WatchEntry entry) {
+		if (isCustomPerformanceRangeSet()) {
+			return entry.getPerformance(getPerformanceFrom(), getPerformanceTo());
+		}
+		return BigDecimal.ZERO;
 	}
 
 	void setCurrentWatchlist(String name) {

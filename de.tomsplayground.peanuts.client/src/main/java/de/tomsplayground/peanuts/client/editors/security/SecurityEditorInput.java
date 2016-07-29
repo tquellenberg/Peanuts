@@ -17,7 +17,13 @@ public class SecurityEditorInput implements IEditorInput {
 
 	@Override
 	public boolean equals(Object obj) {
-		if ( !getClass().equals(obj.getClass())) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
+			return true;
+		}
+		if (obj.getClass() != getClass()) {
 			return false;
 		}
 		return security.equals(((SecurityEditorInput) obj).security);
@@ -68,8 +74,9 @@ public class SecurityEditorInput implements IEditorInput {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-		if (adapter.isAssignableFrom(Security.class))
+		if (adapter.isAssignableFrom(Security.class)) {
 			return security;
+		}
 		return null;
 	}
 

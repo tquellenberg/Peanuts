@@ -584,7 +584,7 @@ public class InventoryEditorPart extends EditorPart {
 					cell.setImage(Activator.getDefault().getImage("icons/"+icon+".png"));
 				} else if (element instanceof InvestmentTransaction) {
 					InvestmentTransaction t = (InvestmentTransaction) element;
-					cell.setText(" - "+PeanutsUtil.formatDate(t.getDay()) + " ("+t.getType().toString()+")");
+					cell.setText(" - "+PeanutsUtil.formatDate(t.getDay()) + " ("+t.getType()+")");
 				}
 			}
 			@Override

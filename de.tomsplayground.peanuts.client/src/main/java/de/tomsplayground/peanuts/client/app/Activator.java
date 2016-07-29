@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.Objects;
 
@@ -105,7 +106,9 @@ public class Activator extends AbstractUIPlugin {
 	 * The constructor
 	 */
 	public Activator() {
-		plugin = this;
+		synchronized (Activator.class) {
+			plugin = this;
+		}
 	}
 
 	/*
@@ -247,7 +250,7 @@ public class Activator extends AbstractUIPlugin {
 	public void load(String filename) throws IOException {
 		Reader reader;
 		if (filename.equals(EXAMPLE)) {
-			reader = new InputStreamReader(AccountManager.class.getResourceAsStream("/"+EXAMPLE_FILENAME), "UTF-8");
+			reader = new InputStreamReader(AccountManager.class.getResourceAsStream("/"+EXAMPLE_FILENAME), StandardCharsets.UTF_8);
 		} else {
 			File file = new File(filename);
 			if (! file.exists()) {
@@ -256,9 +259,9 @@ public class Activator extends AbstractUIPlugin {
 				return;
 			}
 			if (filename.endsWith("."+FILE_EXTENSION_SECURE)) {
-				reader = new InputStreamReader(readSecure(file), "UTF-8");
+				reader = new InputStreamReader(readSecure(file), StandardCharsets.UTF_8);
 			} else {
-				reader = new InputStreamReader(new FileInputStream(file), "UTF-8");
+				reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
 			}
 		}
 		try {
@@ -285,9 +288,9 @@ public class Activator extends AbstractUIPlugin {
 		}
 		Writer writer;
 		if (filename.endsWith("."+FILE_EXTENSION_SECURE)) {
-			writer = new OutputStreamWriter(writeSecure(file), "UTF-8");
+			writer = new OutputStreamWriter(writeSecure(file), StandardCharsets.UTF_8);
 		} else {
-			writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+			writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
 		}
 		// Save data
 		Persistence persistence = new Persistence();

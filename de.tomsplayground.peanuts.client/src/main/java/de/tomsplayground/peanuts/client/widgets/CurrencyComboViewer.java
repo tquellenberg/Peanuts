@@ -59,7 +59,7 @@ public class CurrencyComboViewer {
 		return combo;
 	}
 
-	public void selectCurrency(Currency currency) {
+	public final void selectCurrency(Currency currency) {
 		int indexOf = currencies.indexOf(currency);
 		if (indexOf >= 0) {
 			if (optional) {

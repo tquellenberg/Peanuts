@@ -260,7 +260,7 @@ public class TransactionListEditorPart extends EditorPart {
 			protected boolean isLeafMatch(Viewer viewer, Object element) {
 				if (element instanceof Transaction) {
 					Transaction t = (Transaction) element;
-					StringBuffer text = new StringBuffer();
+					StringBuilder text = new StringBuilder();
 					if (t.getCategory() != null) {
 						text.append(t.getCategory().getName()).append(' ');
 					}

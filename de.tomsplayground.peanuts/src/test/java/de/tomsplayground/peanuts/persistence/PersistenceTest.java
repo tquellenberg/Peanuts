@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.persistence;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,7 +24,7 @@ import de.tomsplayground.util.Day;
 public class PersistenceTest {
 
 	private AccountManager accountManager;
-	private Account account, account2;
+	private Account account;
 
 	@Before
 	public void setup() {
@@ -32,7 +32,7 @@ public class PersistenceTest {
 		account = accountManager.getOrCreateAccount("Test", Account.Type.BANK);
 		account.addTransaction(new Transaction(new Day(), new BigDecimal("12.34")));
 		account.putConfigurationValue("key123", "value456");
-		account2 = accountManager.getOrCreateAccount("Test2", Account.Type.BANK);
+		Account account2 = accountManager.getOrCreateAccount("Test2", Account.Type.BANK);
 		Transfer transfer = new Transfer(account, account2, new BigDecimal("1234.55"),
 			new Day());
 		account.addTransaction(transfer.getTransferFrom());
@@ -63,7 +63,7 @@ public class PersistenceTest {
 
 		StringWriter stringWriter = new StringWriter();
 		persistence.write(stringWriter, accountManager);
-		System.out.println("XML:" + stringWriter.toString());
+		System.out.println("XML:" + stringWriter);
 		AccountManager accountManager2 = persistence.read(new StringReader(stringWriter.toString()));
 
 		assertEquals(accountManager.getAccounts().size(), accountManager2.getAccounts().size());

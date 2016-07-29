@@ -145,7 +145,7 @@ public class WatchlistConfigurationDialog extends Dialog {
 		watchlistConfiguration.setName(name.getText());
 		Type type = WatchlistConfiguration.Type.values()[typeCombo.getSelectionIndex()];
 		watchlistConfiguration.setType(type);
-		if (type.equals(Type.MANUAL)) {
+		if (type == Type.MANUAL) {
 			watchlistConfiguration.setFilters(Collections.<ISecuriityFilter>emptyList());
 		} else {
 			String filterName = filterCombo1.getText();

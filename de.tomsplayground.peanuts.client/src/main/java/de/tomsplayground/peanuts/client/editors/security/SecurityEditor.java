@@ -1,8 +1,6 @@
 package de.tomsplayground.peanuts.client.editors.security;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -17,8 +15,6 @@ import de.tomsplayground.peanuts.client.app.Activator;
 public class SecurityEditor extends MultiPageEditorPart {
 
 	public static final String ID = "de.tomsplayground.peanuts.client.securityEditor";
-
-	private final List<IEditorPart> editors = new ArrayList<IEditorPart>();
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -43,10 +39,8 @@ public class SecurityEditor extends MultiPageEditorPart {
 		try {
 			int pageIndex = addPage(editor, getEditorInput());
 			setPageText(pageIndex, name);
-			editors.add(editor);
 		} catch (PartInitException e) {
-			ErrorDialog.openError(getSite().getShell(), "Error creating nested editor", null,
-				e.getStatus());
+			ErrorDialog.openError(getSite().getShell(), "Error creating nested editor", null, e.getStatus());
 		}
 	}
 

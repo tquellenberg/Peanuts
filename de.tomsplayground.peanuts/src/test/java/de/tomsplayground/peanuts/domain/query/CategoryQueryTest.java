@@ -20,24 +20,22 @@ import de.tomsplayground.util.Day;
 public class CategoryQueryTest {
 
 	private Category c1;
-	private Category c11;
 	private Category c2;
 	private Transaction t1;
 	private Transaction t11;
 	private Transaction t2;
-	private Transaction tx;
 	private List<ITransaction> trans;
 
 	@Before
 	public void setUp() {
 		c1 = new Category("c1", Category.Type.EXPENSE);
-		c11 = new Category("c11", Category.Type.EXPENSE);
+		Category c11 = new Category("c11", Category.Type.EXPENSE);
 		c1.addChildCategory(c11);
 		c2 = new Category("c2", Category.Type.EXPENSE);
 		t1 = new Transaction(new Day(), BigDecimal.TEN, c1, "");
 		t11 = new Transaction(new Day(), BigDecimal.TEN, c11, "");
 		t2 = new Transaction(new Day(), BigDecimal.TEN, c2, "");
-		tx = new Transaction(new Day(), BigDecimal.TEN);
+		Transaction tx = new Transaction(new Day(), BigDecimal.TEN);
 		trans = new ArrayList<ITransaction>();
 		trans.add(t1);
 		trans.add(t11);

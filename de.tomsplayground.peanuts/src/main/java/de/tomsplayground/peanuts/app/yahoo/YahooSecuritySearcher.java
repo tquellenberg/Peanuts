@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +27,7 @@ public class YahooSecuritySearcher {
 		List<YahooSecurity> result = Lists.newArrayList();
 		String queryEnc = "";
 		try {
-			queryEnc = URLEncoder.encode(query, "UTF-8");
+			queryEnc = URLEncoder.encode(query, StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e) {
 		}
 		String url = StringUtils.replace(URL, "{}", queryEnc);

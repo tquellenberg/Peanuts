@@ -3,9 +3,8 @@ package de.tomsplayground.util;
 import static org.junit.Assert.*;
 
 import java.util.Calendar;
-import org.junit.Test;
 
-import de.tomsplayground.util.Day;
+import org.junit.Test;
 
 public class DayTest {
 
@@ -16,13 +15,13 @@ public class DayTest {
 		Day d3 = new Day(2008, 0, 30);
 
 		assertEquals(d1, d2);
-		assertFalse(d1.equals(d3));
+		assertNotEquals(d3, d1);
 	}
 
 	@Test
 	public void testHashCode() throws Exception {
 		Day d1 = new Day(2008, 1, 31);
-		assertTrue(1028159 == d1.hashCode());
+		assertEquals(1028159, d1.hashCode());
 	}
 
 	@Test
@@ -39,7 +38,7 @@ public class DayTest {
 		Day d1 = new Day(2008, 0, 30);
 		Day d2 = new Day(2008, 0, 31);
 
-		assertTrue(d1.compareTo(d1) == 0);
+		assertEquals(0, d1.compareTo(d1));
 		assertTrue(d1.compareTo(d2) < 0);
 		assertTrue(d2.compareTo(d1) > 0);
 		assertTrue(d1.before(d2));

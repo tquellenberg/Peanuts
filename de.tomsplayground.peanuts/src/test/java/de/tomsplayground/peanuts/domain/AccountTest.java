@@ -3,7 +3,6 @@ package de.tomsplayground.peanuts.domain;
 import java.math.BigDecimal;
 import java.util.List;
 
-import junit.framework.TestCase;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Category;
@@ -12,6 +11,7 @@ import de.tomsplayground.peanuts.domain.process.Transaction;
 import de.tomsplayground.peanuts.domain.process.Transfer;
 import de.tomsplayground.peanuts.domain.process.TransferTransaction;
 import de.tomsplayground.util.Day;
+import junit.framework.TestCase;
 
 public class AccountTest extends TestCase {
 
@@ -135,7 +135,7 @@ public class AccountTest extends TestCase {
 		account2.addTransaction(t.getTransferTo());
 		Transaction t1 = (Transaction) account1.getTransactions().get(0);
 
-		t1.clone();
+		assertNotNull(t1.clone());
 		account1.addTransaction(t1);
 
 		assertEquals(2, account1.getTransactions().size());
@@ -156,7 +156,7 @@ public class AccountTest extends TestCase {
 		account2.addTransaction(t.getTransferTo());
 		Transaction t2 = (Transaction) account2.getTransactions().get(0);
 
-		t2.clone();
+		assertNotNull(t2.clone());
 		account2.addTransaction(t2);
 
 		assertEquals(2, account1.getTransactions().size());

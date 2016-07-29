@@ -21,7 +21,13 @@ public class AccountEditorInput implements IEditorInput, ITransactionProviderInp
 
 	@Override
 	public boolean equals(Object obj) {
-		if ( !getClass().equals(obj.getClass())) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
+			return true;
+		}
+		if (obj.getClass() != getClass()) {
 			return false;
 		}
 		return account.equals(((AccountEditorInput) obj).account);

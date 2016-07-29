@@ -70,7 +70,7 @@ public class TransferTransaction extends LabeledTransaction {
 			return;
 		}
 		amount = amount.negate();
-		if (complement != null && !complement.getAmount().equals(amount)) {
+		if (complement != null && complement.getAmount().compareTo(amount) != 0) {
 			complement.setAmount(amount);
 		}
 	}

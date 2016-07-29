@@ -540,7 +540,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 						}
 					} else if (property.equals("div")) {
 						BigDecimal v = PeanutsUtil.parseCurrency((String) value);
-						if (! v.equals(p.getDividende())) {
+						if (v.compareTo(p.getDividende()) != 0) {
 							p.setDividende(v);
 							p.updateLastModifyDate();
 							tableViewer.update(p, new String[]{property});
@@ -548,7 +548,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 						}
 					} else if (property.equals("EPS")) {
 						BigDecimal v = PeanutsUtil.parseCurrency((String) value);
-						if (! v.equals(p.getEarningsPerShare())) {
+						if (v.compareTo(p.getEarningsPerShare()) != 0) {
 							p.setEarningsPerShare(v);
 							p.updateLastModifyDate();
 							tableViewer.update(p, new String[]{property});
@@ -556,7 +556,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 						}
 					} else if (property.equals("deRatio")) {
 						BigDecimal v = PeanutsUtil.parseCurrency((String) value);
-						if (! v.equals(p.getDebtEquityRatio())) {
+						if (v.compareTo(p.getDebtEquityRatio()) != 0) {
 							p.setDebtEquityRatio(v);
 							p.updateLastModifyDate();
 							tableViewer.update(p, new String[]{property});

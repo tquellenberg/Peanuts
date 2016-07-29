@@ -1,8 +1,6 @@
 package de.tomsplayground.peanuts.domain.process;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 
@@ -22,10 +20,10 @@ public class PriceTest {
 		assertEquals(price1.hashCode(), price3.hashCode());
 
 		Price price4 = new Price(new Day(2008, 2, 28), null, new BigDecimal("2.00"), null, null);
-		assertTrue(price1.hashCode() != price4.hashCode());
+		assertNotEquals(price1.hashCode(), price4.hashCode());
 
 		Price price5 = new Price(new Day(2008, 2, 29), null, new BigDecimal("2.0"), null, null);
-		assertTrue(price1.hashCode() != price5.hashCode());
+		assertNotEquals(price1.hashCode(), price5.hashCode());
 	}
 
 	@Test
@@ -38,10 +36,10 @@ public class PriceTest {
 		assertEquals(price1, price3);
 
 		Price price4 = new Price(new Day(2008, 2, 28), null, new BigDecimal("2.00"), null, null);
-		assertFalse(price1.equals(price4));
+		assertNotEquals(price1, price4);
 
 		Price price5 = new Price(new Day(2008, 2, 29), null, new BigDecimal("2.0"), null, null);
-		assertFalse(price1.equals(price5));
+		assertNotEquals(price5, price1);
 	}
 
 	@Test
