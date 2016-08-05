@@ -31,6 +31,8 @@ import de.tomsplayground.util.Day;
 
 public class AllAccountsPieView extends ViewPart {
 
+	private static final BigDecimal THRESHOLD = new BigDecimal("0.01");
+
 	public static final String ID = "de.tomsplayground.peanuts.client.AllAccountsPieView";
 
 	private DefaultPieDataset dataset;
@@ -85,7 +87,7 @@ public class AllAccountsPieView extends ViewPart {
 				i.addPropertyChangeListener(accountChangeListener);
 			}
 			BigDecimal sum = entry.getBalance(today).add(i.getMarketValue());
-			if (sum.abs().compareTo(new BigDecimal("0.01")) > 0) {
+			if (sum.abs().compareTo(THRESHOLD) > 0) {
 				dataset.setValue(entry.getName(), sum);
 			}
 		}

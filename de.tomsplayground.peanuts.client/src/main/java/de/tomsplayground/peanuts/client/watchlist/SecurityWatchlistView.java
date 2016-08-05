@@ -73,6 +73,18 @@ public class SecurityWatchlistView extends ViewPart {
 
 	private static final PerformanceComparator WEEK_COMPARATOR = new PerformanceComparator(7, 0, 0);
 
+	private static final BigDecimal PE_DELTA_HIGH = new BigDecimal("0.05");
+	private static final BigDecimal PE_DELTA_LOW = new BigDecimal("-0.05");
+
+	private static final BigDecimal RETURN_HIGH = new BigDecimal("0.05");
+	private static final BigDecimal RETURN_LOW = new BigDecimal("0.0");
+
+	private static final BigDecimal ROBUSTNES_HIGH = new BigDecimal("0.6");
+	private static final BigDecimal ROBUSTNES_LOW = new BigDecimal("0.3");
+
+	private static final BigDecimal SCORE_HIGH = new BigDecimal("0.6");
+	private static final BigDecimal SCORE_LOW = new BigDecimal("0.4");
+
 	public static final String ID = "de.tomsplayground.peanuts.client.securityWatchListView";
 
 	private TableViewer securityListViewer;
@@ -374,40 +386,40 @@ public class SecurityWatchlistView extends ViewPart {
 			if (columnIndex == 5) {
 				BigDecimal peDelta = watchEntry.getPeDelta();
 				if (peDelta != null) {
-					if (peDelta.compareTo(new BigDecimal("0.05")) > 0) {
+					if (peDelta.compareTo(PE_DELTA_HIGH) > 0) {
 						return red;
 					}
-					if (peDelta.compareTo(new BigDecimal("-0.05")) < 0) {
+					if (peDelta.compareTo(PE_DELTA_LOW) < 0) {
 						return green;
 					}
 				}
 			} else if (columnIndex == 6) {
 				BigDecimal v = watchEntry.getCurrencyAdjustedReturn();
 				if (v != null) {
-					if (v.compareTo(new BigDecimal("0.05")) > 0) {
+					if (v.compareTo(RETURN_HIGH) > 0) {
 						return green;
 					}
-					if (v.compareTo(new BigDecimal("0.0")) < 0) {
+					if (v.compareTo(RETURN_LOW) < 0) {
 						return red;
 					}
 				}
 			} else if (columnIndex == 7) {
 				BigDecimal v = watchEntry.getRobustness();
 				if (v != null) {
-					if (v.compareTo(new BigDecimal("0.6")) > 0) {
+					if (v.compareTo(ROBUSTNES_HIGH) > 0) {
 						return green;
 					}
-					if (v.compareTo(new BigDecimal("0.3")) < 0) {
+					if (v.compareTo(ROBUSTNES_LOW) < 0) {
 						return red;
 					}
 				}
 			} else if (columnIndex == 9) {
 				BigDecimal data4 = watchEntry.getScore();
 				if (data4 != null) {
-					if (data4.doubleValue() > 0.6) {
+					if (data4.compareTo(SCORE_HIGH) > 0) {
 						return green;
 					}
-					if (data4.doubleValue() < 0.4) {
+					if (data4.compareTo(SCORE_LOW) < 0) {
 						return red;
 					}
 				}

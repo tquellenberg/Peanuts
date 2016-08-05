@@ -29,6 +29,8 @@ import de.tomsplayground.peanuts.domain.statistics.SimpleMovingAverage;
 import de.tomsplayground.util.Day;
 
 public class WatchEntry {
+	private static final BigDecimal TWO = new BigDecimal(2);
+
 	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	private final Security security;
@@ -232,7 +234,7 @@ public class WatchEntry {
 		if (v == null) {
 			return null;
 		}
-		score = score.add(v.divide(new BigDecimal(2), MC));
+		score = score.add(v.divide(TWO, MC));
 		return score;
 	}
 
