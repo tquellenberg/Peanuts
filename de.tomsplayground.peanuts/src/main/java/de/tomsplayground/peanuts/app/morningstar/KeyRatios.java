@@ -62,18 +62,21 @@ public class KeyRatios {
 
 			String[] earnings = null;
 			String[] dividende = null;
+			String[] deptToEquity = null;
 			for (String[] line : allLines) {
 				if (StringUtils.startsWith(line[0], "Earnings Per Share")) {
 					earnings = line;
-				}
-				if (StringUtils.startsWith(line[0], "Dividends")) {
+				} else if (StringUtils.startsWith(line[0], "Dividends")) {
 					dividende = line;
+				} else if (StringUtils.startsWith(line[0], "Debt/Equity")) {
+					deptToEquity = line;
 				}
 			}
 			Preconditions.checkNotNull(earnings);
 			Preconditions.checkNotNull(dividende);
+			Preconditions.checkNotNull(deptToEquity);
 
-			return parse(years, earnings, dividende);
+			return parse(years, earnings, dividende, deptToEquity);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -82,7 +85,7 @@ public class KeyRatios {
 		return Lists.newArrayList();
 	}
 
-	private List<FundamentalData> parse(String[] years, String[] earnings, String[] dividende) {
+	private List<FundamentalData> parse(String[] years, String[] earnings, String[] dividende, String[] deptToEquity) {
 		List<FundamentalData> fundamentalDatas = Lists.newArrayList();
 		for (int i = 1; i <= 10; i++) {
 			FundamentalData fundamentalData = new FundamentalData();
@@ -99,6 +102,12 @@ public class KeyRatios {
 			try {
 				BigDecimal dividend = new BigDecimal(dividende[i]);
 				fundamentalData.setDividende(dividend);
+			} catch (NumberFormatException e) {
+				// Okay
+			}
+			try {
+				BigDecimal de = new BigDecimal(deptToEquity[i]);
+				fundamentalData.setDebtEquityRatio(de);
 			} catch (NumberFormatException e) {
 				// Okay
 			}

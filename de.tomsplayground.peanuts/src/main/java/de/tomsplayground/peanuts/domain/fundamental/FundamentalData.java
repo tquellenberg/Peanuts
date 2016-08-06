@@ -173,8 +173,17 @@ public class FundamentalData implements Comparable<FundamentalData> {
 	}
 
 	public void update(FundamentalData newData) {
+		updateLastModifyDate();
 		if (locked) {
+			if (getDebtEquityRatio() == null ||
+				(getDebtEquityRatio().signum() == 0 && newData.getDebtEquityRatio().signum() > 0)) {
+				setDebtEquityRatio(newData.getDebtEquityRatio());
+			}
 			return;
+		} else {
+			if (newData.getDebtEquityRatio().signum() > 0) {
+				setDebtEquityRatio(newData.getDebtEquityRatio());
+			}
 		}
 		if (newData.getDividende().signum() > 0) {
 			setDividende(newData.getDividende());
@@ -183,6 +192,5 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		if (newData.getFicalYearEndsMonth() != 0) {
 			setFicalYearEndsMonth(newData.getFicalYearEndsMonth());
 		}
-		updateLastModifyDate();
 	}
 }
