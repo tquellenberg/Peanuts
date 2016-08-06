@@ -18,6 +18,9 @@ public class ExchangeRates {
 	}
 
 	public CurrencyConverter createCurrencyConverter(Currency from, Currency to) {
+		if (from.equals(to)) {
+			return new DummyCurrencyConverter(from);
+		}
 		for (Security s : securityProvider.getSecurities()) {
 			if (s.getExchangeCurrency() != null) {
 				if (s.getCurrency().equals(from) && s.getExchangeCurrency().equals(to)) {

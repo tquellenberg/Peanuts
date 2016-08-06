@@ -19,9 +19,11 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
@@ -59,6 +61,7 @@ import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
+import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.fundamental.AvgFundamentalData;
@@ -161,12 +164,13 @@ public class ChartEditorPart extends EditorPart {
 
 	private TimeSeries average20Days;
 	private TimeSeries average100Days;
-	private TimeSeriesCollection dataset;
+	private final TimeSeriesCollection dataset = new TimeSeriesCollection();
 	private ImmutableList<XYAnnotation> signalAnnotations = ImmutableList.of();
 	private TimeChart timeChart;
 	private TimeSeries stopLoss;
 	private TimeSeries compareToPriceTimeSeries;
 	private XYPlot pricePlot;
+	private Button convertToEuro;
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -185,7 +189,11 @@ public class ChartEditorPart extends EditorPart {
 	public void createPartControl(Composite parent) {
 		Composite body = new Composite(parent, SWT.NONE);
 		body.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
-		body.setLayout(new GridLayout());
+		GridLayout layout = new GridLayout(1, false);
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		layout.verticalSpacing = 0;
+		body.setLayout(layout);
 
 		createDataset();
 		final JFreeChart chart = createChart();
@@ -200,23 +208,20 @@ public class ChartEditorPart extends EditorPart {
 
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 
-		BigDecimal avgPrice = getAvgPrice();
-		if (avgPrice != null) {
-			ValueMarker marker = new ValueMarker(avgPrice.doubleValue());
-			marker.setPaint(Color.black);
-			marker.setLabelPaint(Color.black);
-			marker.setLabel("Avg Price");
-			marker.setLabelFont(new Font("SansSerif", Font.PLAIN, 10));
-			marker.setLabelOffsetType(LengthAdjustmentType.EXPAND);
-			marker.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
-			marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
-
-			pricePlot.addRangeMarker(marker);
-		}
+		addAvgPriceAnnotation();
 
 		addSplitAnnotations(Activator.getDefault().getAccountManager().getStockSplits(security));
 
-		displayType = new Combo(body, SWT.READ_ONLY);
+		Composite buttons = new Composite(body, SWT.NONE);
+		buttons.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+		GridLayout layout2 = new GridLayout(3, false);
+		layout2.marginHeight = 5;
+		layout2.marginWidth = 10;
+		layout2.verticalSpacing = 0;
+		buttons.setLayout(layout2);
+		buttons.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+
+		displayType = new Combo(buttons, SWT.READ_ONLY);
 		for (TimeChart.RANGE r : TimeChart.RANGE.values()) {
 			displayType.add(r.getName());
 		}
@@ -234,11 +239,70 @@ public class ChartEditorPart extends EditorPart {
 				calculateCompareToValues();
 			}
 		});
+		Currency defaultCurrency = Currencies.getInstance().getDefaultCurrency();
+		if (security.getCurrency() != null && ! security.getCurrency().equals(defaultCurrency)) {
+			Label text = new Label(buttons, SWT.NONE);
+			text.setText("Convert from "+security.getCurrency().getCurrencyCode()+" to "+defaultCurrency.getCurrencyCode());
+			convertToEuro = new Button(buttons, SWT.CHECK);
+			convertToEuro.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					createDataset();
+					pricePlot.clearAnnotations();
+					addOrderAnnotations();
+					pricePlot.getRangeAxis().setLabel("Price "+getChartCurrencyConverter().getToCurrency().getSymbol());
+					timeChart.setChartType(displayType.getItem(displayType.getSelectionIndex()));
+				}
+			});
+		}
+
 		calculateCompareToValues();
 
 		security.addPropertyChangeListener(securityPropertyChangeListener);
 
 		Activator.getDefault().getAccountManager().addPropertyChangeListener(accountManagerChangeListener);
+	}
+
+	private void addAvgPriceAnnotation() {
+		BigDecimal avgPrice = getAvgPrice();
+		if (avgPrice != null) {
+			ValueMarker marker = new ValueMarker(avgPrice.doubleValue());
+			marker.setPaint(Color.black);
+			marker.setLabelPaint(Color.black);
+			marker.setLabel("Avg Price");
+			marker.setLabelFont(new Font("SansSerif", Font.PLAIN, 10));
+			marker.setLabelOffsetType(LengthAdjustmentType.EXPAND);
+			marker.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
+			marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
+
+			pricePlot.addRangeMarker(marker);
+		}
+	}
+
+	private IPriceProvider getChartPriceProvider() {
+		if (convertToEuro != null && convertToEuro.getSelection()) {
+			Currency defaultCurrency = Currencies.getInstance().getDefaultCurrency();
+			Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+			ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
+			CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(security.getCurrency(), defaultCurrency);
+			if (currencyConverter != null) {
+				return new CurrencyAdjustedPriceProvider(priceProvider, currencyConverter);
+			}
+		}
+		return priceProvider;
+	}
+
+	private CurrencyConverter getChartCurrencyConverter() {
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		Currency defaultCurrency = Currencies.getInstance().getDefaultCurrency();
+		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
+		if (convertToEuro != null && convertToEuro.getSelection()) {
+			CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(security.getCurrency(), defaultCurrency);
+			if (currencyConverter != null) {
+				return currencyConverter;
+			}
+		}
+		return exchangeRate.createCurrencyConverter(security.getCurrency(), security.getCurrency());
 	}
 
 	protected void addSplitAnnotations(List<StockSplit> splits) {
@@ -262,11 +326,12 @@ public class ChartEditorPart extends EditorPart {
 	}
 
 	protected void addOrderAnnotations() {
+		IPriceProvider pp = getChartPriceProvider();
 		ImmutableList<InvestmentTransaction> transactions = getOrders();
 		for (InvestmentTransaction investmentTransaction : transactions) {
 			de.tomsplayground.util.Day day = investmentTransaction.getDay();
 			long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
-			double y = priceProvider.getPrice(day).getClose().doubleValue();
+			double y = pp.getPrice(day).getClose().doubleValue();
 
 			XYPointerAnnotation pointerAnnotation = null;
 			String t = "";
@@ -276,6 +341,7 @@ public class ChartEditorPart extends EditorPart {
 				case BUY:
 					t = "+"+investmentTransaction.getQuantity();
 					BigDecimal adjustedPrice = investmentTransaction.getPrice().multiply(getSplitRatio(day));
+					adjustedPrice = getChartCurrencyConverter().convert(adjustedPrice, day);
 					pointerAnnotation = new XYPointerAnnotation(t, x, adjustedPrice.doubleValue(), Math.PI / 2);
 					swtColor = Activator.getDefault().getColorProvider().get(Activator.GREEN);
 					c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
@@ -283,6 +349,7 @@ public class ChartEditorPart extends EditorPart {
 				case SELL:
 					t = "-"+investmentTransaction.getQuantity();
 					adjustedPrice = investmentTransaction.getPrice().multiply(getSplitRatio(day));
+					adjustedPrice = getChartCurrencyConverter().convert(adjustedPrice, day);
 					pointerAnnotation = new XYPointerAnnotation(t, x, adjustedPrice.doubleValue(), 3* Math.PI / 2);
 					swtColor = Activator.getDefault().getColorProvider().get(Activator.RED);
 					c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
@@ -360,7 +427,7 @@ public class ChartEditorPart extends EditorPart {
 		// Compare to
 		renderer.setSeriesPaint(nextPos + 1, Color.LIGHT_GRAY);
 
-		NumberAxis rangeAxis2 = new NumberAxis("Price");
+		NumberAxis rangeAxis2 = new NumberAxis("Price "+getChartCurrencyConverter().getToCurrency().getSymbol());
 		rangeAxis2.setAutoRange(true);
 		pricePlot = new XYPlot(dataset, null, rangeAxis2, renderer);
 		combiPlot.add(pricePlot, showPEratioChart ? 70 : 100);
@@ -453,10 +520,10 @@ public class ChartEditorPart extends EditorPart {
 	}
 
 	private void createDataset() {
-		dataset = new TimeSeriesCollection();
+		dataset.removeAllSeries();
 
 		priceTimeSeries = new TimeSeries(getEditorInput().getName(), Day.class);
-		for (IPrice price : priceProvider.getPrices()) {
+		for (IPrice price : getChartPriceProvider().getPrices()) {
 			de.tomsplayground.util.Day day = price.getDay();
 			priceTimeSeries.add(new Day(day.day, day.month+1, day.year), price.getValue());
 		}
