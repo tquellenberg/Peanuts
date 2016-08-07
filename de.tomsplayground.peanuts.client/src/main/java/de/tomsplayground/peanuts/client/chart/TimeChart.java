@@ -167,14 +167,14 @@ public class TimeChart {
 				if (! serie.isEmpty()) {
 					int start = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, from.getTime(), from.getTimeZone()));
 					if (start < 0) {
-						start = -start;
+						start = -start - 1;
 						if (start == serie.getItemCount()) {
 							start = serie.getItemCount() - 1;
 						}
 					}
 					int end = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, to.getTime(), to.getTimeZone()));
 					if (end < 0) {
-						end = - end;
+						end = - end - 1;
 					}
 					if (end >= serie.getItemCount()) {
 						end = serie.getItemCount() - 1;
