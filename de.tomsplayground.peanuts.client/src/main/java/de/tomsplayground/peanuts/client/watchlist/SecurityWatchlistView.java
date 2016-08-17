@@ -228,11 +228,11 @@ public class SecurityWatchlistView extends ViewPart {
 			if (! securityListViewer.getTable().isDisposed()) {
 				if (evt.getPropertyName().equals("currentWatchlist")) {
 					currentWatchList = (Watchlist) evt.getNewValue();
-					showWatchlistName(currentWatchList);
+					showWatchlistName();
 					securityListViewer.setInput(currentWatchList);
 					securityListViewer.refresh();
-				} else if (evt.getPropertyName().equals("name")) {
-					showWatchlistName(currentWatchList);
+				} else if (evt.getPropertyName().equals("configuration")) {
+					showWatchlistName();
 				} else {
 					securityListViewer.refresh();
 				}
@@ -446,7 +446,8 @@ public class SecurityWatchlistView extends ViewPart {
 	@Override
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
 		super.init(site, memento);
-		showWatchlistName(WatchlistManager.getInstance().getCurrentWatchlist());
+		initWatchlists();
+		showWatchlistName();
 		if (memento != null) {
 			for (int i = 0; i < colWidth.length; i++ ) {
 				Integer width = memento.getInteger("col" + i);
@@ -763,7 +764,6 @@ public class SecurityWatchlistView extends ViewPart {
 			}
 		});
 
-		initWatchlists();
 		securityListViewer.setInput(currentWatchList);
 
 		securityListViewer.addDoubleClickListener(new IDoubleClickListener() {
@@ -799,7 +799,6 @@ public class SecurityWatchlistView extends ViewPart {
 	}
 
 	private void initWatchlists() {
-		WatchlistManager.getInstance().init();
 		WatchlistManager.getInstance().addPropertyChangeListener(watchlistChangeListener);
 		currentWatchList = WatchlistManager.getInstance().getCurrentWatchlist();
 	}
@@ -810,7 +809,7 @@ public class SecurityWatchlistView extends ViewPart {
 		// remove from viewer
 		securityListViewer.remove(entry);
 		// update DisplayConfiguration
-		WatchlistManager.getInstance().removeSecurityFromWatchlist(security, currentWatchList);
+		WatchlistManager.getInstance().removeSecurityFromCurrentWatchlist(security);
 	}
 
 	private void addSecurityToCurrentWatchlist(Security security) {
@@ -822,15 +821,11 @@ public class SecurityWatchlistView extends ViewPart {
 			securityListViewer.reveal(entry);
 		}
 		// update DisplayConfiguration
-		WatchlistManager.getInstance().addSecurityToWatchlist(security, currentWatchList);
+		WatchlistManager.getInstance().addSecurityToCurrentWatchlist(security);
 	}
 
-	private void showWatchlistName(Watchlist watchlist) {
-		if (watchlist.getConfiguration() != null) {
-			setContentDescription(watchlist.getName() + " ("+watchlist.getConfiguration().getType()+")");
-		} else {
-			setContentDescription(watchlist.getName());
-		}
+	private void showWatchlistName() {
+		setContentDescription(currentWatchList.getName() + " ("+currentWatchList.getConfiguration().getType()+")");
 	}
 
 	@Override

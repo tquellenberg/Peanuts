@@ -42,24 +42,17 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 		}
 	};
 
-	private String name;
+	private WatchlistConfiguration configuration;
+
 	private final List<WatchEntry> entries = new ArrayList<WatchEntry>();
-	private final WatchlistConfiguration configuration;
 
 	public Watchlist(WatchlistConfiguration configuration) {
-		this.name = configuration.getName();
 		this.configuration = configuration;
 	}
 
 	@Override
 	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		String oldName = this.name;
-		this.name = name;
-		firePropertyChange("name", oldName, name);
+		return configuration.getName();
 	}
 
 	public List<WatchEntry> getEntries() {
@@ -124,8 +117,12 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 		return configuration;
 	}
 
+	public void setConfiguration(WatchlistConfiguration newConfiguration) {
+		this.configuration = newConfiguration;
+	}
+
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append(name).build();
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append(getName()).build();
 	}
 }

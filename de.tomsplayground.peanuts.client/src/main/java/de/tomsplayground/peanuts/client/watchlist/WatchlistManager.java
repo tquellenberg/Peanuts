@@ -6,24 +6,19 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import de.tomsplayground.peanuts.client.app.Activator;
-import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.watchlist.WatchlistConfiguration;
@@ -31,9 +26,10 @@ import de.tomsplayground.util.Day;
 
 public class WatchlistManager extends ObservableModelObject {
 
-	private static WatchlistManager INSTANCE = new WatchlistManager();
+	private static WatchlistManager INSTANCE;
 
-	private final List<Watchlist> watchlists = new ArrayList<Watchlist>();
+	private final List<WatchlistConfiguration> allWatchlists = new ArrayList<WatchlistConfiguration>();
+
 	private Watchlist currentWatchlist;
 
 	private Day performanceFrom;
@@ -47,46 +43,78 @@ public class WatchlistManager extends ObservableModelObject {
 	};
 
 	private WatchlistManager() {
-		// private
+		init();
 	}
 
-	public static WatchlistManager getInstance() {
+	public static synchronized WatchlistManager getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new WatchlistManager();
+		}
 		return INSTANCE;
 	}
 
-	public void init() {
-		// Manually added securities
-		for (Security security : Activator.getDefault().getAccountManager().getSecurities()) {
-			for (String watchlistName : getWatchlistNamesForSecurity(security)) {
-				Watchlist watchlist = getWatchlistByName(watchlistName);
-				if (watchlist == null) {
-					watchlist = addWatchlist(watchlistName);
-				}
-				watchlist.addEntry(security);
+	private void init() {
+		// Watch lists with configuration
+		allWatchlists.addAll(Activator.getDefault().getAccountManager().getWatchlsts());
+
+		// Manually configured watch lists from securities
+		ImmutableList<Security> allSecurities = Activator.getDefault().getAccountManager().getSecurities();
+		Set<String> manualWatchListName = allSecurities.parallelStream()
+			.flatMap(s -> getWatchlistNamesForSecurity(s).stream())
+			.collect(Collectors.toSet());
+		for (String watchListName : manualWatchListName) {
+			if (getWatchlistByName(watchListName) == null) {
+				WatchlistConfiguration watchlistConfiguration = new WatchlistConfiguration(watchListName);
+				Activator.getDefault().getAccountManager().addWatchlist(watchlistConfiguration);
+				allWatchlists.add(watchlistConfiguration);
 			}
 		}
-		// Configuration based securities
-		for (WatchlistConfiguration config : Activator.getDefault().getAccountManager().getWatchlsts()) {
-			Watchlist watchlist = getWatchlistByName(config.getName());
-			if (watchlist == null) {
-				watchlist = addWatchlist(config.getName());
-			}
-			for (Security s : getSecuritiesByConfiguration(watchlist.getConfiguration())) {
-				watchlist.addEntry(s);
+
+		// Current watch list
+		if (allWatchlists.isEmpty()) {
+			addWatchlist("Default");
+		}
+		setCurrentWatchlist(getWatchlistNames().get(0));
+	}
+
+	public List<String> getWatchlistNames() {
+		List<String> result = new ArrayList<String>();
+		for (WatchlistConfiguration list : allWatchlists) {
+			result.add(list.getName());
+		}
+		Collections.sort(result);
+		return result;
+	}
+
+	private WatchlistConfiguration getWatchlistByName(String name) {
+		for (WatchlistConfiguration list : allWatchlists) {
+			if (list.getName().equals(name)) {
+				return list;
 			}
 		}
+		return null;
+	}
+
+	public WatchlistConfiguration addWatchlist(String name) {
+		WatchlistConfiguration watchlist = getWatchlistByName(name);
+		if (watchlist == null) {
+			watchlist = new WatchlistConfiguration(name);
+			allWatchlists.add(watchlist);
+			Activator.getDefault().getAccountManager().addWatchlist(watchlist);
+			firePropertyChange("allWatchlists", null, watchlist);
+		}
+		return watchlist;
 	}
 
 	private void refreshSecuritiesForWatchlist(Watchlist watchlist) {
-		Set<Security> currentSecurities = watchlist.getSecurities();
 		Set<Security> newSecurities = Sets.newHashSet();
-		for (Security security : Activator.getDefault().getAccountManager().getSecurities()) {
-			if (getWatchlistNamesForSecurity(security).contains(watchlist.getName())) {
-				newSecurities.add(security);
-			}
+		if (watchlist.getConfiguration().isManuallyConfigured()) {
+			newSecurities.addAll(getManuallyWatchlistSecurities(watchlist.getName()));
+		} else {
+			newSecurities.addAll(watchlist.getConfiguration().getSecuritiesByConfiguration(Activator.getDefault().getAccountManager()));
 		}
-		newSecurities.addAll(getSecuritiesByConfiguration(watchlist.getConfiguration()));
 
+		Set<Security> currentSecurities = watchlist.getSecurities();
 		for (Security s : Sets.filter(currentSecurities, not(in(newSecurities)))) {
 			watchlist.removeEntry(s);
 		}
@@ -95,24 +123,42 @@ public class WatchlistManager extends ObservableModelObject {
 		}
 	}
 
-	private List<Security> getSecuritiesByConfiguration(final WatchlistConfiguration configuration) {
-		Collection<Security> result = null;
-		switch (configuration.getType()) {
-			case MANUAL:
-				return Lists.newArrayList();
-			case ALL_SECURITIES:
-				result = Activator.getDefault().getAccountManager().getSecurities();
-				break;
-			case MY_SECURITIES:
-				Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
-				result = inventory.getSecurities();
+	public void setCurrentWatchlist(String name) {
+		Watchlist oldCurrentWatchlist = currentWatchlist;
+		if (oldCurrentWatchlist != null) {
+			oldCurrentWatchlist.removePropertyChangeListener(watchlistChangeListener);
 		}
-		return Lists.newArrayList(Iterables.filter(result, new Predicate<Security>() {
-			@Override
-			public boolean apply(Security security) {
-				return configuration.accept(security, Activator.getDefault().getAccountManager());
+		currentWatchlist = new Watchlist(getWatchlistByName(name));
+		currentWatchlist.addPropertyChangeListener(watchlistChangeListener);
+
+		firePropertyChange("currentWatchlist", oldCurrentWatchlist, currentWatchlist);
+		refreshSecuritiesForWatchlist(currentWatchlist);
+	}
+
+	public WatchlistConfiguration getCurrentWatchlistConfiguration() {
+		return currentWatchlist.getConfiguration();
+	}
+
+	public Watchlist getCurrentWatchlist() {
+		return currentWatchlist;
+	}
+
+	public void updateCurrentWatchlist(WatchlistConfiguration newConfiguration) {
+		WatchlistConfiguration oldConfiguration = currentWatchlist.getConfiguration();
+		if (! StringUtils.equals(newConfiguration.getName(), oldConfiguration.getName()) &&
+			newConfiguration.isManuallyConfigured()) {
+			String oldName = oldConfiguration.getName();
+			String newName = newConfiguration.getName();
+			for (Security entry : getManuallyWatchlistSecurities(oldName)) {
+				Set<String> list = new HashSet<String>(getWatchlistNamesForSecurity(entry));
+				list.remove(oldName);
+				list.add(newName);
+				entry.putConfigurationValue(SecurityWatchlistView.ID, StringUtils.join(list, ','));
 			}
-		}));
+			currentWatchlist.setConfiguration(newConfiguration);
+		}
+		refreshSecuritiesForWatchlist(currentWatchlist);
+		firePropertyChange("configuration", oldConfiguration, newConfiguration);
 	}
 
 	public BigDecimal getCustomPerformance(WatchEntry entry) {
@@ -120,79 +166,6 @@ public class WatchlistManager extends ObservableModelObject {
 			return entry.getPerformance(getPerformanceFrom(), getPerformanceTo());
 		}
 		return BigDecimal.ZERO;
-	}
-
-	void setCurrentWatchlist(String name) {
-		Watchlist oldCurrentWatchlist = currentWatchlist;
-		currentWatchlist = getWatchlistByName(name);
-		firePropertyChange("currentWatchlist", oldCurrentWatchlist, currentWatchlist);
-		refreshSecuritiesForWatchlist(currentWatchlist);
-	}
-
-	public Watchlist getCurrentWatchlist() {
-		if (watchlists.isEmpty()) {
-			addWatchlist("Default");
-			currentWatchlist = watchlists.get(0);
-		}
-		return currentWatchlist;
-	}
-
-	public WatchlistConfiguration getWatchlistConfiguration(final String name) {
-		ImmutableSet<WatchlistConfiguration> watchlsts = Activator.getDefault().getAccountManager().getWatchlsts();
-		Optional<WatchlistConfiguration> optional = Iterables.tryFind(watchlsts, new Predicate<WatchlistConfiguration>() {
-			@Override
-			public boolean apply(WatchlistConfiguration input) {
-				return input.getName().equals(name);
-			}
-		});
-		WatchlistConfiguration watchlistConfiguration;
-		if (optional.isPresent()) {
-			watchlistConfiguration = optional.get();
-		} else {
-			watchlistConfiguration = new WatchlistConfiguration(name);
-			Activator.getDefault().getAccountManager().addWatchlist(watchlistConfiguration);
-		}
-		return watchlistConfiguration;
-	}
-
-	public void update(WatchlistConfiguration watchlistConfiguration) {
-		String oldName = currentWatchlist.getName();
-		String newName = watchlistConfiguration.getName();
-		if (! StringUtils.equals(newName, oldName)) {
-			for (WatchEntry entry : currentWatchlist.getEntries()) {
-				Set<String> list = new HashSet<String>(getWatchlistNamesForSecurity(entry.getSecurity()));
-				list.remove(oldName);
-				list.add(newName);
-				entry.getSecurity().putConfigurationValue(SecurityWatchlistView.ID, StringUtils.join(list, ','));
-			}
-			currentWatchlist.setName(newName);
-		}
-		refreshSecuritiesForWatchlist(currentWatchlist);
-	}
-
-	public List<String> getWatchlistNames() {
-		List<String> result = new ArrayList<String>();
-		for (Watchlist list : watchlists) {
-			result.add(list.getName());
-		}
-		return result;
-	}
-
-	public Watchlist getWatchlistByName(String name) {
-		for (Watchlist list : watchlists) {
-			if (list.getName().equals(name)) {
-				return list;
-			}
-		}
-		return null;
-	}
-
-	public Watchlist addWatchlist(String name) {
-		Watchlist newWatchlist = new Watchlist(getWatchlistConfiguration(name));
-		watchlists.add(newWatchlist);
-		newWatchlist.addPropertyChangeListener(watchlistChangeListener);
-		firePropertyChange("watchlists", null, newWatchlist);
-		return newWatchlist;
 	}
 
 	public boolean isCustomPerformanceRangeSet() {
@@ -214,25 +187,42 @@ public class WatchlistManager extends ObservableModelObject {
 		return performanceTo;
 	}
 
-	public List<String> getWatchlistNamesForSecurity(Security security) {
+	private List<Security> getManuallyWatchlistSecurities(String watchlistName) {
+		ImmutableList<Security> allSecurities = Activator.getDefault().getAccountManager().getSecurities();
+		List<Security> securities = new ArrayList<>();
+		for (Security security : allSecurities) {
+			if (!security.isDeleted() && getWatchlistNamesForSecurity(security).contains(watchlistName)) {
+				securities.add(security);
+			}
+		}
+		return securities;
+	}
+
+	private List<String> getWatchlistNamesForSecurity(Security security) {
 		String watchListsStr = security.getConfigurationValue(SecurityWatchlistView.ID);
 		String[] watchLists = StringUtils.split(watchListsStr, ',');
 		if (watchLists != null) {
-			return Arrays.asList(watchLists);
+			return Lists.newArrayList(watchLists);
 		}
-		return Collections.emptyList();
+		return new ArrayList<>();
 	}
 
-	public void addSecurityToWatchlist(Security security, Watchlist watchlist) {
-		Set<String> list = new HashSet<String>(getWatchlistNamesForSecurity(security));
-		list.add(watchlist.getName());
-		security.putConfigurationValue(SecurityWatchlistView.ID, StringUtils.join(list, ','));
+	public void addSecurityToCurrentWatchlist(Security security) {
+		WatchlistConfiguration watchlist = getCurrentWatchlistConfiguration();
+		if (watchlist.isManuallyConfigured()) {
+			List<String> list = getWatchlistNamesForSecurity(security);
+			list.add(watchlist.getName());
+			security.putConfigurationValue(SecurityWatchlistView.ID, StringUtils.join(list, ','));
+		}
 	}
 
-	public void removeSecurityFromWatchlist(Security security, Watchlist watchlist) {
-		Set<String> list = new HashSet<String>(getWatchlistNamesForSecurity(security));
-		list.remove(watchlist.getName());
-		security.putConfigurationValue(SecurityWatchlistView.ID, StringUtils.join(list, ','));
+	public void removeSecurityFromCurrentWatchlist(Security security) {
+		WatchlistConfiguration watchlist = getCurrentWatchlistConfiguration();
+		if (watchlist.isManuallyConfigured()) {
+			List<String> list = getWatchlistNamesForSecurity(security);
+			list.remove(watchlist.getName());
+			security.putConfigurationValue(SecurityWatchlistView.ID, StringUtils.join(list, ','));
+		}
 	}
 
 }

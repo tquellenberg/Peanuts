@@ -14,11 +14,11 @@ public class EditWatchListConfigurationHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		WatchlistManager watchlistManager = WatchlistManager.getInstance();
-		WatchlistConfiguration watchlistConfiguration = watchlistManager.getWatchlistConfiguration(watchlistManager.getCurrentWatchlist().getName());
+		WatchlistConfiguration watchlistConfiguration = watchlistManager.getCurrentWatchlistConfiguration();
 		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 		WatchlistConfigurationDialog dialog = new WatchlistConfigurationDialog(window.getShell(), watchlistConfiguration);
 		if (dialog.open() == Window.OK) {
-			watchlistManager.update(watchlistConfiguration);
+			watchlistManager.updateCurrentWatchlist(watchlistConfiguration);
 		}
 		return null;
 	}
