@@ -42,7 +42,7 @@ public class FourTraders {
 			Object[] result = xPather.evaluateAgainstNode(tagNode);
 			if (result.length > 0) {
 				String currency = StringUtils.trim(StringUtils.substringBetween(result[0].toString(), "(", ")"));
-				if (StringUtils.equals(currency, "PNC")) {
+				if (StringUtils.equals(currency, "PNC") || StringUtils.equals(currency, "GBp")) {
 					isPence = true;
 				}
 			}
