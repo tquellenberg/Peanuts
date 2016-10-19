@@ -52,6 +52,7 @@ public class YahooPriceReader extends PriceProvider {
 		}
 		URLConnection connection = url.openConnection();
 		connection.setConnectTimeout(1000*10);
+		connection.setReadTimeout(1000*30);
 		String str = IOUtils.toString(connection.getInputStream());
 		return new YahooPriceReader(security, new StringReader(str), type);
 	}
