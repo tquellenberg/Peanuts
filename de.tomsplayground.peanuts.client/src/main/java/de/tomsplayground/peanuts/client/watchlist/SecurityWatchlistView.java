@@ -158,7 +158,7 @@ public class SecurityWatchlistView extends ViewPart {
 		public int compare(WatchEntry w1, WatchEntry w2) {
 			BigDecimal peRatio1 = w1.getCurrencyAdjustedReturn();
 			BigDecimal peRatio2 = w2.getCurrencyAdjustedReturn();
-			return ObjectUtils.compare(peRatio1, peRatio2, true);
+			return ObjectUtils.compare(peRatio1, peRatio2, false);
 		}
 	};
 	private final WatchEntryViewerComparator robustnessComparator = new WatchEntryViewerComparator() {
