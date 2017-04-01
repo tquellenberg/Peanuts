@@ -77,8 +77,8 @@ public class FundamentalData implements Comparable<FundamentalData> {
 	}
 
 	protected BigDecimal avgPrice(IPriceProvider priceProvider, int year) {
-		Day from = new Day(year,0,1).addMonth(getFicalYearEndsMonth()-6);
-		Day to = new Day(year, 11, 31).addMonth(getFicalYearEndsMonth()-6);
+		Day from = new Day(year,0,1).addMonth(getFicalYearEndsMonth()-3);
+		Day to = new Day(year, 11, 31).addMonth(getFicalYearEndsMonth()-3);
 		ImmutableList<IPrice> prices = priceProvider.getPrices(from, to);
 		if (prices.isEmpty()) {
 			return BigDecimal.ZERO;

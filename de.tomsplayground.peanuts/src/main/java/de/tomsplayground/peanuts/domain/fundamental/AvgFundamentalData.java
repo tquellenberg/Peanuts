@@ -3,11 +3,11 @@ package de.tomsplayground.peanuts.domain.fundamental;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -21,7 +21,7 @@ import de.tomsplayground.util.Day;
 public class AvgFundamentalData {
 
 	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
-	
+
 	private final List<FundamentalData> datas;
 	private final IPriceProvider priceProvider;
 	private final CurrencyConverter currencyConverter;
@@ -101,7 +101,7 @@ public class AvgFundamentalData {
 			return pe1.add(pe2).divide(new BigDecimal("2"), MC);
 		}
 	}
-	
+
 	public BigDecimal getRobustness() {
 		List<FundamentalData> adjustedData = getAdjustedData(getHistoricAndCurrentData());
 		adjustedData = Lists.newArrayList(Iterables.filter(adjustedData, new Predicate<FundamentalData>() {
@@ -149,53 +149,49 @@ public class AvgFundamentalData {
 	}
 
 	private BigDecimal getAvgEpsGrowth(List<FundamentalData> historicData) {
-		ArrayList<FundamentalData> validDatas = Lists.newArrayList(Iterables.filter(historicData, new Predicate<FundamentalData>() {
-			@Override
-			public boolean apply(FundamentalData input) {
-				return (input.getEarningsPerShare().signum() > 0) && ! input.isIgnoreInAvgCalculation()
-					&& input.getFiscalEndDay().year >= 2006;
-			}
-		}));
-		BigDecimal calculateAvgEpsGrowth2006 = calculateAvgEpsGrowth(validDatas);
+		BigDecimal calculateAvgEpsGrowth5Years = calculateAvgEpsGrowth(historicData, 5);
+		BigDecimal calculateAvgEpsGrowth10Years = calculateAvgEpsGrowth(historicData, 10);
 
-		validDatas = Lists.newArrayList(Iterables.filter(historicData, new Predicate<FundamentalData>() {
-			@Override
-			public boolean apply(FundamentalData input) {
-				return (input.getEarningsPerShare().signum() > 0) && ! input.isIgnoreInAvgCalculation()
-					&& input.getFiscalEndDay().year >= 2011;
-			}
-		}));
-		BigDecimal calculateAvgEpsGrowth2011 = calculateAvgEpsGrowth(validDatas);
-		if (calculateAvgEpsGrowth2006 == null) {
-			return calculateAvgEpsGrowth2011;
+		if (calculateAvgEpsGrowth5Years == null) {
+			return calculateAvgEpsGrowth10Years;
 		}
-		if (calculateAvgEpsGrowth2011 == null) {
-			return calculateAvgEpsGrowth2006;
+		if (calculateAvgEpsGrowth10Years == null) {
+			return calculateAvgEpsGrowth5Years;
 		}
-		int compareTo = calculateAvgEpsGrowth2006.compareTo(calculateAvgEpsGrowth2011);
+		int compareTo = calculateAvgEpsGrowth5Years.compareTo(calculateAvgEpsGrowth10Years);
 		if (compareTo < 0) {
-			return calculateAvgEpsGrowth2006;
+			return calculateAvgEpsGrowth5Years;
 		} else {
-			return calculateAvgEpsGrowth2011;
+			return calculateAvgEpsGrowth10Years;
 		}
 	}
 
-	private BigDecimal calculateAvgEpsGrowth(ArrayList<FundamentalData> validDatas) {
-		if (validDatas.size() < 2) {
+	private BigDecimal calculateAvgEpsGrowth(List<FundamentalData> datas, int years) {
+		List<FundamentalData> valideDatas = datas.stream()
+			.filter(d -> !d.isIgnoreInAvgCalculation())
+			.collect(Collectors.toList());
+		if (valideDatas.size() < 3) {
 			return null;
 		}
-		int i = 1;
-		FundamentalData d1 = validDatas.get(0);
-		double avg = 1;
-		while (i < validDatas.size()) {
-			FundamentalData d2 = validDatas.get(i);
-			BigDecimal change = d2.getEarningsPerShare().divide(d1.getEarningsPerShare(), new MathContext(10, RoundingMode.HALF_EVEN));
-			avg = avg * change.doubleValue();
-			// Next
-			i++;
-			d1 = d2;
+		int start = valideDatas.size() - 1 - years;
+		if (start < 1) {
+			start = 1;
 		}
-		return new BigDecimal(Math.pow(avg, 1.0 / (validDatas.size()-1)), new MathContext(10, RoundingMode.HALF_EVEN));
+		// Avg value for 3 years
+		BigDecimal earningsPerShareStart = valideDatas.get(start-1).getEarningsPerShare();
+		earningsPerShareStart = earningsPerShareStart.add(valideDatas.get(start).getEarningsPerShare());
+		earningsPerShareStart = earningsPerShareStart.add(valideDatas.get(start+1).getEarningsPerShare());
+		earningsPerShareStart = earningsPerShareStart.divide(new BigDecimal(3), new MathContext(10, RoundingMode.HALF_EVEN));
+
+		BigDecimal earningsPerShareEnd = valideDatas.get(valideDatas.size()-1).getEarningsPerShare();
+
+		int yearDelta = valideDatas.get(valideDatas.size()-1).getYear() - valideDatas.get(start).getYear();
+		if (earningsPerShareStart.signum() <= 0 || earningsPerShareEnd.signum() <= 0 || yearDelta <= 0) {
+			return null;
+		}
+
+		BigDecimal change = earningsPerShareEnd.divide(earningsPerShareStart, new MathContext(10, RoundingMode.HALF_EVEN));
+		return new BigDecimal(Math.pow(change.doubleValue(), 1.0 / yearDelta), new MathContext(10, RoundingMode.HALF_EVEN));
 	}
 
 }
