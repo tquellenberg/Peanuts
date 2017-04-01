@@ -79,24 +79,26 @@ public class YahooPriceReader extends PriceProvider {
 			// Skip header
 			csvReader.readNext();
 			while ((values = csvReader.readNext()) != null) {
-				try {
-					Day d = Day.fromString(values[0]);
-					if (d.year < 3000) {
-						BigDecimal open = getValue(values, 1);
-						BigDecimal high = getValue(values, 2);
-						BigDecimal low = getValue(values, 3);
-						BigDecimal close = getValue(values, 4);
-						Price price = new Price(d, open, close, high, low);
-						if (price.getValue().compareTo(BigDecimal.ZERO) > 0) {
-							prices.add(price);
+				if (StringUtils.isNotBlank(values[0])) {
+					try {
+						Day d = Day.fromString(values[0]);
+						if (d.year < 3000) {
+							BigDecimal open = getValue(values, 1);
+							BigDecimal high = getValue(values, 2);
+							BigDecimal low = getValue(values, 3);
+							BigDecimal close = getValue(values, 4);
+							Price price = new Price(d, open, close, high, low);
+							if (price.getValue().compareTo(BigDecimal.ZERO) > 0) {
+								prices.add(price);
+							}
 						}
+					} catch (NumberFormatException e) {
+						log.error("Value: " + Arrays.toString(values));
+						throw e;
+					} catch (IllegalArgumentException e) {
+						log.error("Value: " + Arrays.toString(values));
+						throw e;
 					}
-				} catch (NumberFormatException e) {
-					log.error("Value: " + Arrays.toString(values));
-					throw e;
-				} catch (IllegalArgumentException e) {
-					log.error("Value: " + Arrays.toString(values));
-					throw e;
 				}
 			}
 		} else {

@@ -117,7 +117,7 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 			@Override
 			public boolean apply(FundamentalData input) {
 				int delta = now.delta(input.getFiscalEndDay());
-				return delta > 0 && delta <= 360;
+				return delta >= 0 && delta < 360;
 			}
 		}, null);
 	}
