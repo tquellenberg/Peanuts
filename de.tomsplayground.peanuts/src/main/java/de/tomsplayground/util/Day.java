@@ -34,7 +34,7 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 	public static Day fromString(String dayStr) {
 		String[] split = dayStr.split("-");
 		if (split.length != 3) {
-			throw new IllegalArgumentException("Format must be yyyy-MM-dd");
+			throw new IllegalArgumentException("Format must be yyyy-MM-dd: '"+dayStr+"'");
 		}
 		int year = Integer.parseInt(split[0]);
 		int month = Integer.parseInt(split[1]);
