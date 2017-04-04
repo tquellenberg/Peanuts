@@ -3,12 +3,20 @@ package de.tomsplayground.peanuts.app.fourtraders;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XPather;
@@ -22,6 +30,10 @@ public class FourTraders {
 
 	private static final String SEARCH_URL = "http://www.4-traders.com/indexbasegauche.php?lien=recherche&mots=ISIN&RewriteLast=zbat&type_recherche=0";
 
+	private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0) Gecko/20100101 Firefox/52.0";
+
+	private final CloseableHttpClient httpclient = HttpClients.createDefault();
+
 	public static void main(String[] args) {
 		new FourTraders().read("US0378331005");
 	}
@@ -31,11 +43,25 @@ public class FourTraders {
 		return scrapFinancials(financialsUrl);
 	}
 
+	private String getPage(URI url) throws IOException {
+		HttpGet httpGet = new HttpGet(url);
+		httpGet.addHeader("User-Agent", USER_AGENT);
+		CloseableHttpResponse response1 = httpclient.execute(httpGet);
+		try {
+			HttpEntity entity1 = response1.getEntity();
+			return EntityUtils.toString(entity1);
+		} finally {
+			response1.close();
+			httpGet.releaseConnection();
+		}
+	}
+
 	public List<FundamentalData> scrapFinancials(String financialsUrl) {
 		List<FundamentalData> fundamentalDatas = Lists.newArrayList();
 		try {
+			String html = getPage(new URL(financialsUrl).toURI());
 			HtmlCleaner htmlCleaner = new HtmlCleaner();
-			TagNode tagNode = htmlCleaner.clean(new URL(financialsUrl));
+			TagNode tagNode = htmlCleaner.clean(html);
 
 			boolean isPence = false;
 			XPather xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[9]/td[1]/text()");
@@ -95,6 +121,8 @@ public class FourTraders {
 			e.printStackTrace();
 		} catch (XPatherException e) {
 			e.printStackTrace();
+		} catch (URISyntaxException e1) {
+			e1.printStackTrace();
 		}
 		return fundamentalDatas;
 	}
