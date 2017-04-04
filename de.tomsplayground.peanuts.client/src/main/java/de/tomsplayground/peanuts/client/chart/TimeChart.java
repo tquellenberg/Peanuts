@@ -188,6 +188,7 @@ public class TimeChart {
 							max = v;
 						}
 					}
+					break;
 				}
 			}
 			if (min < max) {

@@ -65,6 +65,7 @@ import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.fundamental.AvgFundamentalData;
+import de.tomsplayground.peanuts.domain.fundamental.CurrencyAjustedFundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.process.CurrencyAdjustedPriceProvider;
 import de.tomsplayground.peanuts.domain.process.IPrice;
@@ -169,6 +170,7 @@ public class ChartEditorPart extends EditorPart {
 	private TimeChart timeChart;
 	private TimeSeries stopLoss;
 	private TimeSeries compareToPriceTimeSeries;
+	private TimeSeries fixedPePrice;
 	private XYPlot pricePlot;
 	private Button convertToEuro;
 
@@ -418,17 +420,19 @@ public class ChartEditorPart extends EditorPart {
 		renderer.setSeriesPaint(0, Color.BLACK);
 		int nextPos = 1;
 		if (isShowAvg()) {
-			renderer.setSeriesStroke(1, new BasicStroke(2.0f));
-			renderer.setSeriesStroke(2, new BasicStroke(2.0f));
-			nextPos = 3;
+			renderer.setSeriesStroke(nextPos++, new BasicStroke(2.0f));
+			renderer.setSeriesStroke(nextPos++, new BasicStroke(2.0f));
 		}
 		// Stop loss
-		renderer.setSeriesPaint(nextPos, Color.GREEN);
-		// Compare to
-		renderer.setSeriesPaint(nextPos + 1, Color.LIGHT_GRAY);
+		renderer.setSeriesPaint(nextPos++, Color.GREEN);
+		if (getCompareTo() != null) {
+			// Compare to
+			renderer.setSeriesPaint(nextPos++, Color.LIGHT_GRAY);
+		}
+		renderer.setSeriesPaint(nextPos++, Color.DARK_GRAY);
 
 		NumberAxis rangeAxis2 = new NumberAxis("Price "+getChartCurrencyConverter().getToCurrency().getSymbol());
-		rangeAxis2.setAutoRange(true);
+		rangeAxis2.setAutoRange(false);
 		pricePlot = new XYPlot(dataset, null, rangeAxis2, renderer);
 		combiPlot.add(pricePlot, showPEratioChart ? 70 : 100);
 		pricePlot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);
@@ -549,6 +553,12 @@ public class ChartEditorPart extends EditorPart {
 			dataset.addSeries(compareToPriceTimeSeries);
 		}
 
+		fixedPePrice = new TimeSeries("EPS * avg PE", Day.class);
+		calculateFixedPePrice();
+		if (! fixedPePrice.isEmpty()) {
+			dataset.addSeries(fixedPePrice);
+		}
+
 		if (priceProvider instanceof ObservableModelObject) {
 			((ObservableModelObject) priceProvider).addPropertyChangeListener(priceProviderChangeListener);
 		}
@@ -568,6 +578,33 @@ public class ChartEditorPart extends EditorPart {
 				BigDecimal value = price.getValue().multiply(adjust);
 				compareToPriceTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), value);
 			}
+		}
+	}
+
+	private void calculateFixedPePrice() {
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		List<FundamentalData> fundamentalDatas = security.getFundamentalDatas();
+		if (fundamentalDatas.isEmpty()) {
+			return;
+		}
+		Currency currency = fundamentalDatas.get(0).getCurrency();
+		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
+		CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(currency, security.getCurrency());
+		AvgFundamentalData avgData = new AvgFundamentalData(fundamentalDatas, priceProvider, currencyConverter);
+		BigDecimal avgPE = avgData.getAvgPE();
+		for (FundamentalData fundamentalData : fundamentalDatas) {
+			if (currencyConverter != null) {
+				fundamentalData = new CurrencyAjustedFundamentalData(fundamentalData, currencyConverter);
+			}
+			de.tomsplayground.util.Day day = fundamentalData.getFiscalEndDay();
+			BigDecimal earningsPerShare = fundamentalData.getEarningsPerShare();
+			BigDecimal value;
+			if (earningsPerShare.signum() <= 0) {
+				value = BigDecimal.ZERO;
+			} else {
+				value = earningsPerShare.multiply(avgPE);
+			}
+			fixedPePrice.addOrUpdate(new Day(day.day, day.month+1, day.year), value);
 		}
 	}
 
