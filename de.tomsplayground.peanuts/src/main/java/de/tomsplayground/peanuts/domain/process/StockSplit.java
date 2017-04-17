@@ -15,6 +15,8 @@ import de.tomsplayground.util.Day;
 @XStreamAlias("stocksplit")
 public class StockSplit implements ITimedElement {
 
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
+
 	private final Security security;
 	private final Day day;
 	private final int from;
@@ -34,7 +36,7 @@ public class StockSplit implements ITimedElement {
 	}
 
 	public BigDecimal getRatio() {
-		return new BigDecimal(from).divide(new BigDecimal(to), new MathContext(10, RoundingMode.HALF_EVEN));
+		return new BigDecimal(from).divide(new BigDecimal(to), MC);
 	}
 
 	public Security getSecurity() {

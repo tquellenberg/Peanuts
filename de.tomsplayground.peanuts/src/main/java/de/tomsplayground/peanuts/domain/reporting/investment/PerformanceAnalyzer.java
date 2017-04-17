@@ -18,6 +18,8 @@ import de.tomsplayground.util.Day;
 
 public class PerformanceAnalyzer {
 
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
+
 	private ImmutableList<Value> values = ImmutableList.of();
 	private final IPriceProviderFactory priceProviderFactory;
 	private final ITransactionProvider account;
@@ -48,7 +50,7 @@ public class PerformanceAnalyzer {
 		}
 		public void add(Day date, BigDecimal amount) {
 			int dayDelta = avgDate.delta(date);
-			BigDecimal investDelta = invested().multiply(new BigDecimal(dayDelta)).divide(new BigDecimal(360), RoundingMode.HALF_EVEN);
+			BigDecimal investDelta = invested().multiply(new BigDecimal(dayDelta)).divide(new BigDecimal(360), MC);
 			investedAvg = investedAvg.add(investDelta);
 			avgDate = date;
 			if (amount.signum() == 1) {
@@ -86,7 +88,7 @@ public class PerformanceAnalyzer {
 		}
 		public BigDecimal getGainingPercent() {
 			if (getInvestedAvg().signum() != 0) {
-				return getGainings().divide(getInvestedAvg(), new MathContext(10, RoundingMode.HALF_EVEN));
+				return getGainings().divide(getInvestedAvg(), MC);
 			}
 			return BigDecimal.ZERO;
 		}

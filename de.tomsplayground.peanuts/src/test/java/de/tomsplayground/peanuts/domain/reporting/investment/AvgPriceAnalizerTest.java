@@ -3,6 +3,7 @@ package de.tomsplayground.peanuts.domain.reporting.investment;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import org.junit.Test;
@@ -84,13 +85,13 @@ public class AvgPriceAnalizerTest {
 
 		List<AnalyzedInvestmentTransaction> analyzedTransactions = ImmutableList.copyOf(avgPrices.getAnalyzedTransactions(trans));
 		AnalyzedInvestmentTransaction at = analyzedTransactions.get(0);
-		Helper.assertEquals(new BigDecimal("9.53"), at.getAvgPrice());
+		Helper.assertEquals(new BigDecimal("9.53"), at.getAvgPrice().setScale(2, RoundingMode.HALF_EVEN));
 		Helper.assertEquals(new BigDecimal("500"), at.getInvestedAmount());
 		at = analyzedTransactions.get(1);
-		Helper.assertEquals(new BigDecimal("9.78"), at.getAvgPrice());
+		Helper.assertEquals(new BigDecimal("9.78"), at.getAvgPrice().setScale(2, RoundingMode.HALF_EVEN));
 		Helper.assertEquals(new BigDecimal("1000"), at.getInvestedAmount());
 		at = analyzedTransactions.get(2);
-		Helper.assertEquals(new BigDecimal("9.83"), at.getAvgPrice());
+		Helper.assertEquals(new BigDecimal("9.83"), at.getAvgPrice().setScale(2, RoundingMode.HALF_EVEN));
 		Helper.assertEquals(new BigDecimal("1500"), at.getInvestedAmount());
 
 	}

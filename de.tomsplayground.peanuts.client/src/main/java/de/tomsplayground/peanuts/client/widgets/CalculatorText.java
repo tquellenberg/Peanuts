@@ -18,6 +18,8 @@ import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class CalculatorText {
 
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
+
 	private final Text text;
 
 	public CalculatorText(Composite parent, int style) {
@@ -43,7 +45,7 @@ public class CalculatorText {
 		if (StringUtils.isNotBlank(t)) {
 			try  {
 				Calculator calculator = new Calculator();
-				calculator.setMathContext(new MathContext(10, RoundingMode.HALF_EVEN));
+				calculator.setMathContext(MC);
 				BigDecimal result = calculator.parse(t);
 				String resultStr = PeanutsUtil.formatCurrency(result, null);
 				if (! t.equals(resultStr)) {

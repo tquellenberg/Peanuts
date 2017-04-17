@@ -11,6 +11,8 @@ import de.tomsplayground.util.Day;
 
 public class CurrencyAjustedFundamentalData extends FundamentalData {
 
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
+
 	CurrencyConverter currencyConverter;
 
 	public CurrencyAjustedFundamentalData(FundamentalData fundamentalData, CurrencyConverter currencyConverter) {
@@ -41,7 +43,7 @@ public class CurrencyAjustedFundamentalData extends FundamentalData {
 		if (eps.signum() == 0) {
 			return BigDecimal.ZERO;
 		}
-		return price.divide(eps, new MathContext(10, RoundingMode.HALF_EVEN));
+		return price.divide(eps, MC);
 	}
 
 }

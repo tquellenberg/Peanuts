@@ -83,7 +83,9 @@ import de.tomsplayground.util.Day;
 
 public class InventoryEditorPart extends EditorPart {
 
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 	private static final String SHOW_ALL_SECURITIES = "inventoryShowAllSecurities";
+
 	private final int colWidth[] = new int[11];
 	private TreeViewer treeViewer;
 	private Label gainingLabel;
@@ -150,7 +152,7 @@ public class InventoryEditorPart extends EditorPart {
 		private BigDecimal gainingPercent(InventoryEntry entry) {
 			if (entry.getInvestedAmount().compareTo(BigDecimal.ZERO) != 0) {
 				BigDecimal gain = entry.getMarketValue(date).subtract(entry.getInvestedAmount());
-				return gain.divide(entry.getInvestedAmount(), new MathContext(10, RoundingMode.HALF_EVEN));
+				return gain.divide(entry.getInvestedAmount(), MC);
 			}
 			return BigDecimal.ZERO;
 		}
@@ -265,7 +267,7 @@ public class InventoryEditorPart extends EditorPart {
 				InventoryEntry entry = (InventoryEntry) element;
 				if (columnIndex == INVENTORY_FRACTION) {
 					if (inventory.getMarketValue().compareTo(BigDecimal.ZERO) != 0) {
-						BigDecimal fraction = entry.getMarketValue(date).divide(inventory.getMarketValue(), new MathContext(10, RoundingMode.HALF_EVEN));
+						BigDecimal fraction = entry.getMarketValue(date).divide(inventory.getMarketValue(), MC);
 						return PeanutsUtil.formatPercent(fraction);
 					}
 				}
@@ -281,7 +283,7 @@ public class InventoryEditorPart extends EditorPart {
 				if (columnIndex == INVENTORY_POS_GAIN_PERCENT) {
 					if (entry.getInvestedAmount().compareTo(BigDecimal.ZERO) != 0) {
 						BigDecimal gain = entry.getMarketValue(date).subtract(entry.getInvestedAmount());
-						BigDecimal gainPercent = gain.divide(entry.getInvestedAmount(), new MathContext(10, RoundingMode.HALF_EVEN));
+						BigDecimal gainPercent = gain.divide(entry.getInvestedAmount(), MC);
 						return PeanutsUtil.formatPercent(gainPercent);
 					}
 				}

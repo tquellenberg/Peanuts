@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.domain.statistics;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -14,6 +15,8 @@ import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.statistics.Signal.Type;
 
 public class SimpleMovingAverage {
+
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	private final int days;
 	private ImmutableList<Signal> signals = ImmutableList.of();
@@ -35,7 +38,7 @@ public class SimpleMovingAverage {
 			queue.add(value);
 			sum = sum.add(value);
 			if (queue.size() == days) {
-				BigDecimal average = sum.divide(d, RoundingMode.HALF_EVEN);
+				BigDecimal average = sum.divide(d, MC);
 				result.add(new Price(price.getDay(), average));
 				sum = sum.subtract(queue.poll());
 				int newCompare = average.compareTo(value);

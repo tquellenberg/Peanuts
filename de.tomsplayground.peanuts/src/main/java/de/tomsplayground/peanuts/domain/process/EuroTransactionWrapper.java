@@ -15,6 +15,8 @@ import de.tomsplayground.util.Day;
 
 public class EuroTransactionWrapper implements ITransaction {
 
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
+
 	private final ITransaction transaction;
 	private final Currency currency;
 	private BigDecimal euroAmount;
@@ -28,7 +30,7 @@ public class EuroTransactionWrapper implements ITransaction {
 	public BigDecimal getAmount() {
 		if (euroAmount == null) {
 			BigDecimal exchangeRate = (new CurrencyManager()).getExchangeRate(Currency.getInstance("EUR"), currency);
-			euroAmount = transaction.getAmount().divide(exchangeRate, new MathContext(10, RoundingMode.HALF_EVEN));
+			euroAmount = transaction.getAmount().divide(exchangeRate, MC);
 		}
 		return euroAmount;
 	}

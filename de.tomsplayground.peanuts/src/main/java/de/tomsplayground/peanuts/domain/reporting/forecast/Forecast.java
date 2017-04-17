@@ -16,6 +16,8 @@ import de.tomsplayground.util.Day;
 @XStreamAlias("forecast")
 public class Forecast extends ObservableModelObject implements INamedElement {
 
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
+
 	private String name;
 	private BigDecimal startAmount;
 	private BigDecimal annualIncrease;
@@ -43,8 +45,9 @@ public class Forecast extends ObservableModelObject implements INamedElement {
 	}
 
 	public BigDecimal getValue(Day day) {
-		if (day.before(startDay))
+		if (day.before(startDay)) {
 			throw new IllegalArgumentException(day + " is before " +startDay);
+		}
 		int delta = startDay.delta(day);
 		BigDecimal result = startAmount;
 		while (delta > 360) {
@@ -52,7 +55,7 @@ public class Forecast extends ObservableModelObject implements INamedElement {
 			result = result.add(annualIncrease);
 			delta = delta - 360;
 		}
-		BigDecimal factor = new BigDecimal(delta).divide(new BigDecimal(360), new MathContext(10, RoundingMode.HALF_EVEN));
+		BigDecimal factor = new BigDecimal(delta).divide(new BigDecimal(360), MC);
 		result = result.add(result.multiply(annualPercent.movePointLeft(2)).multiply(factor));
 		result = result.add(annualIncrease.multiply(factor));
 		return result;
@@ -122,7 +125,8 @@ public class Forecast extends ObservableModelObject implements INamedElement {
 	}
 
 	public void reconfigureAfterDeserialization() {
-		if (connected == null)
+		if (connected == null) {
 			connected = new HashSet<Report>();
+		}
 	}
 }

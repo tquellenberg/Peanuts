@@ -20,6 +20,8 @@ import de.tomsplayground.util.Day;
 @XStreamAlias("fundamental")
 public class FundamentalData implements Comparable<FundamentalData> {
 
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
+
 	private int year;
 	private int ficalYearEndsMonth;
 	private BigDecimal dividende;
@@ -87,7 +89,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		for (IPrice p : prices) {
 			sum = sum.add(p.getClose());
 		}
-		return sum.divide(new BigDecimal(prices.size()), new MathContext(10, RoundingMode.HALF_EVEN));
+		return sum.divide(new BigDecimal(prices.size()), MC);
 	}
 
 	public BigDecimal calculatePeRatio(IPriceProvider priceProvider) {
@@ -101,7 +103,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		if (eps.signum() == 0) {
 			return BigDecimal.ZERO;
 		}
-		return price.divide(eps, new MathContext(10, RoundingMode.HALF_EVEN));
+		return price.divide(eps, MC);
 	}
 
 	public BigDecimal calculateDivYield(IPriceProvider priceProvider) {
@@ -110,7 +112,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		if (close.signum() == 0) {
 			return BigDecimal.ZERO;
 		}
-		return getDividende().divide(close, new MathContext(10, RoundingMode.HALF_EVEN));
+		return getDividende().divide(close, MC);
 	}
 
 	public Day getFiscalEndDay() {
@@ -124,7 +126,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		if (inventoryEntry.getAvgPrice().signum() == 0) {
 			return BigDecimal.ZERO;
 		}
-		return getDividende().divide(inventoryEntry.getAvgPrice(), new MathContext(10, RoundingMode.HALF_EVEN));
+		return getDividende().divide(inventoryEntry.getAvgPrice(), MC);
 	}
 
 	public Currency getCurrency() {

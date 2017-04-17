@@ -10,8 +10,10 @@ import de.tomsplayground.util.Day;
 
 public class Transfer {
 
-	private TransferTransaction transTo;
-	private TransferTransaction transFrom;
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
+
+	private final TransferTransaction transTo;
+	private final TransferTransaction transFrom;
 
 	public Transfer(ITransferLocation source, ITransferLocation target, BigDecimal value,
 		Day date) {
@@ -22,7 +24,7 @@ public class Transfer {
 		if ( !target.getCurrency().equals(source.getCurrency())) {
 			BigDecimal exchangeRate = new CurrencyManager().getExchangeRate(source.getCurrency(),
 				target.getCurrency());
-			value = value.multiply(exchangeRate, new MathContext(10, RoundingMode.HALF_EVEN));
+			value = value.multiply(exchangeRate, MC);
 			value = value.setScale(2, RoundingMode.HALF_EVEN);
 		}
 		transTo = new TransferTransaction(date, value, source, false);

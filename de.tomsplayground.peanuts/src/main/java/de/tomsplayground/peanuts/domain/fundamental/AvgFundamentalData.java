@@ -135,7 +135,7 @@ public class AvgFundamentalData {
 			return BigDecimal.ZERO;
 		}
 		if (prev.signum() != 0) {
-			return now.subtract(prev).divide(prev.abs(), new MathContext(10, RoundingMode.HALF_EVEN));
+			return now.subtract(prev).divide(prev.abs(), MC);
 		}
 		return BigDecimal.ZERO;
 	}
@@ -181,7 +181,7 @@ public class AvgFundamentalData {
 		BigDecimal earningsPerShareStart = valideDatas.get(start-1).getEarningsPerShare();
 		earningsPerShareStart = earningsPerShareStart.add(valideDatas.get(start).getEarningsPerShare());
 		earningsPerShareStart = earningsPerShareStart.add(valideDatas.get(start+1).getEarningsPerShare());
-		earningsPerShareStart = earningsPerShareStart.divide(new BigDecimal(3), new MathContext(10, RoundingMode.HALF_EVEN));
+		earningsPerShareStart = earningsPerShareStart.divide(new BigDecimal(3), MC);
 
 		BigDecimal earningsPerShareEnd = valideDatas.get(valideDatas.size()-1).getEarningsPerShare();
 
@@ -190,8 +190,8 @@ public class AvgFundamentalData {
 			return null;
 		}
 
-		BigDecimal change = earningsPerShareEnd.divide(earningsPerShareStart, new MathContext(10, RoundingMode.HALF_EVEN));
-		return new BigDecimal(Math.pow(change.doubleValue(), 1.0 / yearDelta), new MathContext(10, RoundingMode.HALF_EVEN));
+		BigDecimal change = earningsPerShareEnd.divide(earningsPerShareStart, MC);
+		return new BigDecimal(Math.pow(change.doubleValue(), 1.0 / yearDelta), MC);
 	}
 
 }

@@ -43,6 +43,8 @@ import de.tomsplayground.util.Day;
 
 public class DevelopmentEditorPart extends EditorPart {
 
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
+
 	private TableViewer tableViewer;
 	private final int colWidth[] = new int[5];
 
@@ -183,7 +185,7 @@ public class DevelopmentEditorPart extends EditorPart {
 				IPrice price = prices.getPrice(prices.getMaxDate());
 				if (price.getValue().compareTo(BigDecimal.ZERO) != 0) {
 					BigDecimal delta = price.getValue().subtract(stopLoss);
-					BigDecimal percent = delta.divide(price.getValue(), new MathContext(10, RoundingMode.HALF_EVEN));
+					BigDecimal percent = delta.divide(price.getValue(), MC);
 					percent = percent.movePointRight(2);
 					percent = percent.setScale(2, RoundingMode.HALF_EVEN);
 					result.add(new String[]{"Stop Loss", PeanutsUtil.formatCurrency(stopLoss, null),
@@ -206,11 +208,11 @@ public class DevelopmentEditorPart extends EditorPart {
 		IPrice price2 = prices.getPrice(to);
 		BigDecimal diff = price2.getValue().subtract(price1.getValue());
 		if (price1.getValue().compareTo(BigDecimal.ZERO) != 0) {
-			BigDecimal anualDiff = price2.getValue().divide(price1.getValue(), new MathContext(10, RoundingMode.HALF_EVEN));
+			BigDecimal anualDiff = price2.getValue().divide(price1.getValue(), MC);
 			anualDiff = new BigDecimal(Math.pow(anualDiff.doubleValue(), 360.0 / from.delta(to))).subtract(BigDecimal.ONE);
 			anualDiff = anualDiff.movePointRight(2).setScale(2, RoundingMode.HALF_EVEN);
 
-			BigDecimal diffPercent = diff.divide(price1.getValue(), new MathContext(10, RoundingMode.HALF_EVEN));
+			BigDecimal diffPercent = diff.divide(price1.getValue(), MC);
 			diffPercent = diffPercent.movePointRight(2).setScale(2, RoundingMode.HALF_EVEN);
 			result.add(new String[]{text, PeanutsUtil.formatCurrency(price1.getValue(), null), PeanutsUtil.formatCurrency(diff, null), diffPercent.toString()+" %", anualDiff.toString()+" %"});
 		} else {

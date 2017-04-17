@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.domain.reporting.investment;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,8 @@ import java.util.List;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 
 public abstract class Strategy {
+
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	protected final List<Buy> buyList = new ArrayList<Buy>();
 
@@ -19,7 +22,7 @@ public abstract class Strategy {
 		Buy(InvestmentTransaction transaction) {
 			this.remainingQuantity = transaction.getQuantity();
 			this.remainingAmount = transaction.getAmount().negate();
-			this.avgPrice = transaction.getAmount().divide(remainingQuantity, RoundingMode.HALF_EVEN).negate();
+			this.avgPrice = transaction.getAmount().divide(remainingQuantity, MC).negate();
 		}
 
 		BigDecimal getRemainingQuantity() {

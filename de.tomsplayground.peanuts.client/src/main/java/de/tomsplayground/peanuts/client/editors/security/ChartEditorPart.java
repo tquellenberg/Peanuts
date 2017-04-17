@@ -84,6 +84,7 @@ public class ChartEditorPart extends EditorPart {
 	private static final BigDecimal HUNDRED = new BigDecimal(100);
 	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 	private static final String CHART_TYPE = "chartType";
+
 	boolean dirty = false;
 	private Combo displayType;
 	private TimeSeries priceTimeSeries;
@@ -572,7 +573,7 @@ public class ChartEditorPart extends EditorPart {
 			IPriceProvider compareToPriceProvider = PriceProviderFactory.getInstance().getAdjustedPriceProvider(compareTo, stockSplits);
 			IPrice p1 = priceProvider.getPrice(fromDate);
 			IPrice p2 = compareToPriceProvider.getPrice(fromDate);
-			BigDecimal adjust = p1.getValue().divide(p2.getValue(), RoundingMode.HALF_EVEN);
+			BigDecimal adjust = p1.getValue().divide(p2.getValue(), MC);
 			for (IPrice price : compareToPriceProvider.getPrices()) {
 				de.tomsplayground.util.Day day = price.getDay();
 				BigDecimal value = price.getValue().multiply(adjust);

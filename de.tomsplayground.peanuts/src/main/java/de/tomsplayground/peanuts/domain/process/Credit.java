@@ -17,6 +17,8 @@ import de.tomsplayground.util.Day;
 @XStreamAlias("credit")
 public class Credit extends ObservableModelObject implements ICredit, IConfigurable {
 
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
+
 	public enum PaymentInterval {
 		MONTHLY,
 		YEARLY
@@ -65,7 +67,7 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 			BigDecimal p = BigDecimal.ZERO;
 			for (int i = 0; i < month-1; i++) {
 				p = p.add(paymentAmount);
-				paymentInterest = paymentInterest.add(p.multiply(interestRate).divide(new BigDecimal(1200), new MathContext(10, RoundingMode.HALF_EVEN)));
+				paymentInterest = paymentInterest.add(p.multiply(interestRate).divide(new BigDecimal(1200), MC));
 			}
 		} else {
 			if (day.year == start.year) {
@@ -76,12 +78,12 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 				month = day.month + 1;
 				int paymentMonth = month - start.month;
 				if (paymentMonth > 0) {
-					paymentInterest = paymentAmount.multiply(interestRate).multiply(new BigDecimal(paymentMonth)).divide(new BigDecimal(1200), new MathContext(10, RoundingMode.HALF_EVEN));
+					paymentInterest = paymentAmount.multiply(interestRate).multiply(new BigDecimal(paymentMonth)).divide(new BigDecimal(1200), MC);
 				}
 			}
 		}
 		// (amount * interest * month / 12 / 100) - paymentInterest
-		return a.multiply(interestRate).multiply(new BigDecimal(month)).divide(new BigDecimal(1200), new MathContext(10, RoundingMode.HALF_EVEN)).subtract(paymentInterest);
+		return a.multiply(interestRate).multiply(new BigDecimal(month)).divide(new BigDecimal(1200), MC).subtract(paymentInterest);
 	}
 
 	public void setPayment(BigDecimal payment) {

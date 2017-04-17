@@ -78,6 +78,8 @@ import de.tomsplayground.util.Day;
 
 public class FundamentalDataEditorPart extends EditorPart {
 
+	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
+
 	private TableViewer tableViewer;
 	private final int colWidth[] = new int[15];
 	private boolean dirty = false;
@@ -89,6 +91,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 	private List<Object> tableRows;
 
 	private class FundamentalDataTableLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
+
 		@Override
 		public Image getColumnImage(Object element, int columnIndex) {
 			if (columnIndex == 0) {
@@ -117,7 +120,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 				return BigDecimal.ZERO;
 			}
 			if (prev.signum() != 0) {
-				return now.subtract(prev).divide(prev.abs(), new MathContext(10, RoundingMode.HALF_EVEN));
+				return now.subtract(prev).divide(prev.abs(), MC);
 			}
 			return BigDecimal.ZERO;
 		}
@@ -158,7 +161,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 				BigDecimal div = currencyAdjustedDiv(data);
 				BigDecimal prevDiv = currencyAdjustedDiv(previousYearData);
 				if (prevDiv.signum() != 0) {
-					return div.divide(prevDiv, new MathContext(10, RoundingMode.HALF_EVEN)).subtract(BigDecimal.ONE);
+					return div.divide(prevDiv, MC).subtract(BigDecimal.ONE);
 				}
 			}
 			return BigDecimal.ZERO;
