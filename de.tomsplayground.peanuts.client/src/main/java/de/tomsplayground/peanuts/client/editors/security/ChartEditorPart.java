@@ -634,7 +634,7 @@ public class ChartEditorPart extends EditorPart {
 				public boolean apply(Security arg0) {
 					return StringUtils.equals(arg0.getISIN(), isin);
 				}
-			});
+			}, null);
 		}
 		return null;
 	}
