@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,8 +14,14 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +36,8 @@ public class YahooPriceReader extends PriceProvider {
 
 	private final static Logger log = LoggerFactory.getLogger(YahooPriceReader.class);
 
+	private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0) Gecko/20100101 Firefox/52.0";
+
 	public enum Type {
 		CURRENT,
 		HISTORICAL
@@ -39,22 +47,41 @@ public class YahooPriceReader extends PriceProvider {
 	private final CSVReader csvReader;
 	private final Type type;
 
+	private static final CloseableHttpClient httpclient = HttpClients.createDefault();
+
 	public static YahooPriceReader forTicker(Security security, String ticker, Type type) throws IOException {
-		URL url;
+		String url;
 		if (type == Type.CURRENT) {
-			url = new URL("http://download.finance.yahoo.com/d/quotes.csv?f=sl1d1t1c1ohgv&s=" +
-				ticker);
+			url = "http://download.finance.yahoo.com/d/quotes.csv?f=sl1d1t1c1ohgv&s=" +
+				URLEncoder.encode(ticker, StandardCharsets.UTF_8.name());
 		} else {
 			Calendar today = Calendar.getInstance();
-			url = new URL("http://real-chart.finance.yahoo.com/table.csv?g=d&a=0&b=3&c=2000" +
+			url = "http://real-chart.finance.yahoo.com/table.csv?g=d&a=0&b=3&c=2000" +
 				"&d=" + today.get(Calendar.MONTH) + "&e=" + today.get(Calendar.DAY_OF_MONTH) +
-				"&f=" + today.get(Calendar.YEAR) + "&s=" + ticker);
+				"&f=" + today.get(Calendar.YEAR) + "&s=" +
+				URLEncoder.encode(ticker, StandardCharsets.UTF_8.name());
 		}
-		URLConnection connection = url.openConnection();
-		connection.setConnectTimeout(1000*10);
-		connection.setReadTimeout(1000*30);
-		String str = IOUtils.toString(connection.getInputStream());
-		return new YahooPriceReader(security, new StringReader(str), type);
+		HttpGet httpGet = new HttpGet(url);
+		httpGet.addHeader("User-Agent", USER_AGENT);
+		httpGet.setConfig(RequestConfig.custom()
+			.setSocketTimeout(1000*20)
+			.setConnectTimeout(1000*10)
+			.setConnectionRequestTimeout(1000*10).build());
+		CloseableHttpResponse response1 = null;
+		try {
+			response1 = httpclient.execute(httpGet);
+			HttpEntity entity1 = response1.getEntity();
+			String str = EntityUtils.toString(entity1);
+			return new YahooPriceReader(security, new StringReader(str), type);
+		} catch (IOException e) {
+			log.error("URL "+url + " - " + e.getMessage());
+			return null;
+		} finally {
+			if (response1 != null) {
+				response1.close();
+			}
+			httpGet.releaseConnection();
+		}
 	}
 
 	public YahooPriceReader(Security security, Reader reader) throws IOException {
