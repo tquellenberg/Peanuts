@@ -53,7 +53,6 @@ import de.tomsplayground.peanuts.client.dnd.SecurityTransferData;
 import de.tomsplayground.peanuts.client.editors.security.SecurityEditor;
 import de.tomsplayground.peanuts.client.editors.security.SecurityEditorInput;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
-import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.statistics.Signal;
@@ -169,13 +168,12 @@ public class SecurityWatchlistView extends ViewPart {
 			return ObjectUtils.compare(v1, v2);
 		}
 	};
-	private final WatchEntryViewerComparator yocComparator = new WatchEntryViewerComparator() {
+	private final WatchEntryViewerComparator divYieldComparator = new WatchEntryViewerComparator() {
 		@Override
 		public int compare(WatchEntry w1, WatchEntry w2) {
-			Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
-			BigDecimal yoc1 = w1.getYOC(inventory.getEntry(w1.getSecurity()));
-			BigDecimal yoc2 = w2.getYOC(inventory.getEntry(w2.getSecurity()));
-			return ObjectUtils.compare(yoc1, yoc2);
+			BigDecimal div1 = w1.getDivYield();
+			BigDecimal div2 = w2.getDivYield();
+			return ObjectUtils.compare(div1, div2);
 		}
 	};
 	private final WatchEntryViewerComparator scoreComparator = new WatchEntryViewerComparator() {
@@ -325,8 +323,7 @@ public class SecurityWatchlistView extends ViewPart {
 					}
 					return "";
 				case 8:
-					Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
-					BigDecimal data3 = watchEntry.getYOC(inventory.getEntry(watchEntry.getSecurity()));
+					BigDecimal data3 = watchEntry.getDivYield();
 					if (data3 != null) {
 						return PeanutsUtil.formatPercent(data3);
 					}
@@ -613,13 +610,13 @@ public class SecurityWatchlistView extends ViewPart {
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("YOC");
+		col.setText("Div");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
 		col.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setSorting((TableColumn)e.widget, yocComparator);
+				setSorting((TableColumn)e.widget, divYieldComparator);
 			}
 		});
 		colNum++;
