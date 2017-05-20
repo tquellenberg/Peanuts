@@ -9,8 +9,10 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -57,6 +59,7 @@ import com.google.common.collect.Iterables;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.chart.TimeChart;
+import de.tomsplayground.peanuts.client.editors.security.properties.ChartPropertyPage;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
@@ -145,12 +148,21 @@ public class ChartEditorPart extends EditorPart {
 					dataset.removeSeries(average100Days);
 				}
 			}
-			if (evt.getPropertyName().equals("SHOW_SIGNALS")) {
+			if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_SIGNALS)) {
 				if (isShowSignals()) {
 					signalAnnotations = timeChart.addSignals(createSignals());
 				} else {
 					timeChart.removeAnnotations(signalAnnotations);
 				}
+			}
+			if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_BUY_SELL) ||
+				evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_DIVIDENDS)) {
+				timeChart.removeAnnotations(orderAnnotations);
+				orderAnnotations = addOrderAnnotations();
+				if (avgPriceAnnotation != null) {
+					pricePlot.removeRangeMarker(avgPriceAnnotation);
+				}
+				addAvgPriceAnnotation();
 			}
 		}
 	};
@@ -168,12 +180,14 @@ public class ChartEditorPart extends EditorPart {
 	private TimeSeries average100Days;
 	private final TimeSeriesCollection dataset = new TimeSeriesCollection();
 	private ImmutableList<XYAnnotation> signalAnnotations = ImmutableList.of();
+	private ImmutableList<XYAnnotation> orderAnnotations = ImmutableList.of();
 	private TimeChart timeChart;
 	private TimeSeries stopLoss;
 	private TimeSeries compareToPriceTimeSeries;
 	private TimeSeries fixedPePrice;
 	private XYPlot pricePlot;
 	private Button convertToEuro;
+	private ValueMarker avgPriceAnnotation;
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -207,7 +221,7 @@ public class ChartEditorPart extends EditorPart {
 			signalAnnotations = timeChart.addSignals(createSignals());
 		}
 
-		addOrderAnnotations();
+		orderAnnotations = addOrderAnnotations();
 
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 
@@ -268,17 +282,19 @@ public class ChartEditorPart extends EditorPart {
 
 	private void addAvgPriceAnnotation() {
 		BigDecimal avgPrice = getAvgPrice();
-		if (avgPrice != null) {
-			ValueMarker marker = new ValueMarker(avgPrice.doubleValue());
-			marker.setPaint(Color.black);
-			marker.setLabelPaint(Color.black);
-			marker.setLabel("Avg Price");
-			marker.setLabelFont(new Font("SansSerif", Font.PLAIN, 10));
-			marker.setLabelOffsetType(LengthAdjustmentType.EXPAND);
-			marker.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
-			marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
+		if (avgPrice != null && isShowBuyAndSell()) {
+			avgPriceAnnotation = new ValueMarker(avgPrice.doubleValue());
+			avgPriceAnnotation.setPaint(Color.black);
+			avgPriceAnnotation.setLabelPaint(Color.black);
+			avgPriceAnnotation.setLabel("Avg Price");
+			avgPriceAnnotation.setLabelFont(new Font("SansSerif", Font.PLAIN, 10));
+			avgPriceAnnotation.setLabelOffsetType(LengthAdjustmentType.EXPAND);
+			avgPriceAnnotation.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
+			avgPriceAnnotation.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
 
-			pricePlot.addRangeMarker(marker);
+			pricePlot.addRangeMarker(avgPriceAnnotation);
+		} else {
+			avgPriceAnnotation = null;
 		}
 	}
 
@@ -328,10 +344,10 @@ public class ChartEditorPart extends EditorPart {
 			.reduce(BigDecimal.ONE, BigDecimal::multiply);
 	}
 
-	protected void addOrderAnnotations() {
+	protected ImmutableList<XYAnnotation> addOrderAnnotations() {
+		List<XYAnnotation> annotations = new ArrayList<>();
 		IPriceProvider pp = getChartPriceProvider();
-		ImmutableList<InvestmentTransaction> transactions = getOrders();
-		for (InvestmentTransaction investmentTransaction : transactions) {
+		for (InvestmentTransaction investmentTransaction : getOrders()) {
 			de.tomsplayground.util.Day day = investmentTransaction.getDay();
 			long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
 			double y = pp.getPrice(day).getClose().doubleValue();
@@ -342,6 +358,9 @@ public class ChartEditorPart extends EditorPart {
 			org.eclipse.swt.graphics.Color swtColor;
 			switch (investmentTransaction.getType()) {
 				case BUY:
+					if (!isShowBuyAndSell()) {
+						break;
+					}
 					t = "+"+investmentTransaction.getQuantity();
 					BigDecimal adjustedPrice = investmentTransaction.getPrice().multiply(getSplitRatio(day));
 					adjustedPrice = getChartCurrencyConverter().convert(adjustedPrice, day);
@@ -350,6 +369,9 @@ public class ChartEditorPart extends EditorPart {
 					c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
 					break;
 				case SELL:
+					if (!isShowBuyAndSell()) {
+						break;
+					}
 					t = "-"+investmentTransaction.getQuantity();
 					adjustedPrice = investmentTransaction.getPrice().multiply(getSplitRatio(day));
 					adjustedPrice = getChartCurrencyConverter().convert(adjustedPrice, day);
@@ -358,10 +380,16 @@ public class ChartEditorPart extends EditorPart {
 					c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
 					break;
 				case INCOME:
+					if (!isShowDividends()) {
+						break;
+					}
 					t = " +"+PeanutsUtil.formatCurrency(investmentTransaction.getAmount(), Currency.getInstance("EUR"));
 					pointerAnnotation = new XYPointerAnnotation(t, x, y, Math.PI / 2);
 					break;
 				case EXPENSE:
+					if (!isShowDividends()) {
+						break;
+					}
 					t = " -"+PeanutsUtil.formatCurrency(investmentTransaction.getAmount(), Currency.getInstance("EUR"));
 					pointerAnnotation = new XYPointerAnnotation(t, x, y, 3* Math.PI / 2);
 					break;
@@ -373,8 +401,10 @@ public class ChartEditorPart extends EditorPart {
 				pointerAnnotation.setArrowWidth(5);
 				pointerAnnotation.setLabelOffset(5);
 				pricePlot.addAnnotation(pointerAnnotation);
+				annotations.add(pointerAnnotation);
 			}
 		}
+		return ImmutableList.copyOf(annotations);
 	}
 
 	private ImmutableList<InvestmentTransaction> getOrders() {
@@ -487,24 +517,23 @@ public class ChartEditorPart extends EditorPart {
 		}
 
 		IPriceProvider pp = priceProvider;
-		if (currencyConverter != null) {
-			pp = new CurrencyAdjustedPriceProvider(priceProvider, currencyConverter.getInvertedCurrencyConverter());
-		}
 
 		TimeSeries timeSeries = new TimeSeries("PE delta %", Day.class);
 		for (IPrice price : pp.getPrices()) {
 			de.tomsplayground.util.Day day = price.getDay();
-			final FundamentalData data = getFundamentalDataForYear(day);
+			FundamentalData data = getFundamentalDataForYear(day);
 			if (data != null && data.getEarningsPerShare().signum() != 0) {
+				if (currencyConverter != null) {
+					data = new CurrencyAjustedFundamentalData(data, currencyConverter);
+				}
 				BigDecimal peRatio = price.getClose().divide(data.getEarningsPerShare(), MC);
-
-				FundamentalData dataNextYear = Iterables.find(security.getFundamentalDatas(), new Predicate<FundamentalData>() {
-					@Override
-					public boolean apply(FundamentalData input) {
-						return input.getYear() == data.getYear() + 1;
-					}
-				}, null);
+				int nextFiscalYear = data.getYear() + 1;
+				FundamentalData dataNextYear = Iterables.find(security.getFundamentalDatas(),
+					input -> input.getYear() == nextFiscalYear, null);
 				if (dataNextYear != null && dataNextYear.getEarningsPerShare().signum() != 0) {
+					if (currencyConverter != null) {
+						dataNextYear = new CurrencyAjustedFundamentalData(dataNextYear, currencyConverter);
+					}
 					int daysThisYear = day.delta(data.getFiscalEndDay());
 					if (daysThisYear < 360) {
 						float thisYear = (peRatio.floatValue() * daysThisYear);
@@ -605,6 +634,7 @@ public class ChartEditorPart extends EditorPart {
 			} else {
 				value = earningsPerShare.multiply(avgPE);
 			}
+			day = day.addMonth(-12);
 			fixedPePrice.addOrUpdate(new Day(day.day, day.month+1, day.year), value);
 		}
 	}
@@ -618,15 +648,28 @@ public class ChartEditorPart extends EditorPart {
 	}
 
 	private boolean isShowAvg() {
-		return Boolean.parseBoolean(((SecurityEditorInput)getEditorInput()).getSecurity().getConfigurationValue("SHOW_AVG"));
+		return Boolean.parseBoolean(((SecurityEditorInput)getEditorInput()).getSecurity()
+			.getConfigurationValue(ChartPropertyPage.CONF_SHOW_AVG));
 	}
 
 	private boolean isShowSignals() {
-		return Boolean.parseBoolean(((SecurityEditorInput)getEditorInput()).getSecurity().getConfigurationValue("SHOW_SIGNALS"));
+		return Boolean.parseBoolean(((SecurityEditorInput)getEditorInput()).getSecurity()
+			.getConfigurationValue(ChartPropertyPage.CONF_SHOW_SIGNALS));
+	}
+
+	private boolean isShowBuyAndSell() {
+		return Boolean.parseBoolean(Objects.toString(((SecurityEditorInput)getEditorInput()).getSecurity()
+			.getConfigurationValue(ChartPropertyPage.CONF_SHOW_BUY_SELL), "true"));
+	}
+
+	private boolean isShowDividends() {
+		return Boolean.parseBoolean(Objects.toString(((SecurityEditorInput)getEditorInput()).getSecurity()
+			.getConfigurationValue(ChartPropertyPage.CONF_SHOW_DIVIDENDS), "true"));
 	}
 
 	private Security getCompareTo() {
-		final String isin = ((SecurityEditorInput)getEditorInput()).getSecurity().getConfigurationValue("COMPARE_WITH");
+		final String isin = ((SecurityEditorInput)getEditorInput()).getSecurity()
+			.getConfigurationValue(ChartPropertyPage.CONF_COMPARE_WITH);
 		if (StringUtils.isNoneEmpty(isin)) {
 			ImmutableList<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
 			return Iterables.find(securities, new Predicate<Security>() {

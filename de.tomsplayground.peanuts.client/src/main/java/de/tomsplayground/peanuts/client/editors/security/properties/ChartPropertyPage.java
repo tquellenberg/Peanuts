@@ -22,9 +22,17 @@ import de.tomsplayground.peanuts.domain.base.Security;
 
 public class ChartPropertyPage extends PropertyPage {
 
+	public static final String CONF_SHOW_AVG = "SHOW_AVG";
+	public static final String CONF_SHOW_SIGNALS = "SHOW_SIGNALS";
+	public static final String CONF_SHOW_BUY_SELL = "SHOW_BUY_SELL";
+	public static final String CONF_SHOW_DIVIDENDS = "SHOW_DIVIDENDS";
+	public static final String CONF_COMPARE_WITH = "COMPARE_WITH";
+
 	private Button showAverage;
 	private Combo compareWithList;
 	private Button showSignals;
+	private Button showBuyAndSell;
+	private Button showDividends;
 
 	@Override
 	protected Control createContents(Composite parent) {
@@ -38,6 +46,14 @@ public class ChartPropertyPage extends PropertyPage {
 		label = new Label(composite, SWT.NONE);
 		label.setText("Show signals");
 		showSignals = new Button(composite, SWT.CHECK);
+
+		label = new Label(composite, SWT.NONE);
+		label.setText("Show buy and sell");
+		showBuyAndSell = new Button(composite, SWT.CHECK);
+
+		label = new Label(composite, SWT.NONE);
+		label.setText("Show dividends");
+		showDividends = new Button(composite, SWT.CHECK);
 
 		label = new Label(composite, SWT.NONE);
 		label.setText("Compare with");
@@ -54,13 +70,19 @@ public class ChartPropertyPage extends PropertyPage {
 
 		IAdaptable adapter = getElement();
 		Security security = (Security)adapter.getAdapter(Security.class);
-		String showAvg = security.getConfigurationValue("SHOW_AVG");
+		String showAvg = security.getConfigurationValue(CONF_SHOW_AVG);
 		showAverage.setSelection(Boolean.parseBoolean(showAvg));
 
-		String showSig = security.getConfigurationValue("SHOW_SIGNALS");
+		String showSig = security.getConfigurationValue(CONF_SHOW_SIGNALS);
 		showSignals.setSelection(Boolean.parseBoolean(showSig));
 
-		final String compareWithIsin = security.getConfigurationValue("COMPARE_WITH");
+		String showBuyAndSellStr = security.getConfigurationValue(CONF_SHOW_BUY_SELL);
+		showBuyAndSell.setSelection(Boolean.parseBoolean(showBuyAndSellStr));
+
+		String showDividendsStr = security.getConfigurationValue(CONF_SHOW_DIVIDENDS);
+		showDividends.setSelection(Boolean.parseBoolean(showDividendsStr));
+
+		final String compareWithIsin = security.getConfigurationValue(CONF_COMPARE_WITH);
 		if (StringUtils.isNotBlank(compareWithIsin)) {
 			int index = Iterables.indexOf(securities, new Predicate<Security>() {
 				@Override
@@ -78,8 +100,10 @@ public class ChartPropertyPage extends PropertyPage {
 	public boolean performOk() {
 		IAdaptable adapter = getElement();
 		Security security = (Security)adapter.getAdapter(Security.class);
-		security.putConfigurationValue("SHOW_AVG", Boolean.toString(showAverage.getSelection()));
-		security.putConfigurationValue("SHOW_SIGNALS", Boolean.toString(showSignals.getSelection()));
+		security.putConfigurationValue(CONF_SHOW_AVG, Boolean.toString(showAverage.getSelection()));
+		security.putConfigurationValue(CONF_SHOW_SIGNALS, Boolean.toString(showSignals.getSelection()));
+		security.putConfigurationValue(CONF_SHOW_BUY_SELL, Boolean.toString(showBuyAndSell.getSelection()));
+		security.putConfigurationValue(CONF_SHOW_DIVIDENDS, Boolean.toString(showDividends.getSelection()));
 
 		int index = compareWithList.getSelectionIndex();
 		String isin = "";
@@ -94,7 +118,7 @@ public class ChartPropertyPage extends PropertyPage {
 			});
 			isin = sec.getISIN();
 		}
-		security.putConfigurationValue("COMPARE_WITH", isin);
+		security.putConfigurationValue(CONF_COMPARE_WITH, isin);
 
 		return super.performOk();
 	}
