@@ -168,9 +168,9 @@ public class WatchEntry {
 				final Day now = new Day();
 				int daysThisYear = now.delta(data1.getFiscalEndDay());
 				if (daysThisYear < 360) {
-					float thisYear = (peRatio.floatValue() * daysThisYear);
+					double thisYear = (peRatio.doubleValue() * daysThisYear);
 					BigDecimal peRatio2 = dataNextYear.calculatePeRatio(adjustedPriceProvider);
-					float nextYear = (peRatio2.floatValue() * (360 - daysThisYear));
+					double nextYear = (peRatio2.doubleValue() * (360 - daysThisYear));
 					peRatio = new BigDecimal((thisYear + nextYear) / 360);
 				}
 			}

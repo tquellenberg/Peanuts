@@ -530,15 +530,21 @@ public class ChartEditorPart extends EditorPart {
 				int nextFiscalYear = data.getYear() + 1;
 				FundamentalData dataNextYear = Iterables.find(security.getFundamentalDatas(),
 					input -> input.getYear() == nextFiscalYear, null);
-				if (dataNextYear != null && dataNextYear.getEarningsPerShare().signum() != 0) {
+				if (dataNextYear != null) {
 					if (currencyConverter != null) {
 						dataNextYear = new CurrencyAjustedFundamentalData(dataNextYear, currencyConverter);
 					}
 					int daysThisYear = day.delta(data.getFiscalEndDay());
 					if (daysThisYear < 360) {
-						float thisYear = (peRatio.floatValue() * daysThisYear);
+						double thisYear = (peRatio.doubleValue() * daysThisYear);
+						if (thisYear < 0.0) {
+							thisYear = 50.0 * daysThisYear;
+						}
 						BigDecimal peRatio2 = price.getClose().divide(dataNextYear.getEarningsPerShare(), MC);
-						float nextYear = (peRatio2.floatValue() * (360 - daysThisYear));
+						double nextYear = (peRatio2.doubleValue() * (360 - daysThisYear));
+						if (nextYear < 0.0) {
+							nextYear = 50.0 * (360 - daysThisYear);
+						}
 						peRatio = new BigDecimal((thisYear + nextYear) / 360);
 					}
 				}
