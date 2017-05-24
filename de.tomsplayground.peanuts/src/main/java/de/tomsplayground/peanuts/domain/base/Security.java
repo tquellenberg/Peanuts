@@ -109,15 +109,18 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	}
 
 	public FundamentalData getCurrentFundamentalData() {
+		return getFundamentalData(new Day());
+	}
+
+	public FundamentalData getFundamentalData(Day day) {
 		if (fundamentalDatas.isEmpty()) {
 			return null;
 		}
-		final Day now = new Day();
 		return Iterables.find(fundamentalDatas, new Predicate<FundamentalData>() {
 			@Override
 			public boolean apply(FundamentalData input) {
-				int delta = now.delta(input.getFiscalEndDay());
-				return delta >= 0 && delta < 360;
+				int delta = day.delta(input.getFiscalEndDay());
+				return delta > 0 && delta <= 360;
 			}
 		}, null);
 	}

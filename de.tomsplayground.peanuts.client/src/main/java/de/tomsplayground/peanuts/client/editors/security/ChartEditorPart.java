@@ -489,18 +489,6 @@ public class ChartEditorPart extends EditorPart {
 		return chart;
 	}
 
-	private FundamentalData getFundamentalDataForYear(final de.tomsplayground.util.Day day) {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		List<FundamentalData> fundamentalDatas = security.getFundamentalDatas();
-		return Iterables.find(fundamentalDatas, new Predicate<FundamentalData>() {
-			@Override
-			public boolean apply(FundamentalData input) {
-				int delta = day.delta(input.getFiscalEndDay());
-				return delta > 0 && delta <= 360;
-			}
-		}, null);
-	}
-
 	private TimeSeriesCollection createPeRatioDataset() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
@@ -521,7 +509,8 @@ public class ChartEditorPart extends EditorPart {
 		TimeSeries timeSeries = new TimeSeries("PE delta %", Day.class);
 		for (IPrice price : pp.getPrices()) {
 			de.tomsplayground.util.Day day = price.getDay();
-			FundamentalData data = getFundamentalDataForYear(day);
+			day = day.addMonth(-6);
+			FundamentalData data = security.getFundamentalData(day);
 			if (data != null && data.getEarningsPerShare().signum() != 0) {
 				if (currencyConverter != null) {
 					data = new CurrencyAjustedFundamentalData(data, currencyConverter);
@@ -540,16 +529,19 @@ public class ChartEditorPart extends EditorPart {
 						if (thisYear < 0.0) {
 							thisYear = 50.0 * daysThisYear;
 						}
-						BigDecimal peRatio2 = price.getClose().divide(dataNextYear.getEarningsPerShare(), MC);
-						double nextYear = (peRatio2.doubleValue() * (360 - daysThisYear));
-						if (nextYear < 0.0) {
+						double nextYear;
+						if (dataNextYear.getEarningsPerShare().signum() <= 0) {
 							nextYear = 50.0 * (360 - daysThisYear);
+						} else {
+							BigDecimal peRatio2 = price.getClose().divide(dataNextYear.getEarningsPerShare(), MC);
+							nextYear = (peRatio2.doubleValue() * (360 - daysThisYear));
 						}
 						peRatio = new BigDecimal((thisYear + nextYear) / 360);
 					}
 				}
 				if (peRatio.signum() == 1) {
 					peRatio = peRatio.subtract(avgPE).divide(avgPE, MC).multiply(HUNDRED, MC);
+					day = price.getDay();
 					timeSeries.add(new Day(day.day, day.month+1, day.year), peRatio.doubleValue());
 				}
 			}
@@ -640,7 +632,7 @@ public class ChartEditorPart extends EditorPart {
 			} else {
 				value = earningsPerShare.multiply(avgPE);
 			}
-			day = day.addMonth(-12);
+			day = day.addMonth(-6);
 			fixedPePrice.addOrUpdate(new Day(day.day, day.month+1, day.year), value);
 		}
 	}

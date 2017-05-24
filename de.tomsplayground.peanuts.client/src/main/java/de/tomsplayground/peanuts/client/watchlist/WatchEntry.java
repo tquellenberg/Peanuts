@@ -154,9 +154,13 @@ public class WatchEntry {
 		if (peRatio != null) {
 			return peRatio;
 		}
-		final FundamentalData data1 = getCurrentFundamentalData();
+		Day date = new Day();
+		IPrice price = adjustedPriceProvider.getPrice(date);
+		date = date.addMonth(-6);
+		final FundamentalData data1 = adjust(security.getFundamentalData(date));
 		if (data1 != null) {
-			peRatio = data1.calculatePeRatio(adjustedPriceProvider);
+			// peRatio = data1.calculatePeRatio(adjustedPriceProvider);
+			peRatio = price.getClose().divide(data1.getEarningsPerShare(), MC);
 			FundamentalData dataNextYear = Iterables.find(security.getFundamentalDatas(), new Predicate<FundamentalData>() {
 				@Override
 				public boolean apply(FundamentalData input) {
@@ -165,11 +169,11 @@ public class WatchEntry {
 			}, null);
 			if (dataNextYear != null) {
 				dataNextYear = adjust(dataNextYear);
-				final Day now = new Day();
-				int daysThisYear = now.delta(data1.getFiscalEndDay());
+				int daysThisYear = date.delta(data1.getFiscalEndDay());
 				if (daysThisYear < 360) {
 					double thisYear = (peRatio.doubleValue() * daysThisYear);
-					BigDecimal peRatio2 = dataNextYear.calculatePeRatio(adjustedPriceProvider);
+//					BigDecimal peRatio2 = dataNextYear.calculatePeRatio(adjustedPriceProvider);
+					BigDecimal peRatio2 = price.getClose().divide(dataNextYear.getEarningsPerShare(), MC);
 					double nextYear = (peRatio2.doubleValue() * (360 - daysThisYear));
 					peRatio = new BigDecimal((thisYear + nextYear) / 360);
 				}
