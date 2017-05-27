@@ -77,9 +77,15 @@ public class ChartPropertyPage extends PropertyPage {
 		showSignals.setSelection(Boolean.parseBoolean(showSig));
 
 		String showBuyAndSellStr = security.getConfigurationValue(CONF_SHOW_BUY_SELL);
+		if (StringUtils.isBlank(showBuyAndSellStr)) {
+			showBuyAndSellStr = "true";
+		}
 		showBuyAndSell.setSelection(Boolean.parseBoolean(showBuyAndSellStr));
 
 		String showDividendsStr = security.getConfigurationValue(CONF_SHOW_DIVIDENDS);
+		if (StringUtils.isBlank(showDividendsStr)) {
+			showDividendsStr = "true";
+		}
 		showDividends.setSelection(Boolean.parseBoolean(showDividendsStr));
 
 		final String compareWithIsin = security.getConfigurationValue(CONF_COMPARE_WITH);
