@@ -46,11 +46,20 @@ public class UpdateAllSecurityPrices extends AbstractHandler {
 						if (monitor.isCanceled()) {
 							return Status.CANCEL_STATUS;
 						}
+						throttle();
 					}
 				} finally {
 					monitor.done();
 				}
 				return Status.OK_STATUS;
+			}
+
+			private void throttle() {
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
 			}
 		};
 		refreshPricesJob.setUser(false);

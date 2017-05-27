@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,13 +57,15 @@ public class YahooPriceReader extends PriceProvider {
 				URLEncoder.encode(ticker, StandardCharsets.UTF_8.name());
 		} else {
 			Calendar today = Calendar.getInstance();
-			url = "http://real-chart.finance.yahoo.com/table.csv?g=d&a=0&b=3&c=2000" +
-				"&d=" + today.get(Calendar.MONTH) + "&e=" + today.get(Calendar.DAY_OF_MONTH) +
-				"&f=" + today.get(Calendar.YEAR) + "&s=" +
-				URLEncoder.encode(ticker, StandardCharsets.UTF_8.name());
+			url = "https://query1.finance.yahoo.com/v7/finance/download/{0}?period1=1493067539&period2={1}&interval=1d&events=history&crumb={2}";
+			url = MessageFormat.format(url,
+				URLEncoder.encode(ticker, StandardCharsets.UTF_8.name()),
+				String.valueOf(today.getTime().getTime()),
+				URLEncoder.encode("2.h2NmyZMyR", StandardCharsets.UTF_8.name()));
 		}
 		HttpGet httpGet = new HttpGet(url);
 		httpGet.addHeader("User-Agent", USER_AGENT);
+		httpGet.addHeader("Cookie:", "B=97q6ontcibveo&b=3&s=ah; expires=Thu, 24-May-2018 21:40:41 GMT; path=/; domain=.yahoo.com");
 		httpGet.setConfig(RequestConfig.custom()
 			.setSocketTimeout(1000*20)
 			.setConnectTimeout(1000*10)
