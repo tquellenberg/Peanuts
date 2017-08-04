@@ -7,16 +7,24 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import de.tomsplayground.peanuts.app.quicken.QifReaderTest;
+import de.tomsplayground.peanuts.app.yahoo.YahooPriceReader.Type;
+import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.util.Day;
+import junit.framework.TestCase;
 
 public class YahooPriceReaderTest extends TestCase {
+
+	@Test
+	public void testYahoo() throws IOException {
+		Security security = new Security("Capgemini");
+		YahooPriceReader forTicker = YahooPriceReader.forTicker(security, "CAP.PA", Type.HISTORICAL);
+		assertTrue(forTicker.getPrices().size() > 20);
+	}
 
 	@Test
 	public void testRead() throws IOException {

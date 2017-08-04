@@ -10,9 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.config.ConfigurableSupport;
@@ -20,8 +18,8 @@ import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
+import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
 import de.tomsplayground.peanuts.domain.note.Note;
-import de.tomsplayground.util.Day;
 
 @XStreamAlias("security")
 public class Security extends ObservableModelObject implements INamedElement, IConfigurable, IDeletable {
@@ -104,25 +102,8 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 		}
 	}
 
-	public List<FundamentalData> getFundamentalDatas() {
-		return fundamentalDatas;
-	}
-
-	public FundamentalData getCurrentFundamentalData() {
-		return getFundamentalData(new Day());
-	}
-
-	public FundamentalData getFundamentalData(Day day) {
-		if (fundamentalDatas.isEmpty()) {
-			return null;
-		}
-		return Iterables.find(fundamentalDatas, new Predicate<FundamentalData>() {
-			@Override
-			public boolean apply(FundamentalData input) {
-				int delta = day.delta(input.getFiscalEndDay());
-				return delta > 0 && delta <= 360;
-			}
-		}, null);
+	public FundamentalDatas getFundamentalDatas() {
+		return new FundamentalDatas(fundamentalDatas, this);
 	}
 
 	public void setFundamentalDatas(List<FundamentalData> fundamentalDatas) {
@@ -130,7 +111,6 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 		this.fundamentalDatas = new ArrayList<FundamentalData>(fundamentalDatas);
 		firePropertyChange("fundamentalData", old, fundamentalDatas);
 	}
-
 
 	private transient ConfigurableSupport configurableSupport;
 

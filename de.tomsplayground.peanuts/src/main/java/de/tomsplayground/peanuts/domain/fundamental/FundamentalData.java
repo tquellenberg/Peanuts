@@ -32,6 +32,9 @@ public class FundamentalData implements Comparable<FundamentalData> {
 	private boolean ignoreInAvgCalculation;
 	private boolean locked;
 
+	transient private Day fiscalStartDay;
+	transient private Day fiscalEndDay;
+
 	public FundamentalData() {
 		this.year = 2000;
 		this.dividende = BigDecimal.ZERO;
@@ -58,6 +61,8 @@ public class FundamentalData implements Comparable<FundamentalData> {
 	}
 	public void setYear(int year) {
 		this.year = year;
+		this.fiscalStartDay = null;
+		this.fiscalEndDay = null;
 	}
 	public BigDecimal getDividende() {
 		return dividende;
@@ -115,8 +120,18 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		return getDividende().divide(close, MC);
 	}
 
+	public Day getFiscalStartDay() {
+		if (fiscalStartDay == null) {
+			fiscalStartDay = new Day(year, 0, 1).addMonth(getFicalYearEndsMonth());
+		}
+		return fiscalStartDay;
+	}
+
 	public Day getFiscalEndDay() {
-		return new Day(year, 11, 30).addMonth(getFicalYearEndsMonth());
+		if (fiscalEndDay == null) {
+			fiscalEndDay = getFiscalStartDay().addMonth(12).addDays(-1);
+		}
+		return fiscalEndDay;
 	}
 
 	public BigDecimal calculateYOC(InventoryEntry inventoryEntry) {
@@ -151,6 +166,8 @@ public class FundamentalData implements Comparable<FundamentalData> {
 
 	public void setFicalYearEndsMonth(int ficalYearEndsMonth) {
 		this.ficalYearEndsMonth = ficalYearEndsMonth;
+		this.fiscalStartDay = null;
+		this.fiscalEndDay = null;
 	}
 
 	public DateTime getLastModifyDate() {

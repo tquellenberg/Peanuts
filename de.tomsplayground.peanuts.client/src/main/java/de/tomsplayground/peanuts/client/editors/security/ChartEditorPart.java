@@ -68,8 +68,7 @@ import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.fundamental.AvgFundamentalData;
-import de.tomsplayground.peanuts.domain.fundamental.CurrencyAjustedFundamentalData;
-import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
+import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
 import de.tomsplayground.peanuts.domain.process.CurrencyAdjustedPriceProvider;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
@@ -84,6 +83,7 @@ import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class ChartEditorPart extends EditorPart {
 
+	private static final Color FAIR_PRICE_COLOR = new Color(154, 205, 50);
 	private static final BigDecimal HUNDRED = new BigDecimal(100);
 	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 	private static final String CHART_TYPE = "chartType";
@@ -436,7 +436,7 @@ public class ChartEditorPart extends EditorPart {
 	 */
 	private JFreeChart createChart() {
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		List<FundamentalData> fundamentalDatas = security.getFundamentalDatas();
+		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
 		boolean showPEratioChart = ! fundamentalDatas.isEmpty();
 
 		DateAxis axis = new DateAxis("Date");
@@ -444,7 +444,7 @@ public class ChartEditorPart extends EditorPart {
 		CombinedDomainXYPlot combiPlot = new CombinedDomainXYPlot(axis);
 		combiPlot.setDrawingSupplier(new PeanutsDrawingSupplier());
 		JFreeChart chart = new JFreeChart(getEditorInput().getName(), combiPlot);
-		chart.setBackgroundPaint(Color.white);
+		chart.setBackgroundPaint(Color.WHITE);
 
 		StandardXYItemRenderer renderer = new StandardXYItemRenderer();
 		renderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
@@ -460,7 +460,7 @@ public class ChartEditorPart extends EditorPart {
 			// Compare to
 			renderer.setSeriesPaint(nextPos++, Color.LIGHT_GRAY);
 		}
-		renderer.setSeriesPaint(nextPos++, Color.DARK_GRAY);
+		renderer.setSeriesPaint(nextPos++, FAIR_PRICE_COLOR);
 
 		NumberAxis rangeAxis2 = new NumberAxis("Price "+getChartCurrencyConverter().getToCurrency().getSymbol());
 		rangeAxis2.setAutoRange(false);
@@ -493,60 +493,26 @@ public class ChartEditorPart extends EditorPart {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		List<FundamentalData> fundamentalDatas = security.getFundamentalDatas();
-		Currency currency = fundamentalDatas.get(0).getCurrency();
+		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
 		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
-		CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(currency, security.getCurrency());
+		AvgFundamentalData avgFundamentalData = fundamentalDatas.getAvgFundamentalData(priceProvider, exchangeRate);
 
-		AvgFundamentalData avgFundamentalData = new AvgFundamentalData(fundamentalDatas, priceProvider, currencyConverter);
 		BigDecimal avgPE = avgFundamentalData.getAvgPE();
 		if (avgPE.signum() == 0) {
 			return timeSeriesCollection;
 		}
 
-		IPriceProvider pp = priceProvider;
-
 		TimeSeries timeSeries = new TimeSeries("PE delta %", Day.class);
-		for (IPrice price : pp.getPrices()) {
+		for (IPrice price : priceProvider.getPrices()) {
 			de.tomsplayground.util.Day day = price.getDay();
-			day = day.addMonth(-6);
-			FundamentalData data = security.getFundamentalData(day);
-			if (data != null && data.getEarningsPerShare().signum() != 0) {
-				if (currencyConverter != null) {
-					data = new CurrencyAjustedFundamentalData(data, currencyConverter);
-				}
-				BigDecimal peRatio = price.getClose().divide(data.getEarningsPerShare(), MC);
-				int nextFiscalYear = data.getYear() + 1;
-				FundamentalData dataNextYear = Iterables.find(security.getFundamentalDatas(),
-					input -> input.getYear() == nextFiscalYear, null);
-				if (dataNextYear != null) {
-					if (currencyConverter != null) {
-						dataNextYear = new CurrencyAjustedFundamentalData(dataNextYear, currencyConverter);
-					}
-					int daysThisYear = day.delta(data.getFiscalEndDay());
-					if (daysThisYear < 360) {
-						double thisYear = (peRatio.doubleValue() * daysThisYear);
-						if (thisYear < 0.0) {
-							thisYear = 50.0 * daysThisYear;
-						}
-						double nextYear;
-						if (dataNextYear.getEarningsPerShare().signum() <= 0) {
-							nextYear = 50.0 * (360 - daysThisYear);
-						} else {
-							BigDecimal peRatio2 = price.getClose().divide(dataNextYear.getEarningsPerShare(), MC);
-							nextYear = (peRatio2.doubleValue() * (360 - daysThisYear));
-						}
-						peRatio = new BigDecimal((thisYear + nextYear) / 360);
-					}
-				}
-				if (peRatio.signum() == 1) {
-					peRatio = peRatio.subtract(avgPE).divide(avgPE, MC).multiply(HUNDRED, MC);
-					day = price.getDay();
-					timeSeries.add(new Day(day.day, day.month+1, day.year), peRatio.doubleValue());
-				}
+			BigDecimal pe = fundamentalDatas.getAdjustedContinuousEarnings(day, exchangeRate);
+			if (pe != null && pe.signum() > 0) {
+				BigDecimal fairPrice = pe.multiply(avgPE, MC);
+				BigDecimal deltaPercent = price.getClose().subtract(fairPrice).multiply(HUNDRED).divide(fairPrice, MC);
+
+				timeSeries.add(new Day(day.day, day.month+1, day.year), deltaPercent.doubleValue());
 			}
 		}
-
 		timeSeriesCollection.addSeries(timeSeries);
 		return timeSeriesCollection;
 	}
@@ -611,29 +577,19 @@ public class ChartEditorPart extends EditorPart {
 
 	private void calculateFixedPePrice() {
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		List<FundamentalData> fundamentalDatas = security.getFundamentalDatas();
+		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
 		if (fundamentalDatas.isEmpty()) {
 			return;
 		}
-		Currency currency = fundamentalDatas.get(0).getCurrency();
 		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
-		CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(currency, security.getCurrency());
-		AvgFundamentalData avgData = new AvgFundamentalData(fundamentalDatas, priceProvider, currencyConverter);
+		AvgFundamentalData avgData = fundamentalDatas.getAvgFundamentalData(priceProvider, exchangeRate);
 		BigDecimal avgPE = avgData.getAvgPE();
-		for (FundamentalData fundamentalData : fundamentalDatas) {
-			if (currencyConverter != null) {
-				fundamentalData = new CurrencyAjustedFundamentalData(fundamentalData, currencyConverter);
+		for (IPrice p : priceProvider.getPrices()) {
+			de.tomsplayground.util.Day day = p.getDay();
+			BigDecimal pe = fundamentalDatas.getAdjustedContinuousEarnings(day, exchangeRate);
+			if (pe != null && pe.signum() > 0) {
+				fixedPePrice.addOrUpdate(new Day(day.day, day.month+1, day.year), pe.multiply(avgPE));
 			}
-			de.tomsplayground.util.Day day = fundamentalData.getFiscalEndDay();
-			BigDecimal earningsPerShare = fundamentalData.getEarningsPerShare();
-			BigDecimal value;
-			if (earningsPerShare.signum() <= 0) {
-				value = BigDecimal.ZERO;
-			} else {
-				value = earningsPerShare.multiply(avgPE);
-			}
-			day = day.addMonth(-6);
-			fixedPePrice.addOrUpdate(new Day(day.day, day.month+1, day.year), value);
 		}
 	}
 

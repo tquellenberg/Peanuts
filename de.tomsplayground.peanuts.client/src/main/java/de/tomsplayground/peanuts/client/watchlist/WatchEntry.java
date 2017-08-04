@@ -10,9 +10,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.joda.time.DateTime;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
@@ -21,6 +18,7 @@ import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.fundamental.AvgFundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.CurrencyAjustedFundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
+import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.Price;
@@ -123,7 +121,7 @@ public class WatchEntry {
 	}
 
 	private FundamentalData getCurrentFundamentalData() {
-		return adjust(security.getCurrentFundamentalData());
+		return adjust(security.getFundamentalDatas().getCurrentFundamentalData());
 	}
 
 	private FundamentalData adjust(FundamentalData fundamentalData) {
@@ -140,14 +138,9 @@ public class WatchEntry {
 	}
 
 	private AvgFundamentalData getAvgFundamentalData() {
-		List<FundamentalData> fundamentalDatas = security.getFundamentalDatas();
-		if (fundamentalDatas.isEmpty()) {
-			return new AvgFundamentalData(fundamentalDatas, adjustedPriceProvider, null);
-		}
-		Currency currency = fundamentalDatas.get(0).getCurrency();
+		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
 		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
-		CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(currency, security.getCurrency());
-		return new AvgFundamentalData(fundamentalDatas, adjustedPriceProvider, currencyConverter);
+		return fundamentalDatas.getAvgFundamentalData(adjustedPriceProvider, exchangeRate);
 	}
 
 	public BigDecimal getPeRatio() {
@@ -156,28 +149,11 @@ public class WatchEntry {
 		}
 		Day date = new Day();
 		IPrice price = adjustedPriceProvider.getPrice(date);
-		date = date.addMonth(-6);
-		final FundamentalData data1 = adjust(security.getFundamentalData(date));
-		if (data1 != null) {
-			// peRatio = data1.calculatePeRatio(adjustedPriceProvider);
-			peRatio = price.getClose().divide(data1.getEarningsPerShare(), MC);
-			FundamentalData dataNextYear = Iterables.find(security.getFundamentalDatas(), new Predicate<FundamentalData>() {
-				@Override
-				public boolean apply(FundamentalData input) {
-					return input.getYear() == data1.getYear() + 1;
-				}
-			}, null);
-			if (dataNextYear != null) {
-				dataNextYear = adjust(dataNextYear);
-				int daysThisYear = date.delta(data1.getFiscalEndDay());
-				if (daysThisYear < 360) {
-					double thisYear = (peRatio.doubleValue() * daysThisYear);
-//					BigDecimal peRatio2 = dataNextYear.calculatePeRatio(adjustedPriceProvider);
-					BigDecimal peRatio2 = price.getClose().divide(dataNextYear.getEarningsPerShare(), MC);
-					double nextYear = (peRatio2.doubleValue() * (360 - daysThisYear));
-					peRatio = new BigDecimal((thisYear + nextYear) / 360);
-				}
-			}
+		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
+		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
+		BigDecimal earnings = fundamentalDatas.getAdjustedContinuousEarnings(date, exchangeRate);
+		if (earnings != null) {
+			peRatio = price.getClose().divide(earnings, MC);
 		}
 		return peRatio;
 	}
@@ -279,7 +255,7 @@ public class WatchEntry {
 		BigDecimal v1 = getPeRatio();
 		BigDecimal v2 = getAvgPE();
 		if (v1 != null && v2 != null && v1.signum() > 0 && v2.signum() > 0) {
-			peDelta = v1.divide(v2, MC).subtract(BigDecimal.ONE);
+			peDelta = v1.subtract(v2).divide(v2, MC);
 		} else {
 			peDelta = null;
 		}
@@ -287,15 +263,7 @@ public class WatchEntry {
 	}
 
 	public DateTime getFundamentalDataDate() {
-		List<FundamentalData> fundamentalDatas = security.getFundamentalDatas();
-		DateTime d = null;
-		for (FundamentalData fundamentalData : fundamentalDatas) {
-			if (fundamentalData.getLastModifyDate() != null &&
-				(d == null || fundamentalData.getLastModifyDate().isAfter(d))) {
-				d = fundamentalData.getLastModifyDate();
-			}
-		}
-		return d;
+		return security.getFundamentalDatas().getMaxModificationDate().orElse(null);
 	}
 
 	public void refreshCache() {

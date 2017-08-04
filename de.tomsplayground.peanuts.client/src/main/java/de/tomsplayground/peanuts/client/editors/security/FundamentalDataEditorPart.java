@@ -315,7 +315,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 						return Activator.getDefault().getColorProvider().get(Activator.RED);
 					}
 				}
-				FundamentalData currentFundamentalData = getSecurity().getCurrentFundamentalData();
+				FundamentalData currentFundamentalData = getSecurity().getFundamentalDatas().getCurrentFundamentalData();
 				if (currentFundamentalData != null && currentFundamentalData.getYear() == data.getYear()) {
 					return Activator.getDefault().getColorProvider().get(Activator.ACTIVE_ROW);
 				}
@@ -590,7 +590,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 			}
 		}
 
-		fundamentalDatas = cloneFundamentalData(security.getFundamentalDatas());
+		fundamentalDatas = cloneFundamentalData(security.getFundamentalDatas().getDatas());
 		if (! fundamentalDatas.isEmpty()) {
 			Currency currency = fundamentalDatas.get(0).getCurrency();
 			currencyComboViewer.selectCurrency(currency);

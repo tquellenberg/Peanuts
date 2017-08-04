@@ -20,6 +20,7 @@ import de.tomsplayground.peanuts.app.fourtraders.FourTraders;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
+import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
 
 public class Update4TraderFundamentalData extends AbstractHandler {
 
@@ -80,14 +81,11 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 		if (security.isDeleted()) {
 			return false;
 		}
-		List<FundamentalData> fundamentalDatas = security.getFundamentalDatas();
+		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
 		if (fundamentalDatas.isEmpty()) {
 			return false;
 		}
-		Optional<DateTime> maxDate = fundamentalDatas.stream()
-			.map(d -> d.getLastModifyDate())
-			.filter(a -> a != null)
-			.reduce((a, b) -> (a.compareTo(b) > 0) ? a : b);
+		Optional<DateTime> maxDate = fundamentalDatas.getMaxModificationDate();
 		DateTime d = DateTime.now().minusDays(MAX_AGE_BEFORE_UPDATE);
 		if (!maxDate.isPresent() || maxDate.get().compareTo(d) < 0) {
 			return true;
@@ -97,7 +95,7 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 
 	private void updateFundamentaData(Security security, List<FundamentalData> newDatas) {
 		System.out.println("Updating fundamenta data for " + security.getName());
-		List<FundamentalData> fundamentalDatas = new ArrayList<>(security.getFundamentalDatas());
+		List<FundamentalData> fundamentalDatas = new ArrayList<>(security.getFundamentalDatas().getDatas());
 		for (FundamentalData newData : newDatas) {
 			if (newData.getDividende().signum() == 0 && newData.getEarningsPerShare().signum() == 0) {
 				continue;

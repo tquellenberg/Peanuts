@@ -74,7 +74,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 					mergePrices(localPriceProvider, remotePriceProvider, overideExistingData);
 				}
 			} else {
-				IPriceProvider remotePriceProvider = readHistoricalPricesFromYahoo(security);
+				IPriceProvider remotePriceProvider = readHistoricalPricesFromYahoo(security, localPriceProvider.getPrices().size() < 100);
 				if (remotePriceProvider != null) {
 					mergePrices(localPriceProvider, remotePriceProvider, overideExistingData);
 				}
@@ -166,9 +166,9 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		}
 	}
 
-	protected IPriceProvider readHistoricalPricesFromYahoo(Security security) {
+	protected IPriceProvider readHistoricalPricesFromYahoo(Security security, boolean full) {
 		try {
-			return YahooPriceReader.forTicker(security, security.getTicker(), Type.HISTORICAL);
+			return YahooPriceReader.forTicker(security, security.getTicker(), full?Type.HISTORICAL:Type.LAST_DAYS);
 		} catch (IOException e) {
 			log.error("readHistoricalPricesFromYahoo " + security.getName() + " " + e.getMessage());
 			return null;

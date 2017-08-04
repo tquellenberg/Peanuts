@@ -40,8 +40,8 @@ public class NotesEditorPart extends EditorPart {
 		GridLayout layout = new GridLayout();
 		top.setLayout(layout);
 
-		text = new Text(top, SWT.MULTI  | SWT.WRAP | SWT.BORDER);
-		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
+		text = new Text(top, SWT.MULTI  | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
+		GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		layoutData.heightHint = 100;
 		text.setLayoutData(layoutData);
 
