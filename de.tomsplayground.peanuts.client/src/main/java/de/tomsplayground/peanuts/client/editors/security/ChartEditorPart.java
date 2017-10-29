@@ -42,6 +42,7 @@ import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYAreaRenderer;
+import org.jfree.data.Range;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -87,6 +88,8 @@ public class ChartEditorPart extends EditorPart {
 	private static final BigDecimal HUNDRED = new BigDecimal(100);
 	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 	private static final String CHART_TYPE = "chartType";
+
+	private static final Range peRatioChartRange = new Range(-35.0, 35.0);
 
 	boolean dirty = false;
 	private Combo displayType;
@@ -479,7 +482,7 @@ public class ChartEditorPart extends EditorPart {
 			xyAreaRenderer.setSeriesPaint(0, new PeanutsDrawingSupplier().getNextPaint());
 			NumberAxis rangeAxis = new NumberAxis("PE delta %");
 			rangeAxis.setAutoRange(false);
-			rangeAxis.setRange(-30.0, 30.0);
+			rangeAxis.setRange(peRatioChartRange);
 			XYPlot plot2 = new XYPlot(createPeRatioDataset(), null, rangeAxis, xyAreaRenderer);
 			plot2.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
 			plot2.setDomainCrosshairVisible(true);
