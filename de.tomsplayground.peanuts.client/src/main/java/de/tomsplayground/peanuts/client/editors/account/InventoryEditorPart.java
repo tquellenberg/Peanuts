@@ -1,5 +1,7 @@
 package de.tomsplayground.peanuts.client.editors.account;
 
+import static de.tomsplayground.peanuts.client.util.MinQuantity.*;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
@@ -542,7 +544,7 @@ public class InventoryEditorPart extends EditorPart {
 				}
 				if (element instanceof InventoryEntry) {
 					InventoryEntry entry = (InventoryEntry) element;
-					return entry.getQuantity().intValue() != 0;
+					return isNotZero(entry.getQuantity());
 				}
 				return true;
 			}
@@ -798,7 +800,7 @@ public class InventoryEditorPart extends EditorPart {
 	}
 
 	public void restoreState() {
-		IConfigurable config = (IConfigurable) getEditorInput().getAdapter(IConfigurable.class);
+		IConfigurable config = getEditorInput().getAdapter(IConfigurable.class);
 		if (config != null) {
 			for (int i = 0; i < colWidth.length; i++ ) {
 				String width = config.getConfigurationValue(getClass().getSimpleName()+".col" + i);
@@ -810,7 +812,7 @@ public class InventoryEditorPart extends EditorPart {
 	}
 
 	public void saveState() {
-		IConfigurable config = (IConfigurable) getEditorInput().getAdapter(IConfigurable.class);
+		IConfigurable config = getEditorInput().getAdapter(IConfigurable.class);
 		if (config != null) {
 			TreeColumn[] columns = treeViewer.getTree().getColumns();
 			for (int i = 0; i < columns.length; i++ ) {

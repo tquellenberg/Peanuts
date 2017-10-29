@@ -1,5 +1,7 @@
 package de.tomsplayground.peanuts.client.editors.account;
 
+import static de.tomsplayground.peanuts.client.util.MinQuantity.*;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -141,7 +143,7 @@ public class InventoryPieEditorPart extends EditorPart {
 			}
 		});
 		for (InventoryEntry entry : entries) {
-			if (entry.getQuantity().intValue() != 0) {
+			if (isNotZero(entry.getQuantity())) {
 				dataset.setValue(entry.getSecurity().getName(), entry.getMarketValue(date));
 			}
 		}

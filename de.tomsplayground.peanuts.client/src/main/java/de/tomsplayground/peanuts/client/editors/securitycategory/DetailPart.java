@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.client.editors.securitycategory;
 
 import static com.google.common.collect.Collections2.*;
+import static de.tomsplayground.peanuts.client.util.MinQuantity.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,6 +43,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.util.MinQuantity;
 import de.tomsplayground.peanuts.client.wizards.securitycategory.SecurityCategoryEditWizard;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
@@ -115,7 +117,7 @@ public class DetailPart extends EditorPart {
 			return transform(filter(inventory.getEntries(), new Predicate<InventoryEntry>() {
 				@Override
 				public boolean apply(InventoryEntry entry) {
-					return entry.getQuantity().intValue() > 0;
+					return isNotZero(entry.getQuantity());
 				}
 			}), new Function<InventoryEntry, Security>() {
 				@Override
@@ -222,7 +224,7 @@ public class DetailPart extends EditorPart {
 			public boolean select(Viewer viewer, Object parentElement, Object element) {
 				if (element instanceof Security) {
 					InventoryEntry entry = inventory.getEntry((Security)element);
-					return (entry != null && entry.getQuantity().intValue() > 0);
+					return (entry != null && MinQuantity.isNotZero(entry.getQuantity()));
 				}
 				return true;
 			}
