@@ -78,10 +78,10 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 				if (remotePriceProvider != null) {
 					mergePrices(localPriceProvider, remotePriceProvider, overideExistingData);
 				}
-				IPriceProvider remotePriceProvider2 = readLastPricesFromYahoo(security);
-				if (remotePriceProvider2 != null) {
-					mergePrices(localPriceProvider, remotePriceProvider2, true);
-				}
+//				IPriceProvider remotePriceProvider2 = readLastPricesFromYahoo(security);
+//				if (remotePriceProvider2 != null) {
+//					mergePrices(localPriceProvider, remotePriceProvider2, true);
+//				}
 			}
 			saveToLocal(security, localPriceProvider);
 		}
