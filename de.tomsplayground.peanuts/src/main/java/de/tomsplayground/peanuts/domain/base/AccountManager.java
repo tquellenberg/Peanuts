@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+import de.tomsplayground.peanuts.domain.alarm.SecurityAlarm;
 import de.tomsplayground.peanuts.domain.base.Category.Type;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.calendar.CalendarEntry;
@@ -62,6 +63,8 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	private List<SecurityCategoryMapping> securityCategoryMappings = new ArrayList<SecurityCategoryMapping>();
 
 	private List<CalendarEntry> calendarEntries = new ArrayList<CalendarEntry>();
+
+	private List<SecurityAlarm> securityAlarms = new ArrayList<>();
 
 	private List<WatchlistConfiguration> watchlistConfigurations = new ArrayList<WatchlistConfiguration>();
 
@@ -295,6 +298,7 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 		stockSplits.clear();
 		stopLosses.clear();
 		calendarEntries.clear();
+		securityAlarms.clear();
 		watchlistConfigurations.clear();
 		savedTransactions = ImmutableList.of();
 		securityCategoryMappings.clear();
@@ -306,6 +310,9 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 		}
 		if (calendarEntries == null) {
 			calendarEntries = new ArrayList<CalendarEntry>();
+		}
+		if (securityAlarms == null) {
+			securityAlarms = new ArrayList<>();
 		}
 		if (stopLosses == null) {
 			stopLosses = new HashSet<StopLoss>();
@@ -517,6 +524,36 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 		boolean remove = calendarEntries.remove(calendarEntry);
 		if (remove) {
 			firePropertyChange("calendarEntry", calendarEntry, null);
+		}
+		return remove;
+	}
+
+	public ImmutableSet<SecurityAlarm> getSecurityAlarms(final Security security) {
+		return ImmutableSet.copyOf(
+			Iterables.filter(securityAlarms, new Predicate<SecurityAlarm>() {
+				@Override
+				public boolean apply(SecurityAlarm calendarEntry) {
+					if (calendarEntry.getSecurity().equals(security)) {
+						return true;
+					}
+					return false;
+				}
+			}));
+	}
+
+	public ImmutableList<SecurityAlarm> getSecurityAlarms() {
+		return ImmutableList.copyOf(securityAlarms);
+	}
+
+	public void addSecurityAlarm(SecurityAlarm securityAlarm) {
+		securityAlarms.add(securityAlarm);
+		firePropertyChange("securityAlarm", null, securityAlarm);
+	}
+
+	public boolean removeSecurityAlarm(SecurityAlarm securityAlarm) {
+		boolean remove = securityAlarms.remove(securityAlarm);
+		if (remove) {
+			firePropertyChange("securityAlarm", securityAlarm, null);
 		}
 		return remove;
 	}

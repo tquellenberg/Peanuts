@@ -7,6 +7,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.extended.ISO8601GregorianCalendarConverter;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 
+import de.tomsplayground.peanuts.domain.alarm.SecurityAlarm;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Category;
@@ -62,7 +63,8 @@ public class PersistenceService implements IPersistenceService {
 			SecurityCalendarEntry.class,
 			Note.class,
 			WatchlistConfiguration.class,
-			CategoryFilter.class
+			CategoryFilter.class,
+			SecurityAlarm.class
 		});
 	}
 
