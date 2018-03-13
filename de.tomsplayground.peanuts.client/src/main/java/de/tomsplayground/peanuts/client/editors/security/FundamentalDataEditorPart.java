@@ -80,6 +80,9 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
+	private static final BigDecimal DEPT_LIMIT = new BigDecimal("1.0");
+	private static final BigDecimal DIVIDENDE_LIMIT = new BigDecimal("0.9");
+
 	private TableViewer tableViewer;
 	private final int colWidth[] = new int[15];
 	private boolean dirty = false;
@@ -278,12 +281,30 @@ public class FundamentalDataEditorPart extends EditorPart {
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
 			if (element instanceof FundamentalData) {
-				if (((FundamentalData) element).isIgnoreInAvgCalculation()) {
+				FundamentalData data = (FundamentalData) element;
+				if (data.isIgnoreInAvgCalculation()) {
 					return Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW);
+				} else if (columnIndex == 2) {
+					BigDecimal dividende = data.getDividende();
+					BigDecimal earningsPerShare = data.getEarningsPerShare();
+					if (dividende.compareTo(BigDecimal.ZERO) > 0) {
+						if (earningsPerShare.signum() <= 0) {
+							return Activator.getDefault().getColorProvider().get(Activator.RED_BG);
+						} else {
+							BigDecimal ratio = dividende.divide(earningsPerShare, MC);
+							if (ratio.compareTo(DIVIDENDE_LIMIT) > 0) {
+								return Activator.getDefault().getColorProvider().get(Activator.RED_BG);
+							}
+						}
+					}
 				} else if (columnIndex == 6) {
-					FundamentalData data = (FundamentalData) element;
 					BigDecimal earningsPerShare = data.getEarningsPerShare();
 					if (earningsPerShare.signum() < 0) {
+						return Activator.getDefault().getColorProvider().get(Activator.RED_BG);
+					}
+				} else if (columnIndex == 10) {
+					BigDecimal debtEquityRatio = data.getDebtEquityRatio();
+					if (debtEquityRatio.compareTo(DEPT_LIMIT) >= 0) {
 						return Activator.getDefault().getColorProvider().get(Activator.RED_BG);
 					}
 				}
