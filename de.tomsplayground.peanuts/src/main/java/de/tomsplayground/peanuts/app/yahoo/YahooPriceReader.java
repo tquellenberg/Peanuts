@@ -61,7 +61,7 @@ public class YahooPriceReader extends PriceProvider {
 	private static HttpClientContext context;
 
 	private static void init() {
-		RequestConfig globalConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.DEFAULT).build();
+		RequestConfig globalConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build();
 		CookieStore cookieStore = new BasicCookieStore();
 		context = HttpClientContext.create();
 		context.setCookieStore(cookieStore);
@@ -77,7 +77,7 @@ public class YahooPriceReader extends PriceProvider {
 			httpGet.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 			httpGet.addHeader("Accept-Language", "en-US,en;q=0.5");
 			httpGet.setConfig(RequestConfig.custom()
-				.setCookieSpec(CookieSpecs.DEFAULT)
+				.setCookieSpec(CookieSpecs.STANDARD)
 				.setSocketTimeout(1000*20)
 				.setConnectTimeout(1000*10)
 				.setConnectionRequestTimeout(1000*10).build());
@@ -141,7 +141,7 @@ public class YahooPriceReader extends PriceProvider {
 		HttpGet httpGet = new HttpGet(url);
 		httpGet.addHeader("User-Agent", USER_AGENT);
 		httpGet.setConfig(RequestConfig.custom()
-			.setCookieSpec(CookieSpecs.DEFAULT)
+			.setCookieSpec(CookieSpecs.STANDARD)
 			.setSocketTimeout(1000*20)
 			.setConnectTimeout(1000*10)
 			.setConnectionRequestTimeout(1000*10).build());
