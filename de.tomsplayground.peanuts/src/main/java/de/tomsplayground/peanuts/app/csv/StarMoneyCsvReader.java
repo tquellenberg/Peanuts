@@ -10,7 +10,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVReader;
+
 import de.tomsplayground.peanuts.domain.process.BankTransaction;
 import de.tomsplayground.util.Day;
 

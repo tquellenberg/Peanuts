@@ -15,7 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import au.com.bytecode.opencsv.CSVWriter;
+import com.opencsv.CSVWriter;
+
 import de.tomsplayground.peanuts.app.google.GooglePriceReader;
 import de.tomsplayground.peanuts.app.yahoo.YahooPriceReader;
 import de.tomsplayground.peanuts.app.yahoo.YahooPriceReader.Type;
