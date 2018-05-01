@@ -106,11 +106,11 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 
 	@Override
 	public String getMemo() {
-		return memo;
+		return StringUtils.defaultString(memo);
 	}
 
 	public void setMemo(String memo) {
-		memo = StringUtils.trimToEmpty(memo);
+		memo = StringUtils.defaultString(memo);
 		String oldValue = this.memo;
 		this.memo = memo;
 		firePropertyChange("memo", oldValue, memo);

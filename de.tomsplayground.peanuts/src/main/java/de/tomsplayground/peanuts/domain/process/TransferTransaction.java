@@ -51,14 +51,8 @@ public class TransferTransaction extends LabeledTransaction {
 	@Override
 	public void setMemo(String memo) {
 		super.setMemo(memo);
-		if (memo == null) {
-			if (complement.getMemo() != null) {
-				complement.setMemo(null);
-			}
-		} else {
-			if ( !memo.equals(complement.getMemo())) {
-				complement.setMemo(memo);
-			}
+		if (! getMemo().equals(complement.getMemo())) {
+			complement.setMemo(getMemo());
 		}
 	}
 
