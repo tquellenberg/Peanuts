@@ -172,9 +172,7 @@ public class InventoryEditorPart extends EditorPart {
 		}
 	};
 
-
 	private final PropertyChangeListener inventoryChangeListener = new UniqueAsyncExecution() {
-
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
 			if (!treeViewer.getTree().isDisposed()) {
@@ -189,7 +187,6 @@ public class InventoryEditorPart extends EditorPart {
 	};
 
 	private static class InventoryContentProvider implements ITreeContentProvider {
-
 		@Override
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof InventoryEntry) {
@@ -509,6 +506,9 @@ public class InventoryEditorPart extends EditorPart {
 		treeViewer.addFilter(new ViewerFilter() {
 			@Override
 			public boolean select(Viewer viewer, Object parentElement, Object element) {
+				if (element instanceof InvestmentTransaction) {
+					return true;
+				}
 				final String name = filterCombo1.getText();
 				String value = filterCombo2.getText();
 				if (StringUtils.isBlank(name) || StringUtils.isBlank(value)) {
