@@ -35,7 +35,10 @@ Bundle-ClassPath: .,
  lib/htmlcleaner-2.21.jar,
  lib/opencsv-4.1.jar,
  lib/httpclient-4.5.5.jar,
- lib/httpcore-4.4.9.jar
+ lib/httpcore-4.4.9.jar,
+ lib/jackson-annotations-2.9.0.jar,
+ lib/jackson-core-2.9.5.jar,
+ lib/jackson-databind-2.9.5.jar
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.forms,
