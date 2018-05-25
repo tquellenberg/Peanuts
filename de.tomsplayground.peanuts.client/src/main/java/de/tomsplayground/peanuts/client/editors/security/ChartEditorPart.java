@@ -190,6 +190,7 @@ public class ChartEditorPart extends EditorPart {
 	private TimeSeries fixedPePrice;
 	private XYPlot pricePlot;
 	private Button convertToEuro;
+	private Button convertToUSD;
 	private ValueMarker avgPriceAnnotation;
 
 	@Override
@@ -274,6 +275,20 @@ public class ChartEditorPart extends EditorPart {
 					timeChart.setChartType(displayType.getItem(displayType.getSelectionIndex()));
 				}
 			});
+		} else {
+			Label text = new Label(buttons, SWT.NONE);
+			text.setText("Convert from "+defaultCurrency.getCurrencyCode()+" to USD");
+			convertToUSD = new Button(buttons, SWT.CHECK);
+			convertToUSD.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					createDataset();
+					pricePlot.clearAnnotations();
+					addOrderAnnotations();
+					pricePlot.getRangeAxis().setLabel("Price "+getChartCurrencyConverter().getToCurrency().getSymbol());
+					timeChart.setChartType(displayType.getItem(displayType.getSelectionIndex()));
+				}
+			});
 		}
 
 		calculateCompareToValues();
@@ -311,15 +326,31 @@ public class ChartEditorPart extends EditorPart {
 				return new CurrencyAdjustedPriceProvider(priceProvider, currencyConverter);
 			}
 		}
+		if (convertToUSD != null && convertToUSD.getSelection()) {
+			Currency defaultCurrency = Currencies.getInstance().getDefaultCurrency();
+			Currency usdCurrency = Currency.getInstance("USD");
+			ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
+			CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(defaultCurrency, usdCurrency);
+			if (currencyConverter != null) {
+				return new CurrencyAdjustedPriceProvider(priceProvider, currencyConverter);
+			}
+		}
 		return priceProvider;
 	}
 
 	private CurrencyConverter getChartCurrencyConverter() {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		Currency defaultCurrency = Currencies.getInstance().getDefaultCurrency();
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
 		if (convertToEuro != null && convertToEuro.getSelection()) {
 			CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(security.getCurrency(), defaultCurrency);
+			if (currencyConverter != null) {
+				return currencyConverter;
+			}
+		}
+		if (convertToUSD != null && convertToUSD.getSelection()) {
+			Currency usdCurrency = Currency.getInstance("USD");
+			CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(defaultCurrency, usdCurrency);
 			if (currencyConverter != null) {
 				return currencyConverter;
 			}
