@@ -78,7 +78,6 @@ import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.domain.process.StopLoss;
-import de.tomsplayground.peanuts.domain.statistics.Signal;
 import de.tomsplayground.peanuts.domain.statistics.SimpleMovingAverage;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
@@ -151,13 +150,6 @@ public class ChartEditorPart extends EditorPart {
 					dataset.removeSeries(average100Days);
 				}
 			}
-			if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_SIGNALS)) {
-				if (isShowSignals()) {
-					signalAnnotations = timeChart.addSignals(createSignals());
-				} else {
-					timeChart.removeAnnotations(signalAnnotations);
-				}
-			}
 			if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_BUY_SELL) ||
 				evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_DIVIDENDS)) {
 				timeChart.removeAnnotations(orderAnnotations);
@@ -182,7 +174,6 @@ public class ChartEditorPart extends EditorPart {
 	private TimeSeries average20Days;
 	private TimeSeries average100Days;
 	private final TimeSeriesCollection dataset = new TimeSeriesCollection();
-	private ImmutableList<XYAnnotation> signalAnnotations = ImmutableList.of();
 	private ImmutableList<XYAnnotation> orderAnnotations = ImmutableList.of();
 	private TimeChart timeChart;
 	private TimeSeries stopLoss;
@@ -221,9 +212,6 @@ public class ChartEditorPart extends EditorPart {
 		chartComposite = new ChartComposite(body, SWT.NONE, chart, true);
 		chartComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		timeChart = new TimeChart(chart, dataset);
-		if (isShowSignals()) {
-			signalAnnotations = timeChart.addSignals(createSignals());
-		}
 
 		orderAnnotations = addOrderAnnotations();
 
@@ -640,11 +628,6 @@ public class ChartEditorPart extends EditorPart {
 			.getConfigurationValue(ChartPropertyPage.CONF_SHOW_AVG));
 	}
 
-	private boolean isShowSignals() {
-		return Boolean.parseBoolean(((SecurityEditorInput)getEditorInput()).getSecurity()
-			.getConfigurationValue(ChartPropertyPage.CONF_SHOW_SIGNALS));
-	}
-
 	private boolean isShowBuyAndSell() {
 		return Boolean.parseBoolean(Objects.toString(((SecurityEditorInput)getEditorInput()).getSecurity()
 			.getConfigurationValue(ChartPropertyPage.CONF_SHOW_BUY_SELL), "true"));
@@ -694,12 +677,6 @@ public class ChartEditorPart extends EditorPart {
 			de.tomsplayground.util.Day day = price.getDay();
 			a1.addOrUpdate(new Day(day.day, day.month+1, day.year), price.getValue());
 		}
-	}
-
-	private ImmutableList<Signal> createSignals() {
-		SimpleMovingAverage simpleMovingAverage = new SimpleMovingAverage(20);
-		simpleMovingAverage.calculate(priceProvider.getPrices());
-		return simpleMovingAverage.getSignals();
 	}
 
 	@Override

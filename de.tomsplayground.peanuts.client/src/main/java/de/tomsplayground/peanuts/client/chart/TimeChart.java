@@ -1,17 +1,9 @@
 package de.tomsplayground.peanuts.client.chart;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYAnnotation;
-import org.jfree.chart.annotations.XYDrawableAnnotation;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.XYPlot;
@@ -19,12 +11,8 @@ import org.jfree.data.Range;
 import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.ui.Drawable;
 
 import com.google.common.collect.ImmutableList;
-
-import de.tomsplayground.peanuts.domain.statistics.Signal;
-import de.tomsplayground.peanuts.domain.statistics.Signal.Type;
 
 public class TimeChart {
 
@@ -67,26 +55,6 @@ public class TimeChart {
 	final private JFreeChart chart;
 	final private TimeSeriesCollection series;
 	private RANGE type;
-
-	final static private Drawable buyDrawable = new Drawable() {
-		@Override
-		public void draw(Graphics2D g, Rectangle2D area) {
-			Rectangle rectangle = area.getBounds();
-			g.setPaint(Color.GREEN);
-			g.setStroke(new BasicStroke(2));
-			g.drawLine(rectangle.x, rectangle.y, rectangle.x, rectangle.y - 10);
-		}
-	};
-
-	final static private Drawable sellDrawable = new Drawable() {
-		@Override
-		public void draw(Graphics2D g, Rectangle2D area) {
-			Rectangle rectangle = area.getBounds();
-			g.setPaint(Color.RED);
-			g.setStroke(new BasicStroke(2));
-			g.drawLine(rectangle.x, rectangle.y, rectangle.x, rectangle.y + 10);
-		}
-	};
 
 	public TimeChart(JFreeChart chart, TimeSeriesCollection series) {
 		this.chart = chart;
@@ -132,25 +100,6 @@ public class TimeChart {
 			default: from = null;
 		}
 		return from;
-	}
-
-	public ImmutableList<XYAnnotation> addSignals(List<Signal> signals) {
-		XYPlot plot = getPlot();
-		List<XYAnnotation> annotations = new ArrayList<XYAnnotation>();
-		for (Signal signal : signals) {
-			long timeInMillis = signal.day.toCalendar().getTimeInMillis();
-			double yValue = signal.price.getClose().doubleValue();
-			XYDrawableAnnotation annotation;
-			if (signal.type == Type.SELL) {
-				annotation = new XYDrawableAnnotation(timeInMillis, yValue, 0, 0, sellDrawable);
-			} else {
-				annotation = new XYDrawableAnnotation(timeInMillis, yValue, 0, 0, buyDrawable);
-			}
-			annotation.setToolTipText(signal.price.getDay().toString());
-			plot.addAnnotation(annotation);
-			annotations.add(annotation);
-		}
-		return ImmutableList.copyOf(annotations);
 	}
 
 	private void adjustRangeAxis(XYPlot plot, Calendar from, Calendar to) {

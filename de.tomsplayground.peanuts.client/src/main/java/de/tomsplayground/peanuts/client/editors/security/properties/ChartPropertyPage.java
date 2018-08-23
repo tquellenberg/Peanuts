@@ -23,14 +23,12 @@ import de.tomsplayground.peanuts.domain.base.Security;
 public class ChartPropertyPage extends PropertyPage {
 
 	public static final String CONF_SHOW_AVG = "SHOW_AVG";
-	public static final String CONF_SHOW_SIGNALS = "SHOW_SIGNALS";
 	public static final String CONF_SHOW_BUY_SELL = "SHOW_BUY_SELL";
 	public static final String CONF_SHOW_DIVIDENDS = "SHOW_DIVIDENDS";
 	public static final String CONF_COMPARE_WITH = "COMPARE_WITH";
 
 	private Button showAverage;
 	private Combo compareWithList;
-	private Button showSignals;
 	private Button showBuyAndSell;
 	private Button showDividends;
 
@@ -42,10 +40,6 @@ public class ChartPropertyPage extends PropertyPage {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText("Show average");
 		showAverage = new Button(composite, SWT.CHECK);
-
-		label = new Label(composite, SWT.NONE);
-		label.setText("Show signals");
-		showSignals = new Button(composite, SWT.CHECK);
 
 		label = new Label(composite, SWT.NONE);
 		label.setText("Show buy and sell");
@@ -69,12 +63,9 @@ public class ChartPropertyPage extends PropertyPage {
 		compareWithList.add("", 0);
 
 		IAdaptable adapter = getElement();
-		Security security = (Security)adapter.getAdapter(Security.class);
+		Security security = adapter.getAdapter(Security.class);
 		String showAvg = security.getConfigurationValue(CONF_SHOW_AVG);
 		showAverage.setSelection(Boolean.parseBoolean(showAvg));
-
-		String showSig = security.getConfigurationValue(CONF_SHOW_SIGNALS);
-		showSignals.setSelection(Boolean.parseBoolean(showSig));
 
 		String showBuyAndSellStr = security.getConfigurationValue(CONF_SHOW_BUY_SELL);
 		if (StringUtils.isBlank(showBuyAndSellStr)) {
@@ -105,9 +96,8 @@ public class ChartPropertyPage extends PropertyPage {
 	@Override
 	public boolean performOk() {
 		IAdaptable adapter = getElement();
-		Security security = (Security)adapter.getAdapter(Security.class);
+		Security security = adapter.getAdapter(Security.class);
 		security.putConfigurationValue(CONF_SHOW_AVG, Boolean.toString(showAverage.getSelection()));
-		security.putConfigurationValue(CONF_SHOW_SIGNALS, Boolean.toString(showSignals.getSelection()));
 		security.putConfigurationValue(CONF_SHOW_BUY_SELL, Boolean.toString(showBuyAndSell.getSelection()));
 		security.putConfigurationValue(CONF_SHOW_DIVIDENDS, Boolean.toString(showDividends.getSelection()));
 

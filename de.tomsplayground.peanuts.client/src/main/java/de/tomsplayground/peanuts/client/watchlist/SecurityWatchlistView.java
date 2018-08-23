@@ -55,8 +55,6 @@ import de.tomsplayground.peanuts.client.editors.security.SecurityEditorInput;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.IPrice;
-import de.tomsplayground.peanuts.domain.statistics.Signal;
-import de.tomsplayground.peanuts.domain.statistics.Signal.Type;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
@@ -258,14 +256,10 @@ public class SecurityWatchlistView extends ViewPart {
 
 		private final Color red;
 		private final Color green;
-		private final Color redBg;
-		private final Color greenBg;
 
 		public SecurityListLabelProvider() {
 			red = Activator.getDefault().getColorProvider().get(Activator.RED);
 			green = Activator.getDefault().getColorProvider().get(Activator.GREEN);
-			redBg = Activator.getDefault().getColorProvider().get(Activator.RED_BG);
-			greenBg = Activator.getDefault().getColorProvider().get(Activator.GREEN_BG);
 		}
 
 		@Override
@@ -335,10 +329,6 @@ public class SecurityWatchlistView extends ViewPart {
 					}
 					return "";
 				case 10:
-					Signal signal = watchEntry.getSignal();
-					if (signal != null) {
-						return signal.type.toString() + " " + PeanutsUtil.formatDate(signal.price.getDay());
-					}
 					return "";
 				case 11:
 					return PeanutsUtil.formatPercent(watchEntry.getDayChange());
@@ -363,17 +353,6 @@ public class SecurityWatchlistView extends ViewPart {
 
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
-			if (columnIndex == 10) {
-				WatchEntry watchEntry = (WatchEntry) element;
-				if (watchEntry.getSignal() != null) {
-					if (watchEntry.getSignal().type == Type.BUY) {
-						return greenBg;
-					}
-					if (watchEntry.getSignal().type == Type.SELL) {
-						return redBg;
-					}
-				}
-			}
 			return null;
 		}
 

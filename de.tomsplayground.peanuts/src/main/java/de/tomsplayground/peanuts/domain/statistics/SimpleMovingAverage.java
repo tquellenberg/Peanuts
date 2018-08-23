@@ -12,27 +12,22 @@ import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.Price;
-import de.tomsplayground.peanuts.domain.statistics.Signal.Type;
 
 public class SimpleMovingAverage {
 
 	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	private final int days;
-	private ImmutableList<Signal> signals = ImmutableList.of();
 
 	public SimpleMovingAverage(int days) {
 		this.days = days;
 	}
 
 	public ImmutableList<IPrice> calculate(ImmutableList<? extends IPrice> prices) {
-		List<Signal> s = new ArrayList<Signal>();
-		s.clear();
 		BigDecimal d = new BigDecimal(days);
 		List<IPrice> result = new ArrayList<IPrice>();
 		Queue<BigDecimal> queue = new LinkedList<BigDecimal>();
 		BigDecimal sum = BigDecimal.ZERO;
-		int compare = 0;
 		for (IPrice price : prices) {
 			BigDecimal value = price.getValue();
 			queue.add(value);
@@ -41,20 +36,9 @@ public class SimpleMovingAverage {
 				BigDecimal average = sum.divide(d, MC);
 				result.add(new Price(price.getDay(), average));
 				sum = sum.subtract(queue.poll());
-				int newCompare = average.compareTo(value);
-				if (newCompare != 0 && newCompare != compare) {
-					if (compare != 0) {
-						s.add(new Signal(price.getDay(), newCompare < 0? Type.BUY:Type.SELL, price));
-					}
-					compare = newCompare;
-				}
 			}
 		}
-		signals = ImmutableList.copyOf(s);
 		return ImmutableList.copyOf(result);
 	}
 
-	public ImmutableList<Signal> getSignals() {
-		return signals;
-	}
 }

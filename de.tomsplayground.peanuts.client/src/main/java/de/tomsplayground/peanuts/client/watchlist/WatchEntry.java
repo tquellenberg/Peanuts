@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Currency;
-import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -22,8 +21,6 @@ import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.Price;
-import de.tomsplayground.peanuts.domain.statistics.Signal;
-import de.tomsplayground.peanuts.domain.statistics.SimpleMovingAverage;
 import de.tomsplayground.util.Day;
 
 public class WatchEntry {
@@ -35,7 +32,6 @@ public class WatchEntry {
 	private final IPriceProvider adjustedPriceProvider;
 
 	// Cache
-	Signal signal = null;
 	BigDecimal avgPe = null;
 	BigDecimal peDelta = null;
 	BigDecimal peRatio = null;
@@ -58,21 +54,6 @@ public class WatchEntry {
 	}
 	public Security getSecurity() {
 		return security;
-	}
-	public Signal getSignal() {
-		if (signal != null) {
-			return signal;
-		}
-
-		SimpleMovingAverage simpleMovingAverage = new SimpleMovingAverage(20);
-		simpleMovingAverage.calculate(adjustedPriceProvider.getPrices());
-		List<Signal> signals = simpleMovingAverage.getSignals();
-		if (! signals.isEmpty()) {
-			signal = signals.get(signals.size() -1);
-		} else {
-			signal = Signal.NO_SIGNAL;
-		}
-		return signal;
 	}
 
 	public BigDecimal getDayChangeAbsolut() {
@@ -267,7 +248,6 @@ public class WatchEntry {
 	}
 
 	public void refreshCache() {
-		signal = null;
 		avgPe = null;
 		peDelta = null;
 		peRatio = null;
