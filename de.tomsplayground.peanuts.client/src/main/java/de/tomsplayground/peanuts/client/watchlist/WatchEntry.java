@@ -21,6 +21,7 @@ import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.Price;
+import de.tomsplayground.peanuts.domain.statistics.Volatility;
 import de.tomsplayground.util.Day;
 
 public class WatchEntry {
@@ -36,6 +37,7 @@ public class WatchEntry {
 	BigDecimal peDelta = null;
 	BigDecimal peRatio = null;
 	BigDecimal robustness = null;
+	BigDecimal volatility = null;
 
 	private BigDecimal currencyAdjustedAvgEpsChange;
 
@@ -252,11 +254,20 @@ public class WatchEntry {
 		peDelta = null;
 		peRatio = null;
 		robustness = null;
+		volatility = null;
 		currencyAdjustedAvgEpsChange = null;
 	}
 
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append(security.getName()).build();
+	}
+
+	public BigDecimal getVolatility() {
+		if (volatility == null) {
+			double vola = new Volatility().calculateVolatility(adjustedPriceProvider);
+			volatility = new BigDecimal(vola);
+		}
+		return volatility;
 	}
 }

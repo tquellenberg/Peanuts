@@ -182,6 +182,14 @@ public class SecurityWatchlistView extends ViewPart {
 			return ObjectUtils.compare(v1, v2);
 		}
 	};
+	private final WatchEntryViewerComparator volaComparator = new WatchEntryViewerComparator() {
+		@Override
+		public int compare(WatchEntry w1, WatchEntry w2) {
+			BigDecimal v1 = w1.getVolatility();
+			BigDecimal v2 = w2.getVolatility();
+			return ObjectUtils.compare(v1, v2);
+		}
+	};
 	private final WatchEntryViewerComparator changeComparator = new WatchEntryViewerComparator() {
 		@Override
 		public int compare(WatchEntry w1, WatchEntry w2) {
@@ -329,7 +337,8 @@ public class SecurityWatchlistView extends ViewPart {
 					}
 					return "";
 				case 10:
-					return "";
+					BigDecimal volatility = watchEntry.getVolatility();
+					return PeanutsUtil.formatPercent(volatility);
 				case 11:
 					return PeanutsUtil.formatPercent(watchEntry.getDayChange());
 				case 12:
@@ -613,9 +622,15 @@ public class SecurityWatchlistView extends ViewPart {
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Signal");
+		col.setText("Vola 250");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, volaComparator);
+			}
+		});
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
