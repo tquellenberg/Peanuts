@@ -291,7 +291,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 
 	public void reconfigureAfterDeserialization(AccountManager accountManager) {
 		transactionChangeListener = new TransactionPropertyListener();
-		for (Transaction transaction : transactions) {
+		for (Transaction transaction : ImmutableList.<Transaction>copyOf(transactions)) {
 			transaction.addPropertyChangeListener(transactionChangeListener);
 			transaction.reconfigureAfterDeserialization(accountManager);
 		}
