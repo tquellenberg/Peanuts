@@ -1,5 +1,6 @@
 package de.tomsplayground.peanuts.domain.watchlist;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,13 +28,17 @@ public class WatchlistConfiguration {
 	private String sorting;
 
 	public WatchlistConfiguration(String name) {
-		this(name, Type.MANUAL, CategoryFilter.NO_FILTER, "");
+		this(name, Type.MANUAL, Collections.emptyList(), "");
 	}
 
-	public WatchlistConfiguration(String name, Type type, ISecuriityFilter filter, String sorting) {
+	public WatchlistConfiguration(WatchlistConfiguration copy) {
+		this(copy.name, copy.type, copy.filters, copy.sorting);
+	}
+
+	public WatchlistConfiguration(String name, Type type, List<ISecuriityFilter> filters, String sorting) {
 		this.name = name;
 		this.type = type;
-		this.filters = Lists.newArrayList(filter);
+		this.filters = Lists.newArrayList(filters);
 		this.sorting = sorting;
 	}
 

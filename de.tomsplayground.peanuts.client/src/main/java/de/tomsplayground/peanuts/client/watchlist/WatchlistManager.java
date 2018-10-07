@@ -137,7 +137,7 @@ public class WatchlistManager extends ObservableModelObject {
 	}
 
 	public WatchlistConfiguration getCurrentWatchlistConfiguration() {
-		return currentWatchlist.getConfiguration();
+		return new WatchlistConfiguration(currentWatchlist.getConfiguration());
 	}
 
 	public Watchlist getCurrentWatchlist() {
@@ -163,10 +163,11 @@ public class WatchlistManager extends ObservableModelObject {
 	}
 
 	public void updateCurrentWatchlist(WatchlistConfiguration newConfiguration) {
-		WatchlistConfiguration oldConfiguration = currentWatchlist.getConfiguration();
-		if (! StringUtils.equals(newConfiguration.getName(), oldConfiguration.getName()) &&
+		WatchlistConfiguration currentConfiguration = currentWatchlist.getConfiguration();
+		// Changed name
+		if (! StringUtils.equals(newConfiguration.getName(), currentConfiguration.getName()) &&
 			newConfiguration.isManuallyConfigured()) {
-			String oldName = oldConfiguration.getName();
+			String oldName = currentConfiguration.getName();
 			String newName = newConfiguration.getName();
 			for (Security entry : getManuallyWatchlistSecurities(oldName)) {
 				Set<String> list = new HashSet<String>(getWatchlistNamesForSecurity(entry));
@@ -174,10 +175,15 @@ public class WatchlistManager extends ObservableModelObject {
 				list.add(newName);
 				entry.putConfigurationValue(SecurityWatchlistView.ID, StringUtils.join(list, ','));
 			}
-			currentWatchlist.setConfiguration(newConfiguration);
 		}
+		// Copy data
+		currentConfiguration.setName(newConfiguration.getName());
+		currentConfiguration.setType(newConfiguration.getType());
+		currentConfiguration.setSorting(newConfiguration.getSorting());
+		currentConfiguration.setFilters(newConfiguration.getFilters());
+		// Refresh
 		refreshSecuritiesForWatchlist(currentWatchlist);
-		firePropertyChange("configuration", oldConfiguration, newConfiguration);
+		firePropertyChange("configuration", currentConfiguration, newConfiguration);
 	}
 
 	public BigDecimal getCustomPerformance(WatchEntry entry) {
@@ -227,7 +233,7 @@ public class WatchlistManager extends ObservableModelObject {
 	}
 
 	public void addSecurityToCurrentWatchlist(Security security) {
-		WatchlistConfiguration watchlist = getCurrentWatchlistConfiguration();
+		WatchlistConfiguration watchlist = currentWatchlist.getConfiguration();
 		if (watchlist.isManuallyConfigured()) {
 			List<String> list = getWatchlistNamesForSecurity(security);
 			list.add(watchlist.getName());
@@ -236,7 +242,7 @@ public class WatchlistManager extends ObservableModelObject {
 	}
 
 	public void removeSecurityFromCurrentWatchlist(Security security) {
-		WatchlistConfiguration watchlist = getCurrentWatchlistConfiguration();
+		WatchlistConfiguration watchlist = currentWatchlist.getConfiguration();
 		if (watchlist.isManuallyConfigured()) {
 			List<String> list = getWatchlistNamesForSecurity(security);
 			list.remove(watchlist.getName());
