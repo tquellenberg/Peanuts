@@ -10,7 +10,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-text-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/htmlcleaner-2.21.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/guava-24.1-jre.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/guava-24.1-jre.jar" sourcepath="/Users/quelle/.m2/repository/com/google/guava/guava/24.1-jre/guava-24.1-jre-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-io-2.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-lang3-3.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-codec-1.10.jar"/>

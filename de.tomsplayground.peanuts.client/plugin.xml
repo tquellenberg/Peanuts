@@ -174,6 +174,12 @@
             id="de.tomsplayground.peanuts.client.updateAllFundamentalData.cmd"
             name="Update fundamental data">
       </command>
+      <command
+            categoryId="de.tomsplayground.peanuts.client.category"
+            defaultHandler="de.tomsplayground.peanuts.client.watchlist.DeleteWatchlistHandler"
+            id="de.tomsplayground.peanuts.client.removeWatchlistConfiguration"
+            name="Delete Watchlist">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -304,6 +310,12 @@
       <menuContribution
             allPopups="false"
             locationURI="toolbar:de.tomsplayground.peanuts.client.securityWatchListView">
+         <command
+               commandId="de.tomsplayground.peanuts.client.removeWatchlistConfiguration"
+               icon="icons/delete.png"
+               label="Delete Watchlist"
+               style="push">
+         </command>
          <command
                commandId="de.tomsplayground.peanuts.client.editWatchlistConfiguration"
                icon="icons/table_edit.png"

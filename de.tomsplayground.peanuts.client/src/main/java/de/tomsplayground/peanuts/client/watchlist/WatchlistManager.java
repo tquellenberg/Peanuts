@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,6 +24,8 @@ import de.tomsplayground.peanuts.domain.watchlist.WatchlistConfiguration;
 import de.tomsplayground.util.Day;
 
 public class WatchlistManager extends ObservableModelObject {
+
+	public static final String DEFAULT_WATCHLIST_NAME = "Default";
 
 	private static WatchlistManager INSTANCE;
 
@@ -58,21 +59,21 @@ public class WatchlistManager extends ObservableModelObject {
 		allWatchlists.addAll(Activator.getDefault().getAccountManager().getWatchlsts());
 
 		// Manually configured watch lists from securities
-		ImmutableList<Security> allSecurities = Activator.getDefault().getAccountManager().getSecurities();
-		Set<String> manualWatchListName = allSecurities.parallelStream()
-			.flatMap(s -> getWatchlistNamesForSecurity(s).stream())
-			.collect(Collectors.toSet());
-		for (String watchListName : manualWatchListName) {
-			if (getWatchlistByName(watchListName) == null) {
-				WatchlistConfiguration watchlistConfiguration = new WatchlistConfiguration(watchListName);
-				Activator.getDefault().getAccountManager().addWatchlist(watchlistConfiguration);
-				allWatchlists.add(watchlistConfiguration);
-			}
-		}
+//		ImmutableList<Security> allSecurities = Activator.getDefault().getAccountManager().getSecurities();
+//		Set<String> manualWatchListName = allSecurities.parallelStream()
+//			.flatMap(s -> getWatchlistNamesForSecurity(s).stream())
+//			.collect(Collectors.toSet());
+//		for (String watchListName : manualWatchListName) {
+//			if (getWatchlistByName(watchListName) == null) {
+//				WatchlistConfiguration watchlistConfiguration = new WatchlistConfiguration(watchListName);
+//				Activator.getDefault().getAccountManager().addWatchlist(watchlistConfiguration);
+//				allWatchlists.add(watchlistConfiguration);
+//			}
+//		}
 
 		// Current watch list
 		if (allWatchlists.isEmpty()) {
-			addWatchlist("Default");
+			addWatchlist(DEFAULT_WATCHLIST_NAME);
 		}
 		setCurrentWatchlist(getWatchlistNames().get(0));
 	}
@@ -141,6 +142,24 @@ public class WatchlistManager extends ObservableModelObject {
 
 	public Watchlist getCurrentWatchlist() {
 		return currentWatchlist;
+	}
+
+	public void deleteCurrentWatchlist() {
+		if (currentWatchlist != null) {
+			currentWatchlist.removePropertyChangeListener(watchlistChangeListener);
+			WatchlistConfiguration watchlistConfiguration = currentWatchlist.getConfiguration();
+			if (watchlistConfiguration.isManuallyConfigured()) {
+				String name = watchlistConfiguration.getName();
+				for (Security entry : getManuallyWatchlistSecurities(name)) {
+					Set<String> list = new HashSet<String>(getWatchlistNamesForSecurity(entry));
+					list.remove(name);
+					entry.putConfigurationValue(SecurityWatchlistView.ID, StringUtils.join(list, ','));
+				}
+			}
+			allWatchlists.remove(watchlistConfiguration);
+			Activator.getDefault().getAccountManager().removeWatchlist(watchlistConfiguration);
+			setCurrentWatchlist(allWatchlists.get(0).getName());
+		}
 	}
 
 	public void updateCurrentWatchlist(WatchlistConfiguration newConfiguration) {
