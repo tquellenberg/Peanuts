@@ -2,6 +2,7 @@ package de.tomsplayground.peanuts.client.editors.security;
 
 import java.io.IOException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.ui.IEditorInput;
@@ -10,7 +11,10 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
+import com.google.common.collect.ImmutableList;
+
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.domain.note.Note;
 
 public class SecurityEditor extends MultiPageEditorPart {
 
@@ -32,7 +36,16 @@ public class SecurityEditor extends MultiPageEditorPart {
 		createEditorPage(new FundamentalDataEditorPart(), "Fundamentals");
 		createEditorPage(new ScrapingEditorPart(), "Scraping");
 		createEditorPage(new DevelopmentEditorPart(), "Development");
-		createEditorPage(new NotesEditorPart(), "Notes");
+		createEditorPage(new NotesEditorPart(), getNodesPageName());
+	}
+
+	private String getNodesPageName() {
+		SecurityEditorInput sec = (SecurityEditorInput) getEditorInput();
+		ImmutableList<Note> notes = sec.security.getNotes();
+		if (! notes.isEmpty() && StringUtils.isNotEmpty(notes.get(0).getText())) {
+			return "Notes*";
+		}
+		return "Notes";
 	}
 
 	private void createEditorPage(IEditorPart editor, String name) {
