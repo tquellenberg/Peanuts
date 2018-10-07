@@ -75,13 +75,13 @@ public class NavigationView extends ViewPart {
 	private TreeViewer viewer;
 	private final TreeParent root = new TreeParent("");
 
-	private final PropertyChangeListener nameChangesListener = new PropertyChangeListener() {
+	private final PropertyChangeListener elementChangedListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			viewer.update(evt.getSource(), null);
 		}
 	};
-	private final PropertyChangeListener deleteChangesListener = new PropertyChangeListener() {
+	private final PropertyChangeListener allElementsChangedListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			viewer.refresh();
@@ -168,9 +168,11 @@ public class NavigationView extends ViewPart {
 			children.add(child);
 			child.setParent(this);
 			if (child.baseObject instanceof ObservableModelObject) {
-				((ObservableModelObject) child.baseObject).addPropertyChangeListener("name", nameChangesListener);
-				((ObservableModelObject) child.baseObject).addPropertyChangeListener("deleted", deleteChangesListener);
-
+				((ObservableModelObject) child.baseObject).addPropertyChangeListener("name", elementChangedListener);
+				((ObservableModelObject) child.baseObject).addPropertyChangeListener("deleted", allElementsChangedListener);
+			}
+			if (child.baseObject instanceof Security) {
+				((Security) child.baseObject).addPropertyChangeListener(elementChangedListener);
 			}
 		}
 
@@ -178,8 +180,11 @@ public class NavigationView extends ViewPart {
 			children.remove(child);
 			child.setParent(null);
 			if (child.baseObject instanceof ObservableModelObject) {
-				((ObservableModelObject) child.baseObject).removePropertyChangeListener(nameChangesListener);
-				((ObservableModelObject) child.baseObject).removePropertyChangeListener(deleteChangesListener);
+				((ObservableModelObject) child.baseObject).removePropertyChangeListener(elementChangedListener);
+				((ObservableModelObject) child.baseObject).removePropertyChangeListener(allElementsChangedListener);
+			}
+			if (child.baseObject instanceof Security) {
+				((Security) child.baseObject).removePropertyChangeListener(elementChangedListener);
 			}
 		}
 
