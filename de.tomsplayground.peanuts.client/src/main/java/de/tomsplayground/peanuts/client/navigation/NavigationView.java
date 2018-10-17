@@ -29,6 +29,7 @@ import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IActionBars;
@@ -58,6 +59,7 @@ import de.tomsplayground.peanuts.client.editors.security.SecurityEditor;
 import de.tomsplayground.peanuts.client.editors.security.SecurityEditorInput;
 import de.tomsplayground.peanuts.client.editors.securitycategory.SecurityCategoryEditor;
 import de.tomsplayground.peanuts.client.editors.securitycategory.SecurityCategoryEditorInput;
+import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.IDeletable;
@@ -75,16 +77,24 @@ public class NavigationView extends ViewPart {
 	private TreeViewer viewer;
 	private final TreeParent root = new TreeParent("");
 
-	private final PropertyChangeListener elementChangedListener = new PropertyChangeListener() {
+	private final PropertyChangeListener elementChangedListener = new UniqueAsyncExecution() {
 		@Override
-		public void propertyChange(PropertyChangeEvent evt) {
+		public void doit(PropertyChangeEvent evt, Display display) {
 			viewer.update(evt.getSource(), null);
 		}
-	};
-	private final PropertyChangeListener allElementsChangedListener = new PropertyChangeListener() {
 		@Override
-		public void propertyChange(PropertyChangeEvent evt) {
+		public Display getDisplay() {
+			return getSite().getShell().getDisplay();
+		}
+	};
+	private final PropertyChangeListener allElementsChangedListener = new UniqueAsyncExecution() {
+		@Override
+		public void doit(PropertyChangeEvent evt, Display display) {
 			viewer.refresh();
+		}
+		@Override
+		public Display getDisplay() {
+			return getSite().getShell().getDisplay();
 		}
 	};
 
