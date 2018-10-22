@@ -9,6 +9,7 @@ import java.util.Currency;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,12 +93,19 @@ public class PeanutsUtil {
 		}
 		try {
 			synchronized (percentFormat) {
-				return percentFormat.format(percent);
+				String value = percentFormat.format(percent);
+				return StringUtils.replace(value, "\u00a0%", "%");
 			}
 		} catch (IllegalArgumentException e) {
 			log.error("percent:" + percent);
 			throw e;
 		}
+	}
+
+	public static BigDecimal parsePercent(String str) throws ParseException {
+		str =  StringUtils.replace(str, "%", "\u00a0%");
+		BigDecimal amount = (BigDecimal) percentValueFormat.parse(str);
+		return amount;
 	}
 
 	public static String formatDate(Day date) {
@@ -127,11 +135,6 @@ public class PeanutsUtil {
 
 	public static BigDecimal parseCurrency(String str) throws ParseException {
 		BigDecimal amount = (BigDecimal) currencyValueFormat.parse(str);
-		return amount;
-	}
-
-	public static BigDecimal parsePercent(String str) throws ParseException {
-		BigDecimal amount = (BigDecimal) percentValueFormat.parse(str);
 		return amount;
 	}
 
