@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.app.morningstar;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -8,7 +9,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
@@ -32,28 +32,20 @@ public class KeyRatios {
 	}
 
 	public List<FundamentalData> readUrl(String symbol) {
-		InputStreamReader reader = null;
 		URL url = null;
-		try {
-			url = new URL(StringUtils.replace(URL, "SYMBOL", symbol));
-			reader = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8);
-			return readFile(reader);
+		try (InputStream in = new URL(StringUtils.replace(URL, "SYMBOL", symbol)).openStream()) {
+			return readFile(new InputStreamReader(in, StandardCharsets.UTF_8));
 		} catch (IOException e) {
 			log.error("Problem with '"+symbol+ "' " + url, e);
 		} catch (RuntimeException e) {
 			log.error("Problem with '"+symbol+ "' " + url, e);
 			throw e;
-		} finally {
-			IOUtils.closeQuietly(reader);
 		}
 		return Lists.newArrayList();
 	}
 
-	public List<FundamentalData> readFile(Reader reader) {
-		CSVReader csvReader = null;
-		try {
-			csvReader = new CSVReader(reader);
-
+	private List<FundamentalData> readFile(Reader reader) {
+		try (CSVReader csvReader = new CSVReader(reader)) {
 			List<String[]> allLines = csvReader.readAll();
 
 			String[] years = allLines.get(2);
@@ -79,8 +71,6 @@ public class KeyRatios {
 			return parse(years, earnings, dividende, deptToEquity);
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			IOUtils.closeQuietly(csvReader);
 		}
 		return Lists.newArrayList();
 	}

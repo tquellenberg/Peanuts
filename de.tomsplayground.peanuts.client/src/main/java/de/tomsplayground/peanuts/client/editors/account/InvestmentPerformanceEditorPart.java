@@ -158,7 +158,6 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 
 	class MyArrayContentProvider extends ArrayContentProvider {
 		@Override
-		@SuppressWarnings("unchecked")
 		public Object[] getElements(Object inputElement) {
 			PerformanceAnalyzer analizer = (PerformanceAnalyzer) inputElement;
 			List<Value> value =analizer.getValues();

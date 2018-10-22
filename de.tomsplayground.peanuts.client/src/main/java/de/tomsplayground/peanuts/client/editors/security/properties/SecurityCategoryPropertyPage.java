@@ -56,7 +56,7 @@ public class SecurityCategoryPropertyPage extends PropertyPage {
 	@Override
 	protected Control createContents(Composite parent) {
 		IAdaptable adapter = getElement();
-		final Security security = (Security)adapter.getAdapter(Security.class);
+		final Security security = adapter.getAdapter(Security.class);
 		AccountManager accountManager = Activator.getDefault().getAccountManager();
 
 		Composite composite = new Composite(parent,SWT.NONE);
@@ -147,7 +147,7 @@ public class SecurityCategoryPropertyPage extends PropertyPage {
 	@Override
 	public boolean performOk() {
 		IAdaptable adapter = getElement();
-		Security security = (Security)adapter.getAdapter(Security.class);
+		Security security = adapter.getAdapter(Security.class);
 		for (Combo combo : combos) {
 			SecurityCategoryMapping securityCategoryMapping = (SecurityCategoryMapping) combo.getData();
 			String category = combo.getText();

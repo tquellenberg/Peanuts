@@ -132,6 +132,7 @@ public class YahooPriceReader extends PriceProvider {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void readJsonSpark(Reader reader) throws IOException, JsonParseException, JsonMappingException {
 		List<IPrice> prices = new ArrayList<>();
 
@@ -170,6 +171,7 @@ public class YahooPriceReader extends PriceProvider {
 		setPrices(prices, true);
 	}
 
+	@SuppressWarnings("unchecked")
 	private void readJsonCurrent(Reader reader) throws IOException, JsonParseException, JsonMappingException {
 		List<IPrice> prices = new ArrayList<>();
 

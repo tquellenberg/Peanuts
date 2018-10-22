@@ -23,7 +23,7 @@ public class CurrencyPropertyPage extends PropertyPage {
 		composite.setLayout(new GridLayout(2, false));
 
 		IAdaptable adapter = getElement();
-		security = (Security)adapter.getAdapter(Security.class);
+		security = adapter.getAdapter(Security.class);
 
 		Label label = new Label(composite, SWT.NONE);
 		label.setText("Currency");

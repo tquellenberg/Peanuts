@@ -15,7 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opencsv.CSVWriter;
+import com.opencsv.CSVWriterBuilder;
+import com.opencsv.ICSVWriter;
 
 import de.tomsplayground.peanuts.app.google.GooglePriceReader;
 import de.tomsplayground.peanuts.app.local.LocalPriceReader;
@@ -101,12 +102,13 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 	public void saveToLocal(Security security, IPriceProvider priceProvider) {
 		synchronized (security) {
 			File file = new File(localFilename(security));
-			FileWriter writer = null;
-			try {
-				writer = new FileWriter(file);
+			try (FileWriter writer = new FileWriter(file)) {
 				List<IPrice> prices = priceProvider.getPrices();
 
-				CSVWriter csvWriter = new CSVWriter(writer, ',', '"');
+				ICSVWriter csvWriter = new CSVWriterBuilder(writer)
+					.withSeparator(',')
+					.withQuoteChar('"').build();
+
 				String line[] = {"Date","Open","High","Low","Close","Volume","Adj Close"};
 				csvWriter.writeNext(line);
 				ListIterator<IPrice> iterator = prices.listIterator(prices.size());
@@ -124,8 +126,6 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 				csvWriter.close();
 			} catch (IOException e) {
 				throw new RuntimeException(e);
-			} finally {
-				IOUtils.closeQuietly(writer);
 			}
 		}
 	}
@@ -133,15 +133,11 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 	protected IPriceProvider readFromLocal(Security security) {
 		synchronized (security) {
 			File file = new File(localFilename(security));
-			FileReader reader = null;
 			if (file.canRead()) {
-				try {
-					reader = new FileReader(file);
+				try (FileReader reader = new FileReader(file)) {
 					return buildPriceProvider(security, IOUtils.toString(reader));
 				} catch (IOException e) {
 					return null;
-				} finally {
-					IOUtils.closeQuietly(reader);
 				}
 			}
 			return new EmptyPriceProvider(security);

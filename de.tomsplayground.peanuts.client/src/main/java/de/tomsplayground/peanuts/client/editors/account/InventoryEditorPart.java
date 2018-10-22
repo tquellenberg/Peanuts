@@ -227,6 +227,7 @@ public class InventoryEditorPart extends EditorPart {
 
 	private class InventoryLabelProvider implements ITableLabelProvider, ITableColorProvider {
 
+		@SuppressWarnings("unused")
 		private static final int INVENTORY_POS_NAME = 0;
 		private static final int TRANSACTION_POS_DATE = 0;
 		private static final int INVENTORY_FRACTION = 1;

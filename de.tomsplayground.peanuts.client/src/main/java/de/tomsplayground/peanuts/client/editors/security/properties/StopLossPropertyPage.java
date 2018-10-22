@@ -47,7 +47,7 @@ public class StopLossPropertyPage extends PropertyPage {
 		trailingDistancePercent = createTextWithLabel(composite, "Trailing distance in percent (0..100%)");
 
 		IAdaptable adapter = getElement();
-		Security security = (Security)adapter.getAdapter(Security.class);
+		Security security = adapter.getAdapter(Security.class);
 
 		ImmutableSet<StopLoss> stopLosses = Activator.getDefault().getAccountManager().getStopLosses(security);
 		if (! stopLosses.isEmpty()) {
@@ -93,7 +93,7 @@ public class StopLossPropertyPage extends PropertyPage {
 
 	@Override
 	public boolean performOk() {
-		Security security = (Security)getElement().getAdapter(Security.class);
+		Security security = getElement().getAdapter(Security.class);
 
 		AccountManager accountManager = Activator.getDefault().getAccountManager();
 		ImmutableSet<StopLoss> stopLosses = accountManager.getStopLosses(security);

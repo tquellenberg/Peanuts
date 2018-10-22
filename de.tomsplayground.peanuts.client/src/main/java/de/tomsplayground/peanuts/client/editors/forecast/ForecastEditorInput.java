@@ -9,7 +9,7 @@ import de.tomsplayground.peanuts.domain.reporting.forecast.Forecast;
 
 public class ForecastEditorInput implements IEditorInput {
 
-	private Forecast forecast;
+	private final Forecast forecast;
 
 	public ForecastEditorInput(Forecast forecast) {
 		this.forecast = forecast;
@@ -52,7 +52,7 @@ public class ForecastEditorInput implements IEditorInput {
 	}
 
 	@Override
-	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
+	public <T> T getAdapter(Class<T> adapter) {
 		return null;
 	}
 

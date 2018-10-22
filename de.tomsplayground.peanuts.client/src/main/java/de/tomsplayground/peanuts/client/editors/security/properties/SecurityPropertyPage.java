@@ -46,7 +46,7 @@ public class SecurityPropertyPage extends PropertyPage {
 		Button overridePriceDate = new Button(composite, SWT.CHECK);
 
 		IAdaptable adapter = getElement();
-		Security security = (Security)adapter.getAdapter(Security.class);
+		Security security = adapter.getAdapter(Security.class);
 		name.setText(security.getName());
 		wkn.setText(StringUtils.defaultString(security.getWKN()));
 		isin.setText(StringUtils.defaultString(security.getISIN()));
@@ -72,7 +72,7 @@ public class SecurityPropertyPage extends PropertyPage {
 	@Override
 	public boolean performOk() {
 		IAdaptable adapter = getElement();
-		Security security = (Security)adapter.getAdapter(Security.class);
+		Security security = adapter.getAdapter(Security.class);
 		security.setName(name.getText());
 		security.setWKN(wkn.getText());
 		security.setISIN(isin.getText());

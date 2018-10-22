@@ -8,7 +8,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.Price;
@@ -22,7 +24,9 @@ public class FileCsvReader extends PriceProvider {
 
 	public FileCsvReader(Security security, Reader reader) {
 		super(security);
-		csvReader = new CSVReader(reader, '\t');
+		csvReader = new CSVReaderBuilder(reader)
+			.withCSVParser(new CSVParserBuilder()
+				.withSeparator('\t').build()).build();
 	}
 
 	public void read() throws IOException, ParseException {

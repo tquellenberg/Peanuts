@@ -11,7 +11,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.IPrice;
@@ -27,7 +29,10 @@ public class LocalPriceReader extends PriceProvider {
 
 	public LocalPriceReader(Security security, Reader reader) throws IOException {
 		super(security);
-		csvReader = new CSVReader(reader, ',', '"');
+		csvReader = new CSVReaderBuilder(reader)
+			.withCSVParser(new CSVParserBuilder()
+				.withSeparator(',')
+				.withQuoteChar('"').build()).build();
 		read();
 		csvReader.close();
 	}

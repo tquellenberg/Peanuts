@@ -7,7 +7,6 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import de.tomsplayground.peanuts.app.quicken.QifReaderTest;
@@ -21,7 +20,7 @@ public class LocalPriceReaderTest extends TestCase {
 	public void testRead() throws IOException {
 		Reader in = new InputStreamReader(QifReaderTest.class.getResourceAsStream("/Yahoo.csv"));
 		LocalPriceReader reader = new LocalPriceReader(null, in);
-		IOUtils.closeQuietly(in);
+		in.close();
 
 		List<IPrice> prices = reader.getPrices();
 		assertEquals(3, prices.size());

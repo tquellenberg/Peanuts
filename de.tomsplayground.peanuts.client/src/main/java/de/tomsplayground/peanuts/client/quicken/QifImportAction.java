@@ -1,10 +1,8 @@
 package de.tomsplayground.peanuts.client.quicken;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 
-import org.apache.commons.io.IOUtils;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -33,7 +31,6 @@ public class QifImportAction extends Action {
 		FileDialog openDialog = new FileDialog(window.getShell(), SWT.OPEN);
 		openDialog.setFilterExtensions(new String[] { "QIF" });
 		String filename = openDialog.open();
-		FileReader qifFile = null;
 		try {
 			File file = new File(filename);
 			if ( !file.isFile() | !file.canRead() | !file.getName().endsWith("QIF")) {
@@ -48,8 +45,6 @@ public class QifImportAction extends Action {
 		} catch (IOException e) {
 			e.printStackTrace();
 			MessageDialog.openError(window.getShell(), "Error", e.getMessage());
-		} finally {
-			IOUtils.closeQuietly(qifFile);
 		}
 	}
 

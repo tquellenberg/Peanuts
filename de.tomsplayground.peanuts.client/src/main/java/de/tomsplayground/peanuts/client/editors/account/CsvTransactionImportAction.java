@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -35,9 +34,7 @@ public class CsvTransactionImportAction extends Action {
 		openDialog.setFilterExtensions(new String[] { "CSV" });
 		String filename = openDialog.open();
 		if (filename != null) {
-			FileReader reader = null;
-			try {
-				reader = new FileReader(filename);
+			try (FileReader reader = new FileReader(filename)) {
 				StarMoneyCsvReader csvReader = new StarMoneyCsvReader(reader);
 				csvReader.read();
 				List<BankTransaction> importTransactions = csvReader.getTransactions();
@@ -50,8 +47,6 @@ public class CsvTransactionImportAction extends Action {
 				MessageDialog.openError(shell, "Error", e.getMessage());
 			} catch (ParseException e) {
 				MessageDialog.openError(shell, "Error", e.getMessage());
-			} finally {
-				IOUtils.closeQuietly(reader);
 			}
 		}
 	}

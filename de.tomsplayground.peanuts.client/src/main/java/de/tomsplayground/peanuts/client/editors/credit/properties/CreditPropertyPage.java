@@ -91,7 +91,7 @@ public class CreditPropertyPage extends PropertyPage {
 
 	private void setValues() {
 		IAdaptable adapter = getElement();
-		Credit credit = (Credit)adapter.getAdapter(Credit.class);
+		Credit credit = adapter.getAdapter(Credit.class);
 
 		creditName.setText(credit.getName());
 		startDate.setDay(credit.getStart());
@@ -110,7 +110,7 @@ public class CreditPropertyPage extends PropertyPage {
 	public boolean performOk() {
 		try {
 			IAdaptable adapter = getElement();
-			Credit credit = (Credit)adapter.getAdapter(Credit.class);
+			Credit credit = adapter.getAdapter(Credit.class);
 			credit.setName(creditName.getText());
 			credit.setStart(startDate.getDay());
 			credit.setEnd(endDate.getDay());

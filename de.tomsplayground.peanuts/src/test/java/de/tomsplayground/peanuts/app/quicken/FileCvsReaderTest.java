@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import de.tomsplayground.peanuts.domain.process.IPrice;
@@ -23,7 +22,7 @@ public class FileCvsReaderTest {
 		Reader in = new InputStreamReader(QifReaderTest.class.getResourceAsStream("/quotes.TXT"));
 		FileCsvReader reader = new FileCsvReader(null, in);
 		reader.read();
-		IOUtils.closeQuietly(in);
+		in.close();
 
 		List<IPrice> prices = reader.getPrices();
 		assertEquals(14, prices.size());

@@ -53,7 +53,7 @@ public class CreditChartEditorPart extends EditorPart {
 
 	protected Credit getCredit() {
 		IEditorInput input = getEditorInput();
-		return (Credit) input.getAdapter(Credit.class);
+		return input.getAdapter(Credit.class);
 	}
 
 	@Override

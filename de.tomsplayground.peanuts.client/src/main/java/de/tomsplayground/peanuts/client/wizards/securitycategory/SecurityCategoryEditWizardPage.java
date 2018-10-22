@@ -13,8 +13,8 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -54,7 +54,7 @@ public class SecurityCategoryEditWizardPage extends WizardPage {
 	private ListViewer listViewer1;
 	private ListViewer listViewer2;
 	private Inventory inventory;
-	private static final ViewerSorter SECURITY_SORTER = new ViewerSorter() {
+	private static final ViewerComparator SECURITY_SORTER = new ViewerComparator() {
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
 			return ((Security)e1).getName().compareToIgnoreCase(((Security)e2).getName());
@@ -152,9 +152,9 @@ public class SecurityCategoryEditWizardPage extends WizardPage {
 		}
 		securities.removeAll(selectedSecurities);
 		listViewer1.setInput(securities);
-		listViewer1.setSorter(SECURITY_SORTER);
+		listViewer1.setComparator(SECURITY_SORTER);
 		listViewer2.setInput(selectedSecurities);
-		listViewer2.setSorter(SECURITY_SORTER);
+		listViewer2.setComparator(SECURITY_SORTER);
 
 		Composite buttonComposite = new Composite(securityChooser, SWT.NONE);
 		GridLayout gridLayout2 = new GridLayout(2, false);

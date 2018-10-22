@@ -234,7 +234,7 @@ public class PropertyChangeSupport {
 		if (oldValue == newValue) {
 			return;
 		}
-		firePropertyChange(propertyName, new Integer(oldValue), new Integer(newValue));
+		firePropertyChange(propertyName, Integer.valueOf(oldValue), Integer.valueOf(newValue));
 	}
 
 	/**
@@ -331,7 +331,7 @@ public class PropertyChangeSupport {
 		if (oldValue == newValue) {
 			return;
 		}
-		fireIndexedPropertyChange(propertyName, index, new Integer(oldValue), new Integer(newValue));
+		fireIndexedPropertyChange(propertyName, index, Integer.valueOf(oldValue), Integer.valueOf(newValue));
 	}
 
 	/**

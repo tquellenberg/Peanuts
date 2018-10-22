@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -76,8 +77,8 @@ public class InvestmentTransaction extends Transaction {
 
 	public static BigDecimal calculateAmount(Type type, BigDecimal price, BigDecimal quantity, BigDecimal commission) {
 		return (type == Type.SELL || type == Type.INCOME ?
-				price.multiply(quantity).setScale(2,BigDecimal.ROUND_HALF_UP) :
-				price.multiply(quantity).setScale(2,BigDecimal.ROUND_HALF_UP).negate())
+				price.multiply(quantity).setScale(2, RoundingMode.HALF_UP) :
+				price.multiply(quantity).setScale(2, RoundingMode.HALF_UP).negate())
 			.subtract(commission);
 	}
 

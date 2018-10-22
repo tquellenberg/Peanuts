@@ -78,7 +78,7 @@ public class CalendarPropertyPage extends PropertyPage {
 		composite.setLayout(layout);
 
 		IAdaptable adapter = getElement();
-		security = (Security)adapter.getAdapter(Security.class);
+		security = adapter.getAdapter(Security.class);
 
 		tableViewer = new TableViewer(composite, SWT.NONE);
 		Table table = tableViewer.getTable();

@@ -50,7 +50,7 @@ public class SavedTransactionPropertyPage extends PropertyPage {
 		account = new AccountComposite(composite, SWT.NONE, null);
 
 		IAdaptable adapter = getElement();
-		SavedTransaction savedTransaction = (SavedTransaction)adapter.getAdapter(SavedTransaction.class);
+		SavedTransaction savedTransaction = adapter.getAdapter(SavedTransaction.class);
 		automaticExecution.setSelection(savedTransaction.isAutomaticExecution());
 		if (savedTransaction.isAutomaticExecution()) {
 			startDate.setDay(savedTransaction.getStart());
@@ -65,7 +65,7 @@ public class SavedTransactionPropertyPage extends PropertyPage {
 	@Override
 	public boolean performOk() {
 		IAdaptable adapter = getElement();
-		SavedTransaction savedTransaction = (SavedTransaction)adapter.getAdapter(SavedTransaction.class);
+		SavedTransaction savedTransaction = adapter.getAdapter(SavedTransaction.class);
 		SavedTransaction savedTransaction2;
 		if (automaticExecution.getSelection()) {
 			Day date = startDate.getDay();

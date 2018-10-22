@@ -1,12 +1,12 @@
 package de.tomsplayground.peanuts.app.morningstar;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
@@ -23,15 +23,10 @@ public class BasicData {
 	}
 
 	public SectorIndustry readUrl(String symbol) {
-		InputStreamReader reader = null;
-		try {
-			URL url = new URL(StringUtils.replace(URL, "SYMBOL", symbol));
-			reader = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8);
-			return readFile(reader);
+		try (InputStream in = new URL(StringUtils.replace(URL, "SYMBOL", symbol)).openStream()) {
+			return readFile(new InputStreamReader(in, StandardCharsets.UTF_8));
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			IOUtils.closeQuietly(reader);
 		}
 		return SectorIndustry.UNKNOWN;
 	}

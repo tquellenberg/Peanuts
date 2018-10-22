@@ -15,7 +15,9 @@ import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.Price;
@@ -42,7 +44,11 @@ public class GooglePriceReader extends PriceProvider {
 	}
 
 	private void read() throws IOException {
-		CSVReader csvReader = new CSVReader(reader, ',', '"');
+		CSVReader csvReader = new CSVReaderBuilder(reader)
+			.withCSVParser(new CSVParserBuilder()
+				.withSeparator(',')
+				.withQuoteChar('"').build()).build();
+
 		// Skip header
 		csvReader.readNext();
 		String[] values;

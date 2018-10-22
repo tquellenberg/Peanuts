@@ -21,7 +21,7 @@ public class ToggleDeletedFilterHandler extends AbstractHandler {
 	}
 
 	public static State getDeletedFilterState() {
-		ICommandService service = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
+		ICommandService service = PlatformUI.getWorkbench().getService(ICommandService.class);
 		Command command = service.getCommand(CMD_ID);
 		return command.getState(STATE_ID);
 	}

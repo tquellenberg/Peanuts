@@ -10,7 +10,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 import de.tomsplayground.peanuts.domain.process.BankTransaction;
 import de.tomsplayground.util.Day;
@@ -21,7 +23,9 @@ public class StarMoneyCsvReader {
 	private List<BankTransaction> transactions;
 
 	public StarMoneyCsvReader(Reader reader) {
-		csvReader = new CSVReader(reader, ';');
+		csvReader = new CSVReaderBuilder(reader)
+			.withCSVParser(new CSVParserBuilder()
+				.withSeparator(';').build()).build();
 	}
 
 	public void read() throws IOException, ParseException {

@@ -3,7 +3,6 @@ package de.tomsplayground.peanuts.client.editors.account;
 import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -36,7 +35,7 @@ public class CopyInventoryEntries extends AbstractHandler {
 				content += entry.getSecurity().getName()
 					+ "\t" + entry.getSecurity().getISIN()
 					+ "\t" + PeanutsUtil.formatCurrency(entry.getMarketValue(new Day()), null)
-					+ SystemUtils.LINE_SEPARATOR;
+					+ System.lineSeparator();
 			}
 		}
 		if (StringUtils.isNoneEmpty(content)) {
