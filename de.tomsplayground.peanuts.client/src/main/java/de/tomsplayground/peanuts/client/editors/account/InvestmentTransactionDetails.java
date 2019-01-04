@@ -224,6 +224,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 			if (transaction == null) {
 				transaction = new InvestmentTransaction(newDate, newSecurity, newPrice,
 					newQuantity, newCommission, type);
+				transaction.setMemo(memo.getText());
 				transaction.setCategory(newCategory);
 				if (parentTransaction != null) {
 					parentTransaction.addSplit(transaction);
@@ -324,6 +325,11 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 	@Override
 	public Composite getComposite() {
 		return detailComposit;
+	}
+
+	@Override
+	public void setFocus() {
+		security.setFocus();
 	}
 
 }

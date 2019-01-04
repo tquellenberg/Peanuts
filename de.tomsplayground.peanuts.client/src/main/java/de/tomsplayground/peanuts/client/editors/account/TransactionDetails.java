@@ -295,4 +295,9 @@ public class TransactionDetails implements ITransactionDetail {
 		return detailComposit;
 	}
 
+	@Override
+	public void setFocus() {
+		amount.setFocus();
+	}
+
 }

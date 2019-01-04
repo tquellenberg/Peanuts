@@ -41,6 +41,7 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.service.application.ApplicationHandle;
 
+import de.tomsplayground.peanuts.app.ib.IbConnection;
 import de.tomsplayground.peanuts.client.util.PeanutsAdapterFactory;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
@@ -102,6 +103,9 @@ public class Activator extends AbstractUIPlugin {
 	private ExchangeRates exchangeRates;
 	private String passphrase;
 
+	private IbConnection ibConnection;
+	private IvrUpdater ivrUpdater;
+
 	/**
 	 * The constructor
 	 */
@@ -156,6 +160,10 @@ public class Activator extends AbstractUIPlugin {
 				}
 			}
 		}, "(objectclass=" + ApplicationHandle.class.getName() + ")");
+
+		ibConnection = new IbConnection();
+		ibConnection.start();
+		ivrUpdater = new IvrUpdater();
 	}
 
 	protected void applicationStopping() {
@@ -276,6 +284,7 @@ public class Activator extends AbstractUIPlugin {
 		} finally {
 			IOUtils.closeQuietly(reader);
 		}
+		ivrUpdater.init();
 	}
 
 	public void save(String filename) throws IOException {
@@ -310,6 +319,9 @@ public class Activator extends AbstractUIPlugin {
 		if (accountManager != null) {
 			save(getFilename());
 		}
+		ibConnection.stop();
+		ibConnection = null;
+		ivrUpdater.destroy();
 		plugin = null;
 		super.stop(context);
 	}
@@ -356,5 +368,9 @@ public class Activator extends AbstractUIPlugin {
 
 	public String getFilename() {
 		return getPreferenceStore().getString(FILENAME_PROPERTY);
+	}
+
+	public IbConnection getIbConnection() {
+		return ibConnection;
 	}
 }

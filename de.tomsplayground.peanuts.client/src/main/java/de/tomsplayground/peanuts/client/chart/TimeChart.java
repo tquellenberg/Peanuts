@@ -66,6 +66,7 @@ public class TimeChart {
 		XYPlot plot = getPlot();
 		DateAxis dateAxis = ((DateAxis)plot.getDomainAxis());
 		Calendar to = Calendar.getInstance();
+		to.add(Calendar.DAY_OF_MONTH, 14);
 		Calendar from = getFromDate();
 		if (from != null) {
 			dateAxis.setRange(from.getTime(), to.getTime());

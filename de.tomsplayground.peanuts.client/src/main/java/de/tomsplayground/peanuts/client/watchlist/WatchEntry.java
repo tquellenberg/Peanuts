@@ -5,11 +5,15 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Currency;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.editors.security.properties.IvrPropertyPage;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
@@ -25,6 +29,9 @@ import de.tomsplayground.peanuts.domain.statistics.Volatility;
 import de.tomsplayground.util.Day;
 
 public class WatchEntry {
+
+	private final static Logger log = LoggerFactory.getLogger(WatchEntry.class);
+
 	private static final BigDecimal TWO = new BigDecimal(2);
 
 	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
@@ -269,5 +276,17 @@ public class WatchEntry {
 			volatility = new BigDecimal(vola);
 		}
 		return volatility;
+	}
+
+	public BigDecimal getIvr() {
+		String ivrValueStr = security.getConfigurationValue(IvrPropertyPage.IVR_RANK);
+		if (StringUtils.isNotBlank(ivrValueStr)) {
+			try {
+				return new BigDecimal(ivrValueStr);
+			} catch (NumberFormatException e) {
+				log.error("IVR value: '"+ivrValueStr+"' for "+security, e);
+			}
+		}
+		return null;
 	}
 }

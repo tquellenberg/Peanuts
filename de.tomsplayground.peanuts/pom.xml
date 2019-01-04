@@ -186,6 +186,14 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>2.9.7</version>
 		</dependency>
+
+		<dependency>
+		    <groupId>com.ib</groupId>
+		    <artifactId>interactive-brokers-api</artifactId>
+		    <version>9.73-07</version>
+		    <scope>system</scope>
+		    <systemPath>${project.basedir}/lib/TwsApi.jar</systemPath>
+		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>

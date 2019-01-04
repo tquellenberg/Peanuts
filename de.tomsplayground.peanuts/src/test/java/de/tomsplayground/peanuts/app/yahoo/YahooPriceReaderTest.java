@@ -29,7 +29,7 @@ public class YahooPriceReaderTest extends TestCase {
 	@Test
 	public void testYahooLastDays() throws IOException {
 		YahooPriceReader forTicker = YahooPriceReader.forTicker(security, Type.LAST_DAYS);
-		assertTrue(forTicker.getPrices().size() > 3);
+		assertTrue(forTicker.getPrices().size() >= 2);
 	}
 
 	@Test

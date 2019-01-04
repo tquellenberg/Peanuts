@@ -615,6 +615,16 @@
             </adapt>
          </enabledWhen>
       </page>
+      <page
+            class="de.tomsplayground.peanuts.client.editors.security.properties.IvrPropertyPage"
+            id="de.tomsplayground.peanuts.client.editors.security.ivrPage"
+            name="IVR">
+         <enabledWhen>
+            <adapt
+                  type="de.tomsplayground.peanuts.domain.base.Security">
+            </adapt>
+         </enabledWhen>
+      </page>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">

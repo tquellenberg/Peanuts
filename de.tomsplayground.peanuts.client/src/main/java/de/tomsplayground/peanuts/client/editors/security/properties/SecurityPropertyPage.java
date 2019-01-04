@@ -25,6 +25,8 @@ public class SecurityPropertyPage extends PropertyPage {
 	private Text morningstarSymbol;
 	private Text fourTradersUrl;
 
+	private Button overridePriceDate;
+
 	public SecurityPropertyPage() {
 		noDefaultAndApplyButton();
 	}
@@ -43,7 +45,7 @@ public class SecurityPropertyPage extends PropertyPage {
 
 		Label label = new Label(composite, SWT.NONE);
 		label.setText("Override existing price data");
-		Button overridePriceDate = new Button(composite, SWT.CHECK);
+		overridePriceDate = new Button(composite, SWT.CHECK);
 
 		IAdaptable adapter = getElement();
 		Security security = adapter.getAdapter(Security.class);
@@ -79,6 +81,7 @@ public class SecurityPropertyPage extends PropertyPage {
 		security.setTicker(ticker.getText());
 		security.setMorningstarSymbol(morningstarSymbol.getText());
 		security.putConfigurationValue("fourTrasdersUrl", fourTradersUrl.getText());
+		security.putConfigurationValue(OVERRIDE_EXISTING_PRICE_DATA, Boolean.toString(overridePriceDate.getSelection()));
 		return super.performOk();
 	}
 

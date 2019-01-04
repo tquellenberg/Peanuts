@@ -14,4 +14,6 @@ public interface ITransactionDetail {
 
 	void dispose();
 
+	void setFocus();
+
 }

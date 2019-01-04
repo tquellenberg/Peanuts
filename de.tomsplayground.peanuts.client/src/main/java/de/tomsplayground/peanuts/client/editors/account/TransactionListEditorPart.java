@@ -589,6 +589,7 @@ public class TransactionListEditorPart extends EditorPart {
 			top.layout();
 			transactionTree.getTree().showSelection();
 		}
+		activeTransactionDetail.setFocus();
 	}
 
 	@Override
