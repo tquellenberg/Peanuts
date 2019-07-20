@@ -2,7 +2,6 @@ package de.tomsplayground.peanuts.client.app;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +25,7 @@ public class IvrUpdater {
 		accountManager.getSecurities().stream()
 			.filter(s -> ! s.isDeleted())
 			.forEach(s -> s.addPropertyChangeListener(IvrPropertyPage.IVR_CALCULATION, e -> updateIvr((Security) e.getSource())));
-		service.scheduleWithFixedDelay(this::updateAll, 2, 60, TimeUnit.MINUTES);
+//		service.scheduleWithFixedDelay(this::updateAll, 2, 60, TimeUnit.MINUTES);
 	}
 
 	public void destroy() {
