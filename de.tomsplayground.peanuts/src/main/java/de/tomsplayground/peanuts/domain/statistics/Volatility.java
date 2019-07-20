@@ -25,18 +25,21 @@ public class Volatility {
 		ImmutableList<BigDecimal> values = pp.getPrices(minDate, maxDate).stream()
 			.map(IPrice::getClose)
 			.collect(ImmutableList.toImmutableList());
+		if (values.size() < 3) {
+			return 0.0;
+		}
 		return calculateVolatility(values);
 	}
 
 	public double calculateVolatility(ImmutableList<BigDecimal> values) {
-		log.debug("Size: "+values.size());
+		log.info("Size: "+values.size());
 		BigDecimal v1 = values.get(0);
 		double yield[] = new double[values.size()-1];
 		int i = 0;
 		for (BigDecimal v2 : values.subList(1, values.size())) {
 			yield[i] = Math.log(v2.divide(v1, MC).doubleValue());
 			if (log.isDebugEnabled()) {
-				log.debug("V1:"+v1+ " V2:"+v2+" Y:"+yield[i]);
+				log.info("V1:"+v1+ " V2:"+v2+" Y:"+yield[i]);
 			}
 			i++;
 			v1 = v2;
@@ -46,14 +49,18 @@ public class Volatility {
 			avg += r;
 		}
 		avg = avg / yield.length;
-		log.debug("AVG: "+avg);
+		log.info("AVG: "+avg);
 		double volatility = 0;
 		for (double r : yield) {
 			double d = (r - avg);
 			volatility += (d*d);
 		}
-		volatility = Math.sqrt(volatility * 252 / (yield.length - 1));
-		log.debug("Vola: "+volatility);
+		log.info("Vola1: "+volatility);
+		if (volatility < 0.001) {
+			return 0.0;
+		}
+		volatility = Math.sqrt((volatility * 252) / (yield.length - 1));
+		log.info("Vola2: "+volatility);
 		return volatility;
 	}
 
