@@ -12,15 +12,18 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XPather;
 import org.htmlcleaner.XPatherException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
@@ -28,11 +31,20 @@ import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 
 public class FourTraders {
 
+	private final static Logger log = LoggerFactory.getLogger(FourTraders.class);
+
 	private static final String SEARCH_URL = "http://www.4-traders.com/indexbasegauche.php?lien=recherche&mots=ISIN&RewriteLast=zbat&type_recherche=0";
 
 	private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0) Gecko/20100101 Firefox/52.0";
 
-	private final CloseableHttpClient httpclient = HttpClients.createDefault();
+	private final RequestConfig defaultRequestConfig = RequestConfig.custom()
+        .setConnectTimeout(1000 * 60)
+        .setSocketTimeout(1000 * 60)
+        .setConnectionRequestTimeout(1000 * 60)
+        .build();
+
+	private final CloseableHttpClient httpclient = HttpClientBuilder.create()
+		.setDefaultRequestConfig(defaultRequestConfig).build();
 
 	public static void main(String[] args) {
 		new FourTraders().read("US0378331005");
@@ -46,17 +58,26 @@ public class FourTraders {
 	private String getPage(URI url) throws IOException {
 		HttpGet httpGet = new HttpGet(url);
 		httpGet.addHeader("User-Agent", USER_AGENT);
-		CloseableHttpResponse response1 = httpclient.execute(httpGet);
+		CloseableHttpResponse response1 = null;
 		try {
+			response1 = httpclient.execute(httpGet);
 			HttpEntity entity1 = response1.getEntity();
 			return EntityUtils.toString(entity1);
+		} catch (IOException e) {
+			log.error("URL"+url, e);
+			throw e;
 		} finally {
-			response1.close();
+			if (response1 != null) {
+				response1.close();
+			}
 			httpGet.releaseConnection();
 		}
 	}
 
 	public List<FundamentalData> scrapFinancials(String financialsUrl) {
+		if (financialsUrl.startsWith("http://www.4-traders.com/")) {
+			financialsUrl = StringUtils.replace(financialsUrl, "http://www.4-traders.com/", "https://www.marketscreener.com/");
+		}
 		List<FundamentalData> fundamentalDatas = Lists.newArrayList();
 		try {
 			String html = getPage(new URL(financialsUrl).toURI());
@@ -83,10 +104,13 @@ public class FourTraders {
 					continue;
 				}
 				try {
-					int year = Integer.parseInt(result[0].toString());
+					String yearStr = result[0].toString();
+					yearStr = StringUtils.remove(yearStr, "  (e)");
+					int year = Integer.parseInt(yearStr);
 					fundamentalData.setYear(year);
 				} catch (NumberFormatException e) {
 					// Okay
+					log.info("NumberFormatException: "+e.getMessage());
 					continue;
 				}
 
@@ -99,6 +123,7 @@ public class FourTraders {
 					}
 					fundamentalData.setEarningsPerShare(eps);
 				} catch (NumberFormatException e) {
+					log.info("NumberFormatException: "+e.getMessage());
 					// Okay
 					continue;
 				}
@@ -112,6 +137,7 @@ public class FourTraders {
 					}
 					fundamentalData.setDividende(dividend);
 				} catch (NumberFormatException e) {
+					log.info("NumberFormatException: "+e.getMessage());
 					// Okay
 				}
 
@@ -128,6 +154,8 @@ public class FourTraders {
 	}
 
 	private BigDecimal parseNumber(String r) {
+		r = StringUtils.remove(r, "<b>");
+		r = StringUtils.remove(r, "<\\b>");
 		return new BigDecimal(StringUtils.remove(r.replace(',', '.'), ' '));
 	}
 
