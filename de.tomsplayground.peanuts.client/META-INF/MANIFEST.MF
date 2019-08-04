@@ -40,7 +40,7 @@ Bundle-ClassPath: .,
  lib/httpclient-4.5.8.jar,
  lib/httpcore-4.4.11.jar,
  lib/jackson-core-2.9.9.jar,
- lib/jackson-databind-2.9.9.jar
+ lib/jackson-databind-2.9.9.2.jar
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.forms,
