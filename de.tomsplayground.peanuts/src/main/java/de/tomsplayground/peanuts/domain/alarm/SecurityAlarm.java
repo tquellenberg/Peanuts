@@ -10,31 +10,31 @@ import de.tomsplayground.util.Day;
 @XStreamAlias("securityAlarm")
 public class SecurityAlarm {
 
-	public enum Type {
-		CROSSES_FROM_BELOW,
-		CROSSES_FROM_ABOVE
+	public enum Mode {
+		PRICE_BELOW,
+		PRICE_ABOVE
 	}
 
 	private final Security security;
-	private final Type type;
+	private final Mode mode;
 	private final BigDecimal value;
 	private final Day startDay;
 
 	private Day triggerDay;
 
-	public SecurityAlarm(Security security, Type type, BigDecimal value) {
+	public SecurityAlarm(Security security, Mode type, BigDecimal value, Day startDay) {
 		this.security = security;
-		this.type = type;
+		this.mode = type;
 		this.value = value;
-		this.startDay = new Day();
+		this.startDay = startDay;
 		this.triggerDay = null;
 	}
 
 	public Security getSecurity() {
 		return security;
 	}
-	public Type getType() {
-		return type;
+	public Mode getMode() {
+		return mode;
 	}
 	public BigDecimal getValue() {
 		return value;

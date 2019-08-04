@@ -79,6 +79,15 @@
             name="Calendar"
             restorable="true">
       </view>
+      <view
+            allowMultiple="false"
+            category="de.tomsplayground.peanuts.client.category1"
+            class="de.tomsplayground.peanuts.client.alarm.AlarmView"
+            icon="icons/bell.png"
+            id="de.tomsplayground.peanuts.client.alarmView"
+            name="Alarm"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -619,6 +628,16 @@
             class="de.tomsplayground.peanuts.client.editors.security.properties.IvrPropertyPage"
             id="de.tomsplayground.peanuts.client.editors.security.ivrPage"
             name="IVR">
+         <enabledWhen>
+            <adapt
+                  type="de.tomsplayground.peanuts.domain.base.Security">
+            </adapt>
+         </enabledWhen>
+      </page>
+      <page
+            class="de.tomsplayground.peanuts.client.editors.security.properties.AlarmPropertyPage"
+            id="de.tomsplayground.peanuts.client.editors.security.alarmPage"
+            name="Alarm">
          <enabledWhen>
             <adapt
                   type="de.tomsplayground.peanuts.domain.base.Security">

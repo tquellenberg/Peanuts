@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -18,7 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.widgets.DateComposite;
 import de.tomsplayground.peanuts.domain.alarm.SecurityAlarm;
-import de.tomsplayground.peanuts.domain.alarm.SecurityAlarm.Type;
+import de.tomsplayground.peanuts.domain.alarm.SecurityAlarm.Mode;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
@@ -28,6 +29,7 @@ public class AlarmPropertyPage extends PropertyPage {
 
 	private Text stop;
 	private DateComposite date;
+	private Combo alarmModeList;
 
 	public AlarmPropertyPage() {
 		noDefaultAndApplyButton();
@@ -39,6 +41,12 @@ public class AlarmPropertyPage extends PropertyPage {
 		composite.setLayout(new GridLayout(2, false));
 
 		date = createDateWithLabel(composite, "Start date");
+
+		Label label = new Label(composite, SWT.NONE);
+		label.setText("Mode");
+		alarmModeList = new Combo(composite, SWT.READ_ONLY);
+		alarmModeList.setItems(new String[] {"Price below", "Price above"});
+
 		stop = createTextWithLabel(composite, "Value");
 
 		IAdaptable adapter = getElement();
@@ -48,9 +56,11 @@ public class AlarmPropertyPage extends PropertyPage {
 		if (! alarm.isEmpty()) {
 			SecurityAlarm stopLoss = alarm.iterator().next();
 			date.setDay(stopLoss.getStartDay());
+			alarmModeList.select(stopLoss.getMode().ordinal());
 			stop.setText(PeanutsUtil.formatQuantity(stopLoss.getValue()));
 		} else {
 			date.setDay(new Day());
+			alarmModeList.select(0);
 			stop.setText("");
 		}
 		return composite;
@@ -95,7 +105,12 @@ public class AlarmPropertyPage extends PropertyPage {
 		} catch (ParseException e1) {
 			stopValue = BigDecimal.ZERO;
 		}
-		SecurityAlarm stopLoss = new SecurityAlarm(security, Type.CROSSES_FROM_BELOW, stopValue);
+		SecurityAlarm.Mode typ = Mode.PRICE_BELOW;
+		int selectionIndex = alarmModeList.getSelectionIndex();
+		if (selectionIndex == 1) {
+			typ = Mode.PRICE_ABOVE;
+		}
+		SecurityAlarm stopLoss = new SecurityAlarm(security, typ, stopValue, startDate);
 		if (stopValue.compareTo(BigDecimal.ZERO) != 0) {
 			accountManager.addSecurityAlarm(stopLoss);
 		}
