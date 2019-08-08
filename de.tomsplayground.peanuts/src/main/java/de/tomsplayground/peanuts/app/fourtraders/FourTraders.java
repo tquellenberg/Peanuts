@@ -47,7 +47,8 @@ public class FourTraders {
 		.setDefaultRequestConfig(defaultRequestConfig).build();
 
 	public static void main(String[] args) {
-		new FourTraders().read("US0378331005");
+//		new FourTraders().read("US0378331005");
+		new FourTraders().scrapFinancials("https://www.marketscreener.com/BABCOCK-INTERNATIONAL-GRO-9583549/financials/");
 	}
 
 	public List<FundamentalData> read(String isin) {
@@ -89,6 +90,7 @@ public class FourTraders {
 			Object[] result = xPather.evaluateAgainstNode(tagNode);
 			if (result.length > 0) {
 				String currency = StringUtils.trim(StringUtils.substringBetween(result[0].toString(), "(", ")"));
+				currency = StringUtils.replace(currency, "&nbsp;", "");
 				if (StringUtils.equals(currency, "PNC") || StringUtils.equals(currency, "GBp")) {
 					isPence = true;
 				}
