@@ -1,11 +1,10 @@
 package de.tomsplayground.peanuts.domain.statistics;
 
 import java.math.BigDecimal;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import org.joda.time.Days;
 
 import com.google.common.collect.Lists;
 
@@ -42,7 +41,7 @@ public class XIRR {
 		});
 		Day minDate = dates.get(0).day;
 		for (Entry entry : dates) {
-			entry.delta = Days.daysBetween(minDate.getJodaDate(), entry.day.getJodaDate()).getDays();
+			entry.delta = (int) ChronoUnit.DAYS.between(minDate.toLocalDate(), entry.day.toLocalDate());
 		}
 	}
 

@@ -3,6 +3,8 @@ package de.tomsplayground.peanuts.client.watchlist;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -81,6 +83,8 @@ public class SecurityWatchlistView extends ViewPart {
 
 	private static final BigDecimal SCORE_HIGH = new BigDecimal("0.6");
 	private static final BigDecimal SCORE_LOW = new BigDecimal("0.4");
+
+	private static final DateTimeFormatter SHORT_DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
 
 	public static final String ID = "de.tomsplayground.peanuts.client.securityWatchListView";
 
@@ -295,7 +299,7 @@ public class SecurityWatchlistView extends ViewPart {
 					if (price == null) {
 						return "";
 					}
-					return DateTimeFormat.shortDate().print(price.getDay().getJodaDate());
+					return SHORT_DATE_FORMATTER.format(price.getDay().toLocalDate());
 				case 2:
 					DateTime fundamentalDataDate = watchEntry.getFundamentalDataDate();
 					if (fundamentalDataDate == null) {

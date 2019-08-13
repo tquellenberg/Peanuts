@@ -1,10 +1,12 @@
 package de.tomsplayground.util;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.joda.time.LocalDate;
 
 public class Day implements Serializable, Cloneable, Comparable<Day>{
 
@@ -65,13 +67,6 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 		this.day = day;
 		this.month = month;
 		this.year = year;
-	}
-
-	public Calendar toCalendar() {
-		Calendar cal = Calendar.getInstance();
-		cal.clear();
-		cal.set(year, month, day);
-		return cal;
 	}
 
 	@Override
@@ -144,8 +139,19 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 		return delta;
 	}
 
-	public LocalDate getJodaDate() {
-		return new LocalDate(year, month+1, day);
+	public Calendar toCalendar() {
+		Calendar cal = Calendar.getInstance();
+		cal.clear();
+		cal.set(year, month, day);
+		return cal;
+	}
+
+	public LocalDateTime toLocalDateTime() {
+		return LocalDateTime.of(year, Month.of(month+1), day, 0, 0);
+	}
+
+	public LocalDate toLocalDate() {
+		return LocalDate.of(year, Month.of(month+1), day);
 	}
 
 	public Day adjustWorkday() {

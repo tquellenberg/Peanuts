@@ -2,26 +2,14 @@ package de.tomsplayground.peanuts.client.app;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
 import java.util.Objects;
-
-import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.PBEParameterSpec;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -85,10 +73,6 @@ public class Activator extends AbstractUIPlugin {
 
 	public static final String FILENAME_PROPERTY = "com.tq.filename";
 	private static final String SECURITYPRICEPATH_PROPERTY = "securitypricepath";
-
-	private static final int ITERATIONS = 20;
-	private static final String ALGORITHM = "PBEWithMD5AndDES";
-	private static final byte[] SALT = new byte[]{0x3f, 0x5e, 0x7a, 0x56, 0x35, 0x57, 0x71, 0x59};
 
 	public static final String TRANSFER_PREFIX = "=>";
 
@@ -219,42 +203,6 @@ public class Activator extends AbstractUIPlugin {
 		return colorProvider;
 	}
 
-	private OutputStream writeSecure(File file) {
-		try {
-			PBEKeySpec keySpec = new PBEKeySpec(passphrase.toCharArray());
-			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(ALGORITHM);
-			SecretKey secret = keyFactory.generateSecret(keySpec);
-			PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(SALT, ITERATIONS);
-
-			Cipher cipher = Cipher.getInstance(ALGORITHM);
-			cipher.init(Cipher.ENCRYPT_MODE, secret, pbeParameterSpec);
-
-			return new CipherOutputStream(new FileOutputStream(file), cipher);
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private InputStream readSecure(File file) {
-		try {
-			PBEKeySpec keySpec = new PBEKeySpec(passphrase.toCharArray());
-			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(ALGORITHM);
-			SecretKey secret = keyFactory.generateSecret(keySpec);
-			PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(SALT, ITERATIONS);
-
-			Cipher cipher = Cipher.getInstance(ALGORITHM);
-			cipher.init(Cipher.DECRYPT_MODE, secret, pbeParameterSpec);
-
-			return new CipherInputStream(new FileInputStream(file), cipher);
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	public void load(String filename) throws IOException {
 		Reader reader;
 		if (filename.equals(EXAMPLE)) {
@@ -267,7 +215,7 @@ public class Activator extends AbstractUIPlugin {
 				return;
 			}
 			if (filename.endsWith("."+FILE_EXTENSION_SECURE)) {
-				reader = new InputStreamReader(readSecure(file), StandardCharsets.UTF_8);
+				reader = Persistence.secureReader(file, passphrase);
 			} else {
 				reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
 			}
@@ -297,7 +245,7 @@ public class Activator extends AbstractUIPlugin {
 		}
 		Writer writer;
 		if (filename.endsWith("."+FILE_EXTENSION_SECURE)) {
-			writer = new OutputStreamWriter(writeSecure(file), StandardCharsets.UTF_8);
+			writer = Persistence.secureWriter(file, passphrase);
 		} else {
 			writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
 		}

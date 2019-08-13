@@ -1,16 +1,36 @@
 package de.tomsplayground.peanuts.persistence;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
 
 import org.apache.commons.io.IOUtils;
 
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 
 public class Persistence {
+
+	private static final int ITERATIONS = 20;
+	private static final String ALGORITHM = "PBEWithMD5AndDES";
+	private static final byte[] SALT = new byte[]{0x3f, 0x5e, 0x7a, 0x56, 0x35, 0x57, 0x71, 0x59};
 
 	IPersistenceService persistenceService;
 
@@ -22,6 +42,42 @@ public class Persistence {
 		try {
 			writer.write(persistenceService.write(accountManager));
 		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static Reader secureReader(File file, String passphrase) {
+		try {
+			PBEKeySpec keySpec = new PBEKeySpec(passphrase.toCharArray());
+			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(ALGORITHM);
+			SecretKey secret = keyFactory.generateSecret(keySpec);
+			PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(SALT, ITERATIONS);
+
+			Cipher cipher = Cipher.getInstance(ALGORITHM);
+			cipher.init(Cipher.DECRYPT_MODE, secret, pbeParameterSpec);
+
+			return new InputStreamReader(new CipherInputStream(new FileInputStream(file), cipher), StandardCharsets.UTF_8);
+		} catch (GeneralSecurityException e) {
+			throw new RuntimeException(e);
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static Writer secureWriter(File file, String passphrase) {
+		try {
+			PBEKeySpec keySpec = new PBEKeySpec(passphrase.toCharArray());
+			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(ALGORITHM);
+			SecretKey secret = keyFactory.generateSecret(keySpec);
+			PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(SALT, ITERATIONS);
+
+			Cipher cipher = Cipher.getInstance(ALGORITHM);
+			cipher.init(Cipher.ENCRYPT_MODE, secret, pbeParameterSpec);
+
+			return new OutputStreamWriter(new CipherOutputStream(new FileOutputStream(file), cipher), StandardCharsets.UTF_8);
+		} catch (GeneralSecurityException e) {
+			throw new RuntimeException(e);
+		} catch (FileNotFoundException e) {
 			throw new RuntimeException(e);
 		}
 	}
