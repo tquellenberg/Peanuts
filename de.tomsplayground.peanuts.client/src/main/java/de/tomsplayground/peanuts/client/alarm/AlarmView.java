@@ -8,6 +8,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -22,6 +25,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
@@ -30,9 +34,12 @@ import org.eclipse.ui.part.ViewPart;
 import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.editors.security.SecurityEditor;
+import de.tomsplayground.peanuts.client.editors.security.SecurityEditorInput;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.domain.alarm.AlarmManager;
 import de.tomsplayground.peanuts.domain.alarm.SecurityAlarm;
+import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
@@ -181,6 +188,23 @@ public class AlarmView extends ViewPart {
 		alarmListViewer.setComparator(new AlarmListViewerComparator());
 		alarmListViewer.setContentProvider(new ArrayContentProvider());
 		alarmListViewer.setInput(Activator.getDefault().getAccountManager().getSecurityAlarms());
+
+		alarmListViewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
+				if (sel.getFirstElement() instanceof SecurityAlarm) {
+					Security security = ((SecurityAlarm) sel.getFirstElement()).getSecurity();
+					IEditorInput input = new SecurityEditorInput(security);
+					try {
+						getSite().getWorkbenchWindow().getActivePage().openEditor(input, SecurityEditor.ID);
+					} catch (PartInitException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+
 	}
 
 	@Override
