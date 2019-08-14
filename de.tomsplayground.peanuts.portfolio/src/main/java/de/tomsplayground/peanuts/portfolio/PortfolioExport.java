@@ -11,8 +11,11 @@ import de.tomsplayground.peanuts.domain.base.Account.Type;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.note.Note;
+import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
+import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
+import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.domain.process.TransferTransaction;
 import de.tomsplayground.peanuts.persistence.Persistence;
 import de.tomsplayground.peanuts.persistence.xstream.PersistenceService;
@@ -23,6 +26,8 @@ import name.abuchen.portfolio.model.Client;
 import name.abuchen.portfolio.model.ClientFactory;
 import name.abuchen.portfolio.model.Portfolio;
 import name.abuchen.portfolio.model.PortfolioTransaction;
+import name.abuchen.portfolio.model.SecurityEvent;
+import name.abuchen.portfolio.model.SecurityPrice;
 
 public class PortfolioExport {
 
@@ -33,16 +38,19 @@ public class PortfolioExport {
 	private final Map<Account, name.abuchen.portfolio.model.Account> accountMap = new HashMap<>();
 	private final Map<Security, name.abuchen.portfolio.model.Security> securityMap = new HashMap<>();
 	private final Map<name.abuchen.portfolio.model.Account, Portfolio> portfolioMap = new HashMap<>();
+	private PriceProviderFactory priceProviderFactory;
 
 	public static void main(String[] args) throws IOException {
 		PortfolioExport portfolioExport = new PortfolioExport();
 		portfolioExport.setPeanutsFilename(args[0]);
 		portfolioExport.setPortfolioFilename(args[1]);
 		portfolioExport.setPassword(args[2]);
+		PriceProviderFactory.setLocalPriceStorePath(args[3]);
 		portfolioExport.doit();
 	}
 
 	private void doit() throws IOException {
+		priceProviderFactory = PriceProviderFactory.getInstance();
 		savePortfolio(convert(loadPeanuts()));
 	}
 
@@ -50,7 +58,22 @@ public class PortfolioExport {
 		Client client = new Client();
 		convertSecurities(accountManager, client);
 		convertAccounts(accountManager, client);
+		convertSecurityPrices(accountManager);
 		return client;
+	}
+
+	private void convertSecurityPrices(AccountManager accountManager) {
+		for (Security security : accountManager.getSecurities()) {
+			name.abuchen.portfolio.model.Security s = securityMap.get(security);
+			for (IPrice price : priceProviderFactory.getPriceProvider(security).getPrices()) {
+				s.addPrice(new SecurityPrice(price.getDay().toLocalDate(), price.getClose().movePointRight(4).longValue()));
+			}
+			for (StockSplit stockSplit : accountManager.getStockSplits(security)) {
+		        SecurityEvent event = new SecurityEvent(stockSplit.getDay().toLocalDate(), SecurityEvent.Type.STOCK_SPLIT,
+		        	stockSplit.getTo() + ":" + stockSplit.getFrom());
+		        s.addEvent(event);
+			}
+		}
 	}
 
 	private void convertAccounts(AccountManager accountManager, Client client) {
