@@ -12,14 +12,17 @@ import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.note.Note;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
+import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.TransferTransaction;
 import de.tomsplayground.peanuts.persistence.Persistence;
 import de.tomsplayground.peanuts.persistence.xstream.PersistenceService;
 import name.abuchen.portfolio.model.AccountTransaction;
 import name.abuchen.portfolio.model.AccountTransferEntry;
+import name.abuchen.portfolio.model.BuySellEntry;
 import name.abuchen.portfolio.model.Client;
 import name.abuchen.portfolio.model.ClientFactory;
 import name.abuchen.portfolio.model.Portfolio;
+import name.abuchen.portfolio.model.PortfolioTransaction;
 
 public class PortfolioExport {
 
@@ -28,6 +31,8 @@ public class PortfolioExport {
 	private String password;
 
 	private final Map<Account, name.abuchen.portfolio.model.Account> accountMap = new HashMap<>();
+	private final Map<Security, name.abuchen.portfolio.model.Security> securityMap = new HashMap<>();
+	private final Map<name.abuchen.portfolio.model.Account, Portfolio> portfolioMap = new HashMap<>();
 
 	public static void main(String[] args) throws IOException {
 		PortfolioExport portfolioExport = new PortfolioExport();
@@ -61,6 +66,7 @@ public class PortfolioExport {
 				portfolio.setRetired(account.isDeleted());
 				portfolio.setReferenceAccount(a);
 				client.addPortfolio(portfolio);
+				portfolioMap.put(a, portfolio);
 			}
 			accountMap.put(account, a);
 		}
@@ -93,16 +99,48 @@ public class PortfolioExport {
 				transferEntry.insert();
 			}
 		} else {
-			name.abuchen.portfolio.model.Security security = null;
-			name.abuchen.portfolio.model.AccountTransaction.Type type;
-			if (amount < 0) {
-				type = AccountTransaction.Type.REMOVAL;
-				amount = -amount;
+			if (tx instanceof InvestmentTransaction) {
+				InvestmentTransaction ivt = (InvestmentTransaction)tx;
+				name.abuchen.portfolio.model.Security security = securityMap.get(ivt.getSecurity());
+
+				if (ivt.getType() == InvestmentTransaction.Type.BUY || ivt.getType() == InvestmentTransaction.Type.SELL) {
+					PortfolioTransaction.Type type = null;
+					if (ivt.getType() == InvestmentTransaction.Type.BUY) {
+						type = PortfolioTransaction.Type.BUY;
+						amount = -amount;
+					} else if (ivt.getType() == InvestmentTransaction.Type.SELL) {
+						type = PortfolioTransaction.Type.SELL;
+					}
+					BuySellEntry buySellEntry = new BuySellEntry(portfolioMap.get(a), a);
+					buySellEntry.setType(type);
+					buySellEntry.setAmount(amount);
+					buySellEntry.setCurrencyCode(currencyCode);
+					buySellEntry.setDate(date);
+					buySellEntry.setSecurity(security);
+					buySellEntry.setShares(ivt.getQuantity().movePointRight(6).longValue());
+					buySellEntry.insert();
+				} else {
+					name.abuchen.portfolio.model.AccountTransaction.Type type = AccountTransaction.Type.DEPOSIT;
+					if (ivt.getType() == InvestmentTransaction.Type.EXPENSE) {
+						type = AccountTransaction.Type.TAXES;
+						amount = -amount;
+					} else if (ivt.getType() == InvestmentTransaction.Type.INCOME) {
+						type = AccountTransaction.Type.DIVIDENDS;
+					}
+					AccountTransaction t = new AccountTransaction(date, currencyCode, amount, security, type);
+					a.addTransaction(t);
+				}
 			} else {
-				type = AccountTransaction.Type.DEPOSIT;
+				name.abuchen.portfolio.model.AccountTransaction.Type type;
+				if (amount < 0) {
+					type = AccountTransaction.Type.REMOVAL;
+					amount = -amount;
+				} else {
+					type = AccountTransaction.Type.DEPOSIT;
+				}
+				AccountTransaction t = new AccountTransaction(date, currencyCode, amount, null, type);
+				a.addTransaction(t);
 			}
-			AccountTransaction t = new AccountTransaction(date, currencyCode, amount, security, type);
-			a.addTransaction(t);
 		}
 	}
 
@@ -131,6 +169,7 @@ public class PortfolioExport {
 			s.setWkn(security.getWKN());
 			s.setTickerSymbol(security.getMorningstarSymbol());
 			client.addSecurity(s);
+			securityMap.put(security, s);
 		}
 	}
 
