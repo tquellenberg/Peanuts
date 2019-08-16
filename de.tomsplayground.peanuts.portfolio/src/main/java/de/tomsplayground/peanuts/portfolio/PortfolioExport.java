@@ -28,6 +28,8 @@ import name.abuchen.portfolio.model.Portfolio;
 import name.abuchen.portfolio.model.PortfolioTransaction;
 import name.abuchen.portfolio.model.SecurityEvent;
 import name.abuchen.portfolio.model.SecurityPrice;
+import name.abuchen.portfolio.model.Transaction.Unit;
+import name.abuchen.portfolio.money.Money;
 
 public class PortfolioExport {
 
@@ -141,6 +143,7 @@ public class PortfolioExport {
 					buySellEntry.setDate(date);
 					buySellEntry.setSecurity(security);
 					buySellEntry.setShares(ivt.getQuantity().movePointRight(6).longValue());
+					buySellEntry.getPortfolioTransaction().addUnit(new Unit(Unit.Type.FEE, Money.of(currencyCode, ivt.getCommission().movePointRight(2).longValue())));
 					buySellEntry.insert();
 				} else {
 					name.abuchen.portfolio.model.AccountTransaction.Type type = AccountTransaction.Type.DEPOSIT;
