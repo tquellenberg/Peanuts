@@ -1,5 +1,8 @@
 package de.tomsplayground.peanuts.domain.alarm;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.domain.process.IPrice;
@@ -9,18 +12,30 @@ import de.tomsplayground.util.Day;
 
 public class AlarmManager {
 
-	public void checkAlarms(ImmutableList<SecurityAlarm> securityAlarms, IPriceProviderFactory priceProviderFactory) {
-		securityAlarms.forEach(a->
-			checkAlarm(a, priceProviderFactory.getPriceProvider(a.getSecurity())));
+	/**
+	 *
+	 * @return all SecurityAlarm which changed to 'triggered'.
+	 */
+	public List<SecurityAlarm> checkAlarms(ImmutableList<SecurityAlarm> securityAlarms, IPriceProviderFactory priceProviderFactory) {
+		return securityAlarms.stream()
+			.filter(a-> checkAlarm(a, priceProviderFactory.getPriceProvider(a.getSecurity())))
+			.collect(Collectors.toList());
 	}
 
-	public void checkAlarm(SecurityAlarm securityAlarm, IPriceProvider priceProvider) {
+	/**
+	 *
+	 * @return true, when the state changes from not triggered to triggered.
+	 */
+	private boolean checkAlarm(SecurityAlarm securityAlarm, IPriceProvider priceProvider) {
 		if (priceProvider == null) {
-			return;
+			return false;
 		}
 		Day day = securityAlarm.getStartDay();
 		Day today = new Day();
 		boolean triggerd = securityAlarm.isTriggered();
+		if (triggerd) {
+			return false;
+		}
 		while (!day.after(today) && !triggerd) {
 			IPrice price = priceProvider.getPrice(day);
 			if (price != null) {
@@ -38,5 +53,6 @@ public class AlarmManager {
 			}
 			day = day.addDays(1);
 		}
+		return triggerd;
 	}
 }

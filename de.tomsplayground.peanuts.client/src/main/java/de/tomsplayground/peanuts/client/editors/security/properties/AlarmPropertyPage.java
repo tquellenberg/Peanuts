@@ -93,9 +93,13 @@ public class AlarmPropertyPage extends PropertyPage {
 		Security security = getElement().getAdapter(Security.class);
 
 		AccountManager accountManager = Activator.getDefault().getAccountManager();
+		SecurityAlarm oldAlarm = null;
 		ImmutableSet<SecurityAlarm> stopLosses = accountManager.getSecurityAlarms(security);
+		if (stopLosses.size() > 1) {
+			System.err.println("More than one SecurityAlarm for security "+security.getName());
+		}
 		if (! stopLosses.isEmpty()) {
-			accountManager.removeSecurityAlarm(stopLosses.iterator().next());
+			oldAlarm = stopLosses.iterator().next();
 		}
 
 		Day startDate = date.getDay();
@@ -110,9 +114,18 @@ public class AlarmPropertyPage extends PropertyPage {
 		if (selectionIndex == 1) {
 			typ = Mode.PRICE_ABOVE;
 		}
-		SecurityAlarm stopLoss = new SecurityAlarm(security, typ, stopValue, startDate);
-		if (stopValue.compareTo(BigDecimal.ZERO) != 0) {
-			accountManager.addSecurityAlarm(stopLoss);
+		SecurityAlarm newAlarm = new SecurityAlarm(security, typ, stopValue, startDate);
+		if (oldAlarm != null) {
+			if (oldAlarm.getMode() == newAlarm.getMode() &&
+				oldAlarm.getStartDay().equals(newAlarm.getStartDay()) &&
+				oldAlarm.getValue().equals(newAlarm.getValue())) {
+				// Nothing changed
+				return super.performOk();
+			}
+			accountManager.removeSecurityAlarm(oldAlarm);
+		}
+		if (newAlarm.getValue().compareTo(BigDecimal.ZERO) != 0) {
+			accountManager.addSecurityAlarm(newAlarm);
 		}
 		return super.performOk();
 	}

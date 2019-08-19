@@ -532,8 +532,8 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 		return ImmutableSet.copyOf(
 			Iterables.filter(securityAlarms, new Predicate<SecurityAlarm>() {
 				@Override
-				public boolean apply(SecurityAlarm calendarEntry) {
-					if (calendarEntry.getSecurity().equals(security)) {
+				public boolean apply(SecurityAlarm securityAlarm) {
+					if (securityAlarm.getSecurity().equals(security)) {
 						return true;
 					}
 					return false;

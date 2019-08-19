@@ -2,6 +2,7 @@ package de.tomsplayground.peanuts.client.alarm;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -61,6 +62,7 @@ public class AlarmView extends ViewPart {
 		public void doit(PropertyChangeEvent evt, Display display) {
 			alarmListViewer.setInput(Activator.getDefault().getAccountManager().getSecurityAlarms());
 			alarmListViewer.refresh();
+			executor.submit(() -> checkAlarms());
 		}
 
 		@Override
@@ -141,7 +143,10 @@ public class AlarmView extends ViewPart {
 	private void checkAlarms() {
 		ImmutableList<SecurityAlarm> alarms = Activator.getDefault().getAccountManager().getSecurityAlarms();
 		PriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
-		alarmManager.checkAlarms(alarms, priceProviderFactory);
+		List<SecurityAlarm> triggerdAlarms = alarmManager.checkAlarms(alarms, priceProviderFactory);
+		if (! triggerdAlarms.isEmpty()) {
+			getSite().getShell().getDisplay().asyncExec(() -> alarmListViewer.refresh());
+		}
 	}
 
 	@Override
