@@ -72,7 +72,10 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_LOAD_FILE = "load_file";
 
 	public static final String FILENAME_PROPERTY = "com.tq.filename";
-	private static final String SECURITYPRICEPATH_PROPERTY = "securitypricepath";
+	public static final String SECURITYPRICEPATH_PROPERTY = "securitypricepath";
+
+	public static final String RAPIDAPIKEY_PROPERTY = "rapidapikey";
+
 
 	public static final String TRANSFER_PREFIX = "=>";
 

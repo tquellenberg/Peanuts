@@ -32,6 +32,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.editors.security.SecurityEditor;
@@ -133,7 +134,7 @@ public class AlarmView extends ViewPart {
 				}
 			}
 		}
-		executor = Executors.newSingleThreadScheduledExecutor();
+		executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("Alarm-Checker-%d").build());
 		executor.scheduleWithFixedDelay(() -> checkAlarms(), 0, 1, TimeUnit.MINUTES);
 	}
 

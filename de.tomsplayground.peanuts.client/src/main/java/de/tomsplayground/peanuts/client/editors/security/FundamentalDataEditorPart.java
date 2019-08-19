@@ -60,7 +60,10 @@ import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.app.fourtraders.FourTraders;
 import de.tomsplayground.peanuts.app.morningstar.KeyRatios;
+import de.tomsplayground.peanuts.app.yahoo.DebtEquity;
+import de.tomsplayground.peanuts.app.yahoo.DebtEquity.DebtEquityValue;
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
 import de.tomsplayground.peanuts.client.widgets.CurrencyComboViewer;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
@@ -235,7 +238,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 					case 9:
 						return PeanutsUtil.formatPercent(adjustedEpsGrowth(data));
 					case 10:
-						return PeanutsUtil.formatQuantity(data.getDebtEquityRatio());
+						return PeanutsUtil.format(data.getDebtEquityRatio(), 2);
 					case 11:
 						if (currencyConverter != null) {
 							CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
@@ -366,7 +369,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 		top.setLayout(layout);
 
 		Composite metaComposite = new Composite(top, SWT.NONE);
-		metaComposite.setLayout(new GridLayout(5, false));
+		metaComposite.setLayout(new GridLayout(6, false));
 		currencyComboViewer = new CurrencyComboViewer(metaComposite, false);
 		new Label(metaComposite, SWT.NONE).setText("Morningstar symbol:");
 		final Text morningstarSymbol = new Text(metaComposite, SWT.NONE);
@@ -402,6 +405,16 @@ public class FundamentalDataEditorPart extends EditorPart {
 				update4TradersData(security);
 			}
 		});
+
+		Button deYahooGo = new Button(metaComposite, SWT.PUSH);
+		deYahooGo.setText("Load D/E from Yahoo");
+		deYahooGo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				updateDeYahooData(security);
+			}
+		});
+		deYahooGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.YAHOO_SYMBOL)));
 
 		tableViewer = new TableViewer(top, SWT.FULL_SELECTION | SWT.MULTI);
 		Table table = tableViewer.getTable();
@@ -655,6 +668,31 @@ public class FundamentalDataEditorPart extends EditorPart {
 		table.setMenu(menuManager.createContextMenu(table));
 		getSite().registerContextMenu(menuManager, tableViewer);
 		getSite().setSelectionProvider(tableViewer);
+	}
+
+	private void updateDeYahooData(final Security security) {
+		String symbol = security.getConfigurationValue(SecurityPropertyPage.YAHOO_SYMBOL);
+		try {
+			String apiKey = Activator.getDefault().getPreferenceStore().getString(Activator.RAPIDAPIKEY_PROPERTY);
+			DebtEquity debtEquity = new DebtEquity(apiKey);
+			List<DebtEquityValue> values = debtEquity.readUrl(symbol);
+			for (DebtEquityValue debtEquityValue : values) {
+				System.out.println(debtEquityValue+ " " + debtEquityValue.getValue()+ " "+debtEquityValue.getDay());
+				for (FundamentalData oldData : fundamentalDatas) {
+					if (debtEquityValue.getYear() == oldData.getYear()) {
+//						if (! oldData.isLocked()) {
+							oldData.setDebtEquityRatio(new BigDecimal(debtEquityValue.getValue()));
+							oldData.updateLastModifyDate();
+//						}
+						break;
+					}
+				}
+			}
+			markDirty();
+			tableViewer.refresh(true);
+		} catch (RuntimeException ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	private void update4TradersData(final Security security) {

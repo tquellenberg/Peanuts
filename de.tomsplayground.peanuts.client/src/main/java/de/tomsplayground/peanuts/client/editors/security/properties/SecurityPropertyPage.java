@@ -16,16 +16,20 @@ import de.tomsplayground.peanuts.domain.base.Security;
 
 public class SecurityPropertyPage extends PropertyPage {
 
+	public static final String YAHOO_SYMBOL = "yahooSymbol";
+
 	public static final String OVERRIDE_EXISTING_PRICE_DATA = "OVERRIDE_EXISTING_PRICE_DATA";
 
 	private Text name;
 	private Text wkn;
 	private Text isin;
 	private Text ticker;
+	private Text yahooSymbol;
 	private Text morningstarSymbol;
 	private Text fourTradersUrl;
 
 	private Button overridePriceDate;
+
 
 	public SecurityPropertyPage() {
 		noDefaultAndApplyButton();
@@ -40,6 +44,7 @@ public class SecurityPropertyPage extends PropertyPage {
 		wkn = createTextWithLabel(composite, "WKN");
 		isin = createTextWithLabel(composite, "Isin");
 		ticker = createTextWithLabel(composite, "Ticker");
+		yahooSymbol = createTextWithLabel(composite, "Yahoo-Symbol");
 		morningstarSymbol = createTextWithLabel(composite, "Morningstar");
 		fourTradersUrl = createTextWithLabel(composite, "4-Traders Url");
 
@@ -53,6 +58,7 @@ public class SecurityPropertyPage extends PropertyPage {
 		wkn.setText(StringUtils.defaultString(security.getWKN()));
 		isin.setText(StringUtils.defaultString(security.getISIN()));
 		ticker.setText(StringUtils.defaultString(security.getTicker()));
+		yahooSymbol.setText(StringUtils.defaultString(security.getConfigurationValue(YAHOO_SYMBOL)));
 		morningstarSymbol.setText(StringUtils.defaultString(security.getMorningstarSymbol()));
 		fourTradersUrl.setText(StringUtils.defaultString(security.getConfigurationValue("fourTrasdersUrl")));
 		overridePriceDate.setSelection(Boolean.valueOf(security.getConfigurationValue(OVERRIDE_EXISTING_PRICE_DATA)).booleanValue());
@@ -81,6 +87,7 @@ public class SecurityPropertyPage extends PropertyPage {
 		security.setTicker(ticker.getText());
 		security.setMorningstarSymbol(morningstarSymbol.getText());
 		security.putConfigurationValue("fourTrasdersUrl", fourTradersUrl.getText());
+		security.putConfigurationValue(YAHOO_SYMBOL, yahooSymbol.getText());
 		security.putConfigurationValue(OVERRIDE_EXISTING_PRICE_DATA, Boolean.toString(overridePriceDate.getSelection()));
 		return super.performOk();
 	}
