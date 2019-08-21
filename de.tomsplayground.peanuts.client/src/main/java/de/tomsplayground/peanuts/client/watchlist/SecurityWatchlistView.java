@@ -84,13 +84,17 @@ public class SecurityWatchlistView extends ViewPart {
 	private static final BigDecimal SCORE_HIGH = new BigDecimal("0.6");
 	private static final BigDecimal SCORE_LOW = new BigDecimal("0.4");
 
+	private static final BigDecimal DIV_HIGH = new BigDecimal("0.03");
+
+	private static final BigDecimal DEBT_HIGH = new BigDecimal("1.0");
+
 	private static final DateTimeFormatter SHORT_DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
 
 	public static final String ID = "de.tomsplayground.peanuts.client.securityWatchListView";
 
 	private TableViewer securityListViewer;
 	private Watchlist currentWatchList;
-	private final int colWidth[] = new int[19];
+	private final int colWidth[] = new int[20];
 
 	private static abstract class WatchEntryViewerComparator extends ViewerComparator {
 		enum SORT {
@@ -192,6 +196,14 @@ public class SecurityWatchlistView extends ViewPart {
 			BigDecimal v1 = w1.getVolatility();
 			BigDecimal v2 = w2.getVolatility();
 			return ObjectUtils.compare(v1, v2);
+		}
+	};
+	private final WatchEntryViewerComparator deRatioComparator = new WatchEntryViewerComparator() {
+		@Override
+		public int compare(WatchEntry w1, WatchEntry w2) {
+			BigDecimal v1 = w1.getDeRatio();
+			BigDecimal v2 = w2.getDeRatio();
+			return ObjectUtils.compare(v2, v1);
 		}
 	};
 	private final WatchEntryViewerComparator ivrComparator = new WatchEntryViewerComparator() {
@@ -343,29 +355,35 @@ public class SecurityWatchlistView extends ViewPart {
 					}
 					return "";
 				case 9:
+					BigDecimal data5 = watchEntry.getDeRatio();
+					if (data5 != null) {
+						return PeanutsUtil.format(data5, 2);
+					}
+					return "";
+				case 10:
 					BigDecimal data4 = watchEntry.getScore();
 					if (data4 != null) {
 						return PeanutsUtil.format(data4, 2);
 					}
 					return "";
-				case 10:
+				case 11:
 					BigDecimal volatility = watchEntry.getVolatility();
 					return PeanutsUtil.formatPercent(volatility);
-				case 11:
-					return PeanutsUtil.formatPercent(watchEntry.getIvr());
 				case 12:
-					return PeanutsUtil.formatPercent(watchEntry.getDayChange());
+					return PeanutsUtil.formatPercent(watchEntry.getIvr());
 				case 13:
-					return PeanutsUtil.formatPercent(watchEntry.getPerformance(7, 0, 0));
+					return PeanutsUtil.formatPercent(watchEntry.getDayChange());
 				case 14:
-					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 1, 0));
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(7, 0, 0));
 				case 15:
-					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 6, 0));
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 1, 0));
 				case 16:
-					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 1));
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 6, 0));
 				case 17:
-					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 3));
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 1));
 				case 18:
+					return PeanutsUtil.formatPercent(watchEntry.getPerformance(0, 0, 3));
+				case 19:
 					WatchlistManager manager = WatchlistManager.getInstance();
 					return PeanutsUtil.formatPercent(manager.getCustomPerformance(watchEntry));
 				default:
@@ -412,7 +430,21 @@ public class SecurityWatchlistView extends ViewPart {
 						return red;
 					}
 				}
+			} else if (columnIndex == 8) {
+				BigDecimal data4 = watchEntry.getDivYield();
+				if (data4 != null) {
+					if (data4.compareTo(DIV_HIGH) > 0) {
+						return green;
+					}
+				}
 			} else if (columnIndex == 9) {
+				BigDecimal data4 = watchEntry.getDeRatio();
+				if (data4 != null) {
+					if (data4.compareTo(DEBT_HIGH) > 0) {
+						return red;
+					}
+				}
+			} else if (columnIndex == 10) {
 				BigDecimal data4 = watchEntry.getScore();
 				if (data4 != null) {
 					if (data4.compareTo(SCORE_HIGH) > 0) {
@@ -422,19 +454,19 @@ public class SecurityWatchlistView extends ViewPart {
 						return red;
 					}
 				}
-			} else if (columnIndex == 12) {
-				return (watchEntry.getDayChangeAbsolut().signum() == -1) ? red : green;
 			} else if (columnIndex == 13) {
-				return (watchEntry.getPerformance(7, 0, 0).signum() == -1) ? red : green;
+				return (watchEntry.getDayChangeAbsolut().signum() == -1) ? red : green;
 			} else if (columnIndex == 14) {
-				return (watchEntry.getPerformance(0, 1, 0).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(7, 0, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 15) {
-				return (watchEntry.getPerformance(0, 6, 0).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(0, 1, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 16) {
-				return (watchEntry.getPerformance(0, 0, 1).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(0, 6, 0).signum() == -1) ? red : green;
 			} else if (columnIndex == 17) {
-				return (watchEntry.getPerformance(0, 0, 3).signum() == -1) ? red : green;
+				return (watchEntry.getPerformance(0, 0, 1).signum() == -1) ? red : green;
 			} else if (columnIndex == 18) {
+				return (watchEntry.getPerformance(0, 0, 3).signum() == -1) ? red : green;
+			} else if (columnIndex == 19) {
 				WatchlistManager manager = WatchlistManager.getInstance();
 				return (manager.getCustomPerformance(watchEntry).signum() == -1) ? red : green;
 			}
@@ -619,6 +651,18 @@ public class SecurityWatchlistView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				setSorting((TableColumn)e.widget, divYieldComparator);
+			}
+		});
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("D/E");
+		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
+		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, deRatioComparator);
 			}
 		});
 		colNum++;

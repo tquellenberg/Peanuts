@@ -120,11 +120,13 @@ public class DebtEquity {
 		List<Map<String, Map>> jsonArray = (List<Map<String, Map>>) data.get("balanceSheetStatements");
 		for (int i=0; i< jsonArray.size(); i++) {
 			Map jsonObject = jsonArray.get(i);
-			DebtEquityValue debtEquityValue = new DebtEquityValue();
-			debtEquityValue.endDate = Day.fromDate(new Date(((Number)((Map)jsonObject.get("endDate")).get("raw")).longValue()*1000L));
-			debtEquityValue.longTermDebt = ((Number)((Map)jsonObject.get("longTermDebt")).get("raw")).longValue();
-			debtEquityValue.totalStockholderEquity = ((Number)((Map)jsonObject.get("totalStockholderEquity")).get("raw")).longValue();
-			result.add(debtEquityValue);
+			if (jsonObject.containsKey("endDate") && jsonObject.containsKey("longTermDebt") && jsonObject.containsKey("totalStockholderEquity")) {
+				DebtEquityValue debtEquityValue = new DebtEquityValue();
+				debtEquityValue.endDate = Day.fromDate(new Date(((Number)((Map)jsonObject.get("endDate")).get("raw")).longValue()*1000L));
+				debtEquityValue.longTermDebt = ((Number)((Map)jsonObject.get("longTermDebt")).get("raw")).longValue();
+				debtEquityValue.totalStockholderEquity = ((Number)((Map)jsonObject.get("totalStockholderEquity")).get("raw")).longValue();
+				result.add(debtEquityValue);
+			}
 		}
 		return result;
 	}

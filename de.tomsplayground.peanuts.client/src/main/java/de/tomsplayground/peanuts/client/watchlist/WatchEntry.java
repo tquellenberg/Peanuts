@@ -252,6 +252,17 @@ public class WatchEntry {
 		return peDelta;
 	}
 
+	public BigDecimal getDeRatio() {
+		BigDecimal deRatio = BigDecimal.ZERO;
+		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
+		for (FundamentalData data : fundamentalDatas.getDatas()) {
+			if (data.getDebtEquityRatio().compareTo(BigDecimal.ZERO) > 0) {
+				deRatio = data.getDebtEquityRatio();
+			}
+		}
+		return deRatio;
+	}
+
 	public DateTime getFundamentalDataDate() {
 		return security.getFundamentalDatas().getMaxModificationDate().orElse(null);
 	}

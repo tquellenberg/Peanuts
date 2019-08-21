@@ -1,5 +1,6 @@
 package de.tomsplayground.peanuts.client.editors.security;
 
+import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -95,6 +96,8 @@ public class FundamentalDataEditorPart extends EditorPart {
 	private CurrencyComboViewer currencyComboViewer;
 	private CurrencyConverter currencyConverter;
 	private List<Object> tableRows;
+
+	private Button deYahooGo;
 
 	private class FundamentalDataTableLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 
@@ -359,6 +362,12 @@ public class FundamentalDataEditorPart extends EditorPart {
 	}
 
 	@Override
+	public void dispose() {
+		getSecurity().removePropertyChangeListener(SecurityPropertyPage.YAHOO_SYMBOL, securityPropertyChangeListener);
+		super.dispose();
+	}
+
+	@Override
 	public void createPartControl(Composite parent) {
 		final Security security = getSecurity();
 
@@ -406,7 +415,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 			}
 		});
 
-		Button deYahooGo = new Button(metaComposite, SWT.PUSH);
+		deYahooGo = new Button(metaComposite, SWT.PUSH);
 		deYahooGo.setText("Load D/E from Yahoo");
 		deYahooGo.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -414,7 +423,8 @@ public class FundamentalDataEditorPart extends EditorPart {
 				updateDeYahooData(security);
 			}
 		});
-		deYahooGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.YAHOO_SYMBOL)));
+		updateDeYahooButtonState();
+		getSecurity().addPropertyChangeListener(SecurityPropertyPage.YAHOO_SYMBOL, securityPropertyChangeListener);
 
 		tableViewer = new TableViewer(top, SWT.FULL_SELECTION | SWT.MULTI);
 		Table table = tableViewer.getTable();
@@ -668,6 +678,18 @@ public class FundamentalDataEditorPart extends EditorPart {
 		table.setMenu(menuManager.createContextMenu(table));
 		getSite().registerContextMenu(menuManager, tableViewer);
 		getSite().setSelectionProvider(tableViewer);
+	}
+
+	private final PropertyChangeListener securityPropertyChangeListener = new PropertyChangeListener() {
+		@Override
+		public void propertyChange(java.beans.PropertyChangeEvent evt) {
+			updateDeYahooButtonState();
+		}
+	};
+
+	private void updateDeYahooButtonState() {
+		Security security = getSecurity();
+		deYahooGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.YAHOO_SYMBOL)));
 	}
 
 	private void updateDeYahooData(final Security security) {
