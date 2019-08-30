@@ -17,6 +17,7 @@ import de.tomsplayground.peanuts.config.ConfigurableSupport;
 import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
+import de.tomsplayground.peanuts.domain.dividend.Dividend;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
 import de.tomsplayground.peanuts.domain.note.Note;
@@ -42,6 +43,8 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	private List<FundamentalData> fundamentalDatas = new ArrayList<FundamentalData>();
 
 	private List<Note> notes = new ArrayList<Note>();
+
+	private List<Dividend> dividends = new ArrayList<Dividend>();
 
 	public Security(String name) {
 		this.name = name;
@@ -99,6 +102,9 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 		}
 		if (notes == null) {
 			notes = new ArrayList<Note>();
+		}
+		if (dividends == null) {
+			dividends = new ArrayList<>();
 		}
 	}
 
@@ -192,10 +198,28 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 		firePropertyChange("notes", null, note);
 	}
 
-	public boolean remoteNote(Note note) {
+	public boolean removeNote(Note note) {
 		boolean remove = notes.remove(note);
 		if (remove) {
 			firePropertyChange("notes", note, null);
+		}
+		return remove;
+	}
+
+	public ImmutableList<Dividend> getDividends() {
+		return ImmutableList.copyOf(dividends);
+	}
+
+	public void addDividend(Dividend dividend) {
+		dividends.add(dividend);
+		Collections.sort(notes);
+		firePropertyChange("dividends", null, dividend);
+	}
+
+	public boolean removeDividend(Dividend dividend) {
+		boolean remove = dividends.remove(dividend);
+		if (remove) {
+			firePropertyChange("notes", dividend, null);
 		}
 		return remove;
 	}

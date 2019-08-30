@@ -128,6 +128,10 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 		return Day.fromCalendar(cal);
 	}
 
+	public Day toMonth() {
+		return new Day(year, month, 1);
+	}
+
 	/**
 	 * Calculates the difference in days between two dates
 	 * on a base of 360 days per year.

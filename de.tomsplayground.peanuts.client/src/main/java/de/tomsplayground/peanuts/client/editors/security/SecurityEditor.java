@@ -34,6 +34,7 @@ public class SecurityEditor extends MultiPageEditorPart {
 		createEditorPage(new ChartEditorPart(), "Chart");
 		createEditorPage(new PriceEditorPart(), "Prices");
 		createEditorPage(new FundamentalDataEditorPart(), "Fundamentals");
+		createEditorPage(new DividendEditorPart(), "Dividends");
 		createEditorPage(new ScrapingEditorPart(), "Scraping");
 		createEditorPage(new DevelopmentEditorPart(), "Development");
 		createEditorPage(new NotesEditorPart(), getNodesPageName());
