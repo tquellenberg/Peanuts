@@ -39,7 +39,11 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.ui.dialogs.FilteredTree;
+import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
+import org.eclipse.ui.handlers.ExpandAllHandler;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.ViewPart;
@@ -132,6 +136,8 @@ public class NavigationView extends ViewPart {
 	};
 
 	private PropertyChangeListener propertyChangeListener;
+
+	private FilteredTree filteredTree;
 
 	class TreeObject {
 		private final String name;
@@ -330,7 +336,12 @@ public class NavigationView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		PatternFilter filter = new PatternFilter() {
+
+		};
+		filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, true);
+		filteredTree.setQuickSelectionMode(true);
+		viewer = filteredTree.getViewer();
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider());
 		updateModel();
@@ -474,6 +485,10 @@ public class NavigationView extends ViewPart {
 		});
 		actionBars.setGlobalActionHandler(ActionFactory.PROPERTIES.getId(), new PropertyDialogAction(getSite(), viewer));
 
+		IHandlerService handlerService = getSite().getService(IHandlerService.class);
+		ExpandAllHandler expandHandler = new ExpandAllHandler(viewer);
+		handlerService.activateHandler(ExpandAllHandler.COMMAND_ID, expandHandler);
+
 		getSite().setSelectionProvider(viewer);
 	}
 
@@ -494,7 +509,7 @@ public class NavigationView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		viewer.getControl().setFocus();
+		filteredTree.setFocus();
 	}
 
 }

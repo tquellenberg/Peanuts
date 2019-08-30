@@ -88,6 +88,15 @@
             name="Alarm"
             restorable="true">
       </view>
+      <view
+            allowMultiple="false"
+            category="de.tomsplayground.peanuts.client.category1"
+            class="de.tomsplayground.peanuts.client.dividend.DividendStatsView"
+            icon="icons/coins.png"
+            id="de.tomsplayground.peanuts.client.dividendStatsView"
+            name="Dividends"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -189,6 +198,11 @@
             id="de.tomsplayground.peanuts.client.removeWatchlistConfiguration"
             name="Delete Watchlist">
       </command>
+      <command
+            defaultHandler="de.tomsplayground.peanuts.client.navigation.FocusNavigationHandler"
+            id="de.tomsplayground.peanuts.client.focusNavigation.cmd"
+            name="Focus Navigation">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -196,6 +210,11 @@
             commandId="de.tomsplayground.peanuts.client.load.bpx"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="CTRL+O">
+      </key>
+      <key
+            commandId="de.tomsplayground.peanuts.client.focusNavigation.cmd"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+F">
       </key>
    </extension>
    <extension
@@ -425,6 +444,10 @@
                   commandId="de.tomsplayground.peanuts.client.updateAllFundamentalData.cmd"
                   style="push">
             </command>
+            <command
+                  commandId="de.tomsplayground.peanuts.client.focusNavigation.cmd"
+                  style="push">
+            </command>
          </menu>
       </menuContribution>
       <menuContribution
@@ -463,6 +486,10 @@
                icon="icons/page_delete.png"
                label="Toggle Filter"
                style="toggle">
+         </command>
+         <command
+               commandId="org.eclipse.ui.navigate.expandAll"
+               style="push">
          </command>
       </menuContribution>
       <menuContribution
