@@ -352,12 +352,15 @@ public class DividendEditorPart extends EditorPart {
 					Day payDate = fromString(values[0]);
 					BigDecimal dividendValue = new BigDecimal(StringUtils.replace(StringUtils.split(values[1])[1], ",", "."));
 
-					BigDecimal amountInDefaultCurrency = new BigDecimal(StringUtils.replace(StringUtils.split(values[5])[0], ",", "."));
-					BigDecimal taxInDefaultCurrency = new BigDecimal(StringUtils.replace(StringUtils.split(values[6])[0], ",", "."));
-
 					Dividend dividend = new Dividend(payDate, dividendValue, getCurrency());
-					dividend.setAmountInDefaultCurrency(amountInDefaultCurrency);
-					dividend.setTaxInDefaultCurrency(taxInDefaultCurrency);
+					if (values.length > 5) {
+						BigDecimal amountInDefaultCurrency = new BigDecimal(StringUtils.replace(StringUtils.split(values[5])[0], ",", "."));
+						dividend.setAmountInDefaultCurrency(amountInDefaultCurrency);
+					}
+					if (values.length > 6) {
+						BigDecimal taxInDefaultCurrency = new BigDecimal(StringUtils.replace(StringUtils.split(values[6])[0], ",", "."));
+						dividend.setTaxInDefaultCurrency(taxInDefaultCurrency);
+					}
 					dividends.add(dividend);
 					tableViewer.refresh();
 				}

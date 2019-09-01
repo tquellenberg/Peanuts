@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.client.dividend;
 
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -13,6 +14,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
@@ -21,8 +23,19 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.experimental.chart.swt.ChartComposite;
+import org.jfree.ui.RectangleInsets;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.dividend.DividendMonth;
 import de.tomsplayground.peanuts.domain.dividend.DividendStats;
@@ -120,7 +133,15 @@ public class DividendStatsView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		dividendStatsListViewer = new TableViewer(parent, SWT.MULTI | SWT.FULL_SELECTION);
+
+		Composite top = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout(2, true);
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		top.setLayout(layout);
+
+		// Left: Table
+		dividendStatsListViewer = new TableViewer(top, SWT.MULTI | SWT.FULL_SELECTION);
 		Table table = dividendStatsListViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
@@ -162,6 +183,61 @@ public class DividendStatsView extends ViewPart {
 
 		dividendStatsListViewer.setContentProvider(new ArrayContentProvider());
 		dividendStatsListViewer.setInput(getDividendStats());
+
+		// Right: chart
+		JFreeChart chart = createChart();
+		ChartComposite chartFrame = new ChartComposite(top, SWT.NONE, chart, true);
+		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+	}
+
+	private JFreeChart createChart() {
+		XYDataset dataset = createTotalDataset();
+		JFreeChart chart = ChartFactory.createXYLineChart(
+			"Dividends", // title
+			"Month", // x-axis label
+			"Sum", // y-axis label
+			dataset,
+			PlotOrientation.VERTICAL,
+			true, // create legend?
+			true, // generate tooltips?
+			false // generate URLs?
+		);
+		chart.setBackgroundPaint(java.awt.Color.white);
+
+		XYPlot plot = (XYPlot) chart.getPlot();
+		plot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);
+		plot.setDomainGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
+		plot.setRangeGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
+		plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
+		plot.setDomainCrosshairVisible(true);
+		plot.setRangeCrosshairVisible(true);
+		plot.setDrawingSupplier(new PeanutsDrawingSupplier());
+
+		plot.getDomainAxis().setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+		return chart;
+	}
+
+	private XYDataset createTotalDataset() {
+		List<DividendMonth> dividendStats = getDividendStats();
+
+		int currentYear = 0;
+		XYSeries timeSeries = null;
+		List<XYSeries> series = new ArrayList<>();
+		for (DividendMonth dividendMonth : dividendStats) {
+			if (dividendMonth.getMonth().year != currentYear) {
+				currentYear = dividendMonth.getMonth().year;
+				timeSeries = new XYSeries(currentYear);
+				series.add(timeSeries);
+			}
+			timeSeries.add(new Integer(dividendMonth.getMonth().month+1), dividendMonth.getYearlyAmount());
+		}
+
+		XYSeriesCollection dataset = new XYSeriesCollection();
+		for (XYSeries timeSeries2 : series) {
+			dataset.addSeries(timeSeries2);
+		}
+		return dataset;
 	}
 
 	private List<DividendMonth> getDividendStats() {
@@ -170,6 +246,7 @@ public class DividendStatsView extends ViewPart {
 
 	@Override
 	public void setFocus() {
+		dividendStatsListViewer.getTable().setFocus();
 	}
 
 }
