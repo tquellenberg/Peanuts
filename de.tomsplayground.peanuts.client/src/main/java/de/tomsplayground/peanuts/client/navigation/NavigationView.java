@@ -510,6 +510,7 @@ public class NavigationView extends ViewPart {
 	@Override
 	public void setFocus() {
 		filteredTree.setFocus();
+		filteredTree.getFilterControl().selectAll();
 	}
 
 }
