@@ -252,7 +252,7 @@ public class DividendEditorPart extends EditorPart {
 				if (property.equals("payDay")) {
 					return p.getPayDate();
 				} else if (property.equals("dividend")) {
-					return PeanutsUtil.formatCurrency(p.getAmountPerShare(), null);
+					return PeanutsUtil.format(p.getAmountPerShare(), 4);
 				} else if (property.equals("currency")) {
 					return getCurrencyPos(p.getCurrency());
 				} else if (property.equals("numberOfShares")) {
@@ -342,7 +342,7 @@ public class DividendEditorPart extends EditorPart {
 			public int compare(Viewer viewer, Object e1, Object e2) {
 				Dividend d1 = (Dividend) e1;
 				Dividend d2 = (Dividend) e2;
-				return d1.compareTo(d2);
+				return d2.compareTo(d1);
 			}
 			@Override
 			public boolean isSorterProperty(Object element, String property) {
@@ -447,6 +447,29 @@ public class DividendEditorPart extends EditorPart {
 			}
 		};
 		manager.add(importAction);
+
+		final Action duplicateAction = new Action("Duplicate") {
+			@SuppressWarnings("unchecked")
+			@Override
+			public void run() {
+				IStructuredSelection sel = (IStructuredSelection)tableViewer.getSelection();
+				if (! sel.isEmpty()) {
+					for (Iterator<Dividend> iter = sel.iterator(); iter.hasNext(); ) {
+						Dividend entry = iter.next();
+						Dividend dividend = new Dividend(entry);
+						dividend.setPayDate(dividend.getPayDate().addYear(1));
+						dividend.setAmountInDefaultCurrency(null);
+						dividend.setTaxInDefaultCurrency(null);
+						dividend.setQuantity(null);
+						dividends.add(dividend);
+					}
+					tableViewer.refresh();
+					markDirty();
+				}
+			}
+		};
+		duplicateAction.setEnabled(! ((IStructuredSelection)tableViewer.getSelection()).isEmpty());
+		manager.add(duplicateAction);
 	}
 
 	@Override

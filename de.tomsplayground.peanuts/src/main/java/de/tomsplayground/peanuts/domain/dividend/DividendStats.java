@@ -97,13 +97,11 @@ public class DividendStats {
 		}
 		BigDecimal amount = quantity.multiply(amountPerShare);
 		if (d.getCurrency().equals(Currencies.getInstance().getDefaultCurrency())) {
-			System.out.println(d.getPayDate() + " "+ d.getSecurity().getName()+ " " + quantity + " "+amountPerShare + " " + amount);
 			return amount;
 		}
 		CurrencyConverter converter = exchangeRates.createCurrencyConverter(d.getCurrency(), Currencies.getInstance().getDefaultCurrency());
 		if (converter != null) {
 			amount = converter.convert(amount, d.getPayDate());
-			System.out.println(d.getPayDate() + " "+ d.getSecurity().getName()+ " " + quantity + " "+amountPerShare + " " + amount);
 			return amount;
 		}
 		return BigDecimal.ZERO;

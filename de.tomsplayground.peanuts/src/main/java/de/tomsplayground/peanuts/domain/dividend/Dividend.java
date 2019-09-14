@@ -37,6 +37,7 @@ public class Dividend implements Comparable<Dividend> {
 		this.amount = d.amount;
 		this.amountInDefaultCurrency = d.amountInDefaultCurrency;
 		this.taxInDefaultCurrency = d.taxInDefaultCurrency;
+		this.security = d.security;
 	}
 
 	public Dividend(Day payDate, BigDecimal amountPerShare, Currency curreny) {

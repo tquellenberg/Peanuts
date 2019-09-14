@@ -1,5 +1,7 @@
 package de.tomsplayground.peanuts.client.dividend;
 
+import java.awt.BasicStroke;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -30,6 +32,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -38,11 +41,13 @@ import org.jfree.ui.RectangleInsets;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
+import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.dividend.DividendMonth;
 import de.tomsplayground.peanuts.domain.dividend.DividendStats;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
+import de.tomsplayground.util.Day;
 
 public class DividendStatsView extends ViewPart {
 
@@ -52,16 +57,16 @@ public class DividendStatsView extends ViewPart {
 
 	private final int colWidth[] = new int[7];
 
-	private final PropertyChangeListener securityChangeListener = new PropertyChangeListener() {
+	private final PropertyChangeListener securityChangeListener = new UniqueAsyncExecution() {
 		@Override
-		public void propertyChange(java.beans.PropertyChangeEvent evt) {
-			Display display = dividendStatsListViewer.getTable().getDisplay();
-			display.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					dividendStatsListViewer.setInput(getDividendStats());
-				}
-			});
+		public Display getDisplay() {
+			return getSite().getShell().getDisplay();
+		}
+		@Override
+		public void doit(PropertyChangeEvent evt, Display display) {
+			List<DividendMonth> dividendStats = getDividendStats();
+			Collections.reverse(dividendStats);
+			dividendStatsListViewer.setInput(dividendStats);
 		}
 	};
 
@@ -224,7 +229,8 @@ public class DividendStatsView extends ViewPart {
 	}
 
 	private JFreeChart createChart() {
-		XYDataset dataset = createTotalDataset();
+		StandardXYItemRenderer renderer = new StandardXYItemRenderer();
+		XYDataset dataset = createTotalDataset(renderer);
 		JFreeChart chart = ChartFactory.createXYLineChart(
 			"Dividends", // title
 			"Month", // x-axis label
@@ -245,25 +251,49 @@ public class DividendStatsView extends ViewPart {
 		plot.setDomainCrosshairVisible(true);
 		plot.setRangeCrosshairVisible(true);
 		plot.setDrawingSupplier(new PeanutsDrawingSupplier());
+		plot.setRenderer(renderer);
 
 		plot.getDomainAxis().setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
 		return chart;
 	}
 
-	private XYDataset createTotalDataset() {
-		List<DividendMonth> dividendStats = getDividendStats();
+	private static final BasicStroke dash = new BasicStroke(1.0f,
+        BasicStroke.CAP_BUTT,
+        BasicStroke.JOIN_MITER,
+        10.0f, new float[]{5.0f}, 0.0f);
 
+	private XYDataset createTotalDataset(StandardXYItemRenderer renderer) {
+		List<DividendMonth> dividendStats = getDividendStats();
+		Day currentMonth = new Day();
+		currentMonth = currentMonth.addDays(-currentMonth.day+1);
 		int currentYear = 0;
 		XYSeries timeSeries = null;
 		List<XYSeries> series = new ArrayList<>();
+		boolean future = false;
 		for (DividendMonth dividendMonth : dividendStats) {
 			if (dividendMonth.getMonth().year != currentYear) {
 				currentYear = dividendMonth.getMonth().year;
-				timeSeries = new XYSeries(currentYear);
+				timeSeries = new XYSeries(getSeriesName(currentYear, future));
 				series.add(timeSeries);
+				if (future) {
+					renderer.setSeriesStroke(series.size()-1, dash);
+				} else {
+					renderer.setSeriesStroke(series.size()-1, new BasicStroke(2.5f));
+				}
 			}
-			timeSeries.add(new Integer(dividendMonth.getMonth().month+1), dividendMonth.getYearlyAmount());
+			if (! future && dividendMonth.getMonth().compareTo(currentMonth) >= 0) {
+				timeSeries.add(new Integer(dividendMonth.getMonth().month+1), dividendMonth.getYearlyAmount());
+				future = true;
+				timeSeries = new XYSeries(getSeriesName(currentYear, future));
+				series.add(timeSeries);
+				renderer.setSeriesStroke(series.size()-1, dash);
+			}
+			if (future) {
+				timeSeries.add(new Integer(dividendMonth.getMonth().month+1), dividendMonth.getFutureYearlyAmount());
+			} else {
+				timeSeries.add(new Integer(dividendMonth.getMonth().month+1), dividendMonth.getYearlyAmount());
+			}
 		}
 
 		XYSeriesCollection dataset = new XYSeriesCollection();
@@ -271,6 +301,10 @@ public class DividendStatsView extends ViewPart {
 			dataset.addSeries(timeSeries2);
 		}
 		return dataset;
+	}
+
+	private String getSeriesName(int year, boolean future) {
+		return ""+ year + ((future)?" future":"");
 	}
 
 	private List<DividendMonth> getDividendStats() {
