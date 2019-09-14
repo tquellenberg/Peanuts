@@ -2,11 +2,13 @@ package de.tomsplayground.peanuts.client.editors.security;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Currency;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
@@ -15,6 +17,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.ComboBoxCellEditor;
 import org.eclipse.jface.viewers.ICellModifier;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableColorProvider;
@@ -42,6 +45,7 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.client.app.Activator;
@@ -50,6 +54,7 @@ import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
+import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.dividend.Dividend;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
@@ -91,7 +96,17 @@ public class DividendEditorPart extends EditorPart {
 						return PeanutsUtil.formatCurrency(getQuantity(entry).multiply(entry.getAmountPerShare()), entry.getCurrency());
 					}
 				case 5:
-					return PeanutsUtil.formatCurrency(entry.getAmountInDefaultCurrency(), Currencies.getInstance().getDefaultCurrency());
+					BigDecimal amount = entry.getAmountInDefaultCurrency();
+					if (amount == null) {
+						amount = entry.getAmount();
+						if (amount == null) {
+							amount = getQuantity(entry).multiply(entry.getAmountPerShare());
+						}
+						CurrencyConverter converter = Activator.getDefault().getExchangeRate()
+							.createCurrencyConverter(entry.getCurrency(), Currencies.getInstance().getDefaultCurrency());
+						amount = converter.convert(amount, entry.getPayDate());
+					}
+					return PeanutsUtil.formatCurrency(amount, Currencies.getInstance().getDefaultCurrency());
 				case 6:
 					if (entry.getTaxInDefaultCurrency() != null) {
 						return PeanutsUtil.formatCurrency(entry.getTaxInDefaultCurrency(), Currencies.getInstance().getDefaultCurrency());
@@ -115,6 +130,8 @@ public class DividendEditorPart extends EditorPart {
 					return entry.getQuantity() == null ? Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW) : null;
 				case 4:
 					return entry.getAmount() == null ? Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW) : null;
+				case 5:
+					return entry.getAmountInDefaultCurrency() == null ? Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW) : null;
 				case 6:
 					return entry.getTaxInDefaultCurrency() == null ? Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW) : null;
 			}
@@ -225,7 +242,7 @@ public class DividendEditorPart extends EditorPart {
 
 			@Override
 			public boolean canModify(Object element, String property) {
-				return Lists.newArrayList("payDay", "dividend", "numberOfShares", "amount",
+				return Lists.newArrayList("payDay", "dividend", "currency", "numberOfShares", "amount",
 					"amountInDefaultCurrency", "tax").contains(property);
 			}
 
@@ -236,6 +253,8 @@ public class DividendEditorPart extends EditorPart {
 					return p.getPayDate();
 				} else if (property.equals("dividend")) {
 					return PeanutsUtil.formatCurrency(p.getAmountPerShare(), null);
+				} else if (property.equals("currency")) {
+					return getCurrencyPos(p.getCurrency());
 				} else if (property.equals("numberOfShares")) {
 					return p.getQuantity()!=null?PeanutsUtil.formatQuantity(p.getQuantity()):"";
 				} else if (property.equals("amount")) {
@@ -266,6 +285,11 @@ public class DividendEditorPart extends EditorPart {
 							tableViewer.update(p, new String[]{property});
 							markDirty();
 						}
+					} else if (property.equals("currency")) {
+						Currency currency =  getCurrencyByPos((Integer) value);
+						p.setCurrency(currency);
+						tableViewer.update(p, new String[]{property, "amount"});
+						markDirty();
 					} else if (property.equals("numberOfShares")) {
 						if (StringUtils.isBlank((String) value)) {
 							p.setQuantity(null);
@@ -304,7 +328,8 @@ public class DividendEditorPart extends EditorPart {
 				}
 			}
 		});
-		tableViewer.setCellEditors(new CellEditor[] {new DateCellEditor(table), new TextCellEditor(table), new TextCellEditor(table),
+		ComboBoxCellEditor currencyCombo = new ComboBoxCellEditor(table, getCurrencyItems(), SWT.READ_ONLY);
+		tableViewer.setCellEditors(new CellEditor[] {new DateCellEditor(table), new TextCellEditor(table), currencyCombo,
 			new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table)});
 
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -334,6 +359,38 @@ public class DividendEditorPart extends EditorPart {
 			}
 		});
 		table.setMenu(menu.createContextMenu(table));
+	}
+
+	private int getCurrencyPos(Currency currency) {
+		String symbol = currency.getSymbol();
+		String[] currencyItems = getCurrencyItems();
+		return ArrayUtils.indexOf(currencyItems, symbol);
+	}
+
+	private Currency getCurrencyByPos(int pos) {
+		return getCurrencies().get(pos);
+	}
+
+	private String[] getCurrencyItems() {
+		List<String> items = getCurrencies().stream()
+			.map(c -> c.getSymbol())
+			.collect(Collectors.toList());
+		return items.toArray(new String[items.size()]);
+	}
+
+	private List<Currency> getCurrencies() {
+		List<Currency> currencies = new ArrayList<>(Currencies.getInstance().getMainCurrencies());
+		ImmutableList<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
+		for (Security security : securities) {
+			Currency exchangeCurrency = security.getExchangeCurrency();
+			if (exchangeCurrency != null) {
+				if (! currencies.contains(exchangeCurrency)) {
+					currencies.add(exchangeCurrency);
+				}
+			}
+		}
+		currencies.sort((a,b) -> a.getSymbol().compareTo(b.getSymbol()));
+		return currencies;
 	}
 
 	private void fillContextMenu(IMenuManager manager) {

@@ -16,10 +16,16 @@ public class DividendMonth implements Comparable<DividendMonth> {
 
 	private BigDecimal yearlyNetto;
 
-	public DividendMonth(Day month, BigDecimal amountInDefaultCurrency, BigDecimal nettoInDefaultCurrency) {
+	private final BigDecimal futureAmountInDefaultCurrency;
+
+	private BigDecimal futureYearlyAmount;
+
+	public DividendMonth(Day month, BigDecimal amountInDefaultCurrency, BigDecimal nettoInDefaultCurrency,
+		BigDecimal futureAmountInDefaultCurrency) {
 		this.month = month;
 		this.amountInDefaultCurrency = amountInDefaultCurrency;
 		this.nettoInDefaultCurrency = nettoInDefaultCurrency;
+		this.futureAmountInDefaultCurrency = futureAmountInDefaultCurrency;
 	}
 
 	public Day getMonth() {
@@ -49,6 +55,15 @@ public class DividendMonth implements Comparable<DividendMonth> {
 		return yearlyNetto;
 	}
 
+	public BigDecimal getFutureAmountInDefaultCurrency() {
+		return futureAmountInDefaultCurrency;
+	}
+	public void setFutureYearlyAmount(BigDecimal futureYearlyAmount) {
+		this.futureYearlyAmount = futureYearlyAmount;
+	}
+	public BigDecimal getFutureYearlyAmount() {
+		return futureYearlyAmount;
+	}
 	@Override
 	public int compareTo(DividendMonth o) {
 		return month.compareTo(o.month);

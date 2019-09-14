@@ -1,7 +1,9 @@
 package de.tomsplayground.peanuts.client.dividend;
 
 import java.beans.PropertyChangeListener;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -39,6 +41,7 @@ import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.dividend.DividendMonth;
 import de.tomsplayground.peanuts.domain.dividend.DividendStats;
+import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class DividendStatsView extends ViewPart {
@@ -47,7 +50,7 @@ public class DividendStatsView extends ViewPart {
 
 	private TableViewer dividendStatsListViewer;
 
-	private final int colWidth[] = new int[5];
+	private final int colWidth[] = new int[7];
 
 	private final PropertyChangeListener securityChangeListener = new PropertyChangeListener() {
 		@Override
@@ -77,6 +80,18 @@ public class DividendStatsView extends ViewPart {
 					return PeanutsUtil.formatCurrency(divStats.getNettoInDefaultCurrency(), Currencies.getInstance().getDefaultCurrency());
 				case 4:
 					return PeanutsUtil.formatCurrency(divStats.getYearlyNetto(), Currencies.getInstance().getDefaultCurrency());
+				case 5:
+					BigDecimal futureAmountInDefaultCurrency = divStats.getFutureAmountInDefaultCurrency();
+					if (futureAmountInDefaultCurrency.signum() == 0) {
+						return "";
+					}
+					return PeanutsUtil.formatCurrency(futureAmountInDefaultCurrency, Currencies.getInstance().getDefaultCurrency());
+				case 6:
+					futureAmountInDefaultCurrency = divStats.getFutureAmountInDefaultCurrency();
+					if (futureAmountInDefaultCurrency.signum() == 0) {
+						return "";
+					}
+					return PeanutsUtil.formatCurrency(divStats.getFutureYearlyAmount(), Currencies.getInstance().getDefaultCurrency());
 
 				default:
 					break;
@@ -185,8 +200,22 @@ public class DividendStatsView extends ViewPart {
 		col.setResizable(true);
 		colNum++;
 
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Future Amount");
+		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 150);
+		col.setResizable(true);
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Future Sum");
+		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 150);
+		col.setResizable(true);
+		colNum++;
+
 		dividendStatsListViewer.setContentProvider(new ArrayContentProvider());
-		dividendStatsListViewer.setInput(getDividendStats());
+		List<DividendMonth> dividendStats = getDividendStats();
+		Collections.reverse(dividendStats);
+		dividendStatsListViewer.setInput(dividendStats);
 
 		// Right: chart
 		JFreeChart chart = createChart();
@@ -245,7 +274,8 @@ public class DividendStatsView extends ViewPart {
 	}
 
 	private List<DividendMonth> getDividendStats() {
-		return new DividendStats(Activator.getDefault().getAccountManager()).getDividendMonths();
+		return new DividendStats(Activator.getDefault().getAccountManager(),
+			PriceProviderFactory.getInstance()).getDividendMonths();
 	}
 
 	@Override

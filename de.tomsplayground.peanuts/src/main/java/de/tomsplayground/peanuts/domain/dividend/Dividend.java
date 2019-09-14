@@ -7,6 +7,7 @@ import java.util.Currency;
 
 import org.apache.commons.lang3.StringUtils;
 
+import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.util.Day;
 
@@ -25,6 +26,8 @@ public class Dividend implements Comparable<Dividend> {
 	private BigDecimal amountInDefaultCurrency;
 
 	private BigDecimal taxInDefaultCurrency;
+
+	transient private Security security;
 
 	public Dividend(Dividend d) {
 		this.payDate = d.payDate;
@@ -91,6 +94,12 @@ public class Dividend implements Comparable<Dividend> {
 	public BigDecimal getNettoAmountInDefaultCurrency() {
 		return defaultIfNull(getAmountInDefaultCurrency(), BigDecimal.ZERO)
 			.subtract(defaultIfNull(getTaxInDefaultCurrency(), BigDecimal.ZERO));
+	}
+	public Security getSecurity() {
+		return security;
+	}
+	public void setSecurity(Security security) {
+		this.security = security;
 	}
 
 	@Override

@@ -106,6 +106,9 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 		if (dividends == null) {
 			dividends = new ArrayList<>();
 		}
+		for (Dividend dividend : dividends) {
+			dividend.setSecurity(this);
+		}
 	}
 
 	public FundamentalDatas getFundamentalDatas() {
@@ -211,8 +214,9 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	}
 
 	public void addDividend(Dividend dividend) {
+		dividend.setSecurity(this);
 		dividends.add(dividend);
-		Collections.sort(notes);
+		Collections.sort(dividends);
 		firePropertyChange("dividends", null, dividend);
 	}
 
