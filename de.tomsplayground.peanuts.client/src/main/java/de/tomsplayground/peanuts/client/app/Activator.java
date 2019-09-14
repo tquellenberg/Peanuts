@@ -29,7 +29,6 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.service.application.ApplicationHandle;
 
-import de.tomsplayground.peanuts.app.ib.IbConnection;
 import de.tomsplayground.peanuts.client.util.PeanutsAdapterFactory;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
@@ -51,6 +50,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String GREEN = "GREEN";
 	public static final String RED_BG = "RED_BG";
 	public static final String GREEN_BG = "GREEN_BG";
+	public static final String GRAY_BG = "GRAY_BG";
 	public static final String ACTIVE_ROW = "ACTIVE_ROW";
 	public static final String INACTIVE_ROW = "INACTIVE_ROW";
 
@@ -90,7 +90,7 @@ public class Activator extends AbstractUIPlugin {
 	private ExchangeRates exchangeRates;
 	private String passphrase;
 
-	private IbConnection ibConnection;
+//	private IbConnection ibConnection;
 	private IvrUpdater ivrUpdater;
 
 	/**
@@ -148,8 +148,8 @@ public class Activator extends AbstractUIPlugin {
 			}
 		}, "(objectclass=" + ApplicationHandle.class.getName() + ")");
 
-		ibConnection = new IbConnection();
-		ibConnection.start();
+//		ibConnection = new IbConnection();
+//		ibConnection.start();
 		ivrUpdater = new IvrUpdater();
 	}
 
@@ -202,6 +202,7 @@ public class Activator extends AbstractUIPlugin {
 			colorProvider.put(GREEN_BG, new RGB(0x66, 0xE2, 0x75));
 			colorProvider.put(ACTIVE_ROW, new RGB(0x38, 0x59, 0xBA));
 			colorProvider.put(INACTIVE_ROW, new RGB(0xB7, 0xBB, 0xC7));
+			colorProvider.put(GRAY_BG, new RGB(0xAA, 0xAA, 0xAA));
 		}
 		return colorProvider;
 	}
@@ -270,8 +271,8 @@ public class Activator extends AbstractUIPlugin {
 		if (accountManager != null) {
 			save(getFilename());
 		}
-		ibConnection.stop();
-		ibConnection = null;
+//		ibConnection.stop();
+//		ibConnection = null;
 		ivrUpdater.destroy();
 		plugin = null;
 		super.stop(context);
@@ -321,7 +322,7 @@ public class Activator extends AbstractUIPlugin {
 		return getPreferenceStore().getString(FILENAME_PROPERTY);
 	}
 
-	public IbConnection getIbConnection() {
-		return ibConnection;
-	}
+//	public IbConnection getIbConnection() {
+//		return ibConnection;
+//	}
 }

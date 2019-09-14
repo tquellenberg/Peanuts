@@ -90,6 +90,10 @@ public class DividendStatsView extends ViewPart {
 
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
+			DividendMonth divStats = (DividendMonth)element;
+			if (divStats.getMonth().month == 11) {
+				return Activator.getDefault().getColorProvider().get(Activator.GRAY_BG);
+			}
 			return null;
 		}
 

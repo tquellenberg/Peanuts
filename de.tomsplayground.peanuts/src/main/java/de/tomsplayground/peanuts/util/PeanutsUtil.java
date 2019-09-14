@@ -1,6 +1,8 @@
 package de.tomsplayground.peanuts.util;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -27,6 +29,8 @@ public class PeanutsUtil {
 	private static final NumberFormat quantityFormat = NumberFormat.getNumberInstance();
 	private static final NumberFormat percentFormat = NumberFormat.getPercentInstance();
 	private static final NumberFormat percentValueFormat = NumberFormat.getPercentInstance();
+
+	public static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	static {
 		((DecimalFormat) currencyValueFormat).setMinimumFractionDigits(2);

@@ -22,6 +22,8 @@ import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -50,6 +52,8 @@ import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.dividend.Dividend;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
+import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
+import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
@@ -64,6 +68,8 @@ public class DividendEditorPart extends EditorPart {
 
 	private List<Dividend> dividends;
 
+	private Inventory fullInventory;
+
 	private class DividendTableLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 
 		@Override
@@ -73,24 +79,16 @@ public class DividendEditorPart extends EditorPart {
 				case 0:
 					return PeanutsUtil.formatDate(entry.getPayDate());
 				case 1:
-					return PeanutsUtil.formatCurrency(entry.getAmountPerShare(), null);
+					return PeanutsUtil.format(entry.getAmountPerShare(), 4);
 				case 2:
 					return entry.getCurrency().getSymbol();
 				case 3:
-					if (entry.getQuantity() != null) {
-						return PeanutsUtil.formatQuantity(entry.getQuantity());
-					} else {
-						return PeanutsUtil.formatQuantity(getQuantity(entry.getPayDate()));
-					}
+					return PeanutsUtil.formatQuantity(getQuantity(entry));
 				case 4:
 					if (entry.getAmount() != null) {
 						return PeanutsUtil.formatCurrency(entry.getAmount(), entry.getCurrency());
 					} else {
-						if (entry.getQuantity() != null) {
-							return PeanutsUtil.formatCurrency(entry.getQuantity().multiply(entry.getAmountPerShare()), entry.getCurrency());
-						} else {
-							return PeanutsUtil.formatCurrency(getQuantity(entry.getPayDate()).multiply(entry.getAmountPerShare()), entry.getCurrency());
-						}
+						return PeanutsUtil.formatCurrency(getQuantity(entry).multiply(entry.getAmountPerShare()), entry.getCurrency());
 					}
 				case 5:
 					return PeanutsUtil.formatCurrency(entry.getAmountInDefaultCurrency(), Currencies.getInstance().getDefaultCurrency());
@@ -102,6 +100,8 @@ public class DividendEditorPart extends EditorPart {
 					}
 				case 7:
 					return PeanutsUtil.formatCurrency(entry.getNettoAmountInDefaultCurrency(), Currencies.getInstance().getDefaultCurrency());
+				case 8:
+					return PeanutsUtil.formatPercent(getDividendYoc(entry));
 				default:
 					return "";
 			}
@@ -141,6 +141,10 @@ public class DividendEditorPart extends EditorPart {
 		setSite(site);
 		setInput(input);
 		setPartName(input.getName());
+
+		Report report = new Report("temp");
+		report.setAccounts(Activator.getDefault().getAccountManager().getAccounts());
+		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new Day(), new AnalyzerFactory());
 	}
 
 	@Override
@@ -205,6 +209,12 @@ public class DividendEditorPart extends EditorPart {
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Netto "+Currencies.getInstance().getDefaultCurrency().getSymbol());
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setResizable(true);
+		colNumber++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("YOC");
 		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.setResizable(true);
 		colNumber++;
@@ -302,6 +312,18 @@ public class DividendEditorPart extends EditorPart {
 		tableViewer.setLabelProvider(new DividendTableLabelProvider());
 		tableViewer.setContentProvider(new ArrayContentProvider());
 		tableViewer.setInput(dividends);
+		tableViewer.setComparator(new ViewerComparator() {
+			@Override
+			public int compare(Viewer viewer, Object e1, Object e2) {
+				Dividend d1 = (Dividend) e1;
+				Dividend d2 = (Dividend) e2;
+				return d1.compareTo(d2);
+			}
+			@Override
+			public boolean isSorterProperty(Object element, String property) {
+				return "payDay".equals(property);
+			}
+		});
 
 		MenuManager menu = new MenuManager();
 		menu.setRemoveAllWhenShown(true);
@@ -432,15 +454,46 @@ public class DividendEditorPart extends EditorPart {
 		return currency;
 	}
 
-	private BigDecimal getQuantity(Day day) {
-		Report report = new Report("temp");
-		report.setAccounts(Activator.getDefault().getAccountManager().getAccounts());
+	private int dividendsPerYear() {
+		if (dividends.isEmpty()) {
+			return 1;
+		}
+		int lastYear = dividends.get(dividends.size()-1).getPayDate().year;
+		int dividendsPerYear1 = (int)dividends.stream()
+			.filter(d -> d.getPayDate().year == lastYear)
+			.count();
+		int dividendsPerYear2 = (int)dividends.stream()
+			.filter(d -> d.getPayDate().year == (lastYear-1))
+			.count();
+		return Math.max(dividendsPerYear1, dividendsPerYear2);
+	}
 
-		Inventory fullInventory = new Inventory(report, null);
-		fullInventory.setDate(day);
+	private BigDecimal getQuantity(Dividend entry) {
+		if (entry.getQuantity() != null) {
+			return entry.getQuantity();
+		}
+		fullInventory.setDate(entry.getPayDate());
 		InventoryEntry inventoryEntry = fullInventory.getInventoryEntry(getSecurity());
 
 		return inventoryEntry.getQuantity();
+	}
+
+	private BigDecimal getDividendYoc(Dividend entry) {
+		fullInventory.setDate(entry.getPayDate());
+		InventoryEntry inventoryEntry = fullInventory.getInventoryEntry(getSecurity());
+		BigDecimal quantity = entry.getQuantity();
+		if (quantity == null) {
+			quantity = inventoryEntry.getQuantity();
+		}
+		if (quantity.compareTo(BigDecimal.ZERO) > 0 && inventoryEntry.getAvgPrice() != null
+			&& inventoryEntry.getAvgPrice().compareTo(BigDecimal.ZERO) > 0
+			&& entry.getAmountInDefaultCurrency() != null) {
+			return entry.getAmountInDefaultCurrency()
+				.divide(quantity, PeanutsUtil.MC)
+				.divide(inventoryEntry.getAvgPrice(), PeanutsUtil.MC)
+				.multiply(new BigDecimal(dividendsPerYear()));
+		}
+		return BigDecimal.ZERO;
 	}
 
 }
