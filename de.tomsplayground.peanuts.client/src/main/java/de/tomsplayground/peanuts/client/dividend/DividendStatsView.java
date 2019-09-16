@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
@@ -15,6 +16,8 @@ import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -23,6 +26,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
@@ -42,10 +46,16 @@ import org.jfree.ui.RectangleInsets;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
+import de.tomsplayground.peanuts.domain.base.Inventory;
+import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
+import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
+import de.tomsplayground.peanuts.domain.dividend.Dividend;
 import de.tomsplayground.peanuts.domain.dividend.DividendMonth;
 import de.tomsplayground.peanuts.domain.dividend.DividendStats;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
+import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
+import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
@@ -55,7 +65,8 @@ public class DividendStatsView extends ViewPart {
 
 	private TableViewer dividendStatsListViewer;
 
-	private final int colWidth[] = new int[7];
+	private final int colWidth1[] = new int[7];
+	private final int colWidth2[] = new int[7];
 
 	private final PropertyChangeListener securityChangeListener = new UniqueAsyncExecution() {
 		@Override
@@ -69,6 +80,73 @@ public class DividendStatsView extends ViewPart {
 			dividendStatsListViewer.setInput(dividendStats);
 		}
 	};
+
+	private TableViewer oneMonthListViewer;
+
+	private Inventory fullInventory;
+
+	private class OneMonthListLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
+
+		@Override
+		public String getColumnText(Object element, int columnIndex) {
+			Dividend entry = (Dividend)element;
+			switch (columnIndex) {
+				case 0:
+					return PeanutsUtil.formatDate(entry.getPayDate());
+				case 1:
+					return entry.getSecurity().getName();
+				case 2:
+					return PeanutsUtil.format(entry.getAmountPerShare(), 4);
+				case 3:
+					return entry.getCurrency().getSymbol();
+				case 4:
+					return PeanutsUtil.formatQuantity(getQuantity(entry));
+				case 5:
+					if (entry.getAmount() != null) {
+						return PeanutsUtil.formatCurrency(entry.getAmount(), entry.getCurrency());
+					} else {
+						return PeanutsUtil.formatCurrency(getQuantity(entry).multiply(entry.getAmountPerShare()), entry.getCurrency());
+					}
+				case 6:
+					BigDecimal amount = entry.getAmountInDefaultCurrency();
+					if (amount == null) {
+						amount = entry.getAmount();
+						if (amount == null) {
+							amount = getQuantity(entry).multiply(entry.getAmountPerShare());
+						}
+						CurrencyConverter converter = Activator.getDefault().getExchangeRate()
+							.createCurrencyConverter(entry.getCurrency(), Currencies.getInstance().getDefaultCurrency());
+						amount = converter.convert(amount, entry.getPayDate());
+					}
+					return PeanutsUtil.formatCurrency(amount, Currencies.getInstance().getDefaultCurrency());
+			}
+			return null;
+		}
+
+		@Override
+		public Image getColumnImage(Object element, int columnIndex) {
+			return null;
+		}
+
+		@Override
+		public Color getForeground(Object element, int columnIndex) {
+			Dividend entry = (Dividend) element;
+			switch (columnIndex) {
+				case 4:
+					return entry.getQuantity() == null ? Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW) : null;
+				case 5:
+					return entry.getAmount() == null ? Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW) : null;
+				case 6:
+					return entry.getAmountInDefaultCurrency() == null ? Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW) : null;
+			}
+			return null;
+		}
+
+		@Override
+		public Color getBackground(Object element, int columnIndex) {
+			return null;
+		}
+	}
 
 	private class DividendStatsListLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 		@Override
@@ -127,15 +205,25 @@ public class DividendStatsView extends ViewPart {
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
 		super.init(site, memento);
 		if (memento != null) {
-			for (int i = 0; i < colWidth.length; i++ ) {
-				Integer width = memento.getInteger("col" + i);
+			for (int i = 0; i < colWidth1.length; i++ ) {
+				Integer width = memento.getInteger("col_1." + i);
 				if (width != null) {
-					colWidth[i] = width.intValue();
+					colWidth1[i] = width.intValue();
+				}
+			}
+			for (int i = 0; i < colWidth2.length; i++ ) {
+				Integer width = memento.getInteger("col_2." + i);
+				if (width != null) {
+					colWidth2[i] = width.intValue();
 				}
 			}
 		}
 		Activator.getDefault().getAccountManager().getSecurities().stream()
 			.forEach(s -> s.addPropertyChangeListener("dividends", securityChangeListener));
+
+		Report report = new Report("temp");
+		report.setAccounts(Activator.getDefault().getAccountManager().getAccounts());
+		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new Day(), new AnalyzerFactory());
 	}
 
 	@Override
@@ -151,7 +239,12 @@ public class DividendStatsView extends ViewPart {
 		TableColumn[] columns = dividendStatsListViewer.getTable().getColumns();
 		for (int i = 0; i < columns.length; i++ ) {
 			TableColumn tableColumn = columns[i];
-			memento.putInteger("col" + i, tableColumn.getWidth());
+			memento.putInteger("col_1." + i, tableColumn.getWidth());
+		}
+		columns = oneMonthListViewer.getTable().getColumns();
+		for (int i = 0; i < columns.length; i++ ) {
+			TableColumn tableColumn = columns[i];
+			memento.putInteger("col_2." + i, tableColumn.getWidth());
 		}
 	}
 
@@ -164,8 +257,8 @@ public class DividendStatsView extends ViewPart {
 		layout.marginWidth = 0;
 		top.setLayout(layout);
 
-		// Left: Table
-		dividendStatsListViewer = new TableViewer(top, SWT.MULTI | SWT.FULL_SELECTION);
+		// Left top table: every row is a month
+		dividendStatsListViewer = new TableViewer(top, SWT.SINGLE | SWT.FULL_SELECTION);
 		Table table = dividendStatsListViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
@@ -177,43 +270,43 @@ public class DividendStatsView extends ViewPart {
 		int colNum = 0;
 		TableColumn col = new TableColumn(table, SWT.LEFT);
 		col.setText("Month");
-		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 300);
+		col.setWidth((colWidth1[colNum] > 0) ? colWidth1[colNum] : 300);
 		col.setResizable(true);
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Amount");
-		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 150);
+		col.setWidth((colWidth1[colNum] > 0) ? colWidth1[colNum] : 150);
 		col.setResizable(true);
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Sum in year");
-		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 150);
+		col.setWidth((colWidth1[colNum] > 0) ? colWidth1[colNum] : 150);
 		col.setResizable(true);
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Netto");
-		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 150);
+		col.setWidth((colWidth1[colNum] > 0) ? colWidth1[colNum] : 150);
 		col.setResizable(true);
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Netto sum in year");
-		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 150);
+		col.setWidth((colWidth1[colNum] > 0) ? colWidth1[colNum] : 150);
 		col.setResizable(true);
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Future Amount");
-		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 150);
+		col.setWidth((colWidth1[colNum] > 0) ? colWidth1[colNum] : 150);
 		col.setResizable(true);
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Future Sum");
-		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 150);
+		col.setWidth((colWidth1[colNum] > 0) ? colWidth1[colNum] : 150);
 		col.setResizable(true);
 		colNum++;
 
@@ -222,10 +315,97 @@ public class DividendStatsView extends ViewPart {
 		Collections.reverse(dividendStats);
 		dividendStatsListViewer.setInput(dividendStats);
 
+		table.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				TableItem[] selection = table.getSelection();
+				if (selection != null && selection.length > 0) {
+					DividendMonth diviMonth = (DividendMonth) selection[0].getData();
+					updateOneMonthTable(diviMonth.getMonth());
+				}
+			}
+		});
+
 		// Right: chart
 		JFreeChart chart = createChart();
 		ChartComposite chartFrame = new ChartComposite(top, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+		// Left bottom: dividends of selected month
+		createOneMonthTable(top);
+	}
+
+	private void updateOneMonthTable(Day month) {
+		List<Dividend> dividends = Activator.getDefault().getAccountManager().getSecurities().stream()
+			.flatMap(s -> s.getDividends().stream())
+			.filter(d -> d.getPayDate().toMonth().equals(month))
+			.sorted()
+			.collect(Collectors.toList());
+		oneMonthListViewer.setInput(dividends);
+	}
+
+	private void createOneMonthTable(Composite top) {
+		int colNum;
+		TableColumn col;
+
+		oneMonthListViewer = new TableViewer(top, SWT.MULTI | SWT.FULL_SELECTION);
+		Table table = oneMonthListViewer.getTable();
+		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gridData.heightHint = 200;
+		gridData.minimumHeight = 200;
+		table.setLayoutData(gridData);
+
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+		ColumnViewerToolTipSupport.enableFor(oneMonthListViewer);
+		// must be called  before tableViewerColumn.setLabelProvider
+		oneMonthListViewer.setLabelProvider(new OneMonthListLabelProvider());
+
+		colNum = 0;
+		col = new TableColumn(table, SWT.LEFT);
+		col.setText("Date");
+		col.setWidth((colWidth2[colNum] > 0) ? colWidth2[colNum] : 80);
+		col.setResizable(true);
+		colNum++;
+
+		col = new TableColumn(table, SWT.LEFT);
+		col.setText("Security");
+		col.setWidth((colWidth2[colNum] > 0) ? colWidth2[colNum] : 100);
+		col.setResizable(true);
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Dividend");
+		col.setWidth((colWidth2[colNum] > 0) ? colWidth2[colNum] : 80);
+		col.setResizable(true);
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Currency");
+		col.setWidth((colWidth2[colNum] > 0) ? colWidth2[colNum] : 70);
+		col.setResizable(true);
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("# of shares");
+		col.setWidth((colWidth2[colNum] > 0) ? colWidth2[colNum] : 70);
+		col.setResizable(true);
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Dividend sum");
+		col.setWidth((colWidth2[colNum] > 0) ? colWidth2[colNum] : 100);
+		col.setResizable(true);
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Dividend sum "+Currencies.getInstance().getDefaultCurrency().getSymbol());
+		col.setWidth((colWidth2[colNum] > 0) ? colWidth2[colNum] : 100);
+		col.setResizable(true);
+		colNum++;
+
+		oneMonthListViewer.setContentProvider(new ArrayContentProvider());
+		oneMonthListViewer.setInput(new ArrayList<>());
 	}
 
 	private JFreeChart createChart() {
@@ -310,6 +490,16 @@ public class DividendStatsView extends ViewPart {
 	private List<DividendMonth> getDividendStats() {
 		return new DividendStats(Activator.getDefault().getAccountManager(),
 			PriceProviderFactory.getInstance()).getDividendMonths();
+	}
+
+	private BigDecimal getQuantity(Dividend entry) {
+		if (entry.getQuantity() != null) {
+			return entry.getQuantity();
+		}
+		fullInventory.setDate(entry.getPayDate());
+		InventoryEntry inventoryEntry = fullInventory.getInventoryEntry(entry.getSecurity());
+
+		return inventoryEntry.getQuantity();
 	}
 
 	@Override
