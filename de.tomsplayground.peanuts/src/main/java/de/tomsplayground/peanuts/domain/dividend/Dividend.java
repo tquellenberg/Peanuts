@@ -27,6 +27,8 @@ public class Dividend implements Comparable<Dividend> {
 
 	private BigDecimal taxInDefaultCurrency;
 
+	private boolean increase;
+
 	transient private Security security;
 
 	public Dividend(Dividend d) {
@@ -38,6 +40,7 @@ public class Dividend implements Comparable<Dividend> {
 		this.amountInDefaultCurrency = d.amountInDefaultCurrency;
 		this.taxInDefaultCurrency = d.taxInDefaultCurrency;
 		this.security = d.security;
+		this.increase = d.increase;
 	}
 
 	public Dividend(Day payDate, BigDecimal amountPerShare, Currency curreny) {
@@ -106,6 +109,13 @@ public class Dividend implements Comparable<Dividend> {
 	@Override
 	public int compareTo(Dividend o) {
 		return payDate.compareTo(o.payDate);
+	}
+
+	public boolean isIncrease() {
+		return increase;
+	}
+	public void setIncrease(boolean increase) {
+		this.increase = increase;
 	}
 
 }

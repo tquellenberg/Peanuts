@@ -199,7 +199,7 @@ public class Activator extends AbstractUIPlugin {
 			colorProvider.put(RED, new RGB(0xFF, 0x0D, 0x00));
 			colorProvider.put(GREEN, new RGB(0x00, 0xC6, 0x18));
 			colorProvider.put(RED_BG, new RGB(0xFF, 0x7A, 0x73));
-			colorProvider.put(GREEN_BG, new RGB(0x66, 0xE2, 0x75));
+			colorProvider.put(GREEN_BG, new RGB(0x72, 0xEE, 0x81));
 			colorProvider.put(ACTIVE_ROW, new RGB(0x38, 0x59, 0xBA));
 			colorProvider.put(INACTIVE_ROW, new RGB(0xB7, 0xBB, 0xC7));
 			colorProvider.put(GRAY_BG, new RGB(0xAA, 0xAA, 0xAA));

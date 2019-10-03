@@ -140,6 +140,10 @@ public class DividendEditorPart extends EditorPart {
 
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
+			Dividend entry = (Dividend) element;
+			if (entry.isIncrease()) {
+				return Activator.getDefault().getColorProvider().get(Activator.GREEN_BG);
+			}
 			return null;
 		}
 
@@ -470,6 +474,23 @@ public class DividendEditorPart extends EditorPart {
 		};
 		duplicateAction.setEnabled(! ((IStructuredSelection)tableViewer.getSelection()).isEmpty());
 		manager.add(duplicateAction);
+
+		final Action toggleIncreaseAction = new Action("Toggle Increase") {
+			@SuppressWarnings("unchecked")
+			@Override
+			public void run() {
+				IStructuredSelection sel = (IStructuredSelection)tableViewer.getSelection();
+				if (! sel.isEmpty()) {
+					for (Iterator<Dividend> iter = sel.iterator(); iter.hasNext(); ) {
+						Dividend entry = iter.next();
+						entry.setIncrease(! entry.isIncrease());
+					}
+					tableViewer.refresh();
+					markDirty();
+				}
+			}
+		};
+		manager.add(toggleIncreaseAction);
 	}
 
 	@Override

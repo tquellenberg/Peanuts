@@ -194,6 +194,10 @@ public class DividendStatsView extends ViewPart {
 
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
+			Dividend entry = (Dividend) element;
+			if (entry.isIncrease()) {
+				return Activator.getDefault().getColorProvider().get(Activator.GREEN_BG);
+			}
 			return null;
 		}
 	}
