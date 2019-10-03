@@ -310,7 +310,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 					}
 				} else if (columnIndex == 10) {
 					BigDecimal debtEquityRatio = data.getDebtEquityRatio();
-					if (debtEquityRatio.compareTo(DEPT_LIMIT) >= 0) {
+					if (debtEquityRatio.compareTo(DEPT_LIMIT) >= 0 || debtEquityRatio.signum() == -1) {
 						return Activator.getDefault().getColorProvider().get(Activator.RED_BG);
 					}
 				}

@@ -67,6 +67,7 @@ public class DividendStatsView extends ViewPart {
 
 	private final int colWidth1[] = new int[7];
 	private final int colWidth2[] = new int[7];
+	private final int colWidth3[] = new int[7];
 
 	private final PropertyChangeListener securityChangeListener = new UniqueAsyncExecution() {
 		@Override
@@ -75,15 +76,64 @@ public class DividendStatsView extends ViewPart {
 		}
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
-			List<DividendMonth> dividendStats = getDividendStats();
-			Collections.reverse(dividendStats);
-			dividendStatsListViewer.setInput(dividendStats);
+			updateData();
 		}
 	};
 
 	private TableViewer oneMonthListViewer;
 
 	private Inventory fullInventory;
+
+	private TableViewer yearlyListViewer;
+
+	private class YearlyListLabelProvider extends LabelProvider implements ITableLabelProvider {
+		@Override
+		public String getColumnText(Object element, int columnIndex) {
+			DividendMonth divStats = (DividendMonth)element;
+			switch (columnIndex) {
+				case 0:
+					return String.valueOf(divStats.getMonth().year);
+				case 1:
+					return PeanutsUtil.formatCurrency(getSum(divStats), Currencies.getInstance().getDefaultCurrency());
+				case 2:
+					List<DividendMonth> input = (List<DividendMonth>) yearlyListViewer.getInput();
+					int pos = input.indexOf(divStats);
+					if (pos < 1) {
+						return "";
+					} else {
+						BigDecimal lastYearSum = getSum(input.get(pos-1));
+						if (lastYearSum.signum() != 0) {
+							BigDecimal change = getSum(divStats).divide(lastYearSum, PeanutsUtil.MC).subtract(BigDecimal.ONE);
+							return PeanutsUtil.formatPercent(change);
+						} else {
+							return "";
+						}
+					}
+				case 3:
+					return PeanutsUtil.formatCurrency(divStats.getYearlyNetto(), Currencies.getInstance().getDefaultCurrency());
+				case 4:
+					BigDecimal brutto = divStats.getYearlyAmount();
+					BigDecimal netto = divStats.getYearlyNetto();
+					if (brutto.signum() > 0 && netto.signum() > 0) {
+						BigDecimal taxQuote = brutto.subtract(netto).divide(brutto, PeanutsUtil.MC);
+						return PeanutsUtil.formatPercent(taxQuote);
+					}
+			}
+			return null;
+		}
+
+		private BigDecimal getSum(DividendMonth divStats) {
+			if (divStats.getFutureYearlyAmount() != null && divStats.getFutureYearlyAmount().compareTo(BigDecimal.ZERO) > 0) {
+				return divStats.getFutureYearlyAmount();
+			}
+			return divStats.getYearlyAmount();
+		}
+
+		@Override
+		public Image getColumnImage(Object element, int columnIndex) {
+			return null;
+		}
+	}
 
 	private class OneMonthListLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 
@@ -217,6 +267,12 @@ public class DividendStatsView extends ViewPart {
 					colWidth2[i] = width.intValue();
 				}
 			}
+			for (int i = 0; i < colWidth3.length; i++ ) {
+				Integer width = memento.getInteger("col_3." + i);
+				if (width != null) {
+					colWidth3[i] = width.intValue();
+				}
+			}
 		}
 		Activator.getDefault().getAccountManager().getSecurities().stream()
 			.forEach(s -> s.addPropertyChangeListener("dividends", securityChangeListener));
@@ -246,6 +302,11 @@ public class DividendStatsView extends ViewPart {
 			TableColumn tableColumn = columns[i];
 			memento.putInteger("col_2." + i, tableColumn.getWidth());
 		}
+		columns = yearlyListViewer.getTable().getColumns();
+		for (int i = 0; i < columns.length; i++ ) {
+			TableColumn tableColumn = columns[i];
+			memento.putInteger("col_3." + i, tableColumn.getWidth());
+		}
 	}
 
 	@Override
@@ -268,7 +329,7 @@ public class DividendStatsView extends ViewPart {
 		dividendStatsListViewer.setLabelProvider(new DividendStatsListLabelProvider());
 
 		int colNum = 0;
-		TableColumn col = new TableColumn(table, SWT.LEFT);
+		TableColumn col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Month");
 		col.setWidth((colWidth1[colNum] > 0) ? colWidth1[colNum] : 300);
 		col.setResizable(true);
@@ -311,9 +372,6 @@ public class DividendStatsView extends ViewPart {
 		colNum++;
 
 		dividendStatsListViewer.setContentProvider(new ArrayContentProvider());
-		List<DividendMonth> dividendStats = getDividendStats();
-		Collections.reverse(dividendStats);
-		dividendStatsListViewer.setInput(dividendStats);
 
 		table.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -333,6 +391,61 @@ public class DividendStatsView extends ViewPart {
 
 		// Left bottom: dividends of selected month
 		createOneMonthTable(top);
+
+		// Right bottom: yearly statistics
+		createYearlyTable(top);
+
+		updateData();
+	}
+
+	private void createYearlyTable(Composite top) {
+		int colNum;
+		TableColumn col;
+
+		yearlyListViewer = new TableViewer(top, SWT.MULTI | SWT.FULL_SELECTION);
+		Table table = yearlyListViewer.getTable();
+		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gridData.heightHint = 200;
+		gridData.minimumHeight = 200;
+		table.setLayoutData(gridData);
+
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+		ColumnViewerToolTipSupport.enableFor(yearlyListViewer);
+		// must be called  before tableViewerColumn.setLabelProvider
+		yearlyListViewer.setLabelProvider(new YearlyListLabelProvider());
+		yearlyListViewer.setContentProvider(new ArrayContentProvider());
+
+		colNum = 0;
+		col = new TableColumn(table, SWT.LEFT);
+		col.setText("Year");
+		col.setWidth((colWidth3[colNum] > 0) ? colWidth3[colNum] : 80);
+		col.setResizable(true);
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Sum");
+		col.setWidth((colWidth3[colNum] > 0) ? colWidth3[colNum] : 100);
+		col.setResizable(true);
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Change %");
+		col.setWidth((colWidth3[colNum] > 0) ? colWidth3[colNum] : 80);
+		col.setResizable(true);
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Netto");
+		col.setWidth((colWidth3[colNum] > 0) ? colWidth3[colNum] : 80);
+		col.setResizable(true);
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Tax %");
+		col.setWidth((colWidth3[colNum] > 0) ? colWidth3[colNum] : 80);
+		col.setResizable(true);
+		colNum++;
 	}
 
 	private void updateOneMonthTable(Day month) {
@@ -362,7 +475,7 @@ public class DividendStatsView extends ViewPart {
 		oneMonthListViewer.setLabelProvider(new OneMonthListLabelProvider());
 
 		colNum = 0;
-		col = new TableColumn(table, SWT.LEFT);
+		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Date");
 		col.setWidth((colWidth2[colNum] > 0) ? colWidth2[colNum] : 80);
 		col.setResizable(true);
@@ -406,6 +519,18 @@ public class DividendStatsView extends ViewPart {
 
 		oneMonthListViewer.setContentProvider(new ArrayContentProvider());
 		oneMonthListViewer.setInput(new ArrayList<>());
+	}
+
+	private void updateData() {
+		List<DividendMonth> dividendStats = getDividendStats();
+		List<DividendMonth> yearlyStats = dividendStats.stream()
+			.filter(s -> s.getMonth().month == 11)
+			.collect(Collectors.toList());
+
+		Collections.reverse(dividendStats);
+		dividendStatsListViewer.setInput(dividendStats);
+
+		yearlyListViewer.setInput(yearlyStats);
 	}
 
 	private JFreeChart createChart() {
