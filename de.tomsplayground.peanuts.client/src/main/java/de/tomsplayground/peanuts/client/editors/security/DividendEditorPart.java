@@ -565,10 +565,21 @@ public class DividendEditorPart extends EditorPart {
 		if (quantity == null) {
 			quantity = inventoryEntry.getQuantity();
 		}
-		if (quantity.compareTo(BigDecimal.ZERO) > 0 && inventoryEntry.getAvgPrice() != null
-			&& inventoryEntry.getAvgPrice().compareTo(BigDecimal.ZERO) > 0
-			&& entry.getAmountInDefaultCurrency() != null) {
-			return entry.getAmountInDefaultCurrency()
+		if (quantity.compareTo(BigDecimal.ZERO) > 0
+			&& inventoryEntry.getAvgPrice() != null
+			&& inventoryEntry.getAvgPrice().compareTo(BigDecimal.ZERO) > 0) {
+
+			BigDecimal amount = entry.getAmountInDefaultCurrency();
+			if (amount == null) {
+				amount = entry.getAmount();
+				if (amount == null) {
+					amount = getQuantity(entry).multiply(entry.getAmountPerShare());
+				}
+				CurrencyConverter converter = Activator.getDefault().getExchangeRate()
+					.createCurrencyConverter(entry.getCurrency(), Currencies.getInstance().getDefaultCurrency());
+				amount = converter.convert(amount, entry.getPayDate());
+			}
+			return amount
 				.divide(quantity, PeanutsUtil.MC)
 				.divide(inventoryEntry.getAvgPrice(), PeanutsUtil.MC)
 				.multiply(new BigDecimal(dividendsPerYear()));
