@@ -45,10 +45,6 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 							if (StringUtils.equals(financialsUrl, "-")) {
 								continue;
 							}
-							if (StringUtils.isBlank(financialsUrl)) {
-								financialsUrl = fourTraders.scrapFinancialsUrl(security.getISIN());
-								security.putConfigurationValue("fourTrasdersUrl", financialsUrl);
-							}
 							if (StringUtils.isNotBlank(financialsUrl)) {
 								updateFundamentaData(security, fourTraders.scrapFinancials(financialsUrl));
 								try {

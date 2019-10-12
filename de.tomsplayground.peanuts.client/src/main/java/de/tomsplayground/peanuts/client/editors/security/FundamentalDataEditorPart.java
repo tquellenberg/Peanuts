@@ -406,7 +406,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 			}
 		});
 
-		Button fourTradersGo = new Button(metaComposite, SWT.PUSH);
+		fourTradersGo = new Button(metaComposite, SWT.PUSH);
 		fourTradersGo.setText("Load data from 4-Traders");
 		fourTradersGo.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -414,6 +414,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 				update4TradersData(security);
 			}
 		});
+		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue("fourTrasdersUrl")));
 
 		deYahooGo = new Button(metaComposite, SWT.PUSH);
 		deYahooGo.setText("Load D/E from Yahoo");
@@ -423,7 +424,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 				updateDeYahooData(security);
 			}
 		});
-		updateDeYahooButtonState();
+		updateButtonState();
 		getSecurity().addPropertyChangeListener(SecurityPropertyPage.YAHOO_SYMBOL, securityPropertyChangeListener);
 
 		tableViewer = new TableViewer(top, SWT.FULL_SELECTION | SWT.MULTI);
@@ -683,13 +684,16 @@ public class FundamentalDataEditorPart extends EditorPart {
 	private final PropertyChangeListener securityPropertyChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(java.beans.PropertyChangeEvent evt) {
-			updateDeYahooButtonState();
+			updateButtonState();
 		}
 	};
 
-	private void updateDeYahooButtonState() {
+	private Button fourTradersGo;
+
+	private void updateButtonState() {
 		Security security = getSecurity();
 		deYahooGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.YAHOO_SYMBOL)));
+		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue("fourTrasdersUrl")));
 	}
 
 	private void updateDeYahooData(final Security security) {
@@ -719,13 +723,9 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 	private void update4TradersData(final Security security) {
 		try {
-			FourTraders fourTraders = new FourTraders();
 			String financialsUrl = security.getConfigurationValue("fourTrasdersUrl");
-			if (StringUtils.isBlank(financialsUrl)) {
-				financialsUrl = fourTraders.scrapFinancialsUrl(security.getISIN());
-				security.putConfigurationValue("fourTrasdersUrl", financialsUrl);
-			}
 			if (StringUtils.isNotBlank(financialsUrl)) {
+				FourTraders fourTraders = new FourTraders();
 				updateFundamentaData(fourTraders.scrapFinancials(financialsUrl));
 			} else {
 				String errorText = "No unique result could be found for "+security.getISIN();
