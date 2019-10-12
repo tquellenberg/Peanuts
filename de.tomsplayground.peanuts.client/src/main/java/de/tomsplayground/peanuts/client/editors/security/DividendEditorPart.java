@@ -58,6 +58,7 @@ import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.dividend.Dividend;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
+import de.tomsplayground.peanuts.domain.query.SecurityInvestmentQuery;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
@@ -164,6 +165,7 @@ public class DividendEditorPart extends EditorPart {
 		setPartName(input.getName());
 
 		Report report = new Report("temp");
+		report.addQuery(new SecurityInvestmentQuery(getSecurity()));
 		report.setAccounts(Activator.getDefault().getAccountManager().getAccounts());
 		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new Day(), new AnalyzerFactory());
 	}

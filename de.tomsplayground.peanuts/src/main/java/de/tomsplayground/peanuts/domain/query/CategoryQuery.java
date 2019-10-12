@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
-import com.google.common.base.Predicate;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.base.Category;
@@ -42,7 +42,7 @@ public class CategoryQuery implements IQuery {
 	public Predicate<ITransaction> getPredicate() {
 		return new Predicate<ITransaction>() {
 			@Override
-			public boolean apply(ITransaction input) {
+			public boolean test(ITransaction input) {
 				return isOkay(input.getCategory());
 			}
 		};

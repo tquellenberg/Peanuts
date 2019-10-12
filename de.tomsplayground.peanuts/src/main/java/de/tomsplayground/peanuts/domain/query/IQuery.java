@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.domain.query;
 
-import com.google.common.base.Predicate;
+import java.util.function.Predicate;
 
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 

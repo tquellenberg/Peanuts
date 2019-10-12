@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -40,6 +41,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	final private Map<String, String> displayConfiguration = new HashMap<String, String>();
 
 	private transient ImmutableList<ITransaction> result;
+
 
 	private final PropertyChangeListener accountChangeListener = new PropertyChangeListener() {
 		@Override
@@ -126,17 +128,16 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	}
 
 	private Predicate<ITransaction> queryPredicate() {
-		return new Predicate<ITransaction>() {
-			@Override
-			public boolean test(ITransaction t) {
-				for (IQuery query : queries) {
-					if (! query.getPredicate().apply(t)) {
-						return false;
-					}
-				}
-				return true;
+		if (queries.isEmpty()) {
+			return t -> true;
+		} else {
+			Iterator<IQuery> iterator = queries.iterator();
+			Predicate<ITransaction> p = iterator.next().getPredicate();
+			while (iterator.hasNext()) {
+				p = p.and(iterator.next().getPredicate());
 			}
-		};
+			return p;
+		}
 	}
 
 	@Override

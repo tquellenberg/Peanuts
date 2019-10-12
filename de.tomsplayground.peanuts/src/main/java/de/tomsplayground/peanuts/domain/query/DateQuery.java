@@ -1,8 +1,8 @@
 package de.tomsplayground.peanuts.domain.query;
 
 import java.util.Calendar;
+import java.util.function.Predicate;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -16,7 +16,7 @@ public class DateQuery implements IQuery {
 		ALL, THIS_YEAR, LAST_12_MONTH, MANUAL
 	}
 
-	private DateQuery.TimeRange timeRange;
+	private final DateQuery.TimeRange timeRange;
 	private Day start;
 	private Day end;
 
@@ -78,7 +78,7 @@ public class DateQuery implements IQuery {
 		calculateDates();
 		return new Predicate<ITransaction>() {
 			@Override
-			public boolean apply(ITransaction input) {
+			public boolean test(ITransaction input) {
 				return isOkay(input);
 			}
 		};
