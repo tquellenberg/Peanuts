@@ -115,8 +115,14 @@ public class DividendEditorPart extends EditorPart {
 						return PeanutsUtil.formatCurrency(BigDecimal.ZERO, Currencies.getInstance().getDefaultCurrency());
 					}
 				case 7:
-					return PeanutsUtil.formatCurrency(entry.getNettoAmountInDefaultCurrency(), Currencies.getInstance().getDefaultCurrency());
+					if (entry.getTaxInDefaultCurrency() != null && entry.getAmountInDefaultCurrency() != null) {
+						return PeanutsUtil.formatPercent(entry.getTaxInDefaultCurrency().divide(entry.getAmountInDefaultCurrency(), PeanutsUtil.MC));
+					} else {
+						return PeanutsUtil.formatPercent(BigDecimal.ZERO);
+					}
 				case 8:
+					return PeanutsUtil.formatCurrency(entry.getNettoAmountInDefaultCurrency(), Currencies.getInstance().getDefaultCurrency());
+				case 9:
 					return PeanutsUtil.formatPercent(getDividendYoc(entry));
 				default:
 					return "";
@@ -134,6 +140,7 @@ public class DividendEditorPart extends EditorPart {
 				case 5:
 					return entry.getAmountInDefaultCurrency() == null ? Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW) : null;
 				case 6:
+				case 7:
 					return entry.getTaxInDefaultCurrency() == null ? Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW) : null;
 			}
 			return null;
@@ -226,6 +233,12 @@ public class DividendEditorPart extends EditorPart {
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Tax "+Currencies.getInstance().getDefaultCurrency().getSymbol());
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setResizable(true);
+		colNumber++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Tax %");
 		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.setResizable(true);
 		colNumber++;
