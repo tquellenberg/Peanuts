@@ -74,6 +74,7 @@ import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.fundamental.AvgFundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.CurrencyAjustedFundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
+import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.StockSplit;
@@ -213,7 +214,12 @@ public class FundamentalDataEditorPart extends EditorPart {
 						}
 						return PeanutsUtil.formatPercent(currencyAdjustedAvgEpsGrowth.subtract(BigDecimal.ONE));
 					case 11:
-						return PeanutsUtil.format(data.getAvgPE(), 1);
+						String avgPe = PeanutsUtil.format(data.getAvgPE(), 1);
+						String overriddenAvgPE = getSecurity().getConfigurationValue(FundamentalDatas.OVERRIDDEN_AVG_PE);
+						if (StringUtils.isNotBlank(overriddenAvgPE)) {
+							avgPe = avgPe + " ("+overriddenAvgPE+")";
+						}
+						return avgPe;
 					default:
 						return "";
 				}
@@ -414,7 +420,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 				update4TradersData(security);
 			}
 		});
-		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue("fourTrasdersUrl")));
+		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.FOUR_TRADERS_URL)));
 
 		deYahooGo = new Button(metaComposite, SWT.PUSH);
 		deYahooGo.setText("Load D/E from Yahoo");
@@ -693,7 +699,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 	private void updateButtonState() {
 		Security security = getSecurity();
 		deYahooGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.YAHOO_SYMBOL)));
-		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue("fourTrasdersUrl")));
+		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.FOUR_TRADERS_URL)));
 	}
 
 	private void updateDeYahooData(final Security security) {
@@ -723,7 +729,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 	private void update4TradersData(final Security security) {
 		try {
-			String financialsUrl = security.getConfigurationValue("fourTrasdersUrl");
+			String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.FOUR_TRADERS_URL);
 			if (StringUtils.isNotBlank(financialsUrl)) {
 				FourTraders fourTraders = new FourTraders();
 				updateFundamentaData(fourTraders.scrapFinancials(financialsUrl));

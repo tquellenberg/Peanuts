@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.app.fourtraders.FourTraders;
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
@@ -41,7 +42,7 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 						if (isUpdateRequired(security)) {
 							monitor.subTask("Refreshing " + security.getName());
 							FourTraders fourTraders = new FourTraders();
-							String financialsUrl = security.getConfigurationValue("fourTrasdersUrl");
+							String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.FOUR_TRADERS_URL);
 							if (StringUtils.equals(financialsUrl, "-")) {
 								continue;
 							}

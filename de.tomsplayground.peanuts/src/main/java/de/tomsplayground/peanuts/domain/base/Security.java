@@ -223,7 +223,7 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	public boolean removeDividend(Dividend dividend) {
 		boolean remove = dividends.remove(dividend);
 		if (remove) {
-			firePropertyChange("notes", dividend, null);
+			firePropertyChange("dividends", dividend, null);
 		}
 		return remove;
 	}

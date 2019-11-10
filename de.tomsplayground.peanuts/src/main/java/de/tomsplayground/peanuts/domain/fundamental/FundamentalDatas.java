@@ -7,6 +7,7 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
 import com.google.common.base.Predicate;
@@ -21,6 +22,8 @@ import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.util.Day;
 
 public class FundamentalDatas {
+
+	public static final String OVERRIDDEN_AVG_PE = "OverriddenAvgPE";
 
 	private static final BigDecimal DAYS_IN_YEAR = new BigDecimal("360");
 
@@ -56,6 +59,14 @@ public class FundamentalDatas {
 	public AvgFundamentalData getAvgFundamentalData(IPriceProvider adjustedPriceProvider, ExchangeRates exchangeRates) {
 		CurrencyConverter currencyConverter = exchangeRates.createCurrencyConverter(getCurrency(), security.getCurrency());
 		return new AvgFundamentalData(fundamentalDatas, adjustedPriceProvider, currencyConverter);
+	}
+
+	public BigDecimal getOverriddenAvgPE() {
+		String overriddenAvgPE = security.getConfigurationValue(OVERRIDDEN_AVG_PE);
+		if (StringUtils.isBlank(overriddenAvgPE)) {
+			return null;
+		}
+		return new BigDecimal(overriddenAvgPE);
 	}
 
 	public Optional<DateTime> getMaxModificationDate() {

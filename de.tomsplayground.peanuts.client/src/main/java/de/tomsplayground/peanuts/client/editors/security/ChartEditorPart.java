@@ -139,7 +139,7 @@ public class ChartEditorPart extends EditorPart {
 	private final PropertyChangeListener securityPropertyChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
-			if (evt.getPropertyName().equals("SHOW_AVG")) {
+			if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_AVG)) {
 				if (isShowAvg()) {
 					createMovingAverage(average20Days, 20);
 					createMovingAverage(average100Days, 100);
@@ -159,6 +159,10 @@ public class ChartEditorPart extends EditorPart {
 				}
 				addAvgPriceAnnotation();
 			}
+			if (evt.getPropertyName().equals(FundamentalDatas.OVERRIDDEN_AVG_PE) ||
+				evt.getPropertyName().equals("fundamentalData")) {
+				calculateFixedPePrice();
+			}
 		}
 	};
 
@@ -173,7 +177,10 @@ public class ChartEditorPart extends EditorPart {
 
 	private TimeSeries average20Days;
 	private TimeSeries average100Days;
+	// Upper chart
 	private final TimeSeriesCollection dataset = new TimeSeriesCollection();
+	// Lower chart
+	private final TimeSeriesCollection dataset2 = new TimeSeriesCollection();
 	private ImmutableList<XYAnnotation> orderAnnotations = ImmutableList.of();
 	private TimeChart timeChart;
 	private TimeSeries stopLoss;
@@ -183,6 +190,7 @@ public class ChartEditorPart extends EditorPart {
 	private Button convertToEuro;
 	private Button convertToUSD;
 	private ValueMarker avgPriceAnnotation;
+	private TimeSeries peDeltaTimeSeries;
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -459,7 +467,7 @@ public class ChartEditorPart extends EditorPart {
 	private JFreeChart createChart() {
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
-		boolean showPEratioChart = ! fundamentalDatas.isEmpty();
+		boolean showPeDeltaChart = ! fundamentalDatas.isEmpty();
 
 		DateAxis axis = new DateAxis("Date");
 		axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
@@ -487,7 +495,7 @@ public class ChartEditorPart extends EditorPart {
 		NumberAxis rangeAxis2 = new NumberAxis("Price "+getChartCurrencyConverter().getToCurrency().getSymbol());
 		rangeAxis2.setAutoRange(false);
 		pricePlot = new XYPlot(dataset, null, rangeAxis2, renderer);
-		combiPlot.add(pricePlot, showPEratioChart ? 70 : 100);
+		combiPlot.add(pricePlot, showPeDeltaChart ? 70 : 100);
 		pricePlot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);
 		pricePlot.setDomainGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
 		pricePlot.setRangeGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
@@ -495,14 +503,15 @@ public class ChartEditorPart extends EditorPart {
 		pricePlot.setDomainCrosshairVisible(true);
 		pricePlot.setRangeCrosshairVisible(true);
 
-		if (showPEratioChart) {
+		if (showPeDeltaChart) {
 			XYAreaRenderer xyAreaRenderer = new XYAreaRenderer();
 			xyAreaRenderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
 			xyAreaRenderer.setSeriesPaint(0, new PeanutsDrawingSupplier().getNextPaint());
 			NumberAxis rangeAxis = new NumberAxis("PE delta %");
 			rangeAxis.setAutoRange(false);
 			rangeAxis.setRange(peRatioChartRange);
-			XYPlot plot2 = new XYPlot(createPeRatioDataset(), null, rangeAxis, xyAreaRenderer);
+
+			XYPlot plot2 = new XYPlot(dataset2, null, rangeAxis, xyAreaRenderer);
 			plot2.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
 			plot2.setDomainCrosshairVisible(true);
 			plot2.setRangeCrosshairVisible(true);
@@ -511,36 +520,35 @@ public class ChartEditorPart extends EditorPart {
 		return chart;
 	}
 
-	private TimeSeriesCollection createPeRatioDataset() {
-		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
-
+	private void calculateFixedPePrice() {
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
-		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
-		AvgFundamentalData avgFundamentalData = fundamentalDatas.getAvgFundamentalData(priceProvider, exchangeRate);
-
-		BigDecimal avgPE = avgFundamentalData.getAvgPE();
-		if (avgPE.signum() == 0) {
-			return timeSeriesCollection;
+		if (fundamentalDatas.isEmpty()) {
+			return;
 		}
-
-		TimeSeries timeSeries = new TimeSeries("PE delta %", Day.class);
+		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
+		BigDecimal avgPE = fundamentalDatas.getOverriddenAvgPE();
+		if (avgPE == null) {
+			AvgFundamentalData avgData = fundamentalDatas.getAvgFundamentalData(priceProvider, exchangeRate);
+			avgPE = avgData.getAvgPE();
+		}
 		for (IPrice price : priceProvider.getPrices()) {
 			de.tomsplayground.util.Day day = price.getDay();
 			BigDecimal pe = fundamentalDatas.getAdjustedContinuousEarnings(day, exchangeRate);
 			if (pe != null && pe.signum() > 0) {
 				BigDecimal fairPrice = pe.multiply(avgPE, MC);
+				// Main Chart
+				fixedPePrice.addOrUpdate(new Day(day.day, day.month+1, day.year), fairPrice);
+				// Delta Chart
 				BigDecimal deltaPercent = price.getClose().subtract(fairPrice).multiply(HUNDRED).divide(fairPrice, MC);
-
-				timeSeries.add(new Day(day.day, day.month+1, day.year), deltaPercent.doubleValue());
+				peDeltaTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), deltaPercent.doubleValue());
 			}
 		}
-		timeSeriesCollection.addSeries(timeSeries);
-		return timeSeriesCollection;
 	}
 
 	private void createDataset() {
 		dataset.removeAllSeries();
+		dataset2.removeAllSeries();
 
 		priceTimeSeries = new TimeSeries(getEditorInput().getName(), Day.class);
 		for (IPrice price : getChartPriceProvider().getPrices()) {
@@ -570,9 +578,11 @@ public class ChartEditorPart extends EditorPart {
 		}
 
 		fixedPePrice = new TimeSeries("EPS * avg PE", Day.class);
+		peDeltaTimeSeries = new TimeSeries("PE delta %", Day.class);
 		calculateFixedPePrice();
 		if (! fixedPePrice.isEmpty()) {
 			dataset.addSeries(fixedPePrice);
+			dataset2.addSeries(peDeltaTimeSeries);
 		}
 
 		if (priceProvider instanceof ObservableModelObject) {
@@ -593,24 +603,6 @@ public class ChartEditorPart extends EditorPart {
 				de.tomsplayground.util.Day day = price.getDay();
 				BigDecimal value = price.getValue().multiply(adjust);
 				compareToPriceTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), value);
-			}
-		}
-	}
-
-	private void calculateFixedPePrice() {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
-		if (fundamentalDatas.isEmpty()) {
-			return;
-		}
-		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
-		AvgFundamentalData avgData = fundamentalDatas.getAvgFundamentalData(priceProvider, exchangeRate);
-		BigDecimal avgPE = avgData.getAvgPE();
-		for (IPrice p : priceProvider.getPrices()) {
-			de.tomsplayground.util.Day day = p.getDay();
-			BigDecimal pe = fundamentalDatas.getAdjustedContinuousEarnings(day, exchangeRate);
-			if (pe != null && pe.signum() > 0) {
-				fixedPePrice.addOrUpdate(new Day(day.day, day.month+1, day.year), pe.multiply(avgPE));
 			}
 		}
 	}

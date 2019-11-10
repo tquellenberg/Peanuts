@@ -522,6 +522,7 @@ public class DividendEditorPart extends EditorPart {
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		Security security = getSecurity();
+		// TODO: update only changed dividends
 		security.getDividends().forEach(d -> security.removeDividend(d));
 		dividends.forEach(d -> security.addDividend(new Dividend(d)));
 		dirty = false;

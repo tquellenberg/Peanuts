@@ -13,8 +13,11 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
 
 public class SecurityPropertyPage extends PropertyPage {
+
+	public static final String FOUR_TRADERS_URL = "fourTrasdersUrl";
 
 	public static final String YAHOO_SYMBOL = "yahooSymbol";
 
@@ -27,9 +30,9 @@ public class SecurityPropertyPage extends PropertyPage {
 	private Text yahooSymbol;
 	private Text morningstarSymbol;
 	private Text fourTradersUrl;
+	private Text overriddenAvgPE;
 
 	private Button overridePriceDate;
-
 
 	public SecurityPropertyPage() {
 		noDefaultAndApplyButton();
@@ -37,30 +40,39 @@ public class SecurityPropertyPage extends PropertyPage {
 
 	@Override
 	protected Control createContents(Composite parent) {
+		IAdaptable adapter = getElement();
+		Security security = adapter.getAdapter(Security.class);
+
 		Composite composite = new Composite(parent,SWT.NONE);
 		composite.setLayout(new GridLayout(2, false));
 
 		name = createTextWithLabel(composite, "Name");
+		name.setText(security.getName());
+
 		wkn = createTextWithLabel(composite, "WKN");
+		wkn.setText(StringUtils.defaultString(security.getWKN()));
+
 		isin = createTextWithLabel(composite, "Isin");
+		isin.setText(StringUtils.defaultString(security.getISIN()));
+
 		ticker = createTextWithLabel(composite, "Ticker");
+		ticker.setText(StringUtils.defaultString(security.getTicker()));
+
 		yahooSymbol = createTextWithLabel(composite, "Yahoo-Symbol");
+		yahooSymbol.setText(StringUtils.defaultString(security.getConfigurationValue(YAHOO_SYMBOL)));
+
 		morningstarSymbol = createTextWithLabel(composite, "Morningstar");
+		morningstarSymbol.setText(StringUtils.defaultString(security.getMorningstarSymbol()));
+
 		fourTradersUrl = createTextWithLabel(composite, "4-Traders Url");
+		fourTradersUrl.setText(StringUtils.defaultString(security.getConfigurationValue(FOUR_TRADERS_URL)));
+
+		overriddenAvgPE = createTextWithLabel(composite, "Overridden avg PE");
+		overriddenAvgPE.setText(StringUtils.defaultString(security.getConfigurationValue(FundamentalDatas.OVERRIDDEN_AVG_PE)));
 
 		Label label = new Label(composite, SWT.NONE);
 		label.setText("Override existing price data");
 		overridePriceDate = new Button(composite, SWT.CHECK);
-
-		IAdaptable adapter = getElement();
-		Security security = adapter.getAdapter(Security.class);
-		name.setText(security.getName());
-		wkn.setText(StringUtils.defaultString(security.getWKN()));
-		isin.setText(StringUtils.defaultString(security.getISIN()));
-		ticker.setText(StringUtils.defaultString(security.getTicker()));
-		yahooSymbol.setText(StringUtils.defaultString(security.getConfigurationValue(YAHOO_SYMBOL)));
-		morningstarSymbol.setText(StringUtils.defaultString(security.getMorningstarSymbol()));
-		fourTradersUrl.setText(StringUtils.defaultString(security.getConfigurationValue("fourTrasdersUrl")));
 		overridePriceDate.setSelection(Boolean.valueOf(security.getConfigurationValue(OVERRIDE_EXISTING_PRICE_DATA)).booleanValue());
 
 		return composite;
@@ -86,9 +98,10 @@ public class SecurityPropertyPage extends PropertyPage {
 		security.setISIN(isin.getText());
 		security.setTicker(ticker.getText());
 		security.setMorningstarSymbol(morningstarSymbol.getText());
-		security.putConfigurationValue("fourTrasdersUrl", fourTradersUrl.getText());
+		security.putConfigurationValue(FOUR_TRADERS_URL, fourTradersUrl.getText());
 		security.putConfigurationValue(YAHOO_SYMBOL, yahooSymbol.getText());
 		security.putConfigurationValue(OVERRIDE_EXISTING_PRICE_DATA, Boolean.toString(overridePriceDate.getSelection()));
+		security.putConfigurationValue(FundamentalDatas.OVERRIDDEN_AVG_PE, overriddenAvgPE.getText());
 		return super.performOk();
 	}
 
