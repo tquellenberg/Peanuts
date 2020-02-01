@@ -126,7 +126,15 @@ public class SecurityWatchlistView extends ViewPart {
 			return w2.getSecurity().getName().compareToIgnoreCase(w1.getSecurity().getName());
 		}
 	};
-	private final WatchEntryViewerComparator dateComparator = new WatchEntryViewerComparator() {
+	private final WatchEntryViewerComparator dateComparator1 = new WatchEntryViewerComparator() {
+		@Override
+		public int compare(WatchEntry w1, WatchEntry w2) {
+			Day priceDataDate1 = w1.getPrice().getDay();
+			Day priceDataDate2 = w2.getPrice().getDay();
+			return priceDataDate2.compareTo(priceDataDate1);
+		}
+	};
+	private final WatchEntryViewerComparator dateComparator2 = new WatchEntryViewerComparator() {
 		@Override
 		public int compare(WatchEntry w1, WatchEntry w2) {
 			DateTime fundamentalDataDate1 = w1.getFundamentalDataDate();
@@ -569,6 +577,12 @@ public class SecurityWatchlistView extends ViewPart {
 		col.setText("Price Date");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TableColumn)e.widget, dateComparator1);
+			}
+		});
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
@@ -578,7 +592,7 @@ public class SecurityWatchlistView extends ViewPart {
 		col.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setSorting((TableColumn)e.widget, dateComparator);
+				setSorting((TableColumn)e.widget, dateComparator2);
 			}
 		});
 		colNum++;

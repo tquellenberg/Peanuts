@@ -592,16 +592,16 @@ public class DividendStatsView extends ViewPart {
 				}
 			}
 			if (! future && dividendMonth.getMonth().compareTo(currentMonth) >= 0) {
-				timeSeries.add(new Integer(dividendMonth.getMonth().month+1), dividendMonth.getYearlyAmount());
+				timeSeries.add(Integer.valueOf(dividendMonth.getMonth().month+1), dividendMonth.getYearlyAmount());
 				future = true;
 				timeSeries = new XYSeries(getSeriesName(currentYear, future));
 				series.add(timeSeries);
 				renderer.setSeriesStroke(series.size()-1, dash);
 			}
 			if (future) {
-				timeSeries.add(new Integer(dividendMonth.getMonth().month+1), dividendMonth.getFutureYearlyAmount());
+				timeSeries.add(Integer.valueOf(dividendMonth.getMonth().month+1), dividendMonth.getFutureYearlyAmount());
 			} else {
-				timeSeries.add(new Integer(dividendMonth.getMonth().month+1), dividendMonth.getYearlyAmount());
+				timeSeries.add(Integer.valueOf(dividendMonth.getMonth().month+1), dividendMonth.getYearlyAmount());
 			}
 		}
 

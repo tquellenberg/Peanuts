@@ -52,9 +52,7 @@ public class LocalPriceReader extends PriceProvider {
 						BigDecimal low = getValue(values, 3);
 						BigDecimal close = getValue(values, 4);
 						Price price = new Price(d, open, close, high, low);
-						if (price.getValue().compareTo(BigDecimal.ZERO) > 0) {
-							prices.add(price);
-						}
+						prices.add(price);
 					}
 				} catch (NumberFormatException e) {
 					log.error("Value: " + Arrays.toString(values));

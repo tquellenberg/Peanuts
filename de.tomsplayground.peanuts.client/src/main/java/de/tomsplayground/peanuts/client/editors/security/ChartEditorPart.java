@@ -539,9 +539,11 @@ public class ChartEditorPart extends EditorPart {
 				BigDecimal fairPrice = pe.multiply(avgPE, MC);
 				// Main Chart
 				fixedPePrice.addOrUpdate(new Day(day.day, day.month+1, day.year), fairPrice);
-				// Delta Chart
-				BigDecimal deltaPercent = price.getClose().subtract(fairPrice).multiply(HUNDRED).divide(fairPrice, MC);
-				peDeltaTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), deltaPercent.doubleValue());
+				if (fairPrice.signum() == 1) {
+					// Delta Chart
+					BigDecimal deltaPercent = price.getClose().subtract(fairPrice).multiply(HUNDRED).divide(fairPrice, MC);
+					peDeltaTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), deltaPercent.doubleValue());
+				}
 			}
 		}
 	}

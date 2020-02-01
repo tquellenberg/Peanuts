@@ -637,7 +637,8 @@ public class InventoryEditorPart extends EditorPart {
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Avg Price");
 		col.setResizable(true);
-		col.setWidth((colWidth[5] > 0) ? colWidth[5] : 100);
+		col.setWidth((colWidth[5] > 0) ? colWidth[5] : 120);
+		col.addControlListener(saveSizeOnResize);
 
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Investment Sum");

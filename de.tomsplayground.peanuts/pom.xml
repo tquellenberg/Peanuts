@@ -52,8 +52,8 @@
 					<compilerArguments>
 						<encoding>ISO-8859-1</encoding>
 					</compilerArguments>
-					<source>10</source>
-					<target>10</target>
+					<source>11</source>
+					<target>11</target>
 				</configuration>
 			</plugin>
 			<plugin>

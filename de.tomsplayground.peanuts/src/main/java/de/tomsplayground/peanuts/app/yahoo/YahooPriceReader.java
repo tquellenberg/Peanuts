@@ -44,6 +44,8 @@ public class YahooPriceReader extends PriceProvider {
 
 	private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0) Gecko/20100101 Firefox/52.0";
 
+	private static final BigDecimal MAX_VALIDE_PRICE = new BigDecimal("100000");
+
 	public enum Type {
 		CURRENT,
 		LAST_DAYS,
@@ -158,7 +160,10 @@ public class YahooPriceReader extends PriceProvider {
 					Double v = close.get(i);
 					if (t != null && v != null) {
 						Day date = Day.fromDate(new Date(t*1000L));
-						prices.add(new Price(date, new BigDecimal(String.valueOf(v))));
+						Price price = new Price(date, new BigDecimal(String.valueOf(v)));
+						if (isValidPrice(price)) {
+							prices.add(price);
+						}
 					}
 				}
 				log.info("Loaded {} values for {}", prices.size(), getSecurity().getTicker());
@@ -169,6 +174,10 @@ public class YahooPriceReader extends PriceProvider {
 			log.error("Security not found: {}", getSecurity().getName());
 		}
 		setPrices(prices, true);
+	}
+
+	private boolean isValidPrice(Price price) {
+		return price.getValue().signum() == 1 && price.getValue().compareTo(MAX_VALIDE_PRICE) < 0;
 	}
 
 	@SuppressWarnings("unchecked")
