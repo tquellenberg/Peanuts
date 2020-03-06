@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.Price;
@@ -30,20 +31,20 @@ public class GooglePriceReader extends PriceProvider {
 
 	private final Reader reader;
 
-	public GooglePriceReader(Security security, String ticker) throws IOException {
+	public GooglePriceReader(Security security, String ticker) throws IOException, CsvValidationException {
 		super(security);
 		URL url = new URL("http://www.google.com/finance/historical?q=" + ticker + "&output=csv");
 		reader = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8);
 		read();
 	}
 
-	public GooglePriceReader(Security security, Reader reader) throws IOException {
+	public GooglePriceReader(Security security, Reader reader) throws IOException, CsvValidationException {
 		super(security);
 		this.reader = reader;
 		read();
 	}
 
-	private void read() throws IOException {
+	private void read() throws IOException, CsvValidationException {
 		CSVReader csvReader = new CSVReaderBuilder(reader)
 			.withCSVParser(new CSVParserBuilder()
 				.withSeparator(',')

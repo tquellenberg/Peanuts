@@ -11,6 +11,7 @@ import java.util.Date;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.Price;
@@ -29,7 +30,7 @@ public class FileCsvReader extends PriceProvider {
 				.withSeparator('\t').build()).build();
 	}
 
-	public void read() throws IOException, ParseException {
+	public void read() throws IOException, ParseException, CsvValidationException {
 		String values[];
 		// Skip header
 		csvReader.readNext();

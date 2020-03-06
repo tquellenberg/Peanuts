@@ -11,6 +11,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.opencsv.exceptions.CsvValidationException;
+
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.util.Day;
 
@@ -18,7 +20,7 @@ import de.tomsplayground.util.Day;
 public class FileCvsReaderTest {
 
 	@Test
-	public void testRead() throws IOException, ParseException {
+	public void testRead() throws IOException, ParseException, CsvValidationException {
 		Reader in = new InputStreamReader(QifReaderTest.class.getResourceAsStream("/quotes.TXT"));
 		FileCsvReader reader = new FileCsvReader(null, in);
 		reader.read();

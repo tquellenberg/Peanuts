@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
 
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 
@@ -69,7 +70,7 @@ public class KeyRatios {
 			Preconditions.checkNotNull(deptToEquity);
 
 			return parse(years, earnings, dividende, deptToEquity);
-		} catch (IOException e) {
+		} catch (IOException | CsvException e) {
 			e.printStackTrace();
 		}
 		return Lists.newArrayList();

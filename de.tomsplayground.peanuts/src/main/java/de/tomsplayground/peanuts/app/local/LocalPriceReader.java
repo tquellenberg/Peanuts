@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.IPrice;
@@ -27,7 +28,7 @@ public class LocalPriceReader extends PriceProvider {
 
 	private final CSVReader csvReader;
 
-	public LocalPriceReader(Security security, Reader reader) throws IOException {
+	public LocalPriceReader(Security security, Reader reader) throws IOException, CsvValidationException {
 		super(security);
 		csvReader = new CSVReaderBuilder(reader)
 			.withCSVParser(new CSVParserBuilder()
@@ -37,7 +38,7 @@ public class LocalPriceReader extends PriceProvider {
 		csvReader.close();
 	}
 
-	private void read() throws IOException {
+	private void read() throws IOException, CsvValidationException {
 		String values[];
 		List<IPrice> prices = new ArrayList<>();
 		// Skip header

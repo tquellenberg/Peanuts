@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opencsv.CSVWriterBuilder;
 import com.opencsv.ICSVWriter;
+import com.opencsv.exceptions.CsvValidationException;
 
 import de.tomsplayground.peanuts.app.google.GooglePriceReader;
 import de.tomsplayground.peanuts.app.local.LocalPriceReader;
@@ -148,7 +149,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		IPriceProvider reader;
 		try {
 			reader = new LocalPriceReader(security, new StringReader(csv));
-		} catch (IOException e) {
+		} catch (IOException | CsvValidationException e) {
 			throw new RuntimeException(e);
 		}
 		return reader;
@@ -158,7 +159,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		String ticker = StringUtils.removeStart(security.getTicker(), GOOGLE_PREFIX);
 		try {
 			return new GooglePriceReader(security, ticker);
-		} catch (IOException e) {
+		} catch (IOException | CsvValidationException e) {
 			log.error("readHistoricalPricesFromGoogle " + security.getName() + " " + e.getMessage());
 			return null;
 		}

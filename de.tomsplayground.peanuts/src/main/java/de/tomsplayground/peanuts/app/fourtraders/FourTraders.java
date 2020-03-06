@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -21,8 +22,6 @@ import org.htmlcleaner.XPather;
 import org.htmlcleaner.XPatherException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 
@@ -68,7 +67,7 @@ public class FourTraders {
 		if (financialsUrl.startsWith("http://www.4-traders.com/")) {
 			financialsUrl = StringUtils.replace(financialsUrl, "http://www.4-traders.com/", "https://www.marketscreener.com/");
 		}
-		List<FundamentalData> fundamentalDatas = Lists.newArrayList();
+		List<FundamentalData> fundamentalDatas = new ArrayList<>();
 		try {
 			String html = getPage(new URL(financialsUrl).toURI());
 			HtmlCleaner htmlCleaner = new HtmlCleaner();

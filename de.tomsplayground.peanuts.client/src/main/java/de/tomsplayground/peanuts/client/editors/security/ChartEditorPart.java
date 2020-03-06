@@ -139,6 +139,9 @@ public class ChartEditorPart extends EditorPart {
 	private final PropertyChangeListener securityPropertyChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
+			if (chartComposite.isDisposed()) {
+				return;
+			}
 			if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_AVG)) {
 				if (isShowAvg()) {
 					createMovingAverage(average20Days, 20);

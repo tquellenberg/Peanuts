@@ -12,6 +12,8 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 
+import com.opencsv.exceptions.CsvValidationException;
+
 import de.tomsplayground.peanuts.app.csv.StarMoneyCsvReader;
 import de.tomsplayground.peanuts.client.ICommandIds;
 import de.tomsplayground.peanuts.domain.base.Account;
@@ -46,6 +48,8 @@ public class CsvTransactionImportAction extends Action {
 			} catch (IOException e) {
 				MessageDialog.openError(shell, "Error", e.getMessage());
 			} catch (ParseException e) {
+				MessageDialog.openError(shell, "Error", e.getMessage());
+			} catch (CsvValidationException e) {
 				MessageDialog.openError(shell, "Error", e.getMessage());
 			}
 		}

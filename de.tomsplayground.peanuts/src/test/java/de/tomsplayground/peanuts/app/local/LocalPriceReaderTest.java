@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.opencsv.exceptions.CsvValidationException;
+
 import de.tomsplayground.peanuts.app.quicken.QifReaderTest;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.util.Day;
@@ -17,7 +19,7 @@ import junit.framework.TestCase;
 public class LocalPriceReaderTest extends TestCase {
 
 	@Test
-	public void testRead() throws IOException {
+	public void testRead() throws IOException, CsvValidationException {
 		Reader in = new InputStreamReader(QifReaderTest.class.getResourceAsStream("/Yahoo.csv"));
 		LocalPriceReader reader = new LocalPriceReader(null, in);
 		in.close();
@@ -35,7 +37,7 @@ public class LocalPriceReaderTest extends TestCase {
 	}
 
 	@Test
-	public void testEmpty() throws IOException {
+	public void testEmpty() throws IOException, CsvValidationException {
 		Reader in = new StringReader("");
 		LocalPriceReader reader = new LocalPriceReader(null, in);
 

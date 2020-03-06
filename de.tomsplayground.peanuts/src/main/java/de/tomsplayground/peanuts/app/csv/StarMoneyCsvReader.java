@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 
 import de.tomsplayground.peanuts.domain.process.BankTransaction;
 import de.tomsplayground.util.Day;
@@ -28,7 +29,7 @@ public class StarMoneyCsvReader {
 				.withSeparator(';').build()).build();
 	}
 
-	public void read() throws IOException, ParseException {
+	public void read() throws IOException, ParseException, CsvValidationException {
 		transactions = new ArrayList<BankTransaction>();
 		// Skip header
 		csvReader.readNext();
