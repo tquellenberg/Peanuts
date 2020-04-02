@@ -139,42 +139,57 @@ public class ChartEditorPart extends EditorPart {
 	private final PropertyChangeListener securityPropertyChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
-			if (chartComposite.isDisposed()) {
-				return;
-			}
-			if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_AVG)) {
-				if (isShowAvg()) {
-					createMovingAverage(average20Days, 20);
-					createMovingAverage(average100Days, 100);
-					dataset.addSeries(average20Days);
-					dataset.addSeries(average100Days);
-				} else {
-					dataset.removeSeries(average20Days);
-					dataset.removeSeries(average100Days);
+			Display display = getSite().getWorkbenchWindow().getWorkbench().getDisplay();
+			display.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					if (chartComposite.isDisposed()) {
+						return;
+					}
+					if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_AVG)) {
+						if (isShowAvg()) {
+							createMovingAverage(average20Days, 20);
+							createMovingAverage(average100Days, 100);
+							dataset.addSeries(average20Days);
+							dataset.addSeries(average100Days);
+						} else {
+							dataset.removeSeries(average20Days);
+							dataset.removeSeries(average100Days);
+						}
+					}
+					if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_BUY_SELL) ||
+						evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_DIVIDENDS)) {
+						timeChart.removeAnnotations(orderAnnotations);
+						orderAnnotations = addOrderAnnotations();
+						if (avgPriceAnnotation != null) {
+							pricePlot.removeRangeMarker(avgPriceAnnotation);
+						}
+						addAvgPriceAnnotation();
+					}
+					if (evt.getPropertyName().equals(FundamentalDatas.OVERRIDDEN_AVG_PE) ||
+						evt.getPropertyName().equals("fundamentalData")) {
+						calculateFixedPePrice();
+					}
 				}
-			}
-			if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_BUY_SELL) ||
-				evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_DIVIDENDS)) {
-				timeChart.removeAnnotations(orderAnnotations);
-				orderAnnotations = addOrderAnnotations();
-				if (avgPriceAnnotation != null) {
-					pricePlot.removeRangeMarker(avgPriceAnnotation);
-				}
-				addAvgPriceAnnotation();
-			}
-			if (evt.getPropertyName().equals(FundamentalDatas.OVERRIDDEN_AVG_PE) ||
-				evt.getPropertyName().equals("fundamentalData")) {
-				calculateFixedPePrice();
-			}
+			});
 		}
 	};
 
 	private final PropertyChangeListener accountManagerChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
-			if (evt.getPropertyName().equals("stopLoss")) {
-				updateStopLoss();
-			}
+			Display display = getSite().getWorkbenchWindow().getWorkbench().getDisplay();
+			display.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					if (chartComposite.isDisposed()) {
+						return;
+					}
+					if (evt.getPropertyName().equals("stopLoss")) {
+						updateStopLoss();
+					}
+				}
+			});
 		}
 	};
 
