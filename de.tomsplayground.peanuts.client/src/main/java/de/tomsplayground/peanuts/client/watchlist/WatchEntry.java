@@ -142,7 +142,7 @@ public class WatchEntry {
 		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
 		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
 		BigDecimal earnings = fundamentalDatas.getAdjustedContinuousEarnings(date, exchangeRate);
-		if (earnings != null) {
+		if (earnings != null && earnings.signum() > 0) {
 			peRatio = price.getClose().divide(earnings, MC);
 		}
 		return peRatio;
