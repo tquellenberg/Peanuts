@@ -59,7 +59,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
-import de.tomsplayground.peanuts.app.fourtraders.FourTraders;
+import de.tomsplayground.peanuts.app.marketscreener.MarketScreener;
 import de.tomsplayground.peanuts.app.morningstar.KeyRatios;
 import de.tomsplayground.peanuts.app.yahoo.DebtEquity;
 import de.tomsplayground.peanuts.app.yahoo.DebtEquity.DebtEquityValue;
@@ -731,7 +731,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 		try {
 			String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.FOUR_TRADERS_URL);
 			if (StringUtils.isNotBlank(financialsUrl)) {
-				FourTraders fourTraders = new FourTraders();
+				MarketScreener fourTraders = new MarketScreener();
 				updateFundamentaData(fourTraders.scrapFinancials(financialsUrl));
 			} else {
 				String errorText = "No unique result could be found for "+security.getISIN();

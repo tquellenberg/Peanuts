@@ -1,4 +1,4 @@
-package de.tomsplayground.peanuts.app.fourtraders;
+package de.tomsplayground.peanuts.app.marketscreener;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 
-public class FourTraders {
+public class MarketScreener {
 
-	private final static Logger log = LoggerFactory.getLogger(FourTraders.class);
+	private final static Logger log = LoggerFactory.getLogger(MarketScreener.class);
 
 	private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0) Gecko/20100101 Firefox/52.0";
 
@@ -41,7 +41,10 @@ public class FourTraders {
 		.setDefaultRequestConfig(defaultRequestConfig).build();
 
 	public static void main(String[] args) {
-		new FourTraders().scrapFinancials("https://www.marketscreener.com/BABCOCK-INTERNATIONAL-GRO-9583549/financials/");
+		List<FundamentalData> scrapFinancials = new MarketScreener().scrapFinancials("https://www.marketscreener.com/BABCOCK-INTERNATIONAL-GRO-9583549/financials/");
+		for (FundamentalData fundamentalData : scrapFinancials) {
+			System.out.println(fundamentalData);
+		}
 	}
 
 	private String getPage(URI url) throws IOException {
@@ -73,13 +76,20 @@ public class FourTraders {
 			HtmlCleaner htmlCleaner = new HtmlCleaner();
 			TagNode tagNode = htmlCleaner.clean(html);
 
-			boolean isPence = false;
-			XPather xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[9]/td[1]/text()");
+			// Table "Annual Income Statement Data"
+			XPather xPather = new XPather("//table[@class='BordCollapseYear2']");
 			Object[] result = xPather.evaluateAgainstNode(tagNode);
+			TagNode incomeTable = null;
+			if (result.length > 1 && result[1] instanceof TagNode) {
+				incomeTable = (TagNode) result[1];
+			}
+
+			boolean isPence = false;
+			xPather = new XPather("tbody/tr[12]/td[1]/div[2]/text()");
+			result = xPather.evaluateAgainstNode(incomeTable);
 			if (result.length > 0) {
-				String currency = StringUtils.trim(StringUtils.substringBetween(result[0].toString(), "(", ")"));
-				currency = StringUtils.replace(currency, "&nbsp;", "");
-				if (StringUtils.equals(currency, "PNC") || StringUtils.equals(currency, "GBp")) {
+				String currency = result[0].toString();
+				if (StringUtils.contains(currency, "XXX")) {
 					isPence = true;
 				}
 			}
@@ -87,15 +97,15 @@ public class FourTraders {
 			for (int i = 4; i < 8; i++) {
 				FundamentalData fundamentalData = new FundamentalData();
 
-				xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[2]/td[" + i + "]/text()");
-				result = xPather.evaluateAgainstNode(tagNode);
+				// Year
+				xPather = new XPather("tbody/tr[1]/td[" + i + "]/text()");
+				result = xPather.evaluateAgainstNode(incomeTable);
 				if (result.length == 0) {
 					// Okay
 					continue;
 				}
 				try {
-					String yearStr = result[0].toString();
-					yearStr = StringUtils.remove(yearStr, "  (e)");
+					String yearStr = result[0].toString().strip();
 					int year = Integer.parseInt(yearStr);
 					fundamentalData.setYear(year);
 				} catch (NumberFormatException e) {
@@ -104,8 +114,9 @@ public class FourTraders {
 					continue;
 				}
 
-				xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[9]/td[" + i + "]/text()");
-				result = xPather.evaluateAgainstNode(tagNode);
+				// EPS
+				xPather = new XPather("tbody/tr[9]/td[" + i + "]/text()");
+				result = xPather.evaluateAgainstNode(incomeTable);
 				try {
 					BigDecimal eps = parseNumber(result[0].toString());
 					if (isPence) {
@@ -118,8 +129,9 @@ public class FourTraders {
 					continue;
 				}
 
-				xPather = new XPather("//table[@class='BordCollapseYear']/tbody/tr[10]/td[" + i + "]/text()");
-				result = xPather.evaluateAgainstNode(tagNode);
+				// Dividend
+				xPather = new XPather("tbody/tr[10]/td[" + i + "]/text()");
+				result = xPather.evaluateAgainstNode(incomeTable);
 				try {
 					BigDecimal dividend = parseNumber(result[0].toString());
 					if (isPence) {

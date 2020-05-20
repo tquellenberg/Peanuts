@@ -6,6 +6,8 @@ import java.math.RoundingMode;
 import java.util.Currency;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.joda.time.DateTime;
 
 import com.google.common.collect.ImmutableList;
@@ -211,5 +213,10 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		if (newData.getFicalYearEndsMonth() != 0) {
 			setFicalYearEndsMonth(newData.getFicalYearEndsMonth());
 		}
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
 	}
 }

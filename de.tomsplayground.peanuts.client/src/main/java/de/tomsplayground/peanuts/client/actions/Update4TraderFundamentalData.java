@@ -16,7 +16,7 @@ import org.joda.time.DateTime;
 
 import com.google.common.collect.ImmutableList;
 
-import de.tomsplayground.peanuts.app.fourtraders.FourTraders;
+import de.tomsplayground.peanuts.app.marketscreener.MarketScreener;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
 import de.tomsplayground.peanuts.domain.base.Security;
@@ -41,7 +41,7 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 					for (Security security : securities) {
 						if (isUpdateRequired(security)) {
 							monitor.subTask("Refreshing " + security.getName());
-							FourTraders fourTraders = new FourTraders();
+							MarketScreener fourTraders = new MarketScreener();
 							String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.FOUR_TRADERS_URL);
 							if (StringUtils.equals(financialsUrl, "-")) {
 								continue;
