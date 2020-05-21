@@ -21,6 +21,9 @@ public class Volatility {
 
 	public double calculateVolatility(IPriceProvider pp) {
 		Day maxDate = pp.getMaxDate();
+		if (maxDate == null) {
+			return 0.0;
+		}
 		Day minDate = maxDate.addYear(-1);
 		ImmutableList<BigDecimal> values = pp.getPrices(minDate, maxDate).stream()
 			.map(IPrice::getClose)
