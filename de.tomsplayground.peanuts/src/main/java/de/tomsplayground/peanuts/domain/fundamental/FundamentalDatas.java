@@ -10,9 +10,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
@@ -42,18 +40,9 @@ public class FundamentalDatas {
 	}
 
 	public FundamentalData getFundamentalData(Day day) {
-		if (fundamentalDatas.isEmpty()) {
-			return null;
-		}
-		return Iterables.find(fundamentalDatas, new Predicate<FundamentalData>() {
-			@Override
-			public boolean apply(FundamentalData input) {
-				return (day.after(input.getFiscalStartDay()) &&
-					   day.before(input.getFiscalEndDay())) ||
-					day.equals(input.getFiscalStartDay()) ||
-					day.equals(input.getFiscalEndDay());
-			}
-		}, null);
+		return fundamentalDatas.stream()
+			.filter(d -> d.isIncluded(day))
+			.findAny().orElse(null);
 	}
 
 	public AvgFundamentalData getAvgFundamentalData(IPriceProvider adjustedPriceProvider, ExchangeRates exchangeRates) {

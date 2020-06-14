@@ -136,6 +136,12 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		return fiscalEndDay;
 	}
 
+	public boolean isIncluded(Day day) {
+		return (day.after(getFiscalStartDay()) && day.before(getFiscalEndDay())) ||
+			day.equals(getFiscalStartDay()) ||
+			day.equals(getFiscalEndDay());
+	}
+
 	public BigDecimal calculateYOC(InventoryEntry inventoryEntry) {
 		if (inventoryEntry.getQuantity().signum() <= 0) {
 			return BigDecimal.ZERO;

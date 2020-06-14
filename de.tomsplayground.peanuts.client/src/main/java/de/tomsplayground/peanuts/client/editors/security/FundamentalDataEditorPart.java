@@ -708,20 +708,25 @@ public class FundamentalDataEditorPart extends EditorPart {
 			String apiKey = Activator.getDefault().getPreferenceStore().getString(Activator.RAPIDAPIKEY_PROPERTY);
 			DebtEquity debtEquity = new DebtEquity(apiKey);
 			List<DebtEquityValue> values = debtEquity.readUrl(symbol);
+			boolean valueChanged = false;
 			for (DebtEquityValue debtEquityValue : values) {
-				System.out.println(debtEquityValue+ " " + debtEquityValue.getValue()+ " "+debtEquityValue.getDay());
 				for (FundamentalData oldData : fundamentalDatas) {
-					if (debtEquityValue.getYear() == oldData.getYear()) {
-//						if (! oldData.isLocked()) {
-							oldData.setDebtEquityRatio(new BigDecimal(debtEquityValue.getValue()));
+					if (oldData.isIncluded(debtEquityValue.getDay())) {
+						BigDecimal newValue = new BigDecimal(debtEquityValue.getValue());
+						BigDecimal oldValue = oldData.getDebtEquityRatio();
+						if (oldValue != null && oldValue.compareTo(newValue) != 0) {
+							oldData.setDebtEquityRatio(newValue);
 							oldData.updateLastModifyDate();
-//						}
+							valueChanged = true;
+						}
 						break;
 					}
 				}
 			}
-			markDirty();
-			tableViewer.refresh(true);
+			if (valueChanged) {
+				markDirty();
+				tableViewer.refresh(true);
+			}
 		} catch (RuntimeException ex) {
 			ex.printStackTrace();
 		}
