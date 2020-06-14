@@ -456,6 +456,7 @@ public class DividendStatsView extends ViewPart {
 		List<Dividend> dividends = Activator.getDefault().getAccountManager().getSecurities().stream()
 			.flatMap(s -> s.getDividends().stream())
 			.filter(d -> d.getPayDate().toMonth().equals(month))
+			.filter(d -> getQuantity(d).signum() == 1)
 			.sorted()
 			.collect(Collectors.toList());
 		oneMonthListViewer.setInput(dividends);
