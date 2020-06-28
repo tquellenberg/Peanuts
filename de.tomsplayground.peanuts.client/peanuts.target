@@ -1,11 +1,12 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><?pde version="3.8"?><target name="peanuts" sequenceNumber="2">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="peanuts" sequenceNumber="2">
 	<locations>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<unit id="org.eclipse.equinox.sdk.feature.group" version="3.14.0.v20180518-2029"/>
-			<unit id="org.eclipse.rcp.feature.group" version="4.8.0.v20180611-0656"/>
-			<unit id="org.eclipse.rcp.source.feature.group" version="4.8.0.v20180611-0656"/>
-			<unit id="org.eclipse.sdk.ide" version="4.8.0.I20180611-0500"/>
-			<repository location="http://download.eclipse.org/eclipse/updates/4.8/R-4.8-201806110500/"/>
+			<repository location="https://download.eclipse.org/eclipse/updates/4.16/R-4.16-202006040540/"/>
+			<unit id="org.eclipse.core.runtime.feature.feature.group" version="1.2.900.v20200525-1407"/>
+			<unit id="org.eclipse.equinox.sdk.feature.group" version="3.20.200.v20200528-0603"/>
+			<unit id="org.eclipse.sdk.feature.group" version="4.16.0.v20200604-0951"/>
 		</location>
 	</locations>
 </target>

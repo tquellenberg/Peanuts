@@ -280,7 +280,7 @@ public class TransactionListEditorPart extends EditorPart {
 				return true;
 			}
 		};
-		FilteredTree filteredTree = new FilteredTree(top, SWT.MULTI | SWT.FULL_SELECTION, filter, true);
+		FilteredTree filteredTree = new FilteredTree(top, SWT.MULTI | SWT.FULL_SELECTION, filter, true, true);
 		transactionTree = filteredTree.getViewer();
 
 		transactionTree.addOpenListener(new IOpenListener() {

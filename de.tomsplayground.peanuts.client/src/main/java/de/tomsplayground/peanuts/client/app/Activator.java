@@ -23,6 +23,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
@@ -193,7 +194,7 @@ public class Activator extends AbstractUIPlugin {
 
 	public synchronized ColorRegistry getColorProvider() {
 		if (colorProvider == null) {
-			colorProvider = new ColorRegistry(getWorkbench().getDisplay());
+			colorProvider = new ColorRegistry(PlatformUI.getWorkbench().getDisplay());
 			colorProvider.put(LIST_EVEN, new RGB(0xBF, 0xE4, 0xFF));
 			colorProvider.put(LIST_ODD, new RGB(0xFF, 0xF2, 0xBF));
 			colorProvider.put(RED, new RGB(0xFF, 0x0D, 0x00));

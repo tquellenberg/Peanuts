@@ -339,7 +339,7 @@ public class NavigationView extends ViewPart {
 		PatternFilter filter = new PatternFilter() {
 
 		};
-		filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, true);
+		filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, true, true);
 		filteredTree.setQuickSelectionMode(true);
 		viewer = filteredTree.getViewer();
 		viewer.setContentProvider(new ViewContentProvider());

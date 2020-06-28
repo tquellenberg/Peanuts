@@ -26,8 +26,8 @@ import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 
 import de.tomsplayground.peanuts.client.app.Activator;
-import de.tomsplayground.peanuts.client.dnd.PeanutsTransfer;
 import de.tomsplayground.peanuts.client.dnd.CategoryTransferData;
+import de.tomsplayground.peanuts.client.dnd.PeanutsTransfer;
 import de.tomsplayground.peanuts.domain.base.Category;
 
 public class CategoryComposite extends Composite {
@@ -60,7 +60,7 @@ public class CategoryComposite extends Composite {
 
 				PatternFilter patternFilter = new PatternFilter();
 				FilteredTree tree = new FilteredTree(dialog, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL |
-					SWT.BORDER, patternFilter, true);
+					SWT.BORDER, patternFilter, true, true);
 				TreeViewer viewer = tree.getViewer();
 				viewer.setContentProvider(new CategoryContentProvider());
 				viewer.setLabelProvider(new CategoryLabelProvider());
