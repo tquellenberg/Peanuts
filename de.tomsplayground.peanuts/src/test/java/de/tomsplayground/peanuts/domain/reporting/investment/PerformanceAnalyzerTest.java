@@ -57,7 +57,7 @@ public class PerformanceAnalyzerTest {
 				return simplePriceProvider;
 			}
 			@Override
-			public IPriceProvider getAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
+			public IPriceProvider getSplitAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
 				return getPriceProvider(security);
 			}
 		};

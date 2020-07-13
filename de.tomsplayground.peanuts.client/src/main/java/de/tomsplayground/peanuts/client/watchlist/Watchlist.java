@@ -88,7 +88,7 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 			ob.addPropertyChangeListener(propertyChangeListener);
 		}
 		ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
-		IPriceProvider adjustedPriceProvider = PriceProviderFactory.getInstance().getAdjustedPriceProvider(security, stockSplits);
+		IPriceProvider adjustedPriceProvider = PriceProviderFactory.getInstance().getSplitAdjustedPriceProvider(security, stockSplits);
 		WatchEntry watchEntry = new WatchEntry(security, adjustedPriceProvider);
 		entries.add(watchEntry);
 		firePropertyChange("entries", null, watchEntry);

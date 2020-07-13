@@ -74,6 +74,9 @@ import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
+import de.tomsplayground.peanuts.domain.process.CurrencyAdjustedPriceProviderFactory;
+import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction.Type;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
@@ -711,7 +714,10 @@ public class InventoryEditorPart extends EditorPart {
 			}
 		});
 
-		inventory = new Inventory(account, PriceProviderFactory.getInstance(), date, new AnalyzerFactory());
+		IPriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
+		ExchangeRates exchangeRates = new ExchangeRates(priceProviderFactory, Activator.getDefault().getAccountManager());
+		priceProviderFactory = new CurrencyAdjustedPriceProviderFactory(account.getCurrency(), priceProviderFactory, exchangeRates);
+		inventory = new Inventory(account, priceProviderFactory, date, new AnalyzerFactory());
 		inventory.setDate(date);
 		inventory.addPropertyChangeListener(inventoryChangeListener);
 		treeViewer.setInput(inventory);

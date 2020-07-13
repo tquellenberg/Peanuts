@@ -220,7 +220,7 @@ public class ChartEditorPart extends EditorPart {
 		setPartName(input.getName());
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
-		priceProvider = PriceProviderFactory.getInstance().getAdjustedPriceProvider(security, stockSplits);
+		priceProvider = PriceProviderFactory.getInstance().getSplitAdjustedPriceProvider(security, stockSplits);
 	}
 
 	@Override
@@ -615,7 +615,7 @@ public class ChartEditorPart extends EditorPart {
 		if (compareTo != null && timeChart.getFromDate() != null) {
 			de.tomsplayground.util.Day fromDate = de.tomsplayground.util.Day.fromCalendar(timeChart.getFromDate());
 			ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(compareTo);
-			IPriceProvider compareToPriceProvider = PriceProviderFactory.getInstance().getAdjustedPriceProvider(compareTo, stockSplits);
+			IPriceProvider compareToPriceProvider = PriceProviderFactory.getInstance().getSplitAdjustedPriceProvider(compareTo, stockSplits);
 			IPrice p1 = priceProvider.getPrice(fromDate);
 			IPrice p2 = compareToPriceProvider.getPrice(fromDate);
 			BigDecimal adjust = p1.getValue().divide(p2.getValue(), MC);

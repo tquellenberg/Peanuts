@@ -122,7 +122,7 @@ public class TimeIntervalReportTest {
 				return priceProvider;
 			}
 			@Override
-			public IPriceProvider getAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
+			public IPriceProvider getSplitAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
 				return getPriceProvider(security);
 			}
 		});
@@ -156,7 +156,7 @@ public class TimeIntervalReportTest {
 				return priceProvider;
 			}
 			@Override
-			public IPriceProvider getAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
+			public IPriceProvider getSplitAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
 				return getPriceProvider(security);
 			}
 		});
@@ -180,7 +180,7 @@ public class TimeIntervalReportTest {
 				return priceProvider;
 			}
 			@Override
-			public IPriceProvider getAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
+			public IPriceProvider getSplitAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
 				return getPriceProvider(security);
 			}
 		});

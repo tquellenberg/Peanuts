@@ -61,7 +61,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 	}
 
 	@Override
-	public IPriceProvider getAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
+	public IPriceProvider getSplitAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
 		IPriceProvider rawPriceProvider = getPriceProvider(security);
 		if (stockSplits.isEmpty()) {
 			return rawPriceProvider;

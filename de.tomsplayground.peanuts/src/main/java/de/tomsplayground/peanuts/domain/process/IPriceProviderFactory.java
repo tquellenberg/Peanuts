@@ -8,5 +8,5 @@ public interface IPriceProviderFactory {
 
 	IPriceProvider getPriceProvider(Security security);
 
-	IPriceProvider getAdjustedPriceProvider(Security security, List<StockSplit> stockSplits);
+	IPriceProvider getSplitAdjustedPriceProvider(Security security, List<StockSplit> stockSplits);
 }
