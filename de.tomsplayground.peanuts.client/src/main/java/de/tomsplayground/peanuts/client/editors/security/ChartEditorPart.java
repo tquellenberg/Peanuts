@@ -67,6 +67,7 @@ import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
+import de.tomsplayground.peanuts.domain.currenncy.DummyCurrencyConverter;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.fundamental.AvgFundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
@@ -369,7 +370,10 @@ public class ChartEditorPart extends EditorPart {
 				return currencyConverter;
 			}
 		}
-		return exchangeRate.createCurrencyConverter(security.getCurrency(), security.getCurrency());
+		if (! defaultCurrency.equals(security.getCurrency())) {
+			return exchangeRate.createCurrencyConverter(defaultCurrency, security.getCurrency());
+		}
+		return new DummyCurrencyConverter(security.getCurrency());
 	}
 
 	protected void addSplitAnnotations(List<StockSplit> splits) {
