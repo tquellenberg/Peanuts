@@ -150,7 +150,8 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		try {
 			reader = new LocalPriceReader(security, new StringReader(csv));
 		} catch (IOException | CsvValidationException e) {
-			throw new RuntimeException(e);
+			log.error("buildPriceProvider " + security.getName() + " " + e.getMessage());
+			return null;
 		}
 		return reader;
 	}
