@@ -62,7 +62,7 @@ public class AlarmView extends ViewPart {
 		public void doit(PropertyChangeEvent evt, Display display) {
 			alarmListViewer.setInput(Activator.getDefault().getAccountManager().getSecurityAlarms());
 			alarmListViewer.refresh();
-			executor.submit(() -> checkAlarms());
+			executor.submit(AlarmView.this::checkAlarms);
 		}
 
 		@Override
@@ -118,8 +118,7 @@ public class AlarmView extends ViewPart {
 				if (! w1.isTriggered() && w2.isTriggered()) {
 					return 1;
 				}
-				int compare = w1.getSecurity().getName().compareTo(w2.getSecurity().getName());
-				return compare;
+				return w1.getSecurity().getName().compareTo(w2.getSecurity().getName());
 			}
 			return 0;
 		}
@@ -137,7 +136,7 @@ public class AlarmView extends ViewPart {
 			}
 		}
 		executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("Alarm-Checker-%d").build());
-		executor.scheduleWithFixedDelay(() -> checkAlarms(), 0, 1, TimeUnit.MINUTES);
+		executor.scheduleWithFixedDelay(this::checkAlarms, 0, 1, TimeUnit.MINUTES);
 	}
 
 	private void checkAlarms() {
