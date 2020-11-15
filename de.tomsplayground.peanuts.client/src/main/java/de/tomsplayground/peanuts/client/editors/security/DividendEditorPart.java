@@ -149,6 +149,9 @@ public class DividendEditorPart extends EditorPart {
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
 			Dividend entry = (Dividend) element;
+			if (columnIndex == 0 && entry.getPayDate().delta(new Day()) > 7) {
+				return Activator.getDefault().getColorProvider().get(Activator.GRAY_BG);
+			}
 			if (entry.isIncrease()) {
 				return Activator.getDefault().getColorProvider().get(Activator.GREEN_BG);
 			}
