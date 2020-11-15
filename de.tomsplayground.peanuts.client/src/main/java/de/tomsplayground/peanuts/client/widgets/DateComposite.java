@@ -52,9 +52,7 @@ public class DateComposite extends Composite {
 				dialog.setLayout(new GridLayout(1, false));
 				final DateTime calendar = new DateTime(dialog, SWT.CALENDAR | SWT.BORDER);
 				calendar.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-				calendar.setYear(date.getYear());
-				calendar.setMonth(date.getMonth());
-				calendar.setDay(date.getDay());
+				calendar.setDate(date.getYear(), date.getMonth(), date.getDay());
 				Button ok = new Button(dialog, SWT.PUSH);
 				ok.setText("OK");
 				ok.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
@@ -104,23 +102,15 @@ public class DateComposite extends Composite {
 	}
 
 	public Day getDay() {
-		int year = date.getYear();
-		if (year < 1000) {
-			year += 2000;
-		}
 		return new Day(date.getYear(), date.getMonth(), date.getDay());
 	}
 
 	public void setDay(Day day) {
-		date.setYear(day.year);
-		date.setMonth(day.month);
-		date.setDay(day.day);
+		date.setDate(day.year, day.month, day.day);
 	}
 
 	public void setDate(Calendar calendar) {
-		date.setYear(calendar.get(Calendar.YEAR));
-		date.setMonth(calendar.get(Calendar.MONTH));
-		date.setDay(calendar.get(Calendar.DAY_OF_MONTH));
+		date.setDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 	}
 
 	public void addModifyListener(final ModifyListener listener) {
