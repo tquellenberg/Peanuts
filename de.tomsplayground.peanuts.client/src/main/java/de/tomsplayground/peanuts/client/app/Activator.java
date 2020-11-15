@@ -208,6 +208,23 @@ public class Activator extends AbstractUIPlugin {
 		return colorProvider;
 	}
 
+	public static File getLockFile(String filename) {
+		return new File(filename+".lock");
+	}
+
+	private void createLockFile(String filename) {
+		try {
+			getLockFile(filename).createNewFile();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void removeLockFile() {
+		FileUtils.deleteQuietly(getLockFile(getFilename()));
+	}
+
+
 	public void load(String filename) throws IOException {
 		Reader reader;
 		if (filename.equals(EXAMPLE)) {
@@ -233,6 +250,7 @@ public class Activator extends AbstractUIPlugin {
 				setFilename(System.getProperty("user.home") + File.separator + EXAMPLE_FILENAME);
 			} else {
 				setFilename(filename);
+				createLockFile(filename);
 			}
 		} finally {
 			IOUtils.closeQuietly(reader);
@@ -271,6 +289,7 @@ public class Activator extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		if (accountManager != null) {
 			save(getFilename());
+			removeLockFile();
 		}
 //		ibConnection.stop();
 //		ibConnection = null;

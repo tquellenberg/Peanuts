@@ -3,6 +3,8 @@ package de.tomsplayground.peanuts.client.app;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
@@ -50,6 +52,24 @@ final class LoginDialog extends TitleAreaDialog {
 
 		filenameText = new Text(fileChooserComposite, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 		filenameText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		filenameText.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				String filename = filenameText.getText();
+				boolean okay = true;
+				if (! isCorrectFiletype(filename)) {
+					setErrorMessage("File must be of type "+Activator.FILE_EXTENSION_SECURE);
+					okay = false;
+				}
+				if (isAlreadyLocked(filename)) {
+					setErrorMessage("File is already open.");
+					okay = false;
+				}
+				passwordText.setEnabled(okay);
+				passwordText.setFocus();
+
+			}
+		});
 
 		Button fileChooserButton = new Button(fileChooserComposite, SWT.FLAT);
 		Image image = Activator.getDefault().getImageRegistry().get(Activator.IMAGE_LOAD_FILE);
@@ -63,7 +83,6 @@ final class LoginDialog extends TitleAreaDialog {
 				String selectedFilename = fileDialog.open();
 				if (selectedFilename != null) {
 					filenameText.setText(selectedFilename);
-					passwordText.setEnabled(selectedFilename.endsWith("."+Activator.FILE_EXTENSION_SECURE));
 				}
 			}
 
@@ -82,11 +101,17 @@ final class LoginDialog extends TitleAreaDialog {
 		String filename = Activator.getDefault().getFilename();
 		if (StringUtils.isNotBlank(filename)) {
 			filenameText.setText(filename);
-			passwordText.setEnabled(filename.endsWith("."+Activator.FILE_EXTENSION_SECURE));
-			passwordText.setFocus();
 		}
 
 		return parentComposite;
+	}
+
+	private boolean isCorrectFiletype(String filename) {
+		return filename.endsWith("."+Activator.FILE_EXTENSION_SECURE);
+	}
+
+	private boolean isAlreadyLocked(String filename) {
+		return Activator.getLockFile(filename).exists();
 	}
 
 	@Override
@@ -99,6 +124,10 @@ final class LoginDialog extends TitleAreaDialog {
 		}
 		if (filename.endsWith("."+Activator.FILE_EXTENSION_SECURE) && StringUtils.isBlank(password)){
 			setErrorMessage("Password must not be emtpy.");
+			return;
+		}
+		if (isAlreadyLocked(filename)) {
+			setErrorMessage("File is already open.");
 			return;
 		}
 
