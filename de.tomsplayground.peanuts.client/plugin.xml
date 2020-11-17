@@ -315,20 +315,6 @@
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="toolbar:main">
-         <command
-               commandId="de.tomsplayground.peanuts.client.load.bpx"
-               icon="icons/database_go.png"
-               label="Load">
-         </command>
-         <command
-               commandId="de.tomsplayground.peanuts.client.save.bpx"
-               icon="icons/database_save.png"
-               id="de.tomsplayground.peanuts.client.save.bpx"
-               label="Saves">
-         </command>
-      </menuContribution>
-      <menuContribution
             locationURI="popup:org.eclipse.ui.popup.any?after=group.properties">
          <command
                commandId="org.eclipse.ui.file.properties"
