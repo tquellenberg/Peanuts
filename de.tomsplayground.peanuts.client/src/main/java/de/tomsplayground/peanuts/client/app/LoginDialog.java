@@ -67,7 +67,9 @@ final class LoginDialog extends TitleAreaDialog {
 				}
 				passwordText.setEnabled(okay);
 				passwordText.setFocus();
-
+				if (okay) {
+					setErrorMessage(null);
+				}
 			}
 		});
 
@@ -79,7 +81,6 @@ final class LoginDialog extends TitleAreaDialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog fileDialog = new FileDialog(LoginDialog.this.getShell(), SWT.OPEN);
-				fileDialog.setFilterExtensions(Activator.ALL_FILE_PATTERN);
 				String selectedFilename = fileDialog.open();
 				if (selectedFilename != null) {
 					filenameText.setText(selectedFilename);

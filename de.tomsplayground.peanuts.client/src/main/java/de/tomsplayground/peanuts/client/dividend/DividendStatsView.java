@@ -459,7 +459,9 @@ public class DividendStatsView extends ViewPart {
 			.filter(d -> getQuantity(d).signum() == 1)
 			.sorted()
 			.collect(Collectors.toList());
+		System.out.println(dividends);
 		oneMonthListViewer.setInput(dividends);
+		oneMonthListViewer.getTable().redraw();
 	}
 
 	private void createOneMonthTable(Composite top) {

@@ -792,6 +792,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 				fundamentalDatas.add(fundamentalData);
 				tableRows.add(fundamentalData);
 				tableViewer.add(fundamentalData);
+				tableViewer.getTable().redraw();
 				markDirty();
 			}
 		});
