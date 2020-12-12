@@ -61,6 +61,7 @@ import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.chart.TimeChart;
 import de.tomsplayground.peanuts.client.editors.security.properties.ChartPropertyPage;
+import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
@@ -97,100 +98,93 @@ public class ChartEditorPart extends EditorPart {
 	private IPriceProvider priceProvider;
 	private ChartComposite chartComposite;
 
-	private final PropertyChangeListener priceProviderChangeListener = new PropertyChangeListener() {
-
+	private final PropertyChangeListener priceProviderChangeListener = new UniqueAsyncExecution() {
 		@Override
-		public void propertyChange(final PropertyChangeEvent evt) {
-			Display display = getSite().getWorkbenchWindow().getWorkbench().getDisplay();
-			display.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					if (! chartComposite.isDisposed()) {
-						if (evt.getOldValue() instanceof Price) {
-							Price priceOld = (Price) evt.getOldValue();
-							Day day = new Day(priceOld.getDay().day, priceOld.getDay().month+1, priceOld.getDay().year);
-							priceTimeSeries.delete(day);
-							if (isShowAvg()) {
-								average20Days.delete(day);
-								average100Days.delete(day);
-							}
-						}
-						if (evt.getNewValue() instanceof Price) {
-							Price priceNew = (Price) evt.getNewValue();
-							de.tomsplayground.util.Day day = priceNew.getDay();
-							priceTimeSeries.add(new Day(day.day, day.month+1, day.year), priceNew.getValue());
-						} else  if (evt.getNewValue() != null) {
-							// Full update
-							for (IPrice p : priceProvider.getPrices()) {
-								de.tomsplayground.util.Day day = p.getDay();
-								priceTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), p.getValue());
-							}
-						}
-						if (isShowAvg()) {
-							createMovingAverage(average20Days, 20);
-							createMovingAverage(average100Days, 100);
-						}
-						updateStopLoss();
+		public void doit(PropertyChangeEvent evt, Display display) {
+			if (! chartComposite.isDisposed()) {
+				if (evt.getOldValue() instanceof Price) {
+					Price priceOld = (Price) evt.getOldValue();
+					Day day = new Day(priceOld.getDay().day, priceOld.getDay().month+1, priceOld.getDay().year);
+					priceTimeSeries.delete(day);
+					if (isShowAvg()) {
+						average20Days.delete(day);
+						average100Days.delete(day);
 					}
 				}
-			});
+				if (evt.getNewValue() instanceof Price) {
+					Price priceNew = (Price) evt.getNewValue();
+					de.tomsplayground.util.Day day = priceNew.getDay();
+					priceTimeSeries.add(new Day(day.day, day.month+1, day.year), priceNew.getValue());
+				} else  if (evt.getNewValue() != null) {
+					// Full update
+					for (IPrice p : priceProvider.getPrices()) {
+						de.tomsplayground.util.Day day = p.getDay();
+						priceTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), p.getValue());
+					}
+				}
+				if (isShowAvg()) {
+					createMovingAverage(average20Days, 20);
+					createMovingAverage(average100Days, 100);
+				}
+				updateStopLoss();
+			}
+		}
+		@Override
+		public Display getDisplay() {
+			return getSite().getShell().getDisplay();
 		}
 	};
 
-	private final PropertyChangeListener securityPropertyChangeListener = new PropertyChangeListener() {
+	private final PropertyChangeListener securityPropertyChangeListener = new UniqueAsyncExecution() {
 		@Override
-		public void propertyChange(PropertyChangeEvent evt) {
-			Display display = getSite().getWorkbenchWindow().getWorkbench().getDisplay();
-			display.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					if (chartComposite.isDisposed()) {
-						return;
-					}
-					if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_AVG)) {
-						if (isShowAvg()) {
-							createMovingAverage(average20Days, 20);
-							createMovingAverage(average100Days, 100);
-							dataset.addSeries(average20Days);
-							dataset.addSeries(average100Days);
-						} else {
-							dataset.removeSeries(average20Days);
-							dataset.removeSeries(average100Days);
-						}
-					}
-					if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_BUY_SELL) ||
-						evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_DIVIDENDS)) {
-						timeChart.removeAnnotations(orderAnnotations);
-						orderAnnotations = addOrderAnnotations();
-						if (avgPriceAnnotation != null) {
-							pricePlot.removeRangeMarker(avgPriceAnnotation);
-						}
-						addAvgPriceAnnotation();
-					}
-					if (evt.getPropertyName().equals(FundamentalDatas.OVERRIDDEN_AVG_PE) ||
-						evt.getPropertyName().equals("fundamentalData")) {
-						calculateFixedPePrice();
-					}
+		public void doit(PropertyChangeEvent evt, Display display) {
+			if (chartComposite.isDisposed()) {
+				return;
+			}
+			if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_AVG)) {
+				if (isShowAvg()) {
+					createMovingAverage(average20Days, 20);
+					createMovingAverage(average100Days, 100);
+					dataset.addSeries(average20Days);
+					dataset.addSeries(average100Days);
+				} else {
+					dataset.removeSeries(average20Days);
+					dataset.removeSeries(average100Days);
 				}
-			});
+			}
+			if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_BUY_SELL) ||
+				evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_DIVIDENDS)) {
+				timeChart.removeAnnotations(orderAnnotations);
+				orderAnnotations = addOrderAnnotations();
+				if (avgPriceAnnotation != null) {
+					pricePlot.removeRangeMarker(avgPriceAnnotation);
+				}
+				addAvgPriceAnnotation();
+			}
+			if (evt.getPropertyName().equals(FundamentalDatas.OVERRIDDEN_AVG_PE) ||
+				evt.getPropertyName().equals("fundamentalData")) {
+				calculateFixedPePrice();
+			}
+		}
+		@Override
+		public Display getDisplay() {
+			return getSite().getShell().getDisplay();
 		}
 	};
 
-	private final PropertyChangeListener accountManagerChangeListener = new PropertyChangeListener() {
+	private final PropertyChangeListener accountManagerChangeListener = new UniqueAsyncExecution() {
 		@Override
-		public void propertyChange(PropertyChangeEvent evt) {
-			Display display = getSite().getWorkbenchWindow().getWorkbench().getDisplay();
-			display.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					if (chartComposite.isDisposed()) {
-						return;
-					}
-					if (evt.getPropertyName().equals("stopLoss")) {
-						updateStopLoss();
-					}
-				}
-			});
+		public void doit(PropertyChangeEvent evt, Display display) {
+			if (chartComposite.isDisposed()) {
+				return;
+			}
+			if (evt.getPropertyName().equals("stopLoss")) {
+				updateStopLoss();
+			}
+		}
+		@Override
+		public Display getDisplay() {
+			return getSite().getShell().getDisplay();
 		}
 	};
 
