@@ -47,3 +47,4 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.expressions
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: Tom's Playground
+Automatic-Module-Name: de.tomsplayground.peanuts.client
