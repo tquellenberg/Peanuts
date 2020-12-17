@@ -82,6 +82,7 @@ import de.tomsplayground.peanuts.domain.process.InvestmentTransaction.Type;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzedInvestmentTransaction;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
+import de.tomsplayground.peanuts.domain.reporting.tax.RealizedGain;
 import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
@@ -94,6 +95,7 @@ public class InventoryEditorPart extends EditorPart {
 	private final int colWidth[] = new int[11];
 	private TreeViewer treeViewer;
 	private Label gainingLabel;
+	private Label realizedLabel;
 	private Label marketValueLabel;
 	private Label changeLabel;
 	private Day date = new Day();
@@ -438,7 +440,7 @@ public class InventoryEditorPart extends EditorPart {
 		layout = new GridLayout();
 		layout.marginHeight = 5;
 		layout.marginWidth = 10;
-		layout.numColumns = 11;
+		layout.numColumns = 13;
 		banner.setLayout(layout);
 		Font boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT);
 
@@ -451,6 +453,11 @@ public class InventoryEditorPart extends EditorPart {
 		l.setText("Gainings:");
 		l.setFont(boldFont);
 		gainingLabel = new Label(banner, SWT.NONE);
+
+		l = new Label(banner, SWT.NONE);
+		l.setText("Realized:");
+		l.setFont(boldFont);
+		realizedLabel = new Label(banner, SWT.NONE);
 
 		l = new Label(banner, SWT.NONE);
 		l.setFont(boldFont);
@@ -766,6 +773,10 @@ public class InventoryEditorPart extends EditorPart {
 		ITransactionProvider account = getTransactions();
 		treeViewer.refresh(true);
 		gainingLabel.setText(PeanutsUtil.formatCurrency(inventory.getGainings(), account.getCurrency()));
+		RealizedGain realizedGain = new RealizedGain(inventory);
+		BigDecimal realized = realizedGain.gain(2020);
+		realizedGain.getRealizedTransaction(2020).forEach(t -> System.out.println(t.getDay() + " "+ t.getSecurity().getName()+ " "+t.getGain()));
+		realizedLabel.setText(PeanutsUtil.formatCurrency(realized, account.getCurrency()));
 		marketValueLabel.setText(PeanutsUtil.formatCurrency(inventory.getMarketValue(), account.getCurrency()));
 		changeLabel.setText(PeanutsUtil.formatCurrency(inventory.getDayChange(), account.getCurrency()));
 		marketValueLabel.getParent().layout();
