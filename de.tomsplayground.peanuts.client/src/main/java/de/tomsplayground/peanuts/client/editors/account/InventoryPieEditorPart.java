@@ -100,7 +100,7 @@ public class InventoryPieEditorPart extends EditorPart {
 		final DateComposite dateChooser = new DateComposite(banner, SWT.NONE);
 
 		l = new Label(banner, SWT.NONE);
-		l.setText("Gainings:");
+		l.setText("Unrealized:");
 		l.setFont(boldFont);
 		gainingLabel = new Label(banner, SWT.NONE);
 		gainingLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
@@ -164,7 +164,7 @@ public class InventoryPieEditorPart extends EditorPart {
 
 	protected void updateAll() {
 		ITransactionProvider transactions = ((ITransactionProviderInput) getEditorInput()).getTransactionProvider();
-		gainingLabel.setText(PeanutsUtil.formatCurrency(inventory.getGainings(), transactions.getCurrency()));
+		gainingLabel.setText(PeanutsUtil.formatCurrency(inventory.getUnrealizedGainings(), transactions.getCurrency()));
 		marketValueLabel.setText(PeanutsUtil.formatCurrency(inventory.getMarketValue(), transactions.getCurrency()));
 		marketValueLabel.getParent().layout();
 		updateDataset();

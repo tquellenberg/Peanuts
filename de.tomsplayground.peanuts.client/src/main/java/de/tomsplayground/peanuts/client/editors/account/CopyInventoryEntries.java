@@ -34,6 +34,7 @@ public class CopyInventoryEntries extends AbstractHandler {
 				System.out.println(entry.getSecurity().getName());
 				content += entry.getSecurity().getName()
 					+ "\t" + entry.getSecurity().getISIN()
+					+ "\t" + PeanutsUtil.formatCurrency(entry.getInvestedAmount(), null)
 					+ "\t" + PeanutsUtil.formatCurrency(entry.getMarketValue(new Day()), null)
 					+ System.lineSeparator();
 			}

@@ -450,7 +450,7 @@ public class InventoryEditorPart extends EditorPart {
 		final DateComposite dateChooser = new DateComposite(banner, SWT.NONE);
 
 		l = new Label(banner, SWT.NONE);
-		l.setText("Gainings:");
+		l.setText("Unrealized:");
 		l.setFont(boldFont);
 		gainingLabel = new Label(banner, SWT.NONE);
 
@@ -772,10 +772,10 @@ public class InventoryEditorPart extends EditorPart {
 	protected void updateAll() {
 		ITransactionProvider account = getTransactions();
 		treeViewer.refresh(true);
-		gainingLabel.setText(PeanutsUtil.formatCurrency(inventory.getGainings(), account.getCurrency()));
+		gainingLabel.setText(PeanutsUtil.formatCurrency(inventory.getUnrealizedGainings(), account.getCurrency()));
 		RealizedGain realizedGain = new RealizedGain(inventory);
-		BigDecimal realized = realizedGain.gain(2020);
-		realizedGain.getRealizedTransaction(2020).forEach(t -> System.out.println(t.getDay() + " "+ t.getSecurity().getName()+ " "+t.getGain()));
+		BigDecimal realized = realizedGain.gain(date.year);
+//		realizedGain.getRealizedTransaction(2020).forEach(t -> System.out.println(t.getDay() + " "+ t.getSecurity().getName()+ " "+t.getGain()));
 		realizedLabel.setText(PeanutsUtil.formatCurrency(realized, account.getCurrency()));
 		marketValueLabel.setText(PeanutsUtil.formatCurrency(inventory.getMarketValue(), account.getCurrency()));
 		changeLabel.setText(PeanutsUtil.formatCurrency(inventory.getDayChange(), account.getCurrency()));

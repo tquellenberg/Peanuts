@@ -190,10 +190,10 @@ public class Inventory extends ObservableModelObject {
 		return entryMap.get(security);
 	}
 
-	public BigDecimal getGainings() {
+	public BigDecimal getUnrealizedGainings() {
 		synchronized (entryMap) {
 			return entryMap.values().parallelStream()
-					.map(e -> e.getGaining())
+					.map(e -> e.getMarketValue(day).subtract(e.getInvestedAmount()))
 					.reduce(BigDecimal.ZERO, BigDecimal::add);
 		}
 	}
