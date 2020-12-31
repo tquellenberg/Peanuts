@@ -5,6 +5,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,16 +47,12 @@ import org.jfree.ui.RectangleInsets;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
-import de.tomsplayground.peanuts.domain.base.Inventory;
-import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.dividend.Dividend;
 import de.tomsplayground.peanuts.domain.dividend.DividendMonth;
 import de.tomsplayground.peanuts.domain.dividend.DividendStats;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
-import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
-import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
@@ -82,9 +79,9 @@ public class DividendStatsView extends ViewPart {
 
 	private TableViewer oneMonthListViewer;
 
-	private Inventory fullInventory;
-
 	private TableViewer yearlyListViewer;
+
+	private DividendStats dividendStats;
 
 	private class YearlyListLabelProvider extends LabelProvider implements ITableLabelProvider {
 		@Override
@@ -150,19 +147,19 @@ public class DividendStatsView extends ViewPart {
 				case 3:
 					return entry.getCurrency().getSymbol();
 				case 4:
-					return PeanutsUtil.formatQuantity(getQuantity(entry));
+					return PeanutsUtil.formatQuantity(dividendStats.getQuantity(entry));
 				case 5:
 					if (entry.getAmount() != null) {
 						return PeanutsUtil.formatCurrency(entry.getAmount(), entry.getCurrency());
 					} else {
-						return PeanutsUtil.formatCurrency(getQuantity(entry).multiply(entry.getAmountPerShare()), entry.getCurrency());
+						return PeanutsUtil.formatCurrency(dividendStats.getQuantity(entry).multiply(entry.getAmountPerShare()), entry.getCurrency());
 					}
 				case 6:
 					BigDecimal amount = entry.getAmountInDefaultCurrency();
 					if (amount == null) {
 						amount = entry.getAmount();
 						if (amount == null) {
-							amount = getQuantity(entry).multiply(entry.getAmountPerShare());
+							amount = dividendStats.getQuantity(entry).multiply(entry.getAmountPerShare());
 						}
 						CurrencyConverter converter = Activator.getDefault().getExchangeRate()
 							.createCurrencyConverter(entry.getCurrency(), Currencies.getInstance().getDefaultCurrency());
@@ -281,9 +278,7 @@ public class DividendStatsView extends ViewPart {
 		Activator.getDefault().getAccountManager().getSecurities().stream()
 			.forEach(s -> s.addPropertyChangeListener("dividends", securityChangeListener));
 
-		Report report = new Report("temp");
-		report.setAccounts(Activator.getDefault().getAccountManager().getAccounts());
-		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new Day(), new AnalyzerFactory());
+		dividendStats = new DividendStats(Activator.getDefault().getAccountManager(), PriceProviderFactory.getInstance());
 	}
 
 	@Override
@@ -453,13 +448,8 @@ public class DividendStatsView extends ViewPart {
 	}
 
 	private void updateOneMonthTable(Day month) {
-		List<Dividend> dividends = Activator.getDefault().getAccountManager().getSecurities().stream()
-			.flatMap(s -> s.getDividends().stream())
-			.filter(d -> d.getPayDate().toMonth().equals(month))
-			.filter(d -> getQuantity(d).signum() == 1)
-			.sorted()
-			.collect(Collectors.toList());
-		System.out.println(dividends);
+		List<Dividend> dividends = dividendStats.getDividends(month);
+		Collections.sort(dividends);
 		oneMonthListViewer.setInput(dividends);
 		oneMonthListViewer.getTable().redraw();
 	}
@@ -529,14 +519,14 @@ public class DividendStatsView extends ViewPart {
 	}
 
 	private void updateData() {
-		List<DividendMonth> dividendStats = getDividendStats();
-		List<DividendMonth> yearlyStats = dividendStats.stream()
-			.filter(s -> s.getMonth().month == 11)
+		List<DividendMonth> dividendMonths = dividendStats.getDividendMonths();
+		Collections.reverse(dividendMonths);
+		dividendStatsListViewer.setInput(dividendMonths);
+
+		List<DividendMonth> yearlyStats = dividendMonths.stream()
+			.filter(s -> s.getMonth().month == Calendar.DECEMBER)
+			.sorted()
 			.collect(Collectors.toList());
-
-		Collections.reverse(dividendStats);
-		dividendStatsListViewer.setInput(dividendStats);
-
 		yearlyListViewer.setInput(yearlyStats);
 	}
 
@@ -576,14 +566,14 @@ public class DividendStatsView extends ViewPart {
         10.0f, new float[]{5.0f}, 0.0f);
 
 	private XYDataset createTotalDataset(StandardXYItemRenderer renderer) {
-		List<DividendMonth> dividendStats = getDividendStats();
+		List<DividendMonth> dividendMonthList = dividendStats.getDividendMonths();
 		Day currentMonth = new Day();
 		currentMonth = currentMonth.addDays(-currentMonth.day+1);
 		int currentYear = 0;
 		XYSeries timeSeries = null;
 		List<XYSeries> series = new ArrayList<>();
 		boolean future = false;
-		for (DividendMonth dividendMonth : dividendStats) {
+		for (DividendMonth dividendMonth : dividendMonthList) {
 			if (dividendMonth.getMonth().year != currentYear) {
 				currentYear = dividendMonth.getMonth().year;
 				timeSeries = new XYSeries(getSeriesName(currentYear, future));
@@ -617,21 +607,6 @@ public class DividendStatsView extends ViewPart {
 
 	private String getSeriesName(int year, boolean future) {
 		return ""+ year + ((future)?" future":"");
-	}
-
-	private List<DividendMonth> getDividendStats() {
-		return new DividendStats(Activator.getDefault().getAccountManager(),
-			PriceProviderFactory.getInstance()).getDividendMonths();
-	}
-
-	private BigDecimal getQuantity(Dividend entry) {
-		if (entry.getQuantity() != null) {
-			return entry.getQuantity();
-		}
-		fullInventory.setDate(entry.getPayDate());
-		InventoryEntry inventoryEntry = fullInventory.getInventoryEntry(entry.getSecurity());
-
-		return inventoryEntry.getQuantity();
 	}
 
 	@Override

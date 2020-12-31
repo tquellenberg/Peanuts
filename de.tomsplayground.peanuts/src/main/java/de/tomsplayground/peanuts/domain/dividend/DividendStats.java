@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.domain.dividend;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -20,27 +21,42 @@ import de.tomsplayground.util.Day;
 
 public class DividendStats {
 
-	private final AccountManager accountManager;
 	private final Inventory fullInventory;
+
 	private final ExchangeRates exchangeRates;
 
+	private final Map<Day, List<Dividend>> groupedDividends;
+
 	public DividendStats(AccountManager accountManager, IPriceProviderFactory priceProviderFactory) {
-		this.accountManager = accountManager;
 		Report report = new Report("temp");
 		report.addQuery(new InvestmentQuery());
 		report.setAccounts(accountManager.getAccounts());
 		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new Day(), new AnalyzerFactory());
 		exchangeRates = new ExchangeRates(priceProviderFactory, accountManager);
+		groupedDividends = accountManager.getSecurities().stream()
+			.flatMap(s -> s.getDividends().stream())
+			.filter(d -> getQuantity(d).signum() == 1)
+			.collect(Collectors.groupingBy(d -> d.getPayDate().toMonth()));
 	}
 
 	public List<DividendMonth> getDividendMonths() {
-		Map<Day, List<Dividend>> groupedDividends = accountManager.getSecurities().stream()
-			.flatMap(s -> s.getDividends().stream())
-			.collect(Collectors.groupingBy(d -> d.getPayDate().toMonth()));
 		List<DividendMonth> result = groupedDividends.entrySet().stream()
 			.map(e -> calcDividendMonth(e.getKey(), e.getValue()))
 			.sorted()
 			.collect(Collectors.toList());
+		addYearlyStatsToMonth(result);
+		return result;
+	}
+
+	public List<Dividend> getDividends(Day month) {
+		if (groupedDividends.containsKey(month)) {
+			return new ArrayList<>(groupedDividends.get(month));
+		} else {
+			return new ArrayList<>();
+		}
+	}
+
+	private void addYearlyStatsToMonth(List<DividendMonth> result) {
 		if (! result.isEmpty()) {
 			int year = result.get(0).getMonth().year;
 			BigDecimal yearlySum = BigDecimal.ZERO;
@@ -62,7 +78,6 @@ public class DividendStats {
 				dividendMonth.setFutureYearlyAmount(futureYearlyAmount);
 			}
 		}
-		return result;
 	}
 
 	private DividendMonth calcDividendMonth(Day month, List<Dividend> dividends) {
@@ -73,19 +88,21 @@ public class DividendStats {
 		BigDecimal nettoInDefaultCurrency = dividends.stream()
 			.map(Dividend::getNettoAmountInDefaultCurrency)
 			.reduce(BigDecimal.ZERO, BigDecimal::add);
-		BigDecimal featureAmountInDefaultCurrency = dividends.stream()
+		BigDecimal futureAmountInDefaultCurrency = dividends.stream()
 			.filter(d -> d.getAmountInDefaultCurrency() == null)
 			.map(this::futureDividend)
 			.reduce(BigDecimal.ZERO, BigDecimal::add);
-		return new DividendMonth(month, amountInDefaultCurrency, nettoInDefaultCurrency, featureAmountInDefaultCurrency);
+		return new DividendMonth(month, amountInDefaultCurrency, nettoInDefaultCurrency, futureAmountInDefaultCurrency);
 	}
 
-	private BigDecimal getQuantity(Dividend entry) {
+	public BigDecimal getQuantity(Dividend entry) {
 		if (entry.getQuantity() != null) {
 			return entry.getQuantity();
 		}
-		fullInventory.setDate(entry.getPayDate());
-		return fullInventory.getInventoryEntry(entry.getSecurity()).getQuantity();
+		synchronized (fullInventory) {
+			fullInventory.setDate(entry.getPayDate());
+			return fullInventory.getInventoryEntry(entry.getSecurity()).getQuantity();
+		}
 	}
 
 	private BigDecimal futureDividend(Dividend d) {
