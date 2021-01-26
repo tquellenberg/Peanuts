@@ -39,6 +39,7 @@ public class AccountEditor extends MultiPageEditorPart {
 		if (((AccountEditorInput) getEditorInput()).getAccount().getType() == Account.Type.INVESTMENT) {
 			createEditorPage(new InventoryEditorPart(), "Inventory");
 			createEditorPage(new InventoryPieEditorPart(), "InventoryPie");
+			createEditorPage(new TaxPart(), "Tax");
 			createEditorPage(new InvestmentPerformanceEditorPart(), "Performance");
 		} else if (((AccountEditorInput) getEditorInput()).getAccount().getType() == Account.Type.CREDIT) {
 			createEditorPage(new CreditChartEditorPart(), "Credit");

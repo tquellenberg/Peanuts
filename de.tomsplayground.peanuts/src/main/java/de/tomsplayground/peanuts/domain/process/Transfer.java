@@ -1,16 +1,14 @@
 package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 
 import de.tomsplayground.peanuts.domain.base.Category;
 import de.tomsplayground.peanuts.domain.base.CurrencyManager;
+import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
 public class Transfer {
-
-	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	private final TransferTransaction transTo;
 	private final TransferTransaction transFrom;
@@ -24,8 +22,8 @@ public class Transfer {
 		if ( !target.getCurrency().equals(source.getCurrency())) {
 			BigDecimal exchangeRate = new CurrencyManager().getExchangeRate(source.getCurrency(),
 				target.getCurrency());
-			value = value.multiply(exchangeRate, MC);
-			value = value.setScale(2, RoundingMode.HALF_EVEN);
+			value = value.multiply(exchangeRate, PeanutsUtil.MC);
+			value = value.setScale(2, RoundingMode.HALF_UP);
 		}
 		transTo = new TransferTransaction(date, value, source, false);
 		transTo.setComplement(transFrom);

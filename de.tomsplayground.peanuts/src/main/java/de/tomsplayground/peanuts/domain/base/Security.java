@@ -1,12 +1,14 @@
 package de.tomsplayground.peanuts.domain.base;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -211,6 +213,17 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 
 	public ImmutableList<Dividend> getDividends() {
 		return ImmutableList.copyOf(dividends);
+	}
+
+	public void updateDividends(Collection<Dividend> updatedDividends) {
+		if (CollectionUtils.isEqualCollection(dividends, updatedDividends)) {
+			return;
+		}
+		updatedDividends.forEach(d -> d.setSecurity(this));
+		dividends.clear();
+		dividends.addAll(updatedDividends);
+		Collections.sort(dividends);
+		firePropertyChange("dividends", null, null);
 	}
 
 	public void addDividend(Dividend dividend) {

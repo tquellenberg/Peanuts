@@ -1,14 +1,11 @@
 package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 
+import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
 public class AdjustedPrice implements IPrice {
-
-	private final static MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	private final IPrice price;
 	private final BigDecimal ratio;
@@ -20,7 +17,7 @@ public class AdjustedPrice implements IPrice {
 
 	@Override
 	public BigDecimal getClose() {
-		return price.getClose().multiply(ratio, MC);
+		return price.getClose().multiply(ratio, PeanutsUtil.MC);
 	}
 
 	@Override
@@ -30,22 +27,22 @@ public class AdjustedPrice implements IPrice {
 
 	@Override
 	public BigDecimal getHigh() {
-		return price.getHigh().multiply(ratio, MC);
+		return price.getHigh().multiply(ratio,PeanutsUtil.MC);
 	}
 
 	@Override
 	public BigDecimal getLow() {
-		return price.getLow().multiply(ratio, MC);
+		return price.getLow().multiply(ratio, PeanutsUtil.MC);
 	}
 
 	@Override
 	public BigDecimal getOpen() {
-		return price.getOpen().multiply(ratio, MC);
+		return price.getOpen().multiply(ratio, PeanutsUtil.MC);
 	}
 
 	@Override
 	public BigDecimal getValue() {
-		return price.getValue().multiply(ratio, MC);
+		return price.getValue().multiply(ratio,PeanutsUtil. MC);
 	}
 
 }

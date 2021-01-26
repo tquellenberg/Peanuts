@@ -1,8 +1,6 @@
 package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -10,12 +8,11 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
 @XStreamAlias("stocksplit")
 public class StockSplit implements ITimedElement {
-
-	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	private final Security security;
 	private final Day day;
@@ -36,7 +33,7 @@ public class StockSplit implements ITimedElement {
 	}
 
 	public BigDecimal getRatio() {
-		return new BigDecimal(from).divide(new BigDecimal(to), MC);
+		return new BigDecimal(from).divide(new BigDecimal(to), PeanutsUtil.MC);
 	}
 
 	public Security getSecurity() {

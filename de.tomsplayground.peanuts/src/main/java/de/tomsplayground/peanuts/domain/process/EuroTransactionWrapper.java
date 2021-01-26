@@ -1,8 +1,6 @@
 package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.Currency;
 
 import com.google.common.base.Function;
@@ -11,11 +9,10 @@ import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.domain.base.Category;
 import de.tomsplayground.peanuts.domain.base.CurrencyManager;
+import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
 public class EuroTransactionWrapper implements ITransaction {
-
-	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	private final ITransaction transaction;
 	private final Currency currency;
@@ -30,7 +27,7 @@ public class EuroTransactionWrapper implements ITransaction {
 	public BigDecimal getAmount() {
 		if (euroAmount == null) {
 			BigDecimal exchangeRate = (new CurrencyManager()).getExchangeRate(Currency.getInstance("EUR"), currency);
-			euroAmount = transaction.getAmount().divide(exchangeRate, MC);
+			euroAmount = transaction.getAmount().divide(exchangeRate, PeanutsUtil.MC);
 		}
 		return euroAmount;
 	}

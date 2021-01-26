@@ -1,8 +1,6 @@
 package de.tomsplayground.peanuts.client.watchlist;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.Currency;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +24,7 @@ import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.statistics.Volatility;
+import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
 public class WatchEntry {
@@ -33,8 +32,6 @@ public class WatchEntry {
 	private final static Logger log = LoggerFactory.getLogger(WatchEntry.class);
 
 	private static final BigDecimal TWO = new BigDecimal(2);
-
-	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	private final Security security;
 	private final IPriceProvider adjustedPriceProvider;
@@ -84,7 +81,7 @@ public class WatchEntry {
 
 		BigDecimal delta = price2.getClose().subtract(price1.getClose());
 
-		BigDecimal performance = delta.divide(price1.getClose(), MC);
+		BigDecimal performance = delta.divide(price1.getClose(), PeanutsUtil.MC);
 		return performance;
 	}
 
@@ -106,7 +103,7 @@ public class WatchEntry {
 		if (price1.getClose().signum() == 0) {
 			return BigDecimal.ZERO;
 		}
-		BigDecimal performance = delta.divide(price1.getClose(), MC);
+		BigDecimal performance = delta.divide(price1.getClose(), PeanutsUtil.MC);
 		return performance;
 	}
 
@@ -143,7 +140,7 @@ public class WatchEntry {
 		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
 		BigDecimal earnings = fundamentalDatas.getAdjustedContinuousEarnings(date, exchangeRate);
 		if (earnings != null && earnings.signum() > 0) {
-			peRatio = price.getClose().divide(earnings, MC);
+			peRatio = price.getClose().divide(earnings, PeanutsUtil.MC);
 		}
 		return peRatio;
 	}
@@ -204,7 +201,7 @@ public class WatchEntry {
 		if (v == null) {
 			return null;
 		}
-		score = score.add(v.divide(TWO, MC));
+		score = score.add(v.divide(TWO, PeanutsUtil.MC));
 		return score;
 	}
 
@@ -245,7 +242,7 @@ public class WatchEntry {
 		BigDecimal v1 = getPeRatio();
 		BigDecimal v2 = getAvgPE();
 		if (v1 != null && v2 != null && v1.signum() > 0 && v2.signum() > 0) {
-			peDelta = v1.subtract(v2).divide(v2, MC);
+			peDelta = v1.subtract(v2).divide(v2, PeanutsUtil.MC);
 		} else {
 			peDelta = null;
 		}

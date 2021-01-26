@@ -1,7 +1,10 @@
 package de.tomsplayground.peanuts.domain.dividend;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -9,6 +12,7 @@ import java.util.stream.Collectors;
 
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Inventory;
+import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
@@ -19,24 +23,58 @@ import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 import de.tomsplayground.util.Day;
 
-public class DividendStats {
+public class DividendStats extends ObservableModelObject {
+
+	private final AccountManager accountManager;
 
 	private final Inventory fullInventory;
 
 	private final ExchangeRates exchangeRates;
 
-	private final Map<Day, List<Dividend>> groupedDividends;
+	private final Map<Day, List<Dividend>> groupedDividends = new HashMap<>();
+
+	private final PropertyChangeListener inventoriyListener = new PropertyChangeListener() {
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			// TODO:
+		}
+	};
+
+	private final PropertyChangeListener securityChangeListener = new PropertyChangeListener() {
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			updatedCachedData();
+			firePropertyChange("dividends", null, null);
+		}
+	};
 
 	public DividendStats(AccountManager accountManager, IPriceProviderFactory priceProviderFactory) {
+		this.accountManager = accountManager;
 		Report report = new Report("temp");
 		report.addQuery(new InvestmentQuery());
 		report.setAccounts(accountManager.getAccounts());
 		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new Day(), new AnalyzerFactory());
+		fullInventory.addPropertyChangeListener(inventoriyListener);
 		exchangeRates = new ExchangeRates(priceProviderFactory, accountManager);
-		groupedDividends = accountManager.getSecurities().stream()
+
+		updatedCachedData();
+
+		accountManager.getSecurities().stream()
+			.forEach(s -> s.addPropertyChangeListener("dividends", securityChangeListener));
+	}
+
+	public void dispose() {
+		accountManager.getSecurities().stream()
+ 			.forEach(s -> s.removePropertyChangeListener("dividends", securityChangeListener));
+		fullInventory.dispose();
+	}
+
+	private void updatedCachedData() {
+		groupedDividends.clear();
+		groupedDividends.putAll(accountManager.getSecurities().stream()
 			.flatMap(s -> s.getDividends().stream())
 			.filter(d -> getQuantity(d).signum() == 1)
-			.collect(Collectors.groupingBy(d -> d.getPayDate().toMonth()));
+			.collect(Collectors.groupingBy(d -> d.getPayDate().toMonth())));
 	}
 
 	public List<DividendMonth> getDividendMonths() {
@@ -99,8 +137,13 @@ public class DividendStats {
 		if (entry.getQuantity() != null) {
 			return entry.getQuantity();
 		}
+		Day today = new Day();
 		synchronized (fullInventory) {
-			fullInventory.setDate(entry.getPayDate());
+			Day payDate = entry.getPayDate();
+			if (payDate.after(today)) {
+				payDate = today;
+			}
+			fullInventory.setDate(payDate);
 			return fullInventory.getInventoryEntry(entry.getSecurity()).getQuantity();
 		}
 	}

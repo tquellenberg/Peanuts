@@ -1,8 +1,6 @@
 package de.tomsplayground.peanuts.client.widgets;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
@@ -17,8 +15,6 @@ import de.tomsplayground.peanuts.calculator.Calculator;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class CalculatorText {
-
-	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	private final Text text;
 
@@ -45,7 +41,7 @@ public class CalculatorText {
 		if (StringUtils.isNotBlank(t)) {
 			try  {
 				Calculator calculator = new Calculator();
-				calculator.setMathContext(MC);
+				calculator.setMathContext(PeanutsUtil.MC);
 				BigDecimal result = calculator.parse(t);
 				String resultStr = PeanutsUtil.formatCurrency(result, null);
 				if (! t.equals(resultStr)) {

@@ -1,8 +1,6 @@
 package de.tomsplayground.peanuts.domain.fundamental;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +15,7 @@ import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
+import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
 public class FundamentalDatas {
@@ -24,8 +23,6 @@ public class FundamentalDatas {
 	public static final String OVERRIDDEN_AVG_PE = "OverriddenAvgPE";
 
 	private static final BigDecimal DAYS_IN_YEAR = new BigDecimal("360");
-
-	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	private final ImmutableList<FundamentalData> fundamentalDatas;
 	private final Security security;
@@ -114,6 +111,6 @@ public class FundamentalDatas {
 		BigDecimal pe1  = fundamentalData1.getEarningsPerShare().multiply(new BigDecimal(daysYear1));
 		BigDecimal pe2  = fundamentalData2.getEarningsPerShare().multiply(new BigDecimal(360 - daysYear1));
 
-		return pe1.add(pe2).divide(DAYS_IN_YEAR, MC);
+		return pe1.add(pe2).divide(DAYS_IN_YEAR, PeanutsUtil.MC);
 	}
 }

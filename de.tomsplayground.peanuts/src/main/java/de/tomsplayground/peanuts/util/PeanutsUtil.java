@@ -30,7 +30,7 @@ public class PeanutsUtil {
 	private static final NumberFormat percentFormat = NumberFormat.getPercentInstance();
 	private static final NumberFormat percentValueFormat = NumberFormat.getPercentInstance();
 
-	public static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
+	public static final MathContext MC = new MathContext(10, RoundingMode.HALF_UP);
 
 	static {
 		((DecimalFormat) currencyValueFormat).setMinimumFractionDigits(2);
@@ -64,7 +64,7 @@ public class PeanutsUtil {
 			if (currency != null) {
 				synchronized (currencyFormat) {
 					currencyFormat.setCurrency(currency);
-					return currencyFormat.format(amount);
+					return currencyFormat.format(amount.setScale(2, RoundingMode.HALF_UP));
 				}
 			} else {
 				synchronized (currencyValueFormat) {

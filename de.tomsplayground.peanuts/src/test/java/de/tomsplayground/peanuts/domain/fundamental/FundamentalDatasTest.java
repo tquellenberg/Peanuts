@@ -46,11 +46,11 @@ public class FundamentalDatasTest {
 	@Test
 	public void testContinuousPE() {
 		// 1.7.2017
-		assertEquals(new BigDecimal("3.0"), fundamentalDatas.getContinuousEarnings(new Day(2017, 6, 1)).setScale(1, RoundingMode.HALF_EVEN));
+		assertEquals(new BigDecimal("3.0"), fundamentalDatas.getContinuousEarnings(new Day(2017, 6, 1)).setScale(1, RoundingMode.HALF_UP));
 		// 1.1.2018
-		assertEquals(new BigDecimal("4.0"), fundamentalDatas.getContinuousEarnings(new Day(2018, 0, 1)).setScale(1, RoundingMode.HALF_EVEN));
+		assertEquals(new BigDecimal("4.0"), fundamentalDatas.getContinuousEarnings(new Day(2018, 0, 1)).setScale(1, RoundingMode.HALF_UP));
 		// 1.7.2018
-		assertEquals(new BigDecimal("4.5"), fundamentalDatas.getContinuousEarnings(new Day(2018, 6, 1)).setScale(1, RoundingMode.HALF_EVEN));
+		assertEquals(new BigDecimal("4.5"), fundamentalDatas.getContinuousEarnings(new Day(2018, 6, 1)).setScale(1, RoundingMode.HALF_UP));
 	}
 
 	@Test
@@ -58,11 +58,11 @@ public class FundamentalDatasTest {
 		// 31.12.2014
 		assertNull(fundamentalDatas.getContinuousEarnings(new Day(2015, 11, 31)));
 		// 1.1.2016
-		assertEquals(new BigDecimal("2.0"), fundamentalDatas.getContinuousEarnings(new Day(2016, 0, 1)).setScale(1, RoundingMode.HALF_EVEN));
+		assertEquals(new BigDecimal("2.0"), fundamentalDatas.getContinuousEarnings(new Day(2016, 0, 1)).setScale(1, RoundingMode.HALF_UP));
 		// 1.7.2016
-		assertEquals(new BigDecimal("2.0"), fundamentalDatas.getContinuousEarnings(new Day(2016, 6, 1)).setScale(1, RoundingMode.HALF_EVEN));
+		assertEquals(new BigDecimal("2.0"), fundamentalDatas.getContinuousEarnings(new Day(2016, 6, 1)).setScale(1, RoundingMode.HALF_UP));
 		// 1.1.2019
-		assertEquals(new BigDecimal("5.0"), fundamentalDatas.getContinuousEarnings(new Day(2019, 0, 1)).setScale(1, RoundingMode.HALF_EVEN));
+		assertEquals(new BigDecimal("5.0"), fundamentalDatas.getContinuousEarnings(new Day(2019, 0, 1)).setScale(1, RoundingMode.HALF_UP));
 		// 1.1.2020
 		assertNull(fundamentalDatas.getContinuousEarnings(new Day(2020, 0, 1)));
 	}

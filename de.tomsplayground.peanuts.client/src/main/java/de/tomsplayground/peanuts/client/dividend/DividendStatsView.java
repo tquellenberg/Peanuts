@@ -73,7 +73,9 @@ public class DividendStatsView extends ViewPart {
 		}
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
-			updateData();
+			if (evt.getPropertyName().equals("dividends")) {
+				updateData();
+			}
 		}
 	};
 
@@ -275,16 +277,15 @@ public class DividendStatsView extends ViewPart {
 				}
 			}
 		}
-		Activator.getDefault().getAccountManager().getSecurities().stream()
-			.forEach(s -> s.addPropertyChangeListener("dividends", securityChangeListener));
 
 		dividendStats = new DividendStats(Activator.getDefault().getAccountManager(), PriceProviderFactory.getInstance());
+		dividendStats.addPropertyChangeListener(securityChangeListener);
 	}
 
 	@Override
 	public void dispose() {
-		Activator.getDefault().getAccountManager().getSecurities().stream()
-			.forEach(s -> s.removePropertyChangeListener("dividends", securityChangeListener));
+		dividendStats.removePropertyChangeListener(securityChangeListener);
+		dividendStats.dispose();
 		super.dispose();
 	}
 

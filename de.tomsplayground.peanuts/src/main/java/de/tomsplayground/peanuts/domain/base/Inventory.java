@@ -94,6 +94,9 @@ public class Inventory extends ObservableModelObject {
 	}
 
 	public void setDate(Day day) {
+		if (day.equals(this.day)) {
+			return;
+		}
 		if (day.after(this.day)) {
 			Day startDay = this.day.addDays(1);
 			synchronized (entryMap) {

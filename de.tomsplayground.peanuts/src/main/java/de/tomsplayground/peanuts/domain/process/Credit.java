@@ -1,8 +1,6 @@
 package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,12 +10,11 @@ import de.tomsplayground.peanuts.config.ConfigurableSupport;
 import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
+import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
 @XStreamAlias("credit")
 public class Credit extends ObservableModelObject implements ICredit, IConfigurable {
-
-	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	public enum PaymentInterval {
 		MONTHLY,
@@ -51,8 +48,9 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 
 	@Override
 	public BigDecimal getInterest(Day day) {
-		if (day.before(start))
+		if (day.before(start)) {
 			return BigDecimal.ZERO;
+		}
 		int month;
 		BigDecimal a;
 		BigDecimal paymentInterest = BigDecimal.ZERO;
@@ -67,7 +65,7 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 			BigDecimal p = BigDecimal.ZERO;
 			for (int i = 0; i < month-1; i++) {
 				p = p.add(paymentAmount);
-				paymentInterest = paymentInterest.add(p.multiply(interestRate).divide(new BigDecimal(1200), MC));
+				paymentInterest = paymentInterest.add(p.multiply(interestRate).divide(new BigDecimal(1200), PeanutsUtil.MC));
 			}
 		} else {
 			if (day.year == start.year) {
@@ -78,12 +76,12 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 				month = day.month + 1;
 				int paymentMonth = month - start.month;
 				if (paymentMonth > 0) {
-					paymentInterest = paymentAmount.multiply(interestRate).multiply(new BigDecimal(paymentMonth)).divide(new BigDecimal(1200), MC);
+					paymentInterest = paymentAmount.multiply(interestRate).multiply(new BigDecimal(paymentMonth)).divide(new BigDecimal(1200), PeanutsUtil.MC);
 				}
 			}
 		}
 		// (amount * interest * month / 12 / 100) - paymentInterest
-		return a.multiply(interestRate).multiply(new BigDecimal(month)).divide(new BigDecimal(1200), MC).subtract(paymentInterest);
+		return a.multiply(interestRate).multiply(new BigDecimal(month)).divide(new BigDecimal(1200), PeanutsUtil.MC).subtract(paymentInterest);
 	}
 
 	public void setPayment(BigDecimal payment) {
@@ -94,8 +92,9 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 
 	@Override
 	public BigDecimal amount(Day day) {
-		if (day.before(start) || day.after(end))
+		if (day.before(start) || day.after(end)) {
 			return BigDecimal.ZERO;
+		}
 		BigDecimal a;
 		if (paymentInterval == PaymentInterval.MONTHLY) {
 			int month;
@@ -114,8 +113,9 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 			} else {
 				Day endOfLastYear = new Day(day.year - 1, 11, 31);
 				a = amount(endOfLastYear).add(getInterest(endOfLastYear));
-				if (day.month > start.month || (day.month == start.month && day.day >= start.day))
+				if (day.month > start.month || (day.month == start.month && day.day >= start.day)) {
 					a = a.subtract(paymentAmount);
+				}
 			}
 		}
 		return a;
@@ -200,8 +200,9 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 	}
 
 	public void reconfigureAfterDeserialization() {
-		if (displayConfiguration == null)
+		if (displayConfiguration == null) {
 			displayConfiguration = new HashMap<String, String>();
+		}
 	}
 
 	private transient ConfigurableSupport configurableSupport;

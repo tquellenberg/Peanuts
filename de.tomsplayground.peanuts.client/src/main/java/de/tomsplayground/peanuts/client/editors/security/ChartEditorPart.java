@@ -6,8 +6,6 @@ import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Currency;
@@ -87,7 +85,6 @@ public class ChartEditorPart extends EditorPart {
 
 	private static final Color FAIR_PRICE_COLOR = new Color(154, 205, 50);
 	private static final BigDecimal HUNDRED = new BigDecimal(100);
-	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 	private static final String CHART_TYPE = "chartType";
 
 	private static final Range peRatioChartRange = new Range(-35.0, 35.0);
@@ -552,12 +549,12 @@ public class ChartEditorPart extends EditorPart {
 			de.tomsplayground.util.Day day = price.getDay();
 			BigDecimal pe = fundamentalDatas.getAdjustedContinuousEarnings(day, exchangeRate);
 			if (pe != null && pe.signum() > 0) {
-				BigDecimal fairPrice = pe.multiply(avgPE, MC);
+				BigDecimal fairPrice = pe.multiply(avgPE, PeanutsUtil.MC);
 				// Main Chart
 				fixedPePrice.addOrUpdate(new Day(day.day, day.month+1, day.year), fairPrice);
 				if (fairPrice.signum() == 1) {
 					// Delta Chart
-					BigDecimal deltaPercent = price.getClose().subtract(fairPrice).multiply(HUNDRED).divide(fairPrice, MC);
+					BigDecimal deltaPercent = price.getClose().subtract(fairPrice).multiply(HUNDRED).divide(fairPrice, PeanutsUtil.MC);
 					peDeltaTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), deltaPercent.doubleValue());
 				}
 			}
@@ -616,7 +613,7 @@ public class ChartEditorPart extends EditorPart {
 			IPriceProvider compareToPriceProvider = PriceProviderFactory.getInstance().getSplitAdjustedPriceProvider(compareTo, stockSplits);
 			IPrice p1 = priceProvider.getPrice(fromDate);
 			IPrice p2 = compareToPriceProvider.getPrice(fromDate);
-			BigDecimal adjust = p1.getValue().divide(p2.getValue(), MC);
+			BigDecimal adjust = p1.getValue().divide(p2.getValue(), PeanutsUtil.MC);
 			for (IPrice price : compareToPriceProvider.getPrices()) {
 				de.tomsplayground.util.Day day = price.getDay();
 				BigDecimal value = price.getValue().multiply(adjust);

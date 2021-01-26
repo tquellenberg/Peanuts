@@ -10,8 +10,6 @@ import java.util.Locale;
 
 import org.junit.Test;
 
-import de.tomsplayground.peanuts.calculator.Calculator;
-
 
 public class CalculatorTest {
 
@@ -48,7 +46,7 @@ public class CalculatorTest {
 		BigDecimal result = calculator.parse("1/3");
 		assertEquals(0, result.compareTo(new BigDecimal("0.3333333333333333333333333333333333")));
 
-		calculator.setMathContext(new MathContext(10, RoundingMode.HALF_EVEN));
+		calculator.setMathContext(new MathContext(10, RoundingMode.HALF_UP));
 		result = calculator.parse("1/3");
 		assertEquals(0, result.compareTo(new BigDecimal("0.3333333333")));
 	}

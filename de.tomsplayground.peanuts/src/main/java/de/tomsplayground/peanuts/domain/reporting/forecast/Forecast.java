@@ -1,8 +1,6 @@
 package de.tomsplayground.peanuts.domain.reporting.forecast;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,12 +9,11 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
+import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
 @XStreamAlias("forecast")
 public class Forecast extends ObservableModelObject implements INamedElement {
-
-	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	private String name;
 	private BigDecimal startAmount;
@@ -55,7 +52,7 @@ public class Forecast extends ObservableModelObject implements INamedElement {
 			result = result.add(annualIncrease);
 			delta = delta - 360;
 		}
-		BigDecimal factor = new BigDecimal(delta).divide(new BigDecimal(360), MC);
+		BigDecimal factor = new BigDecimal(delta).divide(new BigDecimal(360), PeanutsUtil.MC);
 		result = result.add(result.multiply(annualPercent.movePointLeft(2)).multiply(factor));
 		result = result.add(annualIncrease.multiply(factor));
 		return result;

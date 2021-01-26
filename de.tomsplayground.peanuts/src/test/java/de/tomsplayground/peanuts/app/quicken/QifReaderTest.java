@@ -135,7 +135,7 @@ public class QifReaderTest extends TestCase {
 		qifReader.readTransaction(block, bankAccount);
 
 		assertEquals((new BigDecimal("-9280.00")).multiply(CurrencyManager.DM_EURO).setScale(2,
-			RoundingMode.HALF_EVEN), account2.getBalance());
+			RoundingMode.HALF_UP), account2.getBalance());
 	}
 
 	public void testReadTransferTransactionEqualAccount() {

@@ -5,8 +5,6 @@ import static de.tomsplayground.peanuts.client.util.MinQuantity.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
@@ -89,7 +87,6 @@ import de.tomsplayground.util.Day;
 
 public class InventoryEditorPart extends EditorPart {
 
-	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 	private static final String SHOW_ALL_SECURITIES = "inventoryShowAllSecurities";
 
 	private final int colWidth[] = new int[11];
@@ -159,7 +156,7 @@ public class InventoryEditorPart extends EditorPart {
 		private BigDecimal gainingPercent(InventoryEntry entry) {
 			if (entry.getInvestedAmount().compareTo(BigDecimal.ZERO) != 0) {
 				BigDecimal gain = entry.getMarketValue(date).subtract(entry.getInvestedAmount());
-				return gain.divide(entry.getInvestedAmount(), MC);
+				return gain.divide(entry.getInvestedAmount(), PeanutsUtil.MC);
 			}
 			return BigDecimal.ZERO;
 		}
@@ -272,7 +269,7 @@ public class InventoryEditorPart extends EditorPart {
 				InventoryEntry entry = (InventoryEntry) element;
 				if (columnIndex == INVENTORY_FRACTION) {
 					if (inventory.getMarketValue().compareTo(BigDecimal.ZERO) != 0) {
-						BigDecimal fraction = entry.getMarketValue(date).divide(inventory.getMarketValue(), MC);
+						BigDecimal fraction = entry.getMarketValue(date).divide(inventory.getMarketValue(), PeanutsUtil.MC);
 						return PeanutsUtil.formatPercent(fraction);
 					}
 				}
@@ -288,7 +285,7 @@ public class InventoryEditorPart extends EditorPart {
 				if (columnIndex == INVENTORY_POS_GAIN_PERCENT) {
 					if (entry.getInvestedAmount().compareTo(BigDecimal.ZERO) != 0) {
 						BigDecimal gain = entry.getMarketValue(date).subtract(entry.getInvestedAmount());
-						BigDecimal gainPercent = gain.divide(entry.getInvestedAmount(), MC);
+						BigDecimal gainPercent = gain.divide(entry.getInvestedAmount(), PeanutsUtil.MC);
 						return PeanutsUtil.formatPercent(gainPercent);
 					}
 				}

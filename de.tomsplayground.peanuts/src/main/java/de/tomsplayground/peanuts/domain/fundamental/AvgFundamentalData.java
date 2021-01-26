@@ -1,8 +1,6 @@
 package de.tomsplayground.peanuts.domain.fundamental;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,11 +14,10 @@ import com.google.common.collect.Lists;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.process.CurrencyAdjustedPriceProvider;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
+import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
 public class AvgFundamentalData {
-
-	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	private final List<FundamentalData> datas;
 	private final IPriceProvider priceProvider;
@@ -98,7 +95,7 @@ public class AvgFundamentalData {
 		} else {
 			BigDecimal pe1 = adjustedData.get(adjustedData.size() / 2).calculatePeRatio(pp);
 			BigDecimal pe2 = adjustedData.get(adjustedData.size() / 2 - 1).calculatePeRatio(pp);
-			return pe1.add(pe2).divide(new BigDecimal("2"), MC);
+			return pe1.add(pe2).divide(new BigDecimal("2"), PeanutsUtil.MC);
 		}
 	}
 
@@ -135,7 +132,7 @@ public class AvgFundamentalData {
 			return BigDecimal.ZERO;
 		}
 		if (prev.signum() != 0) {
-			return now.subtract(prev).divide(prev.abs(), MC);
+			return now.subtract(prev).divide(prev.abs(), PeanutsUtil.MC);
 		}
 		return BigDecimal.ZERO;
 	}
@@ -181,7 +178,7 @@ public class AvgFundamentalData {
 		BigDecimal earningsPerShareStart = valideDatas.get(start-1).getEarningsPerShare();
 		earningsPerShareStart = earningsPerShareStart.add(valideDatas.get(start).getEarningsPerShare());
 		earningsPerShareStart = earningsPerShareStart.add(valideDatas.get(start+1).getEarningsPerShare());
-		earningsPerShareStart = earningsPerShareStart.divide(new BigDecimal(3), MC);
+		earningsPerShareStart = earningsPerShareStart.divide(new BigDecimal(3), PeanutsUtil.MC);
 
 		BigDecimal earningsPerShareEnd = valideDatas.get(valideDatas.size()-1).getEarningsPerShare();
 
@@ -190,8 +187,8 @@ public class AvgFundamentalData {
 			return null;
 		}
 
-		BigDecimal change = earningsPerShareEnd.divide(earningsPerShareStart, MC);
-		return new BigDecimal(Math.pow(change.doubleValue(), 1.0 / yearDelta), MC);
+		BigDecimal change = earningsPerShareEnd.divide(earningsPerShareStart, PeanutsUtil.MC);
+		return new BigDecimal(Math.pow(change.doubleValue(), 1.0 / yearDelta), PeanutsUtil.MC);
 	}
 
 }

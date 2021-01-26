@@ -94,7 +94,7 @@ public class DividendEditorPart extends EditorPart {
 					if (entry.getAmount() != null) {
 						return PeanutsUtil.formatCurrency(entry.getAmount(), entry.getCurrency());
 					} else {
-						return PeanutsUtil.formatCurrency(getQuantity(entry).multiply(entry.getAmountPerShare()), entry.getCurrency());
+						return PeanutsUtil.formatCurrency(getQuantity(entry).multiply(entry.getAmountPerShare(), PeanutsUtil.MC), entry.getCurrency());
 					}
 				case 5:
 					BigDecimal amount = entry.getAmountInDefaultCurrency();
@@ -525,9 +525,7 @@ public class DividendEditorPart extends EditorPart {
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		Security security = getSecurity();
-		// TODO: update only changed dividends
-		security.getDividends().forEach(d -> security.removeDividend(d));
-		dividends.forEach(d -> security.addDividend(new Dividend(d)));
+		security.updateDividends(dividends);
 		dirty = false;
 	}
 

@@ -1,16 +1,13 @@
 package de.tomsplayground.peanuts.domain.currenncy;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.Currency;
 
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
+import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
 public class CurrencyConverter {
-
-	private final static MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	private final IPriceProvider priceProvider;
 	private final Currency from;
@@ -49,9 +46,9 @@ public class CurrencyConverter {
 			throw new RuntimeException("Rate must not be zero. Date:"+day);
 		}
 		if (inverse) {
-			return value.divide(rate, MC);
+			return value.divide(rate, PeanutsUtil.MC);
 		} else {
-			return value.multiply(rate, MC);
+			return value.multiply(rate, PeanutsUtil.MC);
 		}
 	}
 

@@ -1,14 +1,14 @@
 package de.tomsplayground.peanuts.domain;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Currency;
 
 import org.junit.Test;
 
 import de.tomsplayground.peanuts.domain.base.CurrencyManager;
+import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class CurrencyManagerTest {
 
@@ -26,7 +26,7 @@ public class CurrencyManagerTest {
 		BigDecimal exchangeRate = manager.getExchangeRate(Currency.getInstance("DEM"),
 			Currency.getInstance("EUR"));
 		BigDecimal bigDecimal = new BigDecimal("1.95583");
-		bigDecimal = BigDecimal.ONE.divide(bigDecimal, 10, RoundingMode.HALF_EVEN);
+		bigDecimal = BigDecimal.ONE.divide(bigDecimal, PeanutsUtil.MC);
 		assertEquals(bigDecimal, exchangeRate);
 	}
 

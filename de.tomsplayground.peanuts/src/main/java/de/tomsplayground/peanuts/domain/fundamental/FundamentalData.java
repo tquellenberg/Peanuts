@@ -1,8 +1,6 @@
 package de.tomsplayground.peanuts.domain.fundamental;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.Currency;
 
 import org.apache.commons.lang3.StringUtils;
@@ -17,12 +15,11 @@ import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
+import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
 @XStreamAlias("fundamental")
 public class FundamentalData implements Comparable<FundamentalData> {
-
-	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
 
 	private int year;
 	private int ficalYearEndsMonth;
@@ -96,7 +93,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		for (IPrice p : prices) {
 			sum = sum.add(p.getClose());
 		}
-		return sum.divide(new BigDecimal(prices.size()), MC);
+		return sum.divide(new BigDecimal(prices.size()),PeanutsUtil. MC);
 	}
 
 	public BigDecimal calculatePeRatio(IPriceProvider priceProvider) {
@@ -110,7 +107,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		if (eps.signum() == 0) {
 			return BigDecimal.ZERO;
 		}
-		return price.divide(eps, MC);
+		return price.divide(eps, PeanutsUtil.MC);
 	}
 
 	public BigDecimal calculateDivYield(IPriceProvider priceProvider) {
@@ -119,7 +116,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		if (close.signum() == 0) {
 			return BigDecimal.ZERO;
 		}
-		return getDividende().divide(close, MC);
+		return getDividende().divide(close, PeanutsUtil.MC);
 	}
 
 	public Day getFiscalStartDay() {
@@ -149,7 +146,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		if (inventoryEntry.getAvgPrice().signum() == 0) {
 			return BigDecimal.ZERO;
 		}
-		return getDividende().divide(inventoryEntry.getAvgPrice(), MC);
+		return getDividende().divide(inventoryEntry.getAvgPrice(), PeanutsUtil.MC);
 	}
 
 	public Currency getCurrency() {

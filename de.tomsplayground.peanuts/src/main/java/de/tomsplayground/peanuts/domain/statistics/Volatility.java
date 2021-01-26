@@ -1,8 +1,6 @@
 package de.tomsplayground.peanuts.domain.statistics;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,11 +9,10 @@ import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
+import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
 public class Volatility {
-
-	private static final MathContext MC = new MathContext(16, RoundingMode.HALF_EVEN);
 
 	private final static Logger log = LoggerFactory.getLogger(Volatility.class);
 
@@ -40,7 +37,7 @@ public class Volatility {
 		double yield[] = new double[values.size()-1];
 		int i = 0;
 		for (BigDecimal v2 : values.subList(1, values.size())) {
-			yield[i] = Math.log(v2.divide(v1, MC).doubleValue());
+			yield[i] = Math.log(v2.divide(v1, PeanutsUtil.MC).doubleValue());
 			if (log.isDebugEnabled()) {
 				log.info("V1:"+v1+ " V2:"+v2+" Y:"+yield[i]);
 			}

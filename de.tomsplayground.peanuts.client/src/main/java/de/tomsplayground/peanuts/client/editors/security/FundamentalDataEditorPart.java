@@ -2,8 +2,6 @@ package de.tomsplayground.peanuts.client.editors.security;
 
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -83,8 +81,6 @@ import de.tomsplayground.util.Day;
 
 public class FundamentalDataEditorPart extends EditorPart {
 
-	private static final MathContext MC = new MathContext(10, RoundingMode.HALF_EVEN);
-
 	private static final BigDecimal DEPT_LIMIT = new BigDecimal("1.0");
 	private static final BigDecimal DIVIDENDE_LIMIT = new BigDecimal("0.9");
 
@@ -130,7 +126,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 				return BigDecimal.ZERO;
 			}
 			if (prev.signum() != 0) {
-				return now.subtract(prev).divide(prev.abs(), MC);
+				return now.subtract(prev).divide(prev.abs(), PeanutsUtil.MC);
 			}
 			return BigDecimal.ZERO;
 		}
@@ -171,7 +167,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 				BigDecimal div = currencyAdjustedDiv(data);
 				BigDecimal prevDiv = currencyAdjustedDiv(previousYearData);
 				if (prevDiv.signum() != 0) {
-					return div.divide(prevDiv, MC).subtract(BigDecimal.ONE);
+					return div.divide(prevDiv, PeanutsUtil.MC).subtract(BigDecimal.ONE);
 				}
 			}
 			return BigDecimal.ZERO;
@@ -303,7 +299,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 						if (earningsPerShare.signum() <= 0) {
 							return Activator.getDefault().getColorProvider().get(Activator.RED_BG);
 						} else {
-							BigDecimal ratio = dividende.divide(earningsPerShare, MC);
+							BigDecimal ratio = dividende.divide(earningsPerShare, PeanutsUtil.MC);
 							if (ratio.compareTo(DIVIDENDE_LIMIT) > 0) {
 								return Activator.getDefault().getColorProvider().get(Activator.RED_BG);
 							}
