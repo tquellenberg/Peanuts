@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import com.opencsv.exceptions.CsvValidationException;
 
-import de.tomsplayground.peanuts.app.quicken.QifReaderTest;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.util.Day;
 import junit.framework.TestCase;
@@ -20,7 +19,7 @@ public class LocalPriceReaderTest extends TestCase {
 
 	@Test
 	public void testRead() throws IOException, CsvValidationException {
-		Reader in = new InputStreamReader(QifReaderTest.class.getResourceAsStream("/Yahoo.csv"));
+		Reader in = new InputStreamReader(LocalPriceReader.class.getResourceAsStream("/Yahoo.csv"));
 		LocalPriceReader reader = new LocalPriceReader(null, in);
 		in.close();
 

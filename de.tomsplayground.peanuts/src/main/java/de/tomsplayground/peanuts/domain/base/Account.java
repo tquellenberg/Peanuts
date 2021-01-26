@@ -32,7 +32,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	public enum Type {
 		UNKNOWN,
 		BANK, // Bank
-		ASSET, // Vermögenswert
+		ASSET, // Vermoegenswert
 		LIABILITY, // Verbindlichkeit
 		INVESTMENT, // Wertpapier
 		CREDIT

@@ -21,7 +21,7 @@ public class FileCvsReaderTest {
 
 	@Test
 	public void testRead() throws IOException, ParseException, CsvValidationException {
-		Reader in = new InputStreamReader(QifReaderTest.class.getResourceAsStream("/quotes.TXT"));
+		Reader in = new InputStreamReader(FileCsvReader.class.getResourceAsStream("/quotes.TXT"));
 		FileCsvReader reader = new FileCsvReader(null, in);
 		reader.read();
 		in.close();

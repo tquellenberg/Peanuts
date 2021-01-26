@@ -50,7 +50,7 @@
 				<version>2.3.2</version>
 				<configuration>
 					<compilerArguments>
-						<encoding>ISO-8859-1</encoding>
+						<encoding>UTF-8</encoding>
 					</compilerArguments>
 					<source>11</source>
 					<target>11</target>
@@ -196,6 +196,6 @@
 		</dependency>
 	</dependencies>
 	<properties>
-		<project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 </project>
