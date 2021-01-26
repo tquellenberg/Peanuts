@@ -2,26 +2,45 @@ package de.tomsplayground.peanuts.app.ib;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ib.client.CommissionReport;
 import com.ib.client.Contract;
+import com.ib.client.Execution;
+import com.ib.client.ExecutionFilter;
 import com.ib.client.Types;
 import com.ib.client.Types.BarSize;
 import com.ib.client.Types.SecType;
 import com.ib.controller.ApiController;
 import com.ib.controller.ApiController.IConnectionHandler;
+import com.ib.controller.ApiController.ITradeReportHandler;
 import com.ib.controller.Formats;
 
-public class IbConnection implements IConnectionHandler {
+public class IbConnection implements IConnectionHandler, ITradeReportHandler {
 
 	private final static Logger log = LoggerFactory.getLogger(IbConnection.class);
 
 	private ApiController apiController;
 
 	private boolean connected = false;
+
+	private final Map<String,FullExec> map = new HashMap<>();
+
+	static class FullExec {
+		Contract contract;
+		Execution trade;
+		CommissionReport commissionReport;
+
+		FullExec(Contract contract, Execution trade) {
+			this.contract = contract;
+			this.trade = trade;
+		}
+	}
 
 	public static void main(String[] args) throws InterruptedException {
 		IbConnection ibConnection = new IbConnection();
@@ -50,8 +69,10 @@ public class IbConnection implements IConnectionHandler {
 		boolean keepUpToDate = false;
 
 		IVR ivr = new IVR(symbol);
-		controller().reqHistoricalData(contract, endDateTime, duration, durationString, barSizeSetting, whatToShow,
-			useRth, keepUpToDate, ivr);
+//		controller().reqHistoricalData(contract, endDateTime, duration, durationString, barSizeSetting, whatToShow,
+//			useRth, keepUpToDate, ivr);
+
+		controller().reqExecutions(new ExecutionFilter(), this);
 		return ivr;
 	}
 
@@ -120,6 +141,35 @@ public class IbConnection implements IConnectionHandler {
 
 	public boolean isConnected() {
 		return connected;
+	}
+
+	@Override
+	public void tradeReport(String tradeKey, Contract contract, Execution trade) {
+		System.out.println(tradeKey);
+		System.out.println(tradeKey+ " " + trade.time()+ " " + contract.description() + " " + trade.side() + " " +trade.shares() + " " + trade.price() + " "
+			+trade.lastLiquidityStr()+ " " + trade.orderId() + " " + trade.orderRef() + " " + trade.cumQty() + " " +trade.evRule() + " " + trade.execId() + " "
+			+trade.avgPrice() + " " + trade.evMultiplier() + " " + trade.liquidation() + " " +trade.permId() + " " + contract + " " + contract.isCombo());
+		FullExec full = map.get(tradeKey);
+		if (full != null) {
+			full.trade = trade;
+		} else {
+			full = new FullExec(contract, trade);
+			map.put(tradeKey, full);
+		}
+	}
+
+	@Override
+	public void commissionReport(String tradeKey, CommissionReport commissionReport) {
+		System.out.println(tradeKey);
+		System.out.println(commissionReport.commission() + " " + commissionReport.currency());
+		FullExec full = map.get(tradeKey);
+		if (full != null) {
+			full.commissionReport = commissionReport;
+		}
+	}
+
+	@Override
+	public void tradeReportEnd() {
 	}
 
 }
