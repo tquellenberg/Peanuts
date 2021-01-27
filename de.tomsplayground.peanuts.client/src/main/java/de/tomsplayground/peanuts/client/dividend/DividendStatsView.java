@@ -116,6 +116,15 @@ public class DividendStatsView extends ViewPart {
 					if (brutto.signum() > 0 && netto.signum() > 0) {
 						BigDecimal taxQuote = brutto.subtract(netto).divide(brutto, PeanutsUtil.MC);
 						return PeanutsUtil.formatPercent(taxQuote);
+					} else {
+						return null;
+					}
+				case 5:
+					return PeanutsUtil.formatCurrency(divStats.getInvestedAvg(), Currencies.getInstance().getDefaultCurrency());
+				case 6:
+					if (divStats.getInvestedAvg().signum() != 0) {
+						BigDecimal quote = getSum(divStats).divide(divStats.getInvestedAvg(), PeanutsUtil.MC);
+						return PeanutsUtil.formatPercent(quote);
 					}
 			}
 			return null;
@@ -443,6 +452,18 @@ public class DividendStatsView extends ViewPart {
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Tax %");
+		col.setWidth((colWidth3[colNum] > 0) ? colWidth3[colNum] : 80);
+		col.setResizable(true);
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Investment");
+		col.setWidth((colWidth3[colNum] > 0) ? colWidth3[colNum] : 80);
+		col.setResizable(true);
+		colNum++;
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Quote");
 		col.setWidth((colWidth3[colNum] > 0) ? colWidth3[colNum] : 80);
 		col.setResizable(true);
 		colNum++;

@@ -4,12 +4,16 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableList;
+
+import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
@@ -20,6 +24,8 @@ import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.query.InvestmentQuery;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
+import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer;
+import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer.Value;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 import de.tomsplayground.util.Day;
 
@@ -32,6 +38,8 @@ public class DividendStats extends ObservableModelObject {
 	private final ExchangeRates exchangeRates;
 
 	private final Map<Day, List<Dividend>> groupedDividends = new HashMap<>();
+
+	private final ImmutableList<Value> performanceValues;
 
 	private final PropertyChangeListener inventoriyListener = new PropertyChangeListener() {
 		@Override
@@ -52,10 +60,15 @@ public class DividendStats extends ObservableModelObject {
 		this.accountManager = accountManager;
 		Report report = new Report("temp");
 		report.addQuery(new InvestmentQuery());
-		report.setAccounts(accountManager.getAccounts());
+		report.setAccounts(accountManager.getAccounts().stream()
+			.filter(acc -> acc.getType() == Account.Type.INVESTMENT)
+			.collect(Collectors.toList()));
 		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new Day(), new AnalyzerFactory());
 		fullInventory.addPropertyChangeListener(inventoriyListener);
 		exchangeRates = new ExchangeRates(priceProviderFactory, accountManager);
+
+		PerformanceAnalyzer analizer = new PerformanceAnalyzer(report, PriceProviderFactory.getInstance());
+		performanceValues = analizer.getValues();
 
 		updatedCachedData();
 
@@ -130,7 +143,18 @@ public class DividendStats extends ObservableModelObject {
 			.filter(d -> d.getAmountInDefaultCurrency() == null)
 			.map(this::futureDividend)
 			.reduce(BigDecimal.ZERO, BigDecimal::add);
-		return new DividendMonth(month, amountInDefaultCurrency, nettoInDefaultCurrency, futureAmountInDefaultCurrency);
+
+		BigDecimal investedAvg = BigDecimal.ZERO;
+		if (month.month == Calendar.DECEMBER) {
+			int year = month.year;
+			investedAvg = performanceValues.stream()
+				.filter(pv -> pv.getYear() == year)
+				.map(pv -> pv.getInvestedAvg())
+				.findAny()
+				.orElse(BigDecimal.ZERO);
+		}
+
+		return new DividendMonth(month, amountInDefaultCurrency, nettoInDefaultCurrency, futureAmountInDefaultCurrency, investedAvg);
 	}
 
 	public BigDecimal getQuantity(Dividend entry) {

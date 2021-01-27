@@ -116,16 +116,6 @@
       </command>
       <command
             categoryId="de.tomsplayground.peanuts.client.category"
-            id="de.tomsplayground.peanuts.client.import.qif"
-            name="Import QIF">
-      </command>
-      <command
-            categoryId="de.tomsplayground.peanuts.client.category"
-            id="de.tomsplayground.peanuts.client.import.csv"
-            name="Import CSV">
-      </command>
-      <command
-            categoryId="de.tomsplayground.peanuts.client.category"
             defaultHandler="de.tomsplayground.peanuts.client.watchlist.AddWatchlistHandler"
             id="de.tomsplayground.peanuts.client.addWatchlist"
             name="Add Watchlist">

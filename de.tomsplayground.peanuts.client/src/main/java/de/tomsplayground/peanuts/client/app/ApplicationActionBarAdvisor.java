@@ -33,7 +33,6 @@ import org.eclipse.ui.application.IActionBarConfigurer;
 
 import de.tomsplayground.peanuts.client.actions.LoadAction;
 import de.tomsplayground.peanuts.client.actions.SaveAction;
-import de.tomsplayground.peanuts.client.quicken.QifImportAction;
 
 
 /**
@@ -46,7 +45,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	// in the fill methods.  This ensures that the actions aren't recreated
 	// when fillActionBars is called with FILL_PROXY.
 	private IWorkbenchAction aboutAction;
-	private Action qifImportAction;
 	private RetargetAction refreshAction;
 	private IWorkbenchAction closeAction;
 	private IWorkbenchAction saveAction;
@@ -81,10 +79,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		refreshAction = (RetargetAction) ActionFactory.REFRESH.create(window);
 		window.getPartService().addPartListener(refreshAction);
 		register(refreshAction);
-
-		qifImportAction = new QifImportAction(window);
-		qifImportAction.setText("QIF Import");
-		register(qifImportAction);
 
 		saveAsAction = new SaveAction(window);
 		saveAsAction.setText("Save as");
@@ -136,7 +130,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		newMenu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 		fileMenu.add(newMenu);
 
-		fileMenu.add(qifImportAction);
 		fileMenu.add(refreshAction);
 		fileMenu.add(closeAction);
 		fileMenu.add(new Separator(IWorkbenchActionConstants.FILE_END));
