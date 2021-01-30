@@ -35,7 +35,8 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 		ASSET, // Vermoegenswert
 		LIABILITY, // Verbindlichkeit
 		INVESTMENT, // Wertpapier
-		CREDIT
+		CREDIT, // Kredit
+		COMMODITY // Rohstoff
 	}
 
 	// Core

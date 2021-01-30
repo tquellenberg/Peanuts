@@ -48,7 +48,7 @@ public class ReportEditor extends MultiPageEditorPart {
 	private boolean isInvestmentAccount() {
 		Set<Account> accounts = ((ReportEditorInput)getEditorInput()).getReport().getAccounts();
 		for (Account account : accounts) {
-			if (account.getType() == Type.INVESTMENT) {
+			if (account.getType() == Type.INVESTMENT || account.getType() == Type.COMMODITY) {
 				return true;
 			}
 		}

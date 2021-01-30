@@ -75,8 +75,7 @@ public class AccountListView extends ViewPart {
 		}
 	}
 
-	private class AccountListLabelProvider extends LabelProvider implements
-	ITableLabelProvider, ITableColorProvider {
+	private class AccountListLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 
 		private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 		private final Color red;
@@ -104,7 +103,7 @@ public class AccountListView extends ViewPart {
 				case 1:
 					return currencyFormat.format(account.getBalance(date));
 				case 2:
-					if (account.getType() == Account.Type.INVESTMENT) {
+					if (account.getType() == Account.Type.INVESTMENT || account.getType() == Account.Type.COMMODITY) {
 						return currencyFormat.format(inventories.get(account).getMarketValue());
 					}
 					break;
@@ -308,7 +307,7 @@ public class AccountListView extends ViewPart {
 				s = saldoMap.get(a.getCurrency());
 			}
 			s = s.add(a.getBalance(date));
-			if (a.getType() == Account.Type.INVESTMENT) {
+			if (a.getType() == Account.Type.INVESTMENT || a.getType() == Account.Type.COMMODITY) {
 				s = s.add(inventories.get(a).getMarketValue());
 			}
 			saldoMap.put(a.getCurrency(), s);

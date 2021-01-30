@@ -13,6 +13,7 @@ import org.eclipse.ui.part.MultiPageEditorPart;
 
 import de.tomsplayground.peanuts.client.editors.credit.CreditChartEditorPart;
 import de.tomsplayground.peanuts.domain.base.Account;
+import de.tomsplayground.peanuts.domain.base.Account.Type;
 import de.tomsplayground.peanuts.domain.process.Transaction;
 
 public class AccountEditor extends MultiPageEditorPart {
@@ -36,12 +37,13 @@ public class AccountEditor extends MultiPageEditorPart {
 		accountEditorPart = new TransactionListEditorPart();
 		createEditorPage(accountEditorPart, "Transactions");
 		createEditorPage(new ValueChartEditorPart(), "Chart");
-		if (((AccountEditorInput) getEditorInput()).getAccount().getType() == Account.Type.INVESTMENT) {
+		Type accountType = ((AccountEditorInput) getEditorInput()).getAccount().getType();
+		if (accountType == Account.Type.INVESTMENT || accountType == Account.Type.COMMODITY) {
 			createEditorPage(new InventoryEditorPart(), "Inventory");
 			createEditorPage(new InventoryPieEditorPart(), "InventoryPie");
 			createEditorPage(new TaxPart(), "Tax");
 			createEditorPage(new InvestmentPerformanceEditorPart(), "Performance");
-		} else if (((AccountEditorInput) getEditorInput()).getAccount().getType() == Account.Type.CREDIT) {
+		} else if (accountType == Account.Type.CREDIT) {
 			createEditorPage(new CreditChartEditorPart(), "Credit");
 		}
 		MetaEditorPart metaEditorPart = new MetaEditorPart();
