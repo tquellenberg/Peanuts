@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import com.google.common.base.Function;
@@ -82,8 +83,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 					BigDecimal newQuantity = PeanutsUtil.parseCurrency(quantity.getText());
 					BigDecimal newPrice = PeanutsUtil.parseCurrency(price.getText());
 					BigDecimal newCommission = PeanutsUtil.parseCurrency(commission.getText());
-					BigDecimal newAmount = InvestmentTransaction.calculateAmount(type, newPrice,
-						newQuantity, newCommission);
+					BigDecimal newAmount = InvestmentTransaction.calculateAmount(type, newPrice, newQuantity, newCommission);
 					amount.setText(PeanutsUtil.formatCurrency(newAmount, null));
 				} catch (ParseException e) {
 					amount.setText("");
@@ -106,7 +106,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 
 		Group group = new Group(detailComposit, SWT.NONE);
 		group.setText("Transaction details");
-		group.setLayout(new GridLayout(2, true));
+		group.setLayout(new GridLayout(2, false));
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 		security = new Text(group, SWT.SINGLE | SWT.BORDER);
@@ -119,16 +119,25 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 
 		date = new DateComposite(group, SWT.NONE);
 
-		memo = new Text(group, SWT.MULTI | SWT.WRAP | SWT.BORDER);
+		memo = new Text(group, SWT.SINGLE | SWT.BORDER);
 		GridData ldata = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		ldata.heightHint = memo.getLineHeight() * 3;
 		memo.setLayoutData(ldata);
 
 		categoryComposite = new CategoryComposite(group, SWT.NONE);
 		categoryComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 		Composite box = new Composite(group, SWT.NONE);
-		box.setLayout(new FillLayout(SWT.HORIZONTAL));
+		GridLayout gridLayout = new GridLayout(5, false);
+		gridLayout.marginHeight = 0;
+		gridLayout.marginWidth = 0;
+		gridLayout.verticalSpacing = 0;
+		box.setLayout(gridLayout);
+
+		createSmallLabel(box, "Type");
+		createSmallLabel(box, "Amount");
+		createSmallLabel(box, "Price");
+		createSmallLabel(box, "Commission");
+		createSmallLabel(box, "Total");
 
 		transactionType = new Combo(box, SWT.READ_ONLY);
 		transactionType.add("Sell");
@@ -137,11 +146,13 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		transactionType.add("Income");
 
 		quantity = new Text(box, SWT.SINGLE | SWT.BORDER);
-		price = new Text(box, SWT.SINGLE | SWT.BORDER);
+		quantity.setLayoutData(new GridData(100, SWT.DEFAULT));
+		price = (new CalculatorText(box, SWT.SINGLE | SWT.BORDER)).getText();
+		price.setLayoutData(new GridData(150, SWT.DEFAULT));
 		commission = (new CalculatorText(box, SWT.SINGLE | SWT.BORDER)).getText();
-
-		amount = new Text(group, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
-		amount.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		commission.setLayoutData(new GridData(150, SWT.DEFAULT));
+		amount = new Text(box, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
+		amount.setLayoutData(new GridData(150, SWT.DEFAULT));
 
 		Composite buttons = new Composite(detailComposit, SWT.NONE);
 		GridData gridData = new GridData();
@@ -173,14 +184,21 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		price.addModifyListener(modifyListener);
 		commission.addModifyListener(recalculateAmount);
 		commission.addModifyListener(modifyListener);
+		transactionType.addModifyListener(recalculateAmount);
+		transactionType.addModifyListener(modifyListener);
+
 		categoryComposite.addModifyListener(modifyListener);
 		memo.addModifyListener(modifyListener);
 		date.addModifyListener(modifyListener);
-		transactionType.addModifyListener(recalculateAmount);
-		transactionType.addModifyListener(modifyListener);
 		security.addModifyListener(modifyListener);
 
 		return detailComposit;
+	}
+
+	private void createSmallLabel(Composite box, String text) {
+		Label label = new Label(box, SWT.NONE);
+		label.setText(text);
+		label.setFont(Activator.getDefault().getSmallFont());
 	}
 
 	private void initSecurityProposalProvider() {

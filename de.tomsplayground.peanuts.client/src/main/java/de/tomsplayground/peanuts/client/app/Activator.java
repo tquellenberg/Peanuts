@@ -17,10 +17,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.resource.ColorRegistry;
+import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.PlatformUI;
@@ -152,6 +156,24 @@ public class Activator extends AbstractUIPlugin {
 //		ibConnection = new IbConnection();
 //		ibConnection.start();
 		ivrUpdater = new IvrUpdater();
+	}
+
+	private void initFonts() {
+		FontRegistry fontRegistry = JFaceResources.getFontRegistry();
+		FontData[] fontDatas = fontRegistry.getFontData(JFaceResources.DEFAULT_FONT);
+		if (fontDatas.length > 0) {
+			FontData fontData = fontDatas[0];
+			fontData.setHeight(fontData.getHeight()-2);
+			fontRegistry.put("de.tomsplayground.fonts.small", fontDatas);
+		}
+	}
+
+	public Font getSmallFont() {
+		FontRegistry fontRegistry = JFaceResources.getFontRegistry();
+		if (! fontRegistry.hasValueFor("de.tomsplayground.fonts.small")) {
+			initFonts();
+		}
+		return fontRegistry.get("de.tomsplayground.fonts.small");
 	}
 
 	protected void applicationStopping() {

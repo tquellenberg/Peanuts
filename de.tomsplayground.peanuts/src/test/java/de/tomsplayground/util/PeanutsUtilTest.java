@@ -30,4 +30,18 @@ public class PeanutsUtilTest {
 		assertEquals("105,53 $", currency);
 	}
 
+	@Test
+	public void testFormatCurrencyMaximumFractionDigits() {
+		BigDecimal amount = new BigDecimal("105.1234567890");
+		String currency = PeanutsUtil.formatCurrency(amount, null);
+		assertEquals("105,1235", currency);
+	}
+
+	@Test
+	public void testFormatCurrencyMinimumFractionDigits() {
+		BigDecimal amount = new BigDecimal("105");
+		String currency = PeanutsUtil.formatCurrency(amount, null);
+		assertEquals("105,00", currency);
+	}
+
 }
