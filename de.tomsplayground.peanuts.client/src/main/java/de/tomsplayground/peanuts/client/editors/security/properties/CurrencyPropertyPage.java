@@ -27,12 +27,12 @@ public class CurrencyPropertyPage extends PropertyPage {
 
 		Label label = new Label(composite, SWT.NONE);
 		label.setText("Currency");
-		currencyComboViewer = new CurrencyComboViewer(composite, false);
+		currencyComboViewer = new CurrencyComboViewer(composite, false, false);
 		currencyComboViewer.selectCurrency(security.getCurrency());
 
 		label = new Label(composite, SWT.NONE);
 		label.setText("Exchange rate");
-		currencyComboViewer2 = new CurrencyComboViewer(composite, true);
+		currencyComboViewer2 = new CurrencyComboViewer(composite, true, true);
 		if (security.getExchangeCurrency() != null) {
 			currencyComboViewer2.selectCurrency(security.getExchangeCurrency());
 		}

@@ -90,7 +90,7 @@ public class MetaEditorPart extends EditorPart {
 			}});
 
 		toolkit.createLabel(sectionClient, "Currency");
-		currency = new CurrencyComboViewer(sectionClient, false);
+		currency = new CurrencyComboViewer(sectionClient, false, false);
 		currency.getCombo().addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {

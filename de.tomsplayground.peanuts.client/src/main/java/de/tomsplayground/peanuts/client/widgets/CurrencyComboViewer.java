@@ -1,8 +1,6 @@
 package de.tomsplayground.peanuts.client.widgets;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Currency;
 import java.util.List;
 
@@ -10,49 +8,54 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 
+import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 
 public class CurrencyComboViewer {
 
-	private List<Currency> currencies;
-	private Combo combo;
-	private boolean optional;
+	private final ImmutableList<Currency> currencies;
 
-	public CurrencyComboViewer(Composite parent, boolean optional) {
+	private final Combo combo;
+
+	private final boolean optional;
+
+	private final boolean allCurrencies;
+
+	public CurrencyComboViewer(Composite parent, boolean optional, boolean allCurrencies) {
+		this.allCurrencies = allCurrencies;
+		this.currencies = getValues();
 		this.optional = optional;
-		combo = new Combo(parent, SWT.READ_ONLY);
-		currencies = Lists.newArrayList(Currency.getAvailableCurrencies());
-		Collections.sort(currencies, new Comparator<Currency>() {
-			@Override
-			public int compare(Currency o1, Currency o2) {
-				return o1.getDisplayName().compareToIgnoreCase(o2.getDisplayName());
-			}
-		});
+		this.combo = new Combo(parent, SWT.READ_ONLY);
 
-		int index = 0;
-		for (Currency c : Currencies.getInstance().getMainCurrencies()) {
-			currencies.add(index++, c);
-		}
-
-		ArrayList<String> currencyNames = Lists.newArrayList(Iterables.transform(currencies, new Function<Currency, String>() {
-			@Override
-			public String apply(Currency arg0) {
-				return arg0.getDisplayName();
-			}
-		}));
 		if (optional) {
 			combo.add("");
 		}
-		for (String name : currencyNames) {
-			combo.add(name);
-		}
+
+		currencies.stream()
+			.map(c -> c.getDisplayName())
+			.forEach(name -> combo.add(name));
+
 		if (! optional) {
 			selectCurrency(Currencies.getInstance().getDefaultCurrency());
 		}
+	}
+
+	private ImmutableList<Currency> getValues() {
+		List<Currency> currencies = new ArrayList<>();
+
+		if (allCurrencies) {
+			currencies.addAll(Currency.getAvailableCurrencies());
+			currencies.sort( (a,b) -> a.getDisplayName().compareToIgnoreCase(b.getDisplayName()));
+		}
+
+		int index = 0;
+		for (Currency c : Currencies.getInstance().getCurrenciesWithExchangeSecurity(Activator.getDefault().getAccountManager())) {
+			currencies.add(index++, c);
+		}
+
+		return ImmutableList.copyOf(currencies);
 	}
 
 	public Combo getCombo() {

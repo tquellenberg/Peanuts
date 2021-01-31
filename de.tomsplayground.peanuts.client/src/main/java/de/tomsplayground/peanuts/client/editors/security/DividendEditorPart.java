@@ -2,7 +2,6 @@ package de.tomsplayground.peanuts.client.editors.security;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Currency;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +49,7 @@ import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.widgets.DateCellEditor;
+import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
@@ -75,6 +75,8 @@ public class DividendEditorPart extends EditorPart {
 	private List<Dividend> dividends;
 
 	private Inventory fullInventory;
+
+	private ImmutableList<Currency> currencies;
 
 	private class DividendTableLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 
@@ -176,8 +178,11 @@ public class DividendEditorPart extends EditorPart {
 
 		Report report = new Report("temp");
 		report.addQuery(new SecurityInvestmentQuery(getSecurity()));
-		report.setAccounts(Activator.getDefault().getAccountManager().getAccounts());
+		AccountManager accountManager = Activator.getDefault().getAccountManager();
+		report.setAccounts(accountManager.getAccounts());
 		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new Day(), new AnalyzerFactory());
+
+		currencies = Currencies.getInstance().getCurrenciesWithExchangeSecurity(accountManager);
 	}
 
 	@Override
@@ -390,30 +395,16 @@ public class DividendEditorPart extends EditorPart {
 	}
 
 	private Currency getCurrencyByPos(int pos) {
-		return getCurrencies().get(pos);
+		return currencies.get(pos);
 	}
 
 	private String[] getCurrencyItems() {
-		List<String> items = getCurrencies().stream()
+		List<String> items = currencies.stream()
 			.map(c -> c.getSymbol())
 			.collect(Collectors.toList());
 		return items.toArray(new String[items.size()]);
 	}
 
-	private List<Currency> getCurrencies() {
-		List<Currency> currencies = new ArrayList<>(Currencies.getInstance().getMainCurrencies());
-		ImmutableList<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
-		for (Security security : securities) {
-			Currency exchangeCurrency = security.getExchangeCurrency();
-			if (exchangeCurrency != null) {
-				if (! currencies.contains(exchangeCurrency)) {
-					currencies.add(exchangeCurrency);
-				}
-			}
-		}
-		currencies.sort((a,b) -> a.getSymbol().compareTo(b.getSymbol()));
-		return currencies;
-	}
 
 	private void fillContextMenu(IMenuManager manager) {
 		manager.add(new Action("New") {

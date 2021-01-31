@@ -381,7 +381,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 		Composite metaComposite = new Composite(top, SWT.NONE);
 		metaComposite.setLayout(new GridLayout(6, false));
-		currencyComboViewer = new CurrencyComboViewer(metaComposite, false);
+		currencyComboViewer = new CurrencyComboViewer(metaComposite, false, false);
 		new Label(metaComposite, SWT.NONE).setText("Morningstar symbol:");
 		final Text morningstarSymbol = new Text(metaComposite, SWT.NONE);
 		morningstarSymbol.setText(security.getMorningstarSymbol());

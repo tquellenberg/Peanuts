@@ -1,8 +1,13 @@
 package de.tomsplayground.peanuts.domain.currenncy;
 
+import java.util.ArrayList;
 import java.util.Currency;
+import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+
+import de.tomsplayground.peanuts.domain.base.AccountManager;
+import de.tomsplayground.peanuts.domain.base.Security;
 
 public class Currencies {
 
@@ -29,8 +34,18 @@ public class Currencies {
 		return DEFAULT_CURRENCY;
 	}
 
-	public ImmutableList<Currency> getMainCurrencies() {
-		return MAIN_CURRENCIES;
+	public ImmutableList<Currency> getCurrenciesWithExchangeSecurity(AccountManager accountManager) {
+		List<Currency> currencies = new ArrayList<>(MAIN_CURRENCIES);
+		for (Security security : accountManager.getSecurities()) {
+			Currency exchangeCurrency = security.getExchangeCurrency();
+			if (exchangeCurrency != null) {
+				if (! currencies.contains(exchangeCurrency)) {
+					currencies.add(exchangeCurrency);
+				}
+			}
+		}
+		currencies.sort((a,b) -> a.getDisplayName().compareTo(b.getDisplayName()));
+		return ImmutableList.copyOf(currencies);
 	}
 
 }

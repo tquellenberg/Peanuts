@@ -53,7 +53,7 @@ public class AccountPage extends WizardPage {
 
 		label = new Label(contents, SWT.NONE);
 		label.setText("Currency:");
-		currency = new CurrencyComboViewer(contents, false);
+		currency = new CurrencyComboViewer(contents, false, false);
 
 		label = new Label(contents, SWT.NONE);
 		label.setText("Type:");
