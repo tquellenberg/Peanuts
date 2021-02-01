@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Currency;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -17,6 +18,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -34,10 +36,12 @@ import com.google.common.collect.ImmutableList;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.widgets.CalculatorText;
 import de.tomsplayground.peanuts.client.widgets.CategoryComposite;
+import de.tomsplayground.peanuts.client.widgets.CurrencyComboViewer;
 import de.tomsplayground.peanuts.client.widgets.DateComposite;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.Category;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction.Type;
 import de.tomsplayground.peanuts.domain.process.Transaction;
@@ -64,6 +68,8 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 	private Combo transactionType;
 	private boolean internalUpdate;
 
+	private Currency currentSelectedCurrency;
+
 	private final ModifyListener modifyListener = new ModifyListener() {
 		@Override
 		public void modifyText(ModifyEvent arg0) {
@@ -84,7 +90,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 					BigDecimal newPrice = PeanutsUtil.parseCurrency(price.getText());
 					BigDecimal newCommission = PeanutsUtil.parseCurrency(commission.getText());
 					BigDecimal newAmount = InvestmentTransaction.calculateAmount(type, newPrice, newQuantity, newCommission);
-					amount.setText(PeanutsUtil.formatCurrency(newAmount, null));
+					amount.setText(PeanutsUtil.formatCurrency(newAmount, currencyCombo.getSelectedCurrency()));
 				} catch (ParseException e) {
 					amount.setText("");
 				}
@@ -94,6 +100,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 	private ContentProposalAdapter autoCompleteSecurityAdapter;
 	private SimpleContentProposalProvider securityProposalProvider;
 	private PropertyChangeListener propertyChangeListener;
+	private CurrencyComboViewer currencyCombo;
 
 	public InvestmentTransactionDetails(Account account) {
 		this.account = account;
@@ -154,6 +161,14 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		amount = new Text(box, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 		amount.setLayoutData(new GridData(150, SWT.DEFAULT));
 
+		currencyCombo = new CurrencyComboViewer(group, false, false);
+		currencyCombo.getCombo().addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			changeCurrency(currencyCombo.getSelectedCurrency());
+		}));
+		currencyCombo.getCombo().setLayoutData(new GridData(SWT.LEFT, SWT.BOTTOM, false, false));
+		currencyCombo.selectCurrency(account.getCurrency());
+		currentSelectedCurrency = currencyCombo.getSelectedCurrency();
+
 		Composite buttons = new Composite(detailComposit, SWT.NONE);
 		GridData gridData = new GridData();
 		gridData.horizontalAlignment = SWT.END;
@@ -172,6 +187,10 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		okay.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				if (! currentSelectedCurrency.equals(account.getCurrency())) {
+					changeCurrency(account.getCurrency());
+					currencyCombo.selectCurrency(account.getCurrency());
+				}
 				readForm();
 				cancel.setEnabled(false);
 				okay.setEnabled(false);
@@ -193,6 +212,38 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		security.addModifyListener(modifyListener);
 
 		return detailComposit;
+	}
+
+	private void changeCurrency(Currency newCurrency) {
+		CurrencyConverter converter = Activator.getDefault().getExchangeRate()
+			.createCurrencyConverter(currentSelectedCurrency, newCurrency);
+
+		Day transcationDate = date.getDay();
+		BigDecimal quantityValue = null;
+		try {
+			quantityValue = PeanutsUtil.parseCurrency(quantity.getText());
+		} catch (ParseException e) {
+		}
+		BigDecimal priceValue = convertField(price, converter, transcationDate);
+		BigDecimal commissionValue = convertField(commission, converter, transcationDate);
+		if (quantityValue != null && priceValue != null && commissionValue != null) {
+			BigDecimal amountValue = InvestmentTransaction.calculateAmount(getTransactionType(), priceValue, quantityValue, commissionValue);
+			amount.setText(PeanutsUtil.formatCurrency(amountValue, newCurrency));
+		} else {
+			amount.setText("");
+		}
+		currentSelectedCurrency = newCurrency;
+	}
+
+	private BigDecimal convertField(Text field, CurrencyConverter converter, Day newDate) {
+		try {
+			BigDecimal value = PeanutsUtil.parseCurrency(field.getText());
+			value = converter.convert(value, newDate);
+			field.setText(PeanutsUtil.formatCurrency(value, null));
+			return value;
+		} catch (ParseException e) {
+		}
+		return null;
 	}
 
 	private void createSmallLabel(Composite box, String text) {
@@ -282,6 +333,8 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		internalUpdate = true;
 		this.transaction = (InvestmentTransaction) transaction;
 		this.parentTransaction = parentTransaction;
+		this.currentSelectedCurrency = account.getCurrency();
+		this.currencyCombo.selectCurrency(account.getCurrency());
 		if (transaction == null) {
 			date.setDate(Calendar.getInstance());
 			memo.setText("");
@@ -318,7 +371,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 			} else {
 				commission.setText("");
 			}
-			amount.setText(PeanutsUtil.formatCurrency(transaction.getAmount(), null));
+			amount.setText(PeanutsUtil.formatCurrency(transaction.getAmount(), currentSelectedCurrency));
 			switch (this.transaction.getType()) {
 				case SELL:
 					transactionType.select(0);
