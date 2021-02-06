@@ -75,7 +75,7 @@ public class CreditTest {
 		Helper.assertEquals(new BigDecimal("160"), credit.getInterest(END_OF_FIRST_YEAR));
 		Helper.assertEquals(CREDIT_AMOUNT, credit.amount(END_OF_FIRST_YEAR));
 
-		Helper.assertEquals(new BigDecimal("159.5333333"), credit.getInterest(FIRST_DAY_OF_SECOND_YEAR));
+		Helper.assertEquals(new BigDecimal("159.5333333333333"), credit.getInterest(FIRST_DAY_OF_SECOND_YEAR));
 		Helper.assertEquals(new BigDecimal("47860"), credit.amount(FIRST_DAY_OF_SECOND_YEAR));
 	}
 
@@ -110,14 +110,14 @@ public class CreditTest {
 		// 48000 + 480 - 5000
 		Helper.assertEquals(new BigDecimal("43480"), credit.amount(firstPayment));
 		// (9 * 161,60) + 1 * (43480 * 4% / 12)
-		Helper.assertEquals(new BigDecimal("1599.33333333"), credit.getInterest(firstPayment));
+		Helper.assertEquals(new BigDecimal("1599.33333333333333"), credit.getInterest(firstPayment));
 
 		// (9 * 161,60) + 3 * (43480 * 4% / 12)
 		Helper.assertEquals(new BigDecimal("1889.20"), credit.getInterest(END_OF_SECOND_YEAR));
 
 		// 43480 + 1889.20
 		Helper.assertEquals(new BigDecimal("45369.20"), credit.amount(FIRST_DAY_OF_THIRD_YEAR));
-		Helper.assertEquals(new BigDecimal("151.2306667"), credit.getInterest(FIRST_DAY_OF_THIRD_YEAR));
+		Helper.assertEquals(new BigDecimal("151.2306666666667"), credit.getInterest(FIRST_DAY_OF_THIRD_YEAR));
 	}
 
 }

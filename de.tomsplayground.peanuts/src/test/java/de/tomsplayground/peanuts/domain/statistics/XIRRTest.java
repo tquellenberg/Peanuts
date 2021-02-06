@@ -14,22 +14,22 @@ public class XIRRTest {
 	@Test
 	public void test0() {
 		XIRR xirr = new XIRR();
-		double entryVlaue = xirr.entryVlaue(new BigDecimal("206463"), 0, new BigDecimal("-0.238"));
+		double entryVlaue = xirr.entryValue(new BigDecimal("206463"), 0, new BigDecimal("-0.238"));
 		assertEquals(206463, entryVlaue, 0.0001);
-		entryVlaue = xirr.entryVlaue(new BigDecimal("22500"), 104, new BigDecimal("-0.238"));
+		entryVlaue = xirr.entryValue(new BigDecimal("22500"), (double)104/365, new BigDecimal("-0.238").add(BigDecimal.ONE));
 		assertEquals(24311.808487818595, entryVlaue, 0.0001);
-		entryVlaue = xirr.entryVlaue(new BigDecimal("-175989"), 364, new BigDecimal("-0.238"));
+		entryVlaue = xirr.entryValue(new BigDecimal("-175989"), (double)364/365, new BigDecimal("-0.238").add(BigDecimal.ONE));
 		assertEquals(-230784.76777486206, entryVlaue, 0.0001);
 	}
 
 	@Test
 	public void test01() {
 		XIRR xirr = new XIRR();
-		double entryVlaue = xirr.entryVlaue(new BigDecimal("-206463"), 0, new BigDecimal("-0.238"));
+		double entryVlaue = xirr.entryValue(new BigDecimal("-206463"), 0, new BigDecimal("-0.238"));
 		assertEquals(-206463, entryVlaue, 0.0001);
-		entryVlaue = xirr.entryVlaue(new BigDecimal("-22500"), 104, new BigDecimal("-0.238"));
+		entryVlaue = xirr.entryValue(new BigDecimal("-22500"), (double)104/365, new BigDecimal("-0.238").add(BigDecimal.ONE));
 		assertEquals(-24311.808487818595, entryVlaue, 0.0001);
-		entryVlaue = xirr.entryVlaue(new BigDecimal("175989"), 364, new BigDecimal("-0.238"));
+		entryVlaue = xirr.entryValue(new BigDecimal("175989"), (double)364/365, new BigDecimal("-0.238").add(BigDecimal.ONE));
 		assertEquals(230784.76777486206, entryVlaue, 0.0001);
 	}
 
@@ -151,6 +151,16 @@ public class XIRRTest {
 
 		BigDecimal rate = xirr.calculateValue();
 		assertEquals(0, new BigDecimal("-0.23797").compareTo(rate.round(new MathContext(5))));
+	}
+
+	@Test
+	public void extrem1() {
+		XIRR xirr = new XIRR();
+		xirr.add(new Day(2021, 1, 1), new BigDecimal("-5308.77"));
+		xirr.add(new Day(2021, 1, 6), new BigDecimal("5749.27"));
+
+		BigDecimal rate = xirr.calculateValue();
+		assertEquals(0, new BigDecimal("335.64").compareTo(rate.round(new MathContext(5))));
 	}
 
 }

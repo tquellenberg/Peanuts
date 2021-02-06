@@ -82,10 +82,10 @@ public class PerformanceAnalyzerTest {
 		List<Value> values = analizer.getValues();
 		Assert.assertEquals(1, values.size());
 		Value value = values.get(0);
-		Helper.assertEquals(BigDecimal.ZERO, value.getMarketValue1());
+		Helper.assertEquals(BigDecimal.ZERO, value.getMarketValueStart());
 		Assert.assertEquals(new Day().year, value.getYear());
 		// 100 - (10 * 1) + (10 * 9)
-		Helper.assertEquals(new BigDecimal("180.00"), value.getMarketValue2());
+		Helper.assertEquals(new BigDecimal("180.00"), value.getMarketValueEnd());
 	}
 
 	@Test

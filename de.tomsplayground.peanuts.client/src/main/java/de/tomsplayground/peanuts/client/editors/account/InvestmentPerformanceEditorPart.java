@@ -53,9 +53,9 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 					case 0:
 						return String.valueOf(value.getYear());
 					case 1:
-						return PeanutsUtil.formatCurrency(value.getMarketValue1(), currency);
+						return PeanutsUtil.formatCurrency(value.getMarketValueStart(), currency);
 					case 2:
-						return PeanutsUtil.formatCurrency(value.getMarketValue2(), currency);
+						return PeanutsUtil.formatCurrency(value.getMarketValueEnd(), currency);
 					case 3:
 						return PeanutsUtil.formatCurrency(value.getAdditions(), currency);
 					case 4:
