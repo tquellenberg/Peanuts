@@ -193,6 +193,11 @@
             id="de.tomsplayground.peanuts.client.focusNavigation.cmd"
             name="Focus Navigation">
       </command>
+      <command
+            defaultHandler="de.tomsplayground.peanuts.client.actions.CopyDividendsToNewYear"
+            id="de.tomsplayground.peanuts.client.copyDividends.cmd"
+            name="Copy dividends for new year">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -422,6 +427,10 @@
             </command>
             <command
                   commandId="de.tomsplayground.peanuts.client.focusNavigation.cmd"
+                  style="push">
+            </command>
+            <command
+                  commandId="de.tomsplayground.peanuts.client.copyDividends.cmd"
                   style="push">
             </command>
          </menu>
