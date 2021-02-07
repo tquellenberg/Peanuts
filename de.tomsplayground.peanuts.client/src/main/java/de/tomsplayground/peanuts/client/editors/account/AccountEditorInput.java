@@ -78,18 +78,18 @@ public class AccountEditorInput implements IEditorInput, ITransactionProviderInp
 	}
 
 	@Override
-	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
+	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == Account.class) {
-			return account;
+			return adapter.cast(account);
 		} else if (adapter == Credit.class) {
 			List<ICredit> credits = Activator.getDefault().getAccountManager().getCredits();
 			for (ICredit c : credits) {
 				if (c.getConnection().equals(account)) {
-					return c;
+					return adapter.cast(c);
 				}
 			}
 		} else if (adapter == IConfigurable.class) {
-			return account;
+			return adapter.cast(account);
 		}
 		return null;
 	}

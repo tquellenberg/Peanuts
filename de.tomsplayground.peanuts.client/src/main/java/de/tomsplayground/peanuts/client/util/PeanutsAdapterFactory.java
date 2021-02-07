@@ -60,25 +60,24 @@ public class PeanutsAdapterFactory implements IAdapterFactory {
 	};
 
 	@Override
-	public Object getAdapter(Object adaptableObject, @SuppressWarnings("rawtypes") Class adapterType) {
+	public <T> T getAdapter(Object adaptableObject, Class<T> adapterType) {
 		if (adapterType == IWorkbenchAdapter.class) {
 			if (adaptableObject instanceof INamedElement) {
-				return securityWorkbenchAdapter;
+				return adapterType.cast(securityWorkbenchAdapter);
 			}
 		} else if ((adapterType == Security.class || adapterType == Credit.class)
 			&& adaptableObject instanceof IAdaptable) {
 			return ((IAdaptable) adaptableObject).getAdapter(adapterType);
 		} else if ((adapterType == Security.class) && adaptableObject instanceof InventoryEntry) {
-			return ((InventoryEntry)adaptableObject).getSecurity();
+			return adapterType.cast(((InventoryEntry)adaptableObject).getSecurity());
 		} else if ((adapterType == Security.class) && adaptableObject instanceof WatchEntry) {
-			return ((WatchEntry)adaptableObject).getSecurity();
+			return adapterType.cast(((WatchEntry)adaptableObject).getSecurity());
 		}
 		return null;
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public Class[] getAdapterList() {
+	public Class<?>[] getAdapterList() {
 		return new Class[] {
 			IWorkbenchAdapter.class,
 			Security.class,
@@ -86,8 +85,7 @@ public class PeanutsAdapterFactory implements IAdapterFactory {
 		};
 	}
 
-	@SuppressWarnings("rawtypes")
-	public static Class[] getAdaptableClasses() {
+	public static Class<?>[] getAdaptableClasses() {
 		return new Class[] {
 			INamedElement.class,
 			IEditorInput.class,

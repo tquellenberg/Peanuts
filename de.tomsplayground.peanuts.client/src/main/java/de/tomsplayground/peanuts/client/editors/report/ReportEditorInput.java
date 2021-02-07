@@ -74,9 +74,9 @@ public class ReportEditorInput implements IEditorInput, ITransactionProviderInpu
 	}
 
 	@Override
-	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
+	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == IConfigurable.class) {
-			return report;
+			return adapter.cast(report);
 		}
 		return null;
 	}

@@ -95,7 +95,7 @@ public class DividendStatsView extends ViewPart {
 				case 1:
 					return PeanutsUtil.formatCurrency(getSum(divStats), Currencies.getInstance().getDefaultCurrency());
 				case 2:
-					List<DividendMonth> input = (List<DividendMonth>) yearlyListViewer.getInput();
+					@SuppressWarnings("unchecked") List<DividendMonth> input = (List<DividendMonth>) yearlyListViewer.getInput();
 					int pos = input.indexOf(divStats);
 					if (pos < 1) {
 						return "";

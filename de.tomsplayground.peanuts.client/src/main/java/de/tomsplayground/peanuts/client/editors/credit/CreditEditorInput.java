@@ -71,9 +71,9 @@ public class CreditEditorInput implements IEditorInput {
 	}
 
 	@Override
-	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
+	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == Credit.class) {
-			return credit;
+			return adapter.cast(credit);
 		}
 		return null;
 	}

@@ -2,6 +2,7 @@ package de.tomsplayground.peanuts.client.app;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
@@ -116,7 +116,7 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 
-		for (@SuppressWarnings("rawtypes") Class c : PeanutsAdapterFactory.getAdaptableClasses()) {
+		for (Class<?> c : PeanutsAdapterFactory.getAdaptableClasses()) {
 			Platform.getAdapterManager().registerAdapters(new PeanutsAdapterFactory(), c);
 		}
 
@@ -248,23 +248,15 @@ public class Activator extends AbstractUIPlugin {
 
 
 	public void load(String filename) throws IOException {
-		Reader reader;
-		if (filename.equals(EXAMPLE)) {
-			reader = new InputStreamReader(AccountManager.class.getResourceAsStream("/"+EXAMPLE_FILENAME), StandardCharsets.UTF_8);
-		} else {
-			File file = new File(filename);
-			if (! file.exists()) {
-				setFilename(filename);
-				accountManager = new AccountManager();
-				return;
-			}
-			if (filename.endsWith("."+FILE_EXTENSION_SECURE)) {
-				reader = Persistence.secureReader(file, passphrase);
-			} else {
-				reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
-			}
+		File file = new File(filename);
+		if (! StringUtils.equals(filename, EXAMPLE) && ! file.exists()) {
+			// New empty file
+			setFilename(filename);
+			accountManager = new AccountManager();
+			return;
 		}
-		try {
+
+		try (Reader reader = getReader(filename)) {
 			Persistence persistence = new Persistence();
 			persistence.setPersistenceService(new PersistenceService());
 			accountManager = persistence.read(reader);
@@ -274,10 +266,23 @@ public class Activator extends AbstractUIPlugin {
 				setFilename(filename);
 				createLockFile(filename);
 			}
-		} finally {
-			IOUtils.closeQuietly(reader);
 		}
 		ivrUpdater.init();
+	}
+
+	private Reader getReader(String filename) throws FileNotFoundException {
+		Reader reader;
+		if (filename.equals(EXAMPLE)) {
+			reader = new InputStreamReader(AccountManager.class.getResourceAsStream("/"+EXAMPLE_FILENAME), StandardCharsets.UTF_8);
+		} else {
+			File file = new File(filename);
+			if (filename.endsWith("."+FILE_EXTENSION_SECURE)) {
+				reader = Persistence.secureReader(file, passphrase);
+			} else {
+				reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
+			}
+		}
+		return reader;
 	}
 
 	public void save(String filename) throws IOException {
@@ -288,18 +293,25 @@ public class Activator extends AbstractUIPlugin {
 			bakFile.delete();
 			FileUtils.copyFile(file, bakFile);
 		}
+
+		// Save data
+		try (Writer writer = getWriter(filename)) {
+			Persistence persistence = new Persistence();
+			persistence.setPersistenceService(new PersistenceService());
+			persistence.write(writer, accountManager);
+			setFilename(filename);
+		}
+	}
+
+	private Writer getWriter(String filename) throws FileNotFoundException {
 		Writer writer;
+		File file = new File(filename);
 		if (filename.endsWith("."+FILE_EXTENSION_SECURE)) {
 			writer = Persistence.secureWriter(file, passphrase);
 		} else {
 			writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
 		}
-		// Save data
-		Persistence persistence = new Persistence();
-		persistence.setPersistenceService(new PersistenceService());
-		persistence.write(writer, accountManager);
-		IOUtils.closeQuietly(writer);
-		setFilename(filename);
+		return writer;
 	}
 
 	/*
