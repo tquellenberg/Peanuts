@@ -24,13 +24,7 @@ public class AdjustedPricesTest {
 		prices.add(new Price(new Day(2008, 10, 1), new BigDecimal("10")));
 		prices.add(new Price(new Day(2008, 10, 2), new BigDecimal("5")));
 		prices.add(new Price(new Day(2008, 10, 3), new BigDecimal("5")));
-		PriceProvider priceProvider = new PriceProvider(null) {
-			@Override
-			public String getName() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		};
+		PriceProvider priceProvider = new PriceProvider(null);
 		priceProvider.setPrices(prices, true);
 
 		List<StockSplit> splits = Collections.singletonList(new StockSplit(new Security("sec"), new Day(2008, 10, 2), 1, 2));
@@ -50,13 +44,7 @@ public class AdjustedPricesTest {
 		prices.add(new Price(new Day(2008, 10, 1), new BigDecimal("10")));
 		prices.add(new Price(new Day(2008, 10, 2), new BigDecimal("5")));
 		prices.add(new Price(new Day(2008, 10, 3), new BigDecimal("5")));
-		PriceProvider priceProvider = new PriceProvider(null) {
-			@Override
-			public String getName() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		};
+		PriceProvider priceProvider = new PriceProvider(null);
 		priceProvider.setPrices(prices, true);
 
 		List<StockSplit> splits = Lists.newArrayList(

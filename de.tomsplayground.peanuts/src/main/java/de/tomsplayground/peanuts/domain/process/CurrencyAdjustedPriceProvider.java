@@ -1,5 +1,6 @@
 package de.tomsplayground.peanuts.domain.process;
 
+import java.util.Currency;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
@@ -13,6 +14,9 @@ public class CurrencyAdjustedPriceProvider extends AdjustedPriceProvider {
 	public CurrencyAdjustedPriceProvider(IPriceProvider priceProvider, CurrencyConverter currencyConverter) {
 		super(priceProvider);
 		this.currencyConverter = currencyConverter;
+		if (! priceProvider.getCurrency().equals(currencyConverter.getFromCurrency())) {
+			throw new IllegalArgumentException("Price provide and converter must use same currency. ("+priceProvider.getCurrency()+", "+currencyConverter.getFromCurrency()+")");
+		}
 	}
 
 	@Override
@@ -26,4 +30,10 @@ public class CurrencyAdjustedPriceProvider extends AdjustedPriceProvider {
 	IPrice adjust(IPrice price) {
 		return new AdjustedPrice(price, currencyConverter.getRatio(price.getDay()));
 	}
+
+	@Override
+	public Currency getCurrency() {
+		return currencyConverter.getToCurrency();
+	}
+
 }

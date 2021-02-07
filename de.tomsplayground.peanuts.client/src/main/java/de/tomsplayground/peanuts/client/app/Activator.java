@@ -182,7 +182,7 @@ public class Activator extends AbstractUIPlugin {
 	protected void applicationStarted() {
 	}
 
-	public ExchangeRates getExchangeRate() {
+	public ExchangeRates getExchangeRates() {
 		if (exchangeRates == null) {
 			exchangeRates = new ExchangeRates(PriceProviderFactory.getInstance(), accountManager);
 		}

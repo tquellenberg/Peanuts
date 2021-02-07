@@ -81,20 +81,26 @@ public class FundamentalDatas {
 		return fundamentalDatas;
 	}
 
-	public BigDecimal getAdjustedContinuousEarnings(Day day, ExchangeRates exchangeRates) {
-		BigDecimal pe = getContinuousEarnings(earningOffset(day));
-		if (pe == null) {
+	/**
+	 * Adjusted to the security currency.
+	 */
+	public BigDecimal getAdjustedContinuousEarnings(Day day, Currency toCurrency, ExchangeRates exchangeRates) {
+		BigDecimal earnings = getContinuousEarnings(earningOffset(day));
+		if (earnings == null) {
 			return null;
 		}
-		CurrencyConverter currencyConverter = exchangeRates.createCurrencyConverter(getCurrency(), security.getCurrency());
-		return currencyConverter.convert(pe, day);
+		CurrencyConverter currencyConverter = exchangeRates.createCurrencyConverter(getCurrency(), toCurrency);
+		return currencyConverter.convert(earnings, day);
 	}
 
 	private Day earningOffset(Day day) {
 		return day.addMonth(+6);
 	}
 
-	public BigDecimal getContinuousEarnings(Day day) {
+	/**
+	 * Adjusted earnings for a given day (in currency of {@link #getCurrency()}).
+	 */
+	BigDecimal getContinuousEarnings(Day day) {
 		day = day.addYear(-1);
 		FundamentalData fundamentalData1 = getFundamentalData(day);
 		FundamentalData fundamentalData2 = getFundamentalData(day.addYear(1));
@@ -108,9 +114,9 @@ public class FundamentalDatas {
 			return fundamentalData1.getEarningsPerShare();
 		}
 		int daysYear1 = day.delta(fundamentalData1.getFiscalEndDay());
-		BigDecimal pe1  = fundamentalData1.getEarningsPerShare().multiply(new BigDecimal(daysYear1));
-		BigDecimal pe2  = fundamentalData2.getEarningsPerShare().multiply(new BigDecimal(360 - daysYear1));
+		BigDecimal earnings1  = fundamentalData1.getEarningsPerShare().multiply(new BigDecimal(daysYear1));
+		BigDecimal earnings2  = fundamentalData2.getEarningsPerShare().multiply(new BigDecimal(360 - daysYear1));
 
-		return pe1.add(pe2).divide(DAYS_IN_YEAR, PeanutsUtil.MC);
+		return earnings1.add(earnings2).divide(DAYS_IN_YEAR, PeanutsUtil.MC);
 	}
 }

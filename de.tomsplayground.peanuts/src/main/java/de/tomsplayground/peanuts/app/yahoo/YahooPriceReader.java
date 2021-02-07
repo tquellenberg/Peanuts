@@ -207,9 +207,4 @@ public class YahooPriceReader extends PriceProvider {
 		setPrices(prices, true);
 	}
 
-	@Override
-	public String getName() {
-		return "Yahoo";
-	}
-
 }

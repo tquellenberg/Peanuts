@@ -2,6 +2,7 @@ package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.Currency;
 import java.util.List;
 
 import com.google.common.base.Predicate;
@@ -14,7 +15,7 @@ import de.tomsplayground.peanuts.util.PeanutsUtil;
 import de.tomsplayground.util.Day;
 
 
-public abstract class PriceProvider extends ObservableModelObject implements IPriceProvider {
+public class PriceProvider extends ObservableModelObject implements IPriceProvider {
 
 	private final Security security;
 	private ImmutableList<IPrice> prices = ImmutableList.of();
@@ -27,6 +28,11 @@ public abstract class PriceProvider extends ObservableModelObject implements IPr
 	@Override
 	public Security getSecurity() {
 		return security;
+	}
+
+	@Override
+	public Currency getCurrency() {
+		return security.getCurrency();
 	}
 
 	@Override

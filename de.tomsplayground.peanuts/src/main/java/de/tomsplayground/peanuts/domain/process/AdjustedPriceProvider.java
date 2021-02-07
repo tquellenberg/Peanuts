@@ -1,5 +1,6 @@
 package de.tomsplayground.peanuts.domain.process;
 
+import java.util.Currency;
 import java.util.List;
 
 import org.apache.commons.lang3.NotImplementedException;
@@ -16,11 +17,6 @@ public abstract class AdjustedPriceProvider extends ObservableModelObject implem
 
 	public AdjustedPriceProvider(IPriceProvider rawPriceProvider) {
 		this.rawPriceProvider = rawPriceProvider;
-	}
-
-	@Override
-	public String getName() {
-		return rawPriceProvider.getName();
 	}
 
 	@Override
@@ -74,6 +70,11 @@ public abstract class AdjustedPriceProvider extends ObservableModelObject implem
 	@Override
 	public Security getSecurity() {
 		return rawPriceProvider.getSecurity();
+	}
+
+	@Override
+	public Currency getCurrency() {
+		return rawPriceProvider.getCurrency();
 	}
 
 	public IPriceProvider getRawPriceProvider() {

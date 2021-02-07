@@ -141,7 +141,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 					return null;
 				}
 			}
-			return new EmptyPriceProvider(security);
+			return new PriceProvider(security);
 		}
 	}
 

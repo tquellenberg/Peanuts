@@ -22,12 +22,7 @@ public class PriceProviderTest {
 
 	@Before
 	public void setUp() {
-		pp = new PriceProvider(null) {
-			@Override
-			public String getName() {
-				return "";
-			}
-		};
+		pp = new PriceProvider(null);
 		c1 = new Day(2008, 4, 1);
 		dateAfterC1 = new Day(2008, 4, 2);
 	}

@@ -87,7 +87,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 	private TableViewer tableViewer;
 	private final int colWidth[] = new int[15];
 	private boolean dirty = false;
-	private List<FundamentalData> fundamentalDatas;
+	private List<FundamentalData> fundamentalDataList;
 	private IPriceProvider priceProvider;
 	private InventoryEntry inventoryEntry;
 	private CurrencyComboViewer currencyComboViewer;
@@ -113,7 +113,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 		private FundamentalData getPreviousYear(FundamentalData data) {
 			final int prevYear = data.getYear() -1;
-			return Iterables.find(fundamentalDatas, new Predicate<FundamentalData>() {
+			return Iterables.find(fundamentalDataList, new Predicate<FundamentalData>() {
 				@Override
 				public boolean apply(FundamentalData arg0) {
 					return arg0.getYear() == prevYear;
@@ -174,26 +174,40 @@ public class FundamentalDataEditorPart extends EditorPart {
 		}
 
 		private BigDecimal currencyAdjustedEPS(FundamentalData data) {
-			if (currencyConverter != null) {
-				CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
-				return currencyAjustedData.getEarningsPerShare();
-			}
-			return data.getEarningsPerShare();
+			CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
+			return currencyAjustedData.getEarningsPerShare();
 		}
 
 		private BigDecimal currencyAdjustedDiv(FundamentalData data) {
-			if (currencyConverter != null) {
+			CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
+			return currencyAjustedData.getDividende();
+		}
+
+		private BigDecimal peRatio(FundamentalData data) {
+			CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
+			return currencyAjustedData.calculatePeRatio(priceProvider);
+		}
+
+		private BigDecimal divYield(FundamentalData data) {
+			CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
+			return currencyAjustedData.calculateDivYield(priceProvider);
+		}
+
+		private BigDecimal calculateYOC(FundamentalData data) {
+			if (inventoryEntry != null && data.getYear() == (new Day()).year) {
 				CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
-				return currencyAjustedData.getDividende();
+				return currencyAjustedData.calculateYOC(inventoryEntry);
+			} else {
+				return null;
 			}
-			return data.getDividende();
 		}
 
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
 			if (element instanceof AvgFundamentalData) {
 				// Fresh data
-				AvgFundamentalData data = new AvgFundamentalData(fundamentalDatas, priceProvider, currencyConverter);
+				FundamentalDatas fundamentalDatas = new FundamentalDatas(fundamentalDataList, getSecurity());
+				AvgFundamentalData data = fundamentalDatas.getAvgFundamentalData(priceProvider, Activator.getDefault().getExchangeRates());
 				switch (columnIndex) {
 					case 0:
 						return "Avg";
@@ -245,27 +259,11 @@ public class FundamentalDataEditorPart extends EditorPart {
 					case 10:
 						return PeanutsUtil.format(data.getDebtEquityRatio(), 2);
 					case 11:
-						if (currencyConverter != null) {
-							CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
-							return PeanutsUtil.format(currencyAjustedData.calculatePeRatio(priceProvider), 1);
-						}
-						return PeanutsUtil.format(data.calculatePeRatio(priceProvider), 1);
+						return PeanutsUtil.format(peRatio(data), 1);
 					case 12:
-						if (currencyConverter != null) {
-							CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
-							return PeanutsUtil.formatPercent(currencyAjustedData.calculateDivYield(priceProvider));
-						}
-						return PeanutsUtil.formatPercent(data.calculateDivYield(priceProvider));
+						return PeanutsUtil.formatPercent(divYield(data));
 					case 13:
-						if (inventoryEntry != null && data.getYear() == (new Day()).year) {
-							if (currencyConverter != null) {
-								CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
-								return PeanutsUtil.formatPercent(currencyAjustedData.calculateYOC(inventoryEntry));
-							}
-							return PeanutsUtil.formatPercent(data.calculateYOC(inventoryEntry));
-						} else {
-							return "";
-						}
+						return PeanutsUtil.formatPercent(calculateYOC(data));
 					case 14:
 						DateTime lastModifyDate = data.getLastModifyDate();
 						if (lastModifyDate != null) {
@@ -637,29 +635,28 @@ public class FundamentalDataEditorPart extends EditorPart {
 			}
 		}
 
-		fundamentalDatas = cloneFundamentalData(security.getFundamentalDatas().getDatas());
-		if (! fundamentalDatas.isEmpty()) {
-			Currency currency = fundamentalDatas.get(0).getCurrency();
+		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
+		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
+		fundamentalDataList = cloneFundamentalData(fundamentalDatas.getDatas());
+		if (! fundamentalDataList.isEmpty()) {
+			Currency currency = fundamentalDataList.get(0).getCurrency();
 			currencyComboViewer.selectCurrency(currency);
-			ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
-			currencyConverter = exchangeRate.createCurrencyConverter(currency, security.getCurrency());
+			currencyConverter = exchangeRates.createCurrencyConverter(currency, security.getCurrency());
+		} else {
+			currencyConverter = exchangeRates.createCurrencyConverter(security.getCurrency(), security.getCurrency());
 		}
 
 		tableRows = new ArrayList<Object>();
-		tableRows.addAll(fundamentalDatas);
-		tableRows.add(new AvgFundamentalData(fundamentalDatas, priceProvider, currencyConverter));
+		tableRows.addAll(fundamentalDataList);
+		tableRows.add(fundamentalDatas.getAvgFundamentalData(priceProvider, exchangeRates));
 		tableViewer.setInput(tableRows);
 
 		currencyComboViewer.getCombo().addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Currency selectedCurrency = currencyComboViewer.getSelectedCurrency();
-				if (selectedCurrency.equals(security.getCurrency())) {
-					currencyConverter = null;
-				} else {
-					ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
-					currencyConverter = exchangeRate.createCurrencyConverter(selectedCurrency, security.getCurrency());
-				}
+				ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
+				currencyConverter = exchangeRates.createCurrencyConverter(selectedCurrency, security.getCurrency());
 				tableViewer.refresh();
 				markDirty();
 			}
@@ -706,7 +703,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 			List<DebtEquityValue> values = debtEquity.readUrl(symbol);
 			boolean valueChanged = false;
 			for (DebtEquityValue debtEquityValue : values) {
-				for (FundamentalData oldData : fundamentalDatas) {
+				for (FundamentalData oldData : fundamentalDataList) {
 					if (oldData.isIncluded(debtEquityValue.getDay())) {
 						BigDecimal newValue = new BigDecimal(debtEquityValue.getValue());
 						BigDecimal oldValue = oldData.getDebtEquityRatio();
@@ -750,7 +747,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 				continue;
 			}
 			boolean dataExists = false;
-			for (FundamentalData oldData : fundamentalDatas) {
+			for (FundamentalData oldData : fundamentalDataList) {
 				if (newData.getYear() == oldData.getYear()) {
 					oldData.update(newData);
 					dataExists = true;
@@ -758,7 +755,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 				}
 			}
 			if (! dataExists) {
-				fundamentalDatas.add(newData);
+				fundamentalDataList.add(newData);
 				tableRows.add(newData);
 			}
 		}
@@ -785,7 +782,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 			@Override
 			public void run() {
 				FundamentalData fundamentalData = new FundamentalData();
-				fundamentalDatas.add(fundamentalData);
+				fundamentalDataList.add(fundamentalData);
 				tableRows.add(fundamentalData);
 				tableViewer.add(fundamentalData);
 				tableViewer.getTable().redraw();
@@ -795,7 +792,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 	}
 
 	public void deleteFundamentalData(Collection<FundamentalData> data) {
-		if (fundamentalDatas.removeAll(data)) {
+		if (fundamentalDataList.removeAll(data)) {
 			tableRows.removeAll(data);
 			tableViewer.remove(data.toArray());
 			markDirty();
@@ -821,7 +818,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		Security security = getSecurity();
-		List<FundamentalData> datas = cloneFundamentalData(fundamentalDatas);
+		List<FundamentalData> datas = cloneFundamentalData(fundamentalDataList);
 		Currency selectedCurrency = currencyComboViewer.getSelectedCurrency();
 		for (FundamentalData fundamentalData : datas) {
 			fundamentalData.setCurrency(selectedCurrency);

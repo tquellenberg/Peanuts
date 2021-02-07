@@ -1,5 +1,6 @@
 package de.tomsplayground.peanuts.domain.process;
 
+import java.util.Currency;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -10,9 +11,9 @@ import de.tomsplayground.util.Day;
 
 public interface IPriceProvider {
 
-	String getName();
-
 	Security getSecurity();
+
+	Currency getCurrency();
 
 	ImmutableList<IPrice> getPrices();
 

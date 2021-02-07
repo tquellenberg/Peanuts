@@ -105,7 +105,7 @@ public class DividendEditorPart extends EditorPart {
 						if (amount == null) {
 							amount = getQuantity(entry).multiply(entry.getAmountPerShare());
 						}
-						CurrencyConverter converter = Activator.getDefault().getExchangeRate()
+						CurrencyConverter converter = Activator.getDefault().getExchangeRates()
 							.createCurrencyConverter(entry.getCurrency(), Currencies.getInstance().getDefaultCurrency());
 						amount = converter.convert(amount, entry.getPayDate());
 					}
@@ -604,7 +604,7 @@ public class DividendEditorPart extends EditorPart {
 				if (amount == null) {
 					amount = getQuantity(entry).multiply(entry.getAmountPerShare());
 				}
-				CurrencyConverter converter = Activator.getDefault().getExchangeRate()
+				CurrencyConverter converter = Activator.getDefault().getExchangeRates()
 					.createCurrencyConverter(entry.getCurrency(), Currencies.getInstance().getDefaultCurrency());
 				amount = converter.convert(amount, entry.getPayDate());
 			}

@@ -79,9 +79,4 @@ public class LocalPriceReader extends PriceProvider {
 		}
 	}
 
-	@Override
-	public String getName() {
-		return "Local";
-	}
-
 }

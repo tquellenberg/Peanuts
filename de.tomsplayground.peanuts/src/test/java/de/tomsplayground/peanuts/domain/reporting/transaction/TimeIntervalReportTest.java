@@ -99,14 +99,6 @@ public class TimeIntervalReportTest {
 		SimplePriceProvider() {
 			super(null);
 		}
-		@Override
-		public String getName() {
-			return "test";
-		}
-
-		public void addPrice(Price price) {
-			setPrice(price);
-		}
 	}
 
 	@Test
@@ -115,7 +107,7 @@ public class TimeIntervalReportTest {
 		investmmentAccount.addTransaction(new InvestmentTransaction(now, new Security("Apple"), BigDecimal.ONE,
 			BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY));
 		final SimplePriceProvider priceProvider = new SimplePriceProvider();
-		priceProvider.addPrice(new Price(now, BigDecimal.TEN));
+		priceProvider.setPrice(new Price(now, BigDecimal.TEN));
 		TimeIntervalReport timeIntervalReport = new TimeIntervalReport(investmmentAccount, TimeIntervalReport.Interval.MONTH, new IPriceProviderFactory(){
 			@Override
 			public IPriceProvider getPriceProvider(Security security) {
@@ -144,11 +136,11 @@ public class TimeIntervalReportTest {
 		Day today = new Day();
 		investmmentAccount.addTransaction(new InvestmentTransaction(today, new Security("Apple"), BigDecimal.ONE,
 			BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY));
-		priceProvider.addPrice(new Price(today, BigDecimal.TEN));
+		priceProvider.setPrice(new Price(today, BigDecimal.TEN));
 		// Tomorrow
 		Day tomorrow = new Day().addDays(1);
 		investmmentAccount.addTransaction(new Transaction(tomorrow, BigDecimal.ONE));
-		priceProvider.addPrice(new Price(tomorrow, new BigDecimal("11")));
+		priceProvider.setPrice(new Price(tomorrow, new BigDecimal("11")));
 		TimeIntervalReport timeIntervalReport = new TimeIntervalReport(investmmentAccount,
 			TimeIntervalReport.Interval.DAY, new IPriceProviderFactory(){
 			@Override
@@ -173,7 +165,7 @@ public class TimeIntervalReportTest {
 		investmmentAccount.addTransaction(new InvestmentTransaction(now, new Security("Apple"), BigDecimal.ONE,
 			BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY));
 		final SimplePriceProvider priceProvider = new SimplePriceProvider();
-		priceProvider.addPrice(new Price(now, BigDecimal.TEN));
+		priceProvider.setPrice(new Price(now, BigDecimal.TEN));
 		TimeIntervalReport timeIntervalReport = new TimeIntervalReport(investmmentAccount, TimeIntervalReport.Interval.MONTH, new IPriceProviderFactory(){
 			@Override
 			public IPriceProvider getPriceProvider(Security security) {

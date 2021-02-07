@@ -8,7 +8,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.joda.time.DateTime;
 
-import com.google.common.collect.ImmutableList;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
@@ -82,35 +81,10 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		this.debtEquityRatio = deptEquityRatio;
 	}
 
-	protected BigDecimal avgPrice(IPriceProvider priceProvider, int year) {
-		Day from = new Day(year,0,1).addMonth(getFicalYearEndsMonth()-3);
-		Day to = new Day(year, 11, 31).addMonth(getFicalYearEndsMonth()-3);
-		ImmutableList<IPrice> prices = priceProvider.getPrices(from, to);
-		if (prices.isEmpty()) {
-			return BigDecimal.ZERO;
-		}
-		BigDecimal sum = BigDecimal.ZERO;
-		for (IPrice p : prices) {
-			sum = sum.add(p.getClose());
-		}
-		return sum.divide(new BigDecimal(prices.size()),PeanutsUtil. MC);
-	}
-
-	public BigDecimal calculatePeRatio(IPriceProvider priceProvider) {
-		BigDecimal price;
-		if (getYear() >= new Day().year) {
-			price =  priceProvider.getPrice(new Day()).getClose();
-		} else {
-			price = avgPrice(priceProvider, getYear());
-		}
-		BigDecimal eps = getEarningsPerShare();
-		if (eps.signum() == 0) {
-			return BigDecimal.ZERO;
-		}
-		return price.divide(eps, PeanutsUtil.MC);
-	}
-
 	public BigDecimal calculateDivYield(IPriceProvider priceProvider) {
+		if (! getCurrency().equals(priceProvider.getCurrency())) {
+			throw new IllegalArgumentException("Fundamental data and price provider must use same currency. ("+getCurrency()+", "+priceProvider.getCurrency()+")");
+		}
 		IPrice price = priceProvider.getPrice(getFiscalEndDay());
 		BigDecimal close = price.getClose();
 		if (close.signum() == 0) {

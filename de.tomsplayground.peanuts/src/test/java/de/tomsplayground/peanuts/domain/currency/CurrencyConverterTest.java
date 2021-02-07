@@ -1,7 +1,8 @@
 package de.tomsplayground.peanuts.domain.currency;
 
-import static de.tomsplayground.peanuts.Helper.*;
+import static de.tomsplayground.peanuts.Helper.assertEquals;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 import java.util.Currency;
@@ -10,9 +11,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
-import de.tomsplayground.peanuts.domain.process.EmptyPriceProvider;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.Price;
+import de.tomsplayground.peanuts.domain.process.PriceProvider;
 import de.tomsplayground.util.Day;
 
 public class CurrencyConverterTest {
@@ -25,7 +26,7 @@ public class CurrencyConverterTest {
 
 	@Before
 	public void setup() {
-		priceProvider = new EmptyPriceProvider(null);
+		priceProvider = new PriceProvider(null);
 		currencyConverter = new CurrencyConverter(priceProvider, EURO, DOLLAR);
 	}
 

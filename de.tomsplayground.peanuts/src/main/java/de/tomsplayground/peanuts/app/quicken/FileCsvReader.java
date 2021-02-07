@@ -41,9 +41,4 @@ public class FileCsvReader extends PriceProvider {
 		}
 	}
 
-	@Override
-	public String getName() {
-		return "File";
-	}
-
 }

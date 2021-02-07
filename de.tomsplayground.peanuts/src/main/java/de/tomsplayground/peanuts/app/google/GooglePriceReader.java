@@ -78,8 +78,4 @@ public class GooglePriceReader extends PriceProvider {
 		return Day.fromDate(date);
 	}
 
-	@Override
-	public String getName() {
-		return "Google";
-	}
 }

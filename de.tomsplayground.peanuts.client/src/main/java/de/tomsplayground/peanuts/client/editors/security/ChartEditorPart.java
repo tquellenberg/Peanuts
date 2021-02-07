@@ -277,6 +277,10 @@ public class ChartEditorPart extends EditorPart {
 					createDataset();
 					pricePlot.clearAnnotations();
 					addOrderAnnotations();
+					if (avgPriceAnnotation != null) {
+						pricePlot.removeRangeMarker(avgPriceAnnotation);
+					}
+					addAvgPriceAnnotation();
 					pricePlot.getRangeAxis().setLabel("Price "+getChartCurrencyConverter().getToCurrency().getSymbol());
 					timeChart.setChartType(displayType.getItem(displayType.getSelectionIndex()));
 				}
@@ -291,6 +295,10 @@ public class ChartEditorPart extends EditorPart {
 					createDataset();
 					pricePlot.clearAnnotations();
 					addOrderAnnotations();
+					if (avgPriceAnnotation != null) {
+						pricePlot.removeRangeMarker(avgPriceAnnotation);
+					}
+					addAvgPriceAnnotation();
 					pricePlot.getRangeAxis().setLabel("Price "+getChartCurrencyConverter().getToCurrency().getSymbol());
 					timeChart.setChartType(displayType.getItem(displayType.getSelectionIndex()));
 				}
@@ -322,12 +330,26 @@ public class ChartEditorPart extends EditorPart {
 		}
 	}
 
+	private BigDecimal getAvgPrice() {
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
+		if (inventory.getSecurities().contains(security)) {
+			BigDecimal avgPrice = inventory.getEntry(security).getAvgPrice();
+			return getChartCurrencyConverter().convert(avgPrice, new de.tomsplayground.util.Day());
+		}
+		return null;
+	}
+
+	/**
+	 * Convert price data of the security.
+	 * The currency of the security may differ from the currency of orders etc.
+	 */
 	private IPriceProvider getChartPriceProvider() {
 		if (convertToEuro != null && convertToEuro.getSelection()) {
 			Currency defaultCurrency = Currencies.getInstance().getDefaultCurrency();
 			Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-			ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
-			CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(security.getCurrency(), defaultCurrency);
+			ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
+			CurrencyConverter currencyConverter = exchangeRates.createCurrencyConverter(security.getCurrency(), defaultCurrency);
 			if (currencyConverter != null) {
 				return new CurrencyAdjustedPriceProvider(priceProvider, currencyConverter);
 			}
@@ -335,8 +357,8 @@ public class ChartEditorPart extends EditorPart {
 		if (convertToUSD != null && convertToUSD.getSelection()) {
 			Currency defaultCurrency = Currencies.getInstance().getDefaultCurrency();
 			Currency usdCurrency = Currency.getInstance("USD");
-			ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
-			CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(defaultCurrency, usdCurrency);
+			ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
+			CurrencyConverter currencyConverter = exchangeRates.createCurrencyConverter(defaultCurrency, usdCurrency);
 			if (currencyConverter != null) {
 				return new CurrencyAdjustedPriceProvider(priceProvider, currencyConverter);
 			}
@@ -344,25 +366,26 @@ public class ChartEditorPart extends EditorPart {
 		return priceProvider;
 	}
 
+	/**
+	 * Currency converter for default currency based values, e.g. orders or average price.
+	 * Not used for the price data. See {@link #getChartPriceProvider()}
+	 */
 	private CurrencyConverter getChartCurrencyConverter() {
 		Currency defaultCurrency = Currencies.getInstance().getDefaultCurrency();
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
+		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
 		if (convertToEuro != null && convertToEuro.getSelection()) {
-			CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(security.getCurrency(), defaultCurrency);
-			if (currencyConverter != null) {
-				return currencyConverter;
-			}
+			return new DummyCurrencyConverter(defaultCurrency);
 		}
 		if (convertToUSD != null && convertToUSD.getSelection()) {
 			Currency usdCurrency = Currency.getInstance("USD");
-			CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(defaultCurrency, usdCurrency);
+			CurrencyConverter currencyConverter = exchangeRates.createCurrencyConverter(defaultCurrency, usdCurrency);
 			if (currencyConverter != null) {
 				return currencyConverter;
 			}
 		}
 		if (! defaultCurrency.equals(security.getCurrency())) {
-			return exchangeRate.createCurrencyConverter(defaultCurrency, security.getCurrency());
+			return exchangeRates.createCurrencyConverter(defaultCurrency, security.getCurrency());
 		}
 		return new DummyCurrencyConverter(security.getCurrency());
 	}
@@ -461,15 +484,6 @@ public class ChartEditorPart extends EditorPart {
 		}
 	}
 
-	private BigDecimal getAvgPrice() {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
-		if (inventory.getSecurities().contains(security)) {
-			return inventory.getEntry(security).getAvgPrice();
-		}
-		return null;
-	}
-
 	/**
 	 * Creates a chart.
 	 *
@@ -539,15 +553,16 @@ public class ChartEditorPart extends EditorPart {
 		if (fundamentalDatas.isEmpty()) {
 			return;
 		}
-		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
+		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
 		BigDecimal avgPE = fundamentalDatas.getOverriddenAvgPE();
 		if (avgPE == null) {
-			AvgFundamentalData avgData = fundamentalDatas.getAvgFundamentalData(priceProvider, exchangeRate);
+			AvgFundamentalData avgData = fundamentalDatas.getAvgFundamentalData(priceProvider, exchangeRates);
 			avgPE = avgData.getAvgPE();
 		}
-		for (IPrice price : priceProvider.getPrices()) {
+		IPriceProvider adjustedPricePorvider = getChartPriceProvider();
+		for (IPrice price : adjustedPricePorvider.getPrices()) {
 			de.tomsplayground.util.Day day = price.getDay();
-			BigDecimal pe = fundamentalDatas.getAdjustedContinuousEarnings(day, exchangeRate);
+			BigDecimal pe = fundamentalDatas.getAdjustedContinuousEarnings(day, adjustedPricePorvider.getCurrency(), exchangeRates);
 			if (pe != null && pe.signum() > 0) {
 				BigDecimal fairPrice = pe.multiply(avgPE, PeanutsUtil.MC);
 				// Main Chart
@@ -672,7 +687,7 @@ public class ChartEditorPart extends EditorPart {
 
 	private void createMovingAverage(TimeSeries a1, int days) {
 		SimpleMovingAverage simpleMovingAverage = new SimpleMovingAverage(days);
-		List<IPrice> sma = simpleMovingAverage.calculate(priceProvider.getPrices());
+		List<IPrice> sma = simpleMovingAverage.calculate(getChartPriceProvider().getPrices());
 		for (IPrice price : sma) {
 			de.tomsplayground.util.Day day = price.getDay();
 			a1.addOrUpdate(new Day(day.day, day.month+1, day.year), price.getValue());

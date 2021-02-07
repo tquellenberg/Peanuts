@@ -22,23 +22,23 @@ public class CurrencyAdjustedPriceProviderFactory implements IPriceProviderFacto
 	@Override
 	public IPriceProvider getPriceProvider(Security security) {
 		IPriceProvider priceProvider = priceProviderFactory.getPriceProvider(security);
-		priceProvider = warpPriceProvider(priceProvider, security.getCurrency());
+		priceProvider = wrapPriceProvider(priceProvider);
 		return priceProvider;
 	}
 
 	@Override
 	public IPriceProvider getSplitAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
 		IPriceProvider priceProvider = priceProviderFactory.getSplitAdjustedPriceProvider(security, stockSplits);
-		priceProvider = warpPriceProvider(priceProvider, security.getCurrency());
+		priceProvider = wrapPriceProvider(priceProvider);
 		return priceProvider;
 	}
 
-	private IPriceProvider warpPriceProvider(IPriceProvider priceProvider, Currency currency2) {
-		if (! currency2.equals(currency)) {
-			CurrencyConverter currencyConverter = exchangeRates.createCurrencyConverter(currency2, currency);
-			return new CurrencyAdjustedPriceProvider(priceProvider, currencyConverter);
+	private IPriceProvider wrapPriceProvider(IPriceProvider originalPriceProvider) {
+		if (! originalPriceProvider.getCurrency().equals(currency)) {
+			CurrencyConverter currencyConverter = exchangeRates.createCurrencyConverter(originalPriceProvider.getCurrency(), currency);
+			return new CurrencyAdjustedPriceProvider(originalPriceProvider, currencyConverter);
 		}
-		return priceProvider;
+		return originalPriceProvider;
 	}
 
 }

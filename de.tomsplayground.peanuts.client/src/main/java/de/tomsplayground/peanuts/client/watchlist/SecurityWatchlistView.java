@@ -169,8 +169,8 @@ public class SecurityWatchlistView extends ViewPart {
 	private final WatchEntryViewerComparator earningsComparator = new WatchEntryViewerComparator() {
 		@Override
 		public int compare(WatchEntry w1, WatchEntry w2) {
-			BigDecimal peRatio1 = w1.getCurrencyAdjustedReturn();
-			BigDecimal peRatio2 = w2.getCurrencyAdjustedReturn();
+			BigDecimal peRatio1 = w1.getCurrencyAdjustedAvgReturnGrowth();
+			BigDecimal peRatio2 = w2.getCurrencyAdjustedAvgReturnGrowth();
 			return ObjectUtils.compare(peRatio1, peRatio2, false);
 		}
 	};
@@ -345,7 +345,7 @@ public class SecurityWatchlistView extends ViewPart {
 					}
 					return "";
 				case 6:
-					BigDecimal v = watchEntry.getCurrencyAdjustedReturn();
+					BigDecimal v = watchEntry.getCurrencyAdjustedAvgReturnGrowth();
 					if (v != null) {
 						return PeanutsUtil.formatPercent(v);
 					}
@@ -419,7 +419,7 @@ public class SecurityWatchlistView extends ViewPart {
 					}
 				}
 			} else if (columnIndex == 6) {
-				BigDecimal v = watchEntry.getCurrencyAdjustedReturn();
+				BigDecimal v = watchEntry.getCurrencyAdjustedAvgReturnGrowth();
 				if (v != null) {
 					if (v.compareTo(RETURN_HIGH) > 0) {
 						return green;

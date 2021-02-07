@@ -215,7 +215,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 	}
 
 	private void changeCurrency(Currency newCurrency) {
-		CurrencyConverter converter = Activator.getDefault().getExchangeRate()
+		CurrencyConverter converter = Activator.getDefault().getExchangeRates()
 			.createCurrencyConverter(currentSelectedCurrency, newCurrency);
 
 		Day transcationDate = date.getDay();

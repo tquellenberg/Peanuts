@@ -172,7 +172,7 @@ public class DividendStatsView extends ViewPart {
 						if (amount == null) {
 							amount = dividendStats.getQuantity(entry).multiply(entry.getAmountPerShare());
 						}
-						CurrencyConverter converter = Activator.getDefault().getExchangeRate()
+						CurrencyConverter converter = Activator.getDefault().getExchangeRates()
 							.createCurrencyConverter(entry.getCurrency(), Currencies.getInstance().getDefaultCurrency());
 						amount = converter.convert(amount, entry.getPayDate());
 					}

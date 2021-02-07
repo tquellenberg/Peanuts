@@ -34,15 +34,6 @@ public class PerformanceAnalyzerTest {
 		SimplePriceProvider() {
 			super(null);
 		}
-
-		@Override
-		public String getName() {
-			return "test";
-		}
-
-		public void addPrice(Price price) {
-			setPrice(price);
-		}
 	}
 
 	@Before
@@ -53,7 +44,7 @@ public class PerformanceAnalyzerTest {
 			@Override
 			public IPriceProvider getPriceProvider(Security security) {
 				SimplePriceProvider simplePriceProvider = new SimplePriceProvider();
-				simplePriceProvider.addPrice(new Price(new Day(2008, 3, 13), new BigDecimal("9.00")));
+				simplePriceProvider.setPrice(new Price(new Day(2008, 3, 13), new BigDecimal("9.00")));
 				return simplePriceProvider;
 			}
 			@Override

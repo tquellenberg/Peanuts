@@ -1,7 +1,7 @@
 package de.tomsplayground.peanuts.domain.process;
 
-import static de.tomsplayground.peanuts.Helper.*;
-import static org.junit.Assert.*;
+import static de.tomsplayground.peanuts.Helper.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,12 +21,7 @@ public class StopLossTest {
 		ITrailingStrategy strategy = new NoTrailingStrategy();
 		StopLoss stopLoss = new StopLoss(security, start, startPrice, strategy);
 
-		IPriceProvider priceProvider = new PriceProvider(null) {
-			@Override
-			public String getName() {
-				return "Dummy";
-			}
-		};
+		IPriceProvider priceProvider = new PriceProvider(null);
 		priceProvider.setPrice(new Price(start, new BigDecimal("13.00")));
 		priceProvider.setPrice(new Price(start.addDays(1), new BigDecimal("9.00")));
 		priceProvider.setPrice(new Price(start.addDays(2), new BigDecimal("15.00")));
@@ -47,12 +42,7 @@ public class StopLossTest {
 		ITrailingStrategy strategy = new PercentTrailingStrategy(new BigDecimal("0.1"));
 		StopLoss stopLoss = new StopLoss(security, start, startPrice, strategy);
 
-		IPriceProvider priceProvider = new PriceProvider(null) {
-			@Override
-			public String getName() {
-				return "Dummy";
-			}
-		};
+		IPriceProvider priceProvider = new PriceProvider(null);
 		priceProvider.setPrice(new Price(start, new BigDecimal("13.00")));
 		priceProvider.setPrice(new Price(start.addDays(1), new BigDecimal("9.00")));
 		priceProvider.setPrice(new Price(start.addDays(2), new BigDecimal("15.00")));

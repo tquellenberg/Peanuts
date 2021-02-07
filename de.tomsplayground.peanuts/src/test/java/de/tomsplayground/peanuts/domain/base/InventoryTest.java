@@ -143,14 +143,6 @@ public class InventoryTest {
 		SimplePriceProvider() {
 			super(null);
 		}
-		@Override
-		public String getName() {
-			return "test";
-		}
-
-		public void addPrice(Price price) {
-			setPrice(price);
-		}
 	}
 
 	@Test
@@ -170,8 +162,8 @@ public class InventoryTest {
 			@Override
 			public IPriceProvider getPriceProvider(Security security) {
 				SimplePriceProvider priceProvider = new SimplePriceProvider();
-				priceProvider.addPrice(new Price(now.addDays(-1), new BigDecimal("11.00")));
-				priceProvider.addPrice(new Price(now, new BigDecimal("12.00")));
+				priceProvider.setPrice(new Price(now.addDays(-1), new BigDecimal("11.00")));
+				priceProvider.setPrice(new Price(now, new BigDecimal("12.00")));
 				return priceProvider;
 			}
 			@Override
@@ -204,7 +196,7 @@ public class InventoryTest {
 			@Override
 			public IPriceProvider getPriceProvider(Security security) {
 				SimplePriceProvider priceProvider = new SimplePriceProvider();
-				priceProvider.addPrice(new Price(now, new BigDecimal("12.00")));
+				priceProvider.setPrice(new Price(now, new BigDecimal("12.00")));
 				return priceProvider;
 			}
 			@Override
@@ -233,7 +225,7 @@ public class InventoryTest {
 		investmmentAccount.addTransaction(buy);
 
 		final SimplePriceProvider priceProvider = new SimplePriceProvider();
-		priceProvider.addPrice(new Price(now, new BigDecimal("12.00")));
+		priceProvider.setPrice(new Price(now, new BigDecimal("12.00")));
 		Inventory inventory = new Inventory(investmmentAccount, new IPriceProviderFactory() {
 			@Override
 			public IPriceProvider getPriceProvider(Security security) {

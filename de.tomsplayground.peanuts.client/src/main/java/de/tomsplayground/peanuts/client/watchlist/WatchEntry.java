@@ -43,9 +43,12 @@ public class WatchEntry {
 	BigDecimal robustness = null;
 	BigDecimal volatility = null;
 
-	private BigDecimal currencyAdjustedAvgEpsChange;
+	private BigDecimal currencyAdjustedAvgReturnGrowth;
 
 	WatchEntry(Security security, IPriceProvider adjustedPriceProvider) {
+		if (! security.getCurrency().equals(adjustedPriceProvider.getCurrency())) {
+			throw new IllegalArgumentException("Security and price provide must use same currency. ("+security.getCurrency()+", "+adjustedPriceProvider.getCurrency()+")");
+		}
 		this.security = security;
 		this.adjustedPriceProvider = adjustedPriceProvider;
 	}
@@ -107,27 +110,24 @@ public class WatchEntry {
 		return performance;
 	}
 
-	private FundamentalData getCurrentFundamentalData() {
+	private CurrencyAjustedFundamentalData getCurrentFundamentalData() {
 		return adjust(security.getFundamentalDatas().getCurrentFundamentalData());
 	}
 
-	private FundamentalData adjust(FundamentalData fundamentalData) {
+	private CurrencyAjustedFundamentalData adjust(FundamentalData fundamentalData) {
 		if (fundamentalData == null) {
 			return null;
 		}
 		Currency currency = fundamentalData.getCurrency();
-		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
-		CurrencyConverter currencyConverter = exchangeRate.createCurrencyConverter(currency, security.getCurrency());
-		if (currencyConverter == null) {
-			return fundamentalData;
-		}
+		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
+		CurrencyConverter currencyConverter = exchangeRates.createCurrencyConverter(currency, security.getCurrency());
 		return new CurrencyAjustedFundamentalData(fundamentalData, currencyConverter);
 	}
 
 	private AvgFundamentalData getAvgFundamentalData() {
 		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
-		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
-		return fundamentalDatas.getAvgFundamentalData(adjustedPriceProvider, exchangeRate);
+		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
+		return fundamentalDatas.getAvgFundamentalData(adjustedPriceProvider, exchangeRates);
 	}
 
 	public BigDecimal getPeRatio() {
@@ -137,8 +137,8 @@ public class WatchEntry {
 		Day date = new Day();
 		IPrice price = adjustedPriceProvider.getPrice(date);
 		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
-		ExchangeRates exchangeRate = Activator.getDefault().getExchangeRate();
-		BigDecimal earnings = fundamentalDatas.getAdjustedContinuousEarnings(date, exchangeRate);
+		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
+		BigDecimal earnings = fundamentalDatas.getAdjustedContinuousEarnings(date, adjustedPriceProvider.getCurrency(), exchangeRates);
 		if (earnings != null && earnings.signum() > 0) {
 			peRatio = price.getClose().divide(earnings, PeanutsUtil.MC);
 		}
@@ -146,7 +146,7 @@ public class WatchEntry {
 	}
 
 	public BigDecimal getDivYield() {
-		FundamentalData data1 = getCurrentFundamentalData();
+		CurrencyAjustedFundamentalData data1 = getCurrentFundamentalData();
 		if (data1 != null) {
 			return data1.calculateDivYield(adjustedPriceProvider);
 		}
@@ -154,18 +154,18 @@ public class WatchEntry {
 	}
 
 	public BigDecimal getYOC(InventoryEntry inventoryEntry) {
-		if (inventoryEntry == null) {
+		if (inventoryEntry == null || inventoryEntry.getQuantity().signum() <= 0) {
 			return null;
 		}
-		FundamentalData data1 = getCurrentFundamentalData();
-		if (data1 != null && inventoryEntry.getQuantity().signum() > 0) {
+		CurrencyAjustedFundamentalData data1 = getCurrentFundamentalData();
+		if (data1 != null) {
 			return data1.calculateYOC(inventoryEntry);
 		}
 		return null;
 	}
 
 	public BigDecimal getDebtEquityRatio() {
-		FundamentalData data1 = getCurrentFundamentalData();
+		CurrencyAjustedFundamentalData data1 = getCurrentFundamentalData();
 		if (data1 != null) {
 			return data1.getDebtEquityRatio();
 		}
@@ -191,7 +191,7 @@ public class WatchEntry {
 		}
 		score = score.add(v.negate());
 
-		v = getCurrencyAdjustedReturn();
+		v = getCurrencyAdjustedAvgReturnGrowth();
 		if (v == null) {
 			return null;
 		}
@@ -209,16 +209,23 @@ public class WatchEntry {
 		if (avgPe != null) {
 			return avgPe;
 		}
-		AvgFundamentalData avgFundamentalData = getAvgFundamentalData();
-		if (avgFundamentalData != null) {
-			avgPe = avgFundamentalData.getAvgPE();
+
+		avgPe = security.getFundamentalDatas().getOverriddenAvgPE();
+		if (avgPe == null) {
+			AvgFundamentalData avgFundamentalData = getAvgFundamentalData();
+			if (avgFundamentalData != null) {
+				avgPe = avgFundamentalData.getAvgPE();
+			}
 		}
 		return avgPe;
 	}
 
-	public BigDecimal getCurrencyAdjustedReturn() {
-		if (currencyAdjustedAvgEpsChange != null) {
-			return currencyAdjustedAvgEpsChange;
+	/**
+	 * Adjusted to currency of security.
+	 */
+	public BigDecimal getCurrencyAdjustedAvgReturnGrowth() {
+		if (currencyAdjustedAvgReturnGrowth != null) {
+			return currencyAdjustedAvgReturnGrowth;
 		}
 		AvgFundamentalData avgFundamentalData = getAvgFundamentalData();
 		if (avgFundamentalData != null) {
@@ -226,13 +233,13 @@ public class WatchEntry {
 			if (currencyAdjustedAvgEpsGrowth == null) {
 				return null;
 			}
-			currencyAdjustedAvgEpsChange = currencyAdjustedAvgEpsGrowth.subtract(BigDecimal.ONE);
+			currencyAdjustedAvgReturnGrowth = currencyAdjustedAvgEpsGrowth.subtract(BigDecimal.ONE);
 			BigDecimal divYield = getDivYield();
 			if (divYield != null) {
-				currencyAdjustedAvgEpsChange = currencyAdjustedAvgEpsChange.add(divYield);
+				currencyAdjustedAvgReturnGrowth = currencyAdjustedAvgReturnGrowth.add(divYield);
 			}
 		}
-		return currencyAdjustedAvgEpsChange;
+		return currencyAdjustedAvgReturnGrowth;
 	}
 
 	public BigDecimal getPeDelta() {
@@ -270,7 +277,7 @@ public class WatchEntry {
 		peRatio = null;
 		robustness = null;
 		volatility = null;
-		currencyAdjustedAvgEpsChange = null;
+		currencyAdjustedAvgReturnGrowth = null;
 	}
 
 	@Override
