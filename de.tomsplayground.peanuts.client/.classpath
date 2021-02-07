@@ -2,6 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/de.tomsplayground.peanuts"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-lang3-3.11.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-io-2.8.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xstream-1.4.15.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/opencsv-5.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/joda-time-2.10.5.jar"/>
@@ -18,10 +20,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-text-1.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-codec-1.11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/guava-27.1-jre.jar" sourcepath="/Users/quelle/.m2/repository/com/google/guava/guava/27.1-jre/guava-27.1-jre-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-lang3-3.9.jar"/>
 	<classpathentry kind="lib" path="lib/TwsApi.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.2.jar"/>
-	<classpathentry kind="lib" path="lib/commons-io-2.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/de.tomsplayground.peanuts-0.1-SNAPSHOT.jar" sourcepath="/de.tomsplayground.peanuts"/>
 	<classpathentry kind="lib" path="lib/jcommon-1.0.13.jar"/>
