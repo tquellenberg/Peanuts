@@ -102,6 +102,7 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 		if (fundamentalDatas == null) {
 			fundamentalDatas = new ArrayList<FundamentalData>();
 		}
+		fixCurrencies(fundamentalDatas);
 		if (notes == null) {
 			notes = new ArrayList<Note>();
 		}
@@ -118,9 +119,34 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 	}
 
 	public void setFundamentalDatas(List<FundamentalData> fundamentalDatas) {
+		checkCurrencies(fundamentalDatas);
 		List<FundamentalData> old = this.fundamentalDatas;
 		this.fundamentalDatas = new ArrayList<FundamentalData>(fundamentalDatas);
 		firePropertyChange("fundamentalData", old, fundamentalDatas);
+	}
+
+	private void fixCurrencies(List<FundamentalData> fundamentalDatas) {
+		if (fundamentalDatas.isEmpty()) {
+			return;
+		}
+		Currency dataCurrency = fundamentalDatas.get(0).getCurrency();
+		for (FundamentalData fundamentalData : fundamentalDatas) {
+			if (! fundamentalData.getCurrency().equals(dataCurrency)) {
+				fundamentalData.setCurrency(dataCurrency);
+			}
+		}
+	}
+
+	private void checkCurrencies(List<FundamentalData> fundamentalDatas) {
+		if (fundamentalDatas.isEmpty()) {
+			return;
+		}
+		Currency dataCurrency = fundamentalDatas.get(0).getCurrency();
+		for (FundamentalData fundamentalData : fundamentalDatas) {
+			if (! fundamentalData.getCurrency().equals(dataCurrency)) {
+				throw new IllegalArgumentException("All fundamental data must use the same currency.");
+			}
+		}
 	}
 
 	private transient ConfigurableSupport configurableSupport;

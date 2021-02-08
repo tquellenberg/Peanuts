@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.client.actions;
 
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 
@@ -95,24 +96,27 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 
 	private void updateFundamentaData(Security security, List<FundamentalData> newDatas) {
 		System.out.println("Updating fundamenta data for " + security.getName());
-		List<FundamentalData> fundamentalDatas = new ArrayList<>(security.getFundamentalDatas().getDatas());
+		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
+		Currency dataCurrency = fundamentalDatas.getCurrency();
+		List<FundamentalData> existingDatas = new ArrayList<>(fundamentalDatas.getDatas());
 		for (FundamentalData newData : newDatas) {
+			newData.setCurrency(dataCurrency);
 			if (newData.getDividende().signum() == 0 && newData.getEarningsPerShare().signum() == 0) {
 				continue;
 			}
 			boolean dataExists = false;
-			for (FundamentalData oldData : fundamentalDatas) {
-				if (newData.getYear() == oldData.getYear()) {
-					oldData.update(newData);
+			for (FundamentalData existingData : existingDatas) {
+				if (newData.getYear() == existingData.getYear()) {
+					existingData.update(newData);
 					dataExists = true;
 					break;
 				}
 			}
 			if (! dataExists) {
-				fundamentalDatas.add(newData);
+				existingDatas.add(newData);
 			}
 		}
-		security.setFundamentalDatas(fundamentalDatas);
+		security.setFundamentalDatas(existingDatas);
 	}
 
 }
