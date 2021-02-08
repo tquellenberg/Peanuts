@@ -197,10 +197,12 @@ public class ChartEditorPart extends EditorPart {
 	private TimeSeries compareToPriceTimeSeries;
 	private TimeSeries fixedPePrice;
 	private XYPlot pricePlot;
-	private Button convertToEuro;
-	private Button convertToUSD;
 	private ValueMarker avgPriceAnnotation;
 	private TimeSeries peDeltaTimeSeries;
+
+
+	private Currency alternativeCurrency;
+	private Button convertToAlternativeCurrency;
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -266,44 +268,28 @@ public class ChartEditorPart extends EditorPart {
 				calculateCompareToValues();
 			}
 		});
-		Currency defaultCurrency = Currencies.getInstance().getDefaultCurrency();
-		if (security.getCurrency() != null && ! security.getCurrency().equals(defaultCurrency)) {
-			Label text = new Label(buttons, SWT.NONE);
-			text.setText("Convert from "+security.getCurrency().getCurrencyCode()+" to "+defaultCurrency.getCurrencyCode());
-			convertToEuro = new Button(buttons, SWT.CHECK);
-			convertToEuro.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					createDataset();
-					pricePlot.clearAnnotations();
-					addOrderAnnotations();
-					if (avgPriceAnnotation != null) {
-						pricePlot.removeRangeMarker(avgPriceAnnotation);
-					}
-					addAvgPriceAnnotation();
-					pricePlot.getRangeAxis().setLabel("Price "+getChartCurrencyConverter().getToCurrency().getSymbol());
-					timeChart.setChartType(displayType.getItem(displayType.getSelectionIndex()));
-				}
-			});
-		} else {
-			Label text = new Label(buttons, SWT.NONE);
-			text.setText("Convert from "+defaultCurrency.getCurrencyCode()+" to USD");
-			convertToUSD = new Button(buttons, SWT.CHECK);
-			convertToUSD.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					createDataset();
-					pricePlot.clearAnnotations();
-					addOrderAnnotations();
-					if (avgPriceAnnotation != null) {
-						pricePlot.removeRangeMarker(avgPriceAnnotation);
-					}
-					addAvgPriceAnnotation();
-					pricePlot.getRangeAxis().setLabel("Price "+getChartCurrencyConverter().getToCurrency().getSymbol());
-					timeChart.setChartType(displayType.getItem(displayType.getSelectionIndex()));
-				}
-			});
+
+		alternativeCurrency = security.getFundamentalDatas().getCurrency();
+		if (security.getCurrency().equals(alternativeCurrency)) {
+			alternativeCurrency = Currencies.getInstance().getDefaultCurrency();
 		}
+		Label text = new Label(buttons, SWT.NONE);
+		text.setText("Convert from "+security.getCurrency().getCurrencyCode()+" to "+alternativeCurrency.getCurrencyCode());
+		convertToAlternativeCurrency = new Button(buttons, SWT.CHECK);
+		convertToAlternativeCurrency.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				createDataset();
+				pricePlot.clearAnnotations();
+				addOrderAnnotations();
+				if (avgPriceAnnotation != null) {
+					pricePlot.removeRangeMarker(avgPriceAnnotation);
+				}
+				addAvgPriceAnnotation();
+				pricePlot.getRangeAxis().setLabel("Price "+getInventoryCurrencyConverter().getToCurrency().getSymbol());
+				timeChart.setChartType(displayType.getItem(displayType.getSelectionIndex()));
+			}
+		});
 
 		calculateCompareToValues();
 
@@ -335,30 +321,20 @@ public class ChartEditorPart extends EditorPart {
 		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
 		if (inventory.getSecurities().contains(security)) {
 			BigDecimal avgPrice = inventory.getEntry(security).getAvgPrice();
-			return getChartCurrencyConverter().convert(avgPrice, new de.tomsplayground.util.Day());
+			return getInventoryCurrencyConverter().convert(avgPrice, new de.tomsplayground.util.Day());
 		}
 		return null;
 	}
 
 	/**
 	 * Convert price data of the security.
-	 * The currency of the security may differ from the currency of orders etc.
+	 * The original currency of the security chart data may differ from the currency of orders etc.
 	 */
 	private IPriceProvider getChartPriceProvider() {
-		if (convertToEuro != null && convertToEuro.getSelection()) {
-			Currency defaultCurrency = Currencies.getInstance().getDefaultCurrency();
+		if (convertToAlternativeCurrency != null && convertToAlternativeCurrency.getSelection()) {
 			Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 			ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
-			CurrencyConverter currencyConverter = exchangeRates.createCurrencyConverter(security.getCurrency(), defaultCurrency);
-			if (currencyConverter != null) {
-				return new CurrencyAdjustedPriceProvider(priceProvider, currencyConverter);
-			}
-		}
-		if (convertToUSD != null && convertToUSD.getSelection()) {
-			Currency defaultCurrency = Currencies.getInstance().getDefaultCurrency();
-			Currency usdCurrency = Currency.getInstance("USD");
-			ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
-			CurrencyConverter currencyConverter = exchangeRates.createCurrencyConverter(defaultCurrency, usdCurrency);
+			CurrencyConverter currencyConverter = exchangeRates.createCurrencyConverter(security.getCurrency(), alternativeCurrency);
 			if (currencyConverter != null) {
 				return new CurrencyAdjustedPriceProvider(priceProvider, currencyConverter);
 			}
@@ -367,27 +343,30 @@ public class ChartEditorPart extends EditorPart {
 	}
 
 	/**
-	 * Currency converter for default currency based values, e.g. orders or average price.
+	 * Currency converter for inventory based values, e.g. orders or average price.
+	 * TODO: inventory should use different currencies and not default currency only.
 	 * Not used for the price data. See {@link #getChartPriceProvider()}
 	 */
-	private CurrencyConverter getChartCurrencyConverter() {
-		Currency defaultCurrency = Currencies.getInstance().getDefaultCurrency();
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+	private CurrencyConverter getInventoryCurrencyConverter() {
+		Currency inventoryCurrency = Currencies.getInstance().getDefaultCurrency();
 		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
-		if (convertToEuro != null && convertToEuro.getSelection()) {
-			return new DummyCurrencyConverter(defaultCurrency);
-		}
-		if (convertToUSD != null && convertToUSD.getSelection()) {
-			Currency usdCurrency = Currency.getInstance("USD");
-			CurrencyConverter currencyConverter = exchangeRates.createCurrencyConverter(defaultCurrency, usdCurrency);
+
+		// Currency conversion active: inventory-currency to alternative currency
+		if (convertToAlternativeCurrency != null && convertToAlternativeCurrency.getSelection()) {
+			CurrencyConverter currencyConverter = exchangeRates.createCurrencyConverter(inventoryCurrency, alternativeCurrency);
 			if (currencyConverter != null) {
 				return currencyConverter;
 			}
 		}
-		if (! defaultCurrency.equals(security.getCurrency())) {
-			return exchangeRates.createCurrencyConverter(defaultCurrency, security.getCurrency());
+
+		// Conversion from inventory-currency to security currency
+		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		if (! inventoryCurrency.equals(security.getCurrency())) {
+			return exchangeRates.createCurrencyConverter(inventoryCurrency, security.getCurrency());
 		}
-		return new DummyCurrencyConverter(security.getCurrency());
+
+		// No conversion
+		return new DummyCurrencyConverter(inventoryCurrency);
 	}
 
 	protected void addSplitAnnotations(List<StockSplit> splits) {
@@ -429,7 +408,7 @@ public class ChartEditorPart extends EditorPart {
 					}
 					t = "+"+investmentTransaction.getQuantity();
 					BigDecimal adjustedPrice = investmentTransaction.getPrice().multiply(getSplitRatio(day));
-					adjustedPrice = getChartCurrencyConverter().convert(adjustedPrice, day);
+					adjustedPrice = getInventoryCurrencyConverter().convert(adjustedPrice, day);
 					pointerAnnotation = new XYPointerAnnotation(t, x, adjustedPrice.doubleValue(), Math.PI / 2);
 					swtColor = Activator.getDefault().getColorProvider().get(Activator.GREEN);
 					c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
@@ -440,7 +419,7 @@ public class ChartEditorPart extends EditorPart {
 					}
 					t = "-"+investmentTransaction.getQuantity();
 					adjustedPrice = investmentTransaction.getPrice().multiply(getSplitRatio(day));
-					adjustedPrice = getChartCurrencyConverter().convert(adjustedPrice, day);
+					adjustedPrice = getInventoryCurrencyConverter().convert(adjustedPrice, day);
 					pointerAnnotation = new XYPointerAnnotation(t, x, adjustedPrice.doubleValue(), 3* Math.PI / 2);
 					swtColor = Activator.getDefault().getColorProvider().get(Activator.RED);
 					c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
@@ -519,7 +498,7 @@ public class ChartEditorPart extends EditorPart {
 		}
 		renderer.setSeriesPaint(nextPos++, FAIR_PRICE_COLOR);
 
-		NumberAxis rangeAxis2 = new NumberAxis("Price "+getChartCurrencyConverter().getToCurrency().getSymbol());
+		NumberAxis rangeAxis2 = new NumberAxis("Price "+getInventoryCurrencyConverter().getToCurrency().getSymbol());
 		rangeAxis2.setAutoRange(false);
 		pricePlot = new XYPlot(dataset, null, rangeAxis2, renderer);
 		combiPlot.add(pricePlot, showPeDeltaChart ? 70 : 100);
