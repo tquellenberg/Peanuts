@@ -639,7 +639,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
 		fundamentalDataList = cloneFundamentalData(fundamentalDatas.getDatas());
 		if (! fundamentalDataList.isEmpty()) {
-			Currency currency = fundamentalDataList.get(0).getCurrency();
+			Currency currency = fundamentalDatas.getCurrency();
 			currencyComboViewer.selectCurrency(currency);
 			currencyConverter = exchangeRates.createCurrencyConverter(currency, security.getCurrency());
 		} else {
@@ -743,6 +743,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 	private void updateFundamentaData(List<FundamentalData> newDatas) {
 		for (FundamentalData newData : newDatas) {
+			newData.setCurrency(currencyConverter.getFromCurrency());
 			if (newData.getDividende().signum() == 0 && newData.getEarningsPerShare().signum() == 0) {
 				continue;
 			}
