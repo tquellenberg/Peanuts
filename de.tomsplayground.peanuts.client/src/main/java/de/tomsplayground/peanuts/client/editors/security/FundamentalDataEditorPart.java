@@ -783,6 +783,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 			@Override
 			public void run() {
 				FundamentalData fundamentalData = new FundamentalData();
+				fundamentalData.setCurrency(currencyComboViewer.getSelectedCurrency());
 				fundamentalDataList.add(fundamentalData);
 				tableRows.add(fundamentalData);
 				tableViewer.add(fundamentalData);
