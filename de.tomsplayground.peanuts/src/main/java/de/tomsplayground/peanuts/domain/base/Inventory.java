@@ -7,8 +7,9 @@ import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -32,7 +33,7 @@ public class Inventory extends ObservableModelObject {
 	private final ITransactionProvider account;
 	private Day day;
 
-	private final List<ObservableModelObject> registeredPriceProvider = new CopyOnWriteArrayList<>();
+	private final Set<ObservableModelObject> registeredPriceProvider = new CopyOnWriteArraySet<>();
 
 	private final PropertyChangeListener priceProviderChangeListener = new PropertyChangeListener() {
 		@Override
@@ -178,7 +179,7 @@ public class Inventory extends ObservableModelObject {
 	}
 
 	public InventoryEntry getInventoryEntry(Security security) {
-		if ( !entryMap.containsKey(security)) {
+		if ( ! entryMap.containsKey(security)) {
 			IPriceProvider priceprovider = null;
 			if (priceProviderFactory != null) {
 				priceprovider = priceProviderFactory.getPriceProvider(security);
