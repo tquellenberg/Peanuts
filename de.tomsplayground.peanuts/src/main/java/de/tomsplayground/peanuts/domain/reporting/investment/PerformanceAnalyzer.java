@@ -125,7 +125,7 @@ public class PerformanceAnalyzer {
 		}
 		int year = account.getMinDate().year;
 		int endYear = account.getMaxDate().year;
-		Day now = new Day();
+		Day now = Day.today();
 		if (endYear < now.year) {
 			endYear = now.year;
 		}

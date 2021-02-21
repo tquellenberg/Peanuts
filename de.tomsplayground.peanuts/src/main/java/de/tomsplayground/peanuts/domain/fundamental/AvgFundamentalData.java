@@ -52,7 +52,7 @@ public class AvgFundamentalData {
 	}
 
 	private List<FundamentalData> getHistoricData() {
-		final Day now = new Day();
+		final Day now = Day.today();
 		return Lists.newArrayList(Iterables.filter(datas, new Predicate<FundamentalData>(){
 			@Override
 			public boolean apply(FundamentalData input) {
@@ -62,7 +62,7 @@ public class AvgFundamentalData {
 	}
 
 	private List<FundamentalData> getHistoricAndCurrentData() {
-		final Day now = new Day();
+		final Day now = Day.today();
 		return Lists.newArrayList(Iterables.filter(datas, new Predicate<FundamentalData>(){
 			@Override
 			public boolean apply(FundamentalData input) {

@@ -30,10 +30,10 @@ public class CategoryQueryTest {
 		Category c11 = new Category("c11", Category.Type.EXPENSE);
 		c1.addChildCategory(c11);
 		c2 = new Category("c2", Category.Type.EXPENSE);
-		t1 = new Transaction(new Day(), BigDecimal.TEN, c1, "");
-		t11 = new Transaction(new Day(), BigDecimal.TEN, c11, "");
-		t2 = new Transaction(new Day(), BigDecimal.TEN, c2, "");
-		Transaction tx = new Transaction(new Day(), BigDecimal.TEN);
+		t1 = new Transaction(Day.today(), BigDecimal.TEN, c1, "");
+		t11 = new Transaction(Day.today(), BigDecimal.TEN, c11, "");
+		t2 = new Transaction(Day.today(), BigDecimal.TEN, c2, "");
+		Transaction tx = new Transaction(Day.today(), BigDecimal.TEN);
 		trans = new ArrayList<ITransaction>();
 		trans.add(t1);
 		trans.add(t11);

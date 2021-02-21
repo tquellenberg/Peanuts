@@ -20,6 +20,6 @@ public class GooglePriceProviderTest {
 
 		assertEquals(new Day(2011, 0, 28), googlePriceReader.getMaxDate());
 		assertEquals(new Day(2010, 1, 1), googlePriceReader.getMinDate());
-		assertEquals(new BigDecimal("44.25"), googlePriceReader.getPrice(new Day(2011, 0, 28)).getHigh());
+		assertEquals(new BigDecimal("43.63"), googlePriceReader.getPrice(new Day(2011, 0, 28)).getValue());
 	}
 }

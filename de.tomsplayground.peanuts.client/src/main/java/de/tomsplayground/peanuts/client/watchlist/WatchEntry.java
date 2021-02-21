@@ -66,25 +66,25 @@ public class WatchEntry {
 	}
 
 	public BigDecimal getDayChangeAbsolut() {
-		Day now = new Day();
+		Day now = Day.today();
 		IPrice price1 = adjustedPriceProvider.getPrice(now.addDays(-1).adjustWorkday());
 		IPrice price2 = adjustedPriceProvider.getPrice(now);
 
-		return price2.getClose().subtract(price1.getClose());
+		return price2.getValue().subtract(price1.getValue());
 	}
 
 	public BigDecimal getDayChange() {
-		Day now = new Day();
+		Day now = Day.today();
 		IPrice price1 = adjustedPriceProvider.getPrice(now.addDays(-1).adjustWorkday());
 		IPrice price2 = adjustedPriceProvider.getPrice(now);
 
-		if (price1.getClose().signum() == 0) {
+		if (price1.getValue().signum() == 0) {
 			return BigDecimal.ZERO;
 		}
 
-		BigDecimal delta = price2.getClose().subtract(price1.getClose());
+		BigDecimal delta = price2.getValue().subtract(price1.getValue());
 
-		BigDecimal performance = delta.divide(price1.getClose(), PeanutsUtil.MC);
+		BigDecimal performance = delta.divide(price1.getValue(), PeanutsUtil.MC);
 		return performance;
 	}
 
@@ -102,11 +102,11 @@ public class WatchEntry {
 	public BigDecimal getPerformance(Day minDay, Day maxDay) {
 		IPrice price1 = adjustedPriceProvider.getPrice(minDay);
 		IPrice price2 = adjustedPriceProvider.getPrice(maxDay);
-		BigDecimal delta = price2.getClose().subtract(price1.getClose());
-		if (price1.getClose().signum() == 0) {
+		BigDecimal delta = price2.getValue().subtract(price1.getValue());
+		if (price1.getValue().signum() == 0) {
 			return BigDecimal.ZERO;
 		}
-		BigDecimal performance = delta.divide(price1.getClose(), PeanutsUtil.MC);
+		BigDecimal performance = delta.divide(price1.getValue(), PeanutsUtil.MC);
 		return performance;
 	}
 
@@ -134,13 +134,13 @@ public class WatchEntry {
 		if (peRatio != null) {
 			return peRatio;
 		}
-		Day date = new Day();
+		Day date = Day.today();
 		IPrice price = adjustedPriceProvider.getPrice(date);
 		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
 		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
 		BigDecimal earnings = fundamentalDatas.getAdjustedContinuousEarnings(date, adjustedPriceProvider.getCurrency(), exchangeRates);
 		if (earnings != null && earnings.signum() > 0) {
-			peRatio = price.getClose().divide(earnings, PeanutsUtil.MC);
+			peRatio = price.getValue().divide(earnings, PeanutsUtil.MC);
 		}
 		return peRatio;
 	}

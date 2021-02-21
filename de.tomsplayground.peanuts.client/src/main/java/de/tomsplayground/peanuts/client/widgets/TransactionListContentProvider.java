@@ -36,8 +36,8 @@ public class TransactionListContentProvider implements ITreeContentProvider {
 		ITransactionProvider provider = (ITransactionProvider) inputElement;
 		List<TransactionListContentProvider.TimeTreeNode> nodes = new ArrayList<TransactionListContentProvider.TimeTreeNode>();
 		Day start, end;
-		start = provider.getMinDate()!=null?provider.getMinDate():new Day();
-		end = provider.getMaxDate()!=null?provider.getMaxDate():new Day();
+		start = provider.getMinDate()!=null?provider.getMinDate():Day.today();
+		end = provider.getMaxDate()!=null?provider.getMaxDate():Day.today();
 		for (int year = start.year; year <= end.year; year++) {
 			Day d = new Day(year, 0, 1);
 			TimeTreeNode treeNode = new TransactionListContentProvider.TimeTreeNode(d, provider);

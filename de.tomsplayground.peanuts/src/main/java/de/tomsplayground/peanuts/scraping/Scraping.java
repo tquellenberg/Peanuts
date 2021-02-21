@@ -129,17 +129,8 @@ public class Scraping {
 							resultStr.append(key).append(": ").append(day).append('\n');
 						} else {
 							BigDecimal p = scapBigDecimal(value);
-							if (key.equals("open")) {
-								priceBuilder.setOpen(p);
-							}
 							if (key.equals("close")) {
 								priceBuilder.setClose(p);
-							}
-							if (key.equals("high")) {
-								priceBuilder.setHigh(p);
-							}
-							if (key.equals("low")) {
-								priceBuilder.setLow(p);
 							}
 							resultStr.append(key).append(": ").append(p).append('\n');
 						}
@@ -147,7 +138,7 @@ public class Scraping {
 				}
 			}
 			price = priceBuilder.build();
-			if (price.getClose().signum() == 0) {
+			if (price.getValue().signum() == 0) {
 				price = null;
 			}
 			resultStr.append("Price: ").append(price).append('\n');

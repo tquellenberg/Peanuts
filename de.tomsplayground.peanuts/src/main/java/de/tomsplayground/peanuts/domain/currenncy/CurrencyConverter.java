@@ -41,7 +41,7 @@ public class CurrencyConverter {
 		if (from.equals(to)) {
 			return value;
 		}
-		BigDecimal rate = priceProvider.getPrice(day).getClose();
+		BigDecimal rate = priceProvider.getPrice(day).getValue();
 		if (rate.signum() == 0) {
 			throw new RuntimeException("Rate must not be zero. Date:"+day);
 		}

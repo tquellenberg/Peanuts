@@ -14,7 +14,6 @@ import org.junit.Test;
 
 import de.tomsplayground.peanuts.Helper;
 import de.tomsplayground.peanuts.domain.process.BankTransaction;
-import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
@@ -39,7 +38,7 @@ public class InventoryTest {
 			Account.Type.INVESTMENT, "");
 		apple = new Security(SECURITY_NAME);
 		InvestmentTransaction investmentTransaction1 = new InvestmentTransaction(
-			new Day(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
+			Day.today(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
 			InvestmentTransaction.Type.BUY);
 		investmmentAccount.addTransaction(investmentTransaction1);
 	}
@@ -54,7 +53,7 @@ public class InventoryTest {
 	@Test
 	public void testInventorySum() throws Exception {
 		InvestmentTransaction investmentTransaction2 = new InvestmentTransaction(
-			new Day(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
+			Day.today(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
 			InvestmentTransaction.Type.BUY);
 		investmmentAccount.addTransaction(investmentTransaction2);
 		Inventory inventory = new Inventory(investmmentAccount);
@@ -65,7 +64,7 @@ public class InventoryTest {
 	@Test
 	public void testSellAll() throws Exception {
 		InvestmentTransaction investmentTransaction2 = new InvestmentTransaction(
-			new Day(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
+			Day.today(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
 			InvestmentTransaction.Type.SELL);
 		investmmentAccount.addTransaction(investmentTransaction2);
 		Inventory inventory = new Inventory(investmmentAccount);
@@ -75,7 +74,7 @@ public class InventoryTest {
 
 	@Test
 	public void testOtherInvestmentTransactions() throws Exception {
-		InvestmentTransaction expense = new InvestmentTransaction(new Day(), apple,
+		InvestmentTransaction expense = new InvestmentTransaction(Day.today(), apple,
 			new BigDecimal("-5.00"), BigDecimal.ONE, BigDecimal.ZERO,
 			InvestmentTransaction.Type.EXPENSE);
 		investmmentAccount.addTransaction(expense);
@@ -99,7 +98,7 @@ public class InventoryTest {
 	@Test
 	public void testIntventorySetDate() {
 		Inventory inventory = new Inventory(investmmentAccount);
-		inventory.setDate(new Day().addDays(-1));
+		inventory.setDate(Day.today().addDays(-1));
 
 		assertEquals(0, inventory.getSecurities().size());
 		assertEquals(0, inventory.getEntries().size());
@@ -108,7 +107,7 @@ public class InventoryTest {
 	@Test
 	public void testInventoryEntry2() throws Exception {
 		InvestmentTransaction investmentTransaction2 = new InvestmentTransaction(
-			new Day(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
+			Day.today(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
 			InvestmentTransaction.Type.SELL);
 		investmmentAccount.addTransaction(investmentTransaction2);
 		Inventory inventory = new Inventory(investmmentAccount);
@@ -123,7 +122,7 @@ public class InventoryTest {
 
 	@Test
 	public void testSplittedTransacions() {
-		Day now = new Day();
+		Day now = Day.today();
 		Transaction transaction = new Transaction(now, BigDecimal.ZERO);
 		transaction.addSplit(new BankTransaction(now, new BigDecimal("-990.00"), "??"));
 		transaction.addSplit(new InvestmentTransaction(now, apple, PRICE, QUANTITY, BigDecimal.ZERO,
@@ -188,7 +187,7 @@ public class InventoryTest {
 		// remove investmentTransaction1
 		investmmentAccount.reset();
 
-		final Day now = new Day();
+		final Day now = Day.today();
 		InvestmentTransaction buy = new InvestmentTransaction(now, apple, BigDecimal.TEN, BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY);
 		investmmentAccount.addTransaction(buy);
 
@@ -219,7 +218,7 @@ public class InventoryTest {
 		// remove investmentTransaction1
 		investmmentAccount.reset();
 
-		final Day now = new Day();
+		final Day now = Day.today();
 		// one share
 		InvestmentTransaction buy = new InvestmentTransaction(now, apple, BigDecimal.TEN, BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY);
 		investmmentAccount.addTransaction(buy);
@@ -247,8 +246,7 @@ public class InventoryTest {
 			}
 		});
 
-		IPrice oldPrice = priceProvider.getPrice(now);
-		priceProvider.setPrice(new Price(now, oldPrice.getOpen(), new BigDecimal("13.00"), null, null));
+		priceProvider.setPrice(new Price(now, new BigDecimal("13.00")));
 		Helper.assertEquals(new BigDecimal("13.00"), inventory.getMarketValue());
 		assertNotNull(lastEvent[0]);
 		assertEquals(inventory, lastEvent[0].getSource());

@@ -27,7 +27,7 @@ public class Forecast extends ObservableModelObject implements INamedElement {
 		this.startAmount = BigDecimal.ZERO;
 		this.annualIncrease = BigDecimal.ZERO;
 		this.annualPercent = BigDecimal.ZERO;
-		this.startDay = new Day();
+		this.startDay = Day.today();
 	}
 
 	public Forecast(Day startDay, BigDecimal startAmount, BigDecimal annualIncrease) {

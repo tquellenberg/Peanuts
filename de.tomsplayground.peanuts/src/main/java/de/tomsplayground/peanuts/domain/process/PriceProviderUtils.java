@@ -13,14 +13,14 @@ public class PriceProviderUtils {
 		ImmutableList<IPrice> prices = priceProvider.getPrices(from, to);
 		if (prices.isEmpty()) {
 			if (priceProvider.getMaxDate() != null) {
-				return priceProvider.getPrice(priceProvider.getMaxDate()).getClose();
+				return priceProvider.getPrice(priceProvider.getMaxDate()).getValue();
 			} else {
 				return BigDecimal.ZERO;
 			}
 		}
 		BigDecimal sum = BigDecimal.ZERO;
 		for (IPrice p : prices) {
-			sum = sum.add(p.getClose());
+			sum = sum.add(p.getValue());
 		}
 		return sum.divide(new BigDecimal(prices.size()), PeanutsUtil.MC);
 	}

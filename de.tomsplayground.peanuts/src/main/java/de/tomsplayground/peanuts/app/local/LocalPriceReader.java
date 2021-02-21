@@ -48,11 +48,8 @@ public class LocalPriceReader extends PriceProvider {
 				try {
 					Day d = Day.fromString(values[0]);
 					if (d.year < 3000) {
-						BigDecimal open = getValue(values, 1);
-						BigDecimal high = getValue(values, 2);
-						BigDecimal low = getValue(values, 3);
 						BigDecimal close = getValue(values, 4);
-						Price price = new Price(d, open, close, high, low);
+						Price price = new Price(d, close);
 						prices.add(price);
 					}
 				} catch (NumberFormatException e) {

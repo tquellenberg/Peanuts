@@ -25,9 +25,9 @@ public class ReportTest {
 	public void setup() {
 		accountManager = new AccountManager();
 		account1 = accountManager.getOrCreateAccount("test1", Account.Type.BANK);
-		account1.addTransaction(new BankTransaction(new Day(), new BigDecimal("10.00"), ""));
+		account1.addTransaction(new BankTransaction(Day.today(), new BigDecimal("10.00"), ""));
 		Account account2 = accountManager.getOrCreateAccount("test2", Account.Type.BANK);
-		account2.addTransaction(new BankTransaction(new Day(), new BigDecimal("20.00"), ""));
+		account2.addTransaction(new BankTransaction(Day.today(), new BigDecimal("20.00"), ""));
 	}
 
 	@Test
@@ -60,9 +60,9 @@ public class ReportTest {
 
 	@Test
 	public void testSplittedTransactions() {
-		BankTransaction transaction = new BankTransaction(new Day(), BigDecimal.ZERO, "Top");
-		transaction.addSplit(new BankTransaction(new Day(), BigDecimal.TEN, "split1"));
-		transaction.addSplit(new BankTransaction(new Day(), BigDecimal.TEN, "split1"));
+		BankTransaction transaction = new BankTransaction(Day.today(), BigDecimal.ZERO, "Top");
+		transaction.addSplit(new BankTransaction(Day.today(), BigDecimal.TEN, "split1"));
+		transaction.addSplit(new BankTransaction(Day.today(), BigDecimal.TEN, "split1"));
 		account1.addTransaction(transaction);
 
 		Report report = new Report("report1");

@@ -33,7 +33,7 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 	private Account connection;
 
 	public Credit(String name) {
-		this(new Day(), new Day(), BigDecimal.ZERO, BigDecimal.ZERO);
+		this(Day.today(), Day.today(), BigDecimal.ZERO, BigDecimal.ZERO);
 		this.name = name;
 	}
 

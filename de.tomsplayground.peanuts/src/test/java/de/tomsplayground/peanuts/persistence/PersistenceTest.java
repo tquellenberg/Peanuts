@@ -64,9 +64,9 @@ public class PersistenceTest {
 	@Test
 	public void testAccountManagerWithTtransactions() throws Exception {
 		createAccount();
-		account.addTransaction(new Transaction(new Day(), new BigDecimal("12.34")));
+		account.addTransaction(new Transaction(Day.today(), new BigDecimal("12.34")));
 		Transfer transfer = new Transfer(account, account2, new BigDecimal("1234.55"),
-			new Day());
+			Day.today());
 		account.addTransaction(transfer.getTransferFrom());
 		account2.addTransaction(transfer.getTransferTo());
 
@@ -85,9 +85,9 @@ public class PersistenceTest {
 	@Test
 	public void testPersistence() throws Exception {
 		createAccount();
-		account.addTransaction(new Transaction(new Day(), new BigDecimal("12.34")));
+		account.addTransaction(new Transaction(Day.today(), new BigDecimal("12.34")));
 		Transfer transfer = new Transfer(account, account2, new BigDecimal("1234.55"),
-			new Day());
+			Day.today());
 		account.addTransaction(transfer.getTransferFrom());
 		account2.addTransaction(transfer.getTransferTo());
 

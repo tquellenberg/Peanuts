@@ -19,7 +19,7 @@ public class TransactionTest extends TestCase {
 	}
 
 	public void testEmptySplit() {
-		Transaction trans = new Transaction(new Day(), new BigDecimal("100.00"));
+		Transaction trans = new Transaction(Day.today(), new BigDecimal("100.00"));
 
 		trans.setSplits(null);
 
@@ -33,7 +33,7 @@ public class TransactionTest extends TestCase {
 	}
 
 	public void testSplit() {
-		Day now = new Day();
+		Day now = Day.today();
 		Day notNow = new Day(1999, 1, 1);
 		Transaction trans = new Transaction(now, new BigDecimal("0.00"));
 		Category cat = acountManager.getOrCreateCategory("test");
@@ -48,7 +48,7 @@ public class TransactionTest extends TestCase {
 	}
 
 	public void testUpdateAmount() {
-		Day now = new Day();
+		Day now = Day.today();
 		Transaction trans = new Transaction(now, new BigDecimal("100.00"));
 		trans.setAmount(new BigDecimal("105.00"));
 
@@ -56,7 +56,7 @@ public class TransactionTest extends TestCase {
 	}
 
 	public void testUpdateAmountWithSplit() {
-		Day now = new Day();
+		Day now = Day.today();
 		Transaction trans = new Transaction(now, new BigDecimal("100.00"));
 		Category cat = acountManager.getOrCreateCategory("test");
 		List<Transaction> splits = new ArrayList<Transaction>();
@@ -74,7 +74,7 @@ public class TransactionTest extends TestCase {
 	}
 
 	public void testUpdateDateWithSplits() {
-		Day now = new Day();
+		Day now = Day.today();
 		Day notNow = new Day(1999, 1, 1);
 		Transaction trans = new Transaction(now, new BigDecimal("0.00"));
 		Category cat = acountManager.getOrCreateCategory("test");
@@ -91,7 +91,7 @@ public class TransactionTest extends TestCase {
 	}
 
 	public void testUpdateSplitAmount() {
-		Day now = new Day();
+		Day now = Day.today();
 		Transaction trans = new Transaction(now, new BigDecimal("100.00"));
 		Category cat = acountManager.getOrCreateCategory("test");
 		List<Transaction> splits = new ArrayList<Transaction>();
@@ -104,8 +104,8 @@ public class TransactionTest extends TestCase {
 	}
 
 	public void testClone() {
-		Transaction trans = new Transaction(new Day(), new BigDecimal("100.00"));
-		Transaction split = new Transaction(new Day(), new BigDecimal("100.00"));
+		Transaction trans = new Transaction(Day.today(), new BigDecimal("100.00"));
+		Transaction split = new Transaction(Day.today(), new BigDecimal("100.00"));
 		trans.addSplit(split);
 
 		Transaction clone = (Transaction) trans.clone();

@@ -321,7 +321,7 @@ public class ChartEditorPart extends EditorPart {
 		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
 		if (inventory.getSecurities().contains(security)) {
 			BigDecimal avgPrice = inventory.getEntry(security).getAvgPrice();
-			return getInventoryCurrencyConverter().convert(avgPrice, new de.tomsplayground.util.Day());
+			return getInventoryCurrencyConverter().convert(avgPrice, de.tomsplayground.util.Day.today());
 		}
 		return null;
 	}
@@ -395,7 +395,7 @@ public class ChartEditorPart extends EditorPart {
 		for (InvestmentTransaction investmentTransaction : getOrders()) {
 			de.tomsplayground.util.Day day = investmentTransaction.getDay();
 			long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
-			double y = pp.getPrice(day).getClose().doubleValue();
+			double y = pp.getPrice(day).getValue().doubleValue();
 
 			XYPointerAnnotation pointerAnnotation = null;
 			String t = "";
@@ -548,7 +548,7 @@ public class ChartEditorPart extends EditorPart {
 				fixedPePrice.addOrUpdate(new Day(day.day, day.month+1, day.year), fairPrice);
 				if (fairPrice.signum() == 1) {
 					// Delta Chart
-					BigDecimal deltaPercent = price.getClose().subtract(fairPrice).multiply(HUNDRED).divide(fairPrice, PeanutsUtil.MC);
+					BigDecimal deltaPercent = price.getValue().subtract(fairPrice).multiply(HUNDRED).divide(fairPrice, PeanutsUtil.MC);
 					peDeltaTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), deltaPercent.doubleValue());
 				}
 			}

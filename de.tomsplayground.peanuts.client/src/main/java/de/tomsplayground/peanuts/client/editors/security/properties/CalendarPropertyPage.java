@@ -190,7 +190,7 @@ public class CalendarPropertyPage extends PropertyPage {
 		manager.add(new Action("New") {
 			@Override
 			public void run() {
-				SecurityCalendarEntry entry = new SecurityCalendarEntry(security, new Day(), "");
+				SecurityCalendarEntry entry = new SecurityCalendarEntry(security, Day.today(), "");
 				securityCalendarEntry.add(entry);
 				tableViewer.refresh();
 			}

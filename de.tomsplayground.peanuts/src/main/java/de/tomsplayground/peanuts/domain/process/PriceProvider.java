@@ -140,11 +140,9 @@ public class PriceProvider extends ObservableModelObject implements IPriceProvid
 			oldPrice = lp.get(binarySearch);
 			if (overideExistingData) {
 				// Update existing price with better values
-				BigDecimal open = newPrice.getOpen() != null ? newPrice.getOpen() : oldPrice.getOpen();
-				BigDecimal close = newPrice.getClose() != null ? newPrice.getClose() : oldPrice.getClose();
-				BigDecimal high = newPrice.getHigh() != null ? newPrice.getHigh() : oldPrice.getHigh();
-				BigDecimal low = newPrice.getLow() != null ? newPrice.getLow() : oldPrice.getLow();
-				newPrice = new Price(oldPrice.getDay(), open, close, high, low);
+				if (newPrice != Price.ZERO) {
+					newPrice = new Price(oldPrice.getDay(), newPrice.getValue());
+				}
 			} else {
 				// simulate no change
 				return newPrice;

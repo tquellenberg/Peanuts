@@ -16,7 +16,7 @@ public class StopLossTest {
 	@Test
 	public void testNoTrailingStrategy() {
 		Security security = new Security("Test");
-		Day start = new Day().addDays(-2);
+		Day start = Day.today().addDays(-2);
 		BigDecimal startPrice = new BigDecimal("10.00");
 		ITrailingStrategy strategy = new NoTrailingStrategy();
 		StopLoss stopLoss = new StopLoss(security, start, startPrice, strategy);
@@ -29,15 +29,15 @@ public class StopLossTest {
 		List<Price> prices = stopLoss.getPrices(priceProvider);
 
 		assertEquals(3, prices.size());
-		assertEquals(new BigDecimal("10.00"), prices.get(0).getClose());
-		assertEquals(new BigDecimal("10.00"), prices.get(1).getClose());
-		assertEquals(new BigDecimal("10.00"), prices.get(2).getClose());
+		assertEquals(new BigDecimal("10.00"), prices.get(0).getValue());
+		assertEquals(new BigDecimal("10.00"), prices.get(1).getValue());
+		assertEquals(new BigDecimal("10.00"), prices.get(2).getValue());
 	}
 
 	@Test
 	public void testPercentTrailingStrategy() {
 		Security security = new Security("Test");
-		Day start = new Day().addDays(-2);
+		Day start = Day.today().addDays(-2);
 		BigDecimal startPrice = new BigDecimal("10.00");
 		ITrailingStrategy strategy = new PercentTrailingStrategy(new BigDecimal("0.1"));
 		StopLoss stopLoss = new StopLoss(security, start, startPrice, strategy);
@@ -49,10 +49,9 @@ public class StopLossTest {
 
 		List<Price> prices = stopLoss.getPrices(priceProvider);
 		assertEquals(3, prices.size());
-		assertEquals(new BigDecimal("11.70"), prices.get(0).getClose());
-		assertEquals(new BigDecimal("11.70"), prices.get(1).getClose());
-		assertEquals(new BigDecimal("13.50"), prices.get(2).getClose());
+		assertEquals(new BigDecimal("11.70"), prices.get(0).getValue());
+		assertEquals(new BigDecimal("11.70"), prices.get(1).getValue());
+		assertEquals(new BigDecimal("13.50"), prices.get(2).getValue());
 	}
-
 
 }

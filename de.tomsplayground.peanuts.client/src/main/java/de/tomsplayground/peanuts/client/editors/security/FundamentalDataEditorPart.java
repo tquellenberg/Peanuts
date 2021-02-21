@@ -194,7 +194,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 		}
 
 		private BigDecimal calculateYOC(FundamentalData data) {
-			if (inventoryEntry != null && data.getYear() == (new Day()).year) {
+			if (inventoryEntry != null && data.getYear() == (Day.today()).year) {
 				CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
 				return currencyAjustedData.calculateYOC(inventoryEntry);
 			} else {

@@ -46,7 +46,7 @@ public class InventoryPieEditorPart extends EditorPart {
 
 	private Label gainingLabel;
 	private Label marketValueLabel;
-	private Day date = new Day();
+	private Day date = Day.today();
 
 	private Inventory inventory;
 	private JFreeChart chart;

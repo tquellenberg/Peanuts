@@ -32,7 +32,7 @@ public class CurrencyConverterTest {
 
 	@Test
 	public void simpleTest() {
-		Day date = new Day();
+		Day date = Day.today();
 		priceProvider.setPrice(new Price(date, new BigDecimal("1.20")));
 		BigDecimal convert = currencyConverter.convert(new BigDecimal("1.00"), date);
 
@@ -41,7 +41,7 @@ public class CurrencyConverterTest {
 
 	@Test
 	public void simpleReverseTest() {
-		Day date = new Day();
+		Day date = Day.today();
 		priceProvider.setPrice(new Price(date, new BigDecimal("1.20")));
 		CurrencyConverter invertedCurrencyConverter = currencyConverter.getInvertedCurrencyConverter();
 		BigDecimal convert = invertedCurrencyConverter.convert(new BigDecimal("1.20"), date);
@@ -53,7 +53,7 @@ public class CurrencyConverterTest {
 
 	@Test
 	public void emptyPriceProviderTest() {
-		Day date = new Day();
+		Day date = Day.today();
 		try {
 			currencyConverter.convert(new BigDecimal("1.20"), date);
 			fail();
@@ -65,7 +65,7 @@ public class CurrencyConverterTest {
 	@Test
 	public void sameCurrenciesTest() {
 		currencyConverter = new CurrencyConverter(priceProvider, EURO, EURO);
-		Day date = new Day();
+		Day date = Day.today();
 		BigDecimal convert = currencyConverter.convert(new BigDecimal("1.20"), date);
 
 		assertEquals(new BigDecimal("1.20"), convert);

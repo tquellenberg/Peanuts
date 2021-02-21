@@ -31,7 +31,7 @@ public class AlarmManager {
 			return false;
 		}
 		Day day = securityAlarm.getStartDay();
-		Day today = new Day();
+		Day today = Day.today();
 		boolean triggerd = securityAlarm.isTriggered();
 		if (triggerd) {
 			return false;
@@ -41,10 +41,10 @@ public class AlarmManager {
 			if (price != null) {
 				switch (securityAlarm.getMode()) {
 					case PRICE_ABOVE:
-						triggerd = price.getClose().compareTo(securityAlarm.getValue()) > 0;
+						triggerd = price.getValue().compareTo(securityAlarm.getValue()) > 0;
 						break;
 					case PRICE_BELOW:
-						triggerd = price.getClose().compareTo(securityAlarm.getValue()) < 1;
+						triggerd = price.getValue().compareTo(securityAlarm.getValue()) < 1;
 						break;
 				}
 				if (triggerd) {

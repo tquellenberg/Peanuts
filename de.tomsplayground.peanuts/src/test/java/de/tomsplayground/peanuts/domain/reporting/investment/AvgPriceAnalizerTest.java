@@ -20,7 +20,7 @@ public class AvgPriceAnalizerTest {
 	Security security = new Security("apple");
 
 	private InvestmentTransaction buildTrade(BigDecimal price, BigDecimal quantity, BigDecimal commission, InvestmentTransaction.Type type) {
-		return new InvestmentTransaction(new Day(), security, price, quantity, commission, type);
+		return new InvestmentTransaction(Day.today(), security, price, quantity, commission, type);
 	}
 
 	@Test

@@ -589,7 +589,7 @@ public class DividendStatsView extends ViewPart {
 
 	private XYDataset createTotalDataset(StandardXYItemRenderer renderer) {
 		List<DividendMonth> dividendMonthList = dividendStats.getDividendMonths();
-		Day currentMonth = new Day();
+		Day currentMonth = Day.today();
 		currentMonth = currentMonth.addDays(-currentMonth.day+1);
 		int currentYear = 0;
 		XYSeries timeSeries = null;

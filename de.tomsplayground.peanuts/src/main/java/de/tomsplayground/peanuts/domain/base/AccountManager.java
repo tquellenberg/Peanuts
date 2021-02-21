@@ -564,7 +564,7 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 				Report report = new Report("temp");
 				report.setAccounts(getAccounts());
 
-				fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new Day(), new AnalyzerFactory());
+				fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), Day.today(), new AnalyzerFactory());
 			}
 			return fullInventory;
 		}

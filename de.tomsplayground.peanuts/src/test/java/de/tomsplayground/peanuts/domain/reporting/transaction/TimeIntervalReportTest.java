@@ -35,7 +35,7 @@ public class TimeIntervalReportTest {
 
 	@Test
 	public void testValues() throws Exception {
-		Day date = new Day().addDays(-3);
+		Day date = Day.today().addDays(-3);
 		investmmentAccount.addTransaction(new Transaction(date, BigDecimal.TEN));
 		TimeIntervalReport timeIntervalReport = new TimeIntervalReport(investmmentAccount,
 			TimeIntervalReport.Interval.DAY);
@@ -46,9 +46,9 @@ public class TimeIntervalReportTest {
 
 	@Test
 	public void testMonth() throws Exception {
-		Day date = new Day().addMonth(-3);
+		Day date = Day.today().addMonth(-3);
 		investmmentAccount.addTransaction(new Transaction(date, BigDecimal.TEN));
-		date = new Day().addMonth(-1);
+		date = Day.today().addMonth(-1);
 		investmmentAccount.addTransaction(new Transaction(date, BigDecimal.ONE));
 		TimeIntervalReport timeIntervalReport = new TimeIntervalReport(investmmentAccount,
 			TimeIntervalReport.Interval.MONTH);
@@ -56,19 +56,19 @@ public class TimeIntervalReportTest {
 		List<BigDecimal> values = timeIntervalReport.getValues();
 		DateIterator dateIterator = timeIntervalReport.dateIterator();
 		Day d = dateIterator.next();
-		date = new Day().addMonth(-3);
+		date = Day.today().addMonth(-3);
 		assertEquals(new Day(date.year, date.month, 1), d);
 		assertEquals(0, values.get(0).compareTo(BigDecimal.TEN));
 		d = dateIterator.next();
-		date = new Day().addMonth(-2);
+		date = Day.today().addMonth(-2);
 		assertEquals(new Day(date.year, date.month, 1), d);
 		assertEquals(0, values.get(1).compareTo(BigDecimal.ZERO));
 		d = dateIterator.next();
-		date = new Day().addMonth(-1);
+		date = Day.today().addMonth(-1);
 		assertEquals(new Day(date.year, date.month, 1), d);
 		assertEquals(0, values.get(2).compareTo(BigDecimal.ONE));
 		d = dateIterator.next();
-		date = new Day();
+		date = Day.today();
 		assertEquals(new Day(date.year, date.month, 1), d);
 		assertEquals(0, values.get(3).compareTo(BigDecimal.ZERO));
 		assertFalse(dateIterator.hasNext());
@@ -76,9 +76,9 @@ public class TimeIntervalReportTest {
 
 	@Test
 	public void testFutureTransaction() throws Exception {
-		Day date = new Day().addDays(-3);
+		Day date = Day.today().addDays(-3);
 		investmmentAccount.addTransaction(new Transaction(date, BigDecimal.TEN));
-		date = new Day().addDays(+3);
+		date = Day.today().addDays(+3);
 		investmmentAccount.addTransaction(new Transaction(date, BigDecimal.TEN));
 		TimeIntervalReport timeIntervalReport = new TimeIntervalReport(investmmentAccount,
 			TimeIntervalReport.Interval.DAY);
@@ -103,7 +103,7 @@ public class TimeIntervalReportTest {
 
 	@Test
 	public void inventoryValues() throws Exception {
-		Day now = new Day();
+		Day now = Day.today();
 		investmmentAccount.addTransaction(new InvestmentTransaction(now, new Security("Apple"), BigDecimal.ONE,
 			BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY));
 		final SimplePriceProvider priceProvider = new SimplePriceProvider();
@@ -133,12 +133,12 @@ public class TimeIntervalReportTest {
 	public void futureTransactionInventoryValues() throws Exception {
 		final SimplePriceProvider priceProvider = new SimplePriceProvider();
 		// Today
-		Day today = new Day();
+		Day today = Day.today();
 		investmmentAccount.addTransaction(new InvestmentTransaction(today, new Security("Apple"), BigDecimal.ONE,
 			BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY));
 		priceProvider.setPrice(new Price(today, BigDecimal.TEN));
 		// Tomorrow
-		Day tomorrow = new Day().addDays(1);
+		Day tomorrow = Day.today().addDays(1);
 		investmmentAccount.addTransaction(new Transaction(tomorrow, BigDecimal.ONE));
 		priceProvider.setPrice(new Price(tomorrow, new BigDecimal("11")));
 		TimeIntervalReport timeIntervalReport = new TimeIntervalReport(investmmentAccount,
@@ -161,7 +161,7 @@ public class TimeIntervalReportTest {
 
 	@Test
 	public void propertyChanged() throws Exception {
-		Day now = new Day();
+		Day now = Day.today();
 		investmmentAccount.addTransaction(new InvestmentTransaction(now, new Security("Apple"), BigDecimal.ONE,
 			BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY));
 		final SimplePriceProvider priceProvider = new SimplePriceProvider();

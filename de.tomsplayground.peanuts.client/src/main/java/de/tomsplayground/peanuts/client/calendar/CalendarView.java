@@ -77,7 +77,7 @@ public class CalendarView extends ViewPart {
 		@Override
 		public Color getForeground(Object element, int columnIndex) {
 			CalendarEntry e = (CalendarEntry)element;
-			int compareTo = e.getDay().compareTo(new Day());
+			int compareTo = e.getDay().compareTo(Day.today());
 			if (compareTo == 0) {
 				return Activator.getDefault().getColorProvider().get(Activator.ACTIVE_ROW);
 			} else if (compareTo < 0) {
@@ -165,7 +165,7 @@ public class CalendarView extends ViewPart {
 		calendarListViewer.addFilter(new ViewerFilter() {
 			@Override
 			public boolean select(Viewer viewer, Object parentElement, Object element) {
-				Day now = new Day();
+				Day now = Day.today();
 				if (element instanceof CalendarEntry) {
 					CalendarEntry ce = (CalendarEntry)element;
 					return (ce.getDay().delta(now) < 14);

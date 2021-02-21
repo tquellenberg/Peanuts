@@ -23,7 +23,7 @@ public class Volatility {
 		}
 		Day minDate = maxDate.addYear(-1);
 		ImmutableList<BigDecimal> values = pp.getPrices(minDate, maxDate).stream()
-			.map(IPrice::getClose)
+			.map(IPrice::getValue)
 			.collect(ImmutableList.toImmutableList());
 		if (values.size() < 3) {
 			return 0.0;

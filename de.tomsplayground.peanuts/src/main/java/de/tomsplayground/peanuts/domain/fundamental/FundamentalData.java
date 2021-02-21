@@ -86,7 +86,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 			throw new IllegalArgumentException("Fundamental data and price provider must use same currency. ("+getCurrency()+", "+priceProvider.getCurrency()+")");
 		}
 		IPrice price = priceProvider.getPrice(getFiscalEndDay());
-		BigDecimal close = price.getClose();
+		BigDecimal close = price.getValue();
 		if (close.signum() == 0) {
 			return BigDecimal.ZERO;
 		}

@@ -72,7 +72,7 @@ public class Inventory extends ObservableModelObject {
 		this.account = account;
 		this.priceProviderFactory = priceProviderFactory;
 		if (day == null) {
-			this.day = new Day();
+			this.day = Day.today();
 		} else {
 			this.day = day;
 		}

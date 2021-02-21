@@ -59,8 +59,8 @@ public class TimeIntervalReport extends ObservableModelObject {
 		inventory.addPropertyChangeListener(inventoriyListener);
 
 		if (transactions.isEmpty()) {
-			start = new Day();
-			end = new Day();
+			start = Day.today();
+			end = Day.today();
 		} else {
 			Calendar startCal = transactions.get(0).getDay().toCalendar();
 			switch (interval) {
@@ -87,10 +87,10 @@ public class TimeIntervalReport extends ObservableModelObject {
 			}
 			start = Day.fromCalendar(startCal);
 			Day lastDay = transactions.get(transactions.size()-1).getDay();
-			if (lastDay.after(new Day())) {
+			if (lastDay.after(Day.today())) {
 				end = lastDay;
 			} else {
-				end = new Day();
+				end = Day.today();
 			}
 			calculateValues();
 		}

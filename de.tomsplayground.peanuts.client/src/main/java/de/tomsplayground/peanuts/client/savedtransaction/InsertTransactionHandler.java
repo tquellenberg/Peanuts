@@ -25,7 +25,7 @@ public class InsertTransactionHandler extends AbstractHandler {
 		Account account = editorInput.getAccount();
 
 		Transaction transaction = (Transaction) savedTransaction.getTransaction().clone();
-		transaction.setDay(new Day());
+		transaction.setDay(Day.today());
 		account.addTransaction(transaction);
 		return null;
 	}

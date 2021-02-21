@@ -64,8 +64,8 @@ public class PerformanceAnalyzerTest {
 
 	@Test
 	public void testMarketValueWithMoney() throws Exception {
-		account.addTransaction(new BankTransaction(new Day(), new BigDecimal("100.00"), "l"));
-		InvestmentTransaction transaction = new InvestmentTransaction(new Day(),
+		account.addTransaction(new BankTransaction(Day.today(), new BigDecimal("100.00"), "l"));
+		InvestmentTransaction transaction = new InvestmentTransaction(Day.today(),
 			new Security("AAPL"), BigDecimal.ONE, BigDecimal.TEN, BigDecimal.ZERO, InvestmentTransaction.Type.BUY);
 		account.addTransaction(transaction);
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
@@ -74,14 +74,14 @@ public class PerformanceAnalyzerTest {
 		Assert.assertEquals(1, values.size());
 		Value value = values.get(0);
 		Helper.assertEquals(BigDecimal.ZERO, value.getMarketValueStart());
-		Assert.assertEquals(new Day().year, value.getYear());
+		Assert.assertEquals(Day.today().year, value.getYear());
 		// 100 - (10 * 1) + (10 * 9)
 		Helper.assertEquals(new BigDecimal("180.00"), value.getMarketValueEnd());
 	}
 
 	@Test
 	public void testLastYear() {
-		Day d = new Day();
+		Day d = Day.today();
 		d = d.addYear(-1);
 		account.addTransaction(new BankTransaction(d, new BigDecimal("100.00"), "l"));
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
@@ -89,25 +89,25 @@ public class PerformanceAnalyzerTest {
 		List<Value> values = analizer.getValues();
 		Assert.assertEquals(2, values.size());
 
-		assertEquals(new Day().year - 1, values.get(0).getYear());
-		assertEquals(new Day().year, values.get(1).getYear());
+		assertEquals(Day.today().year - 1, values.get(0).getYear());
+		assertEquals(Day.today().year, values.get(1).getYear());
 	}
 
 	@Test
 	public void testAdditionsLeavings() throws Exception {
 		Account account2 = accountManager.getOrCreateAccount("X2", Account.Type.BANK);
 		// 1. Transfer (+100)
-		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), new Day());
+		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), Day.today());
 		account2.addTransaction(transfer.getTransferFrom());
 		account.addTransaction(transfer.getTransferTo());
 		// 2. Bank transaction  (-1)
-		account.addTransaction(new BankTransaction(new Day(), new BigDecimal("-1.00"), ""));
+		account.addTransaction(new BankTransaction(Day.today(), new BigDecimal("-1.00"), ""));
 		// 3. Transfer (-10)
-		transfer = new Transfer(account, account2, new BigDecimal("10.00"), new Day());
+		transfer = new Transfer(account, account2, new BigDecimal("10.00"), Day.today());
 		account2.addTransaction(transfer.getTransferTo());
 		account.addTransaction(transfer.getTransferFrom());
 		// 4. Bank transaction (+3)
-		account.addTransaction(new BankTransaction(new Day(), new BigDecimal("3.00"), ""));
+		account.addTransaction(new BankTransaction(Day.today(), new BigDecimal("3.00"), ""));
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
 
 		List<Value> values = analizer.getValues();
@@ -121,22 +121,22 @@ public class PerformanceAnalyzerTest {
 	public void testAdditionLeavingsFromSplit() throws Exception {
 		Account account2 = accountManager.getOrCreateAccount("X2", Account.Type.BANK);
 		// 1 Transaction
-		BankTransaction split = new BankTransaction(new Day(),BigDecimal.ZERO, "");
-		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), new Day());
+		BankTransaction split = new BankTransaction(Day.today(),BigDecimal.ZERO, "");
+		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), Day.today());
 		account2.addTransaction(transfer.getTransferFrom());
 		// 1.1 Split: Transfer (+100)
 		split.addSplit(transfer.getTransferTo());
 		// 1.2 Split: Bank transaction (-1)
-		split.addSplit(new BankTransaction(new Day(), new BigDecimal("-1.00"), ""));
+		split.addSplit(new BankTransaction(Day.today(), new BigDecimal("-1.00"), ""));
 		account.addTransaction(split);
 		// 2 Transaction
-		transfer = new Transfer(account, account2, new BigDecimal("10.00"), new Day());
+		transfer = new Transfer(account, account2, new BigDecimal("10.00"), Day.today());
 		account2.addTransaction(transfer.getTransferTo());
-		split = new BankTransaction(new Day(),BigDecimal.ZERO, "");
+		split = new BankTransaction(Day.today(),BigDecimal.ZERO, "");
 		// 2.1 Split: Transfer (-10)
 		split.addSplit(transfer.getTransferFrom());
 		// 2.2 Split: Bank transaction (+3)
-		split.addSplit(new BankTransaction(new Day(), new BigDecimal("3.00"), ""));
+		split.addSplit(new BankTransaction(Day.today(), new BigDecimal("3.00"), ""));
 		account.addTransaction(split);
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
 

@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.domain.reporting.investment;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class InvestmentGainingsTest {
 
 	private InvestmentTransaction buildTrade(BigDecimal price, BigDecimal quantity,
 		BigDecimal commission, InvestmentTransaction.Type type) {
-		return new InvestmentTransaction(new Day(), security, price, quantity,
+		return new InvestmentTransaction(Day.today(), security, price, quantity,
 			commission, type);
 	}
 

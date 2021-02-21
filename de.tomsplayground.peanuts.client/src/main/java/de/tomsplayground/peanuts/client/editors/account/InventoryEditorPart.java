@@ -95,7 +95,7 @@ public class InventoryEditorPart extends EditorPart {
 	private Label realizedLabel;
 	private Label marketValueLabel;
 	private Label changeLabel;
-	private Day date = new Day();
+	private Day date = Day.today();
 
 	private boolean showAllSecurities;
 	private Inventory inventory;

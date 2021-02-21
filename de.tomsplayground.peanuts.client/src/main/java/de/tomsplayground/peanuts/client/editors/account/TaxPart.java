@@ -268,7 +268,7 @@ public class TaxPart extends EditorPart {
 	}
 
 	private void setData() {
-		Day now = new Day();
+		Day now = Day.today();
 
 		account = ((ITransactionProviderInput) getEditorInput()).getTransactionProvider();
 		IPriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
@@ -321,7 +321,7 @@ public class TaxPart extends EditorPart {
 			if (StringUtils.isNotBlank(selectedYearStr)) {
 				selectedYear = Integer.valueOf(selectedYearStr);
 			} else {
-				selectedYear = new Day().year;
+				selectedYear = Day.today().year;
 			}
 		}
 	}

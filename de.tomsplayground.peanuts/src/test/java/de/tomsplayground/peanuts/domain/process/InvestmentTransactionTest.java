@@ -2,10 +2,9 @@ package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
 
-import junit.framework.TestCase;
-
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.util.Day;
+import junit.framework.TestCase;
 
 public class InvestmentTransactionTest extends TestCase {
 
@@ -17,7 +16,7 @@ public class InvestmentTransactionTest extends TestCase {
 	}
 
 	public void testCloneContructor() {
-		InvestmentTransaction trans = new InvestmentTransaction(new Day(),
+		InvestmentTransaction trans = new InvestmentTransaction(Day.today(),
 			acountManager.getOrCreateSecurity("test"), new BigDecimal("12.22"),
 			new BigDecimal("10"), new BigDecimal("0.50"), InvestmentTransaction.Type.BUY);
 		InvestmentTransaction trans2 = new InvestmentTransaction(trans);
@@ -26,7 +25,7 @@ public class InvestmentTransactionTest extends TestCase {
 	}
 
 	public void testBuy() {
-		InvestmentTransaction trans = new InvestmentTransaction(new Day(),
+		InvestmentTransaction trans = new InvestmentTransaction(Day.today(),
 			acountManager.getOrCreateSecurity("test"), new BigDecimal("12.22"),
 			new BigDecimal("10"), new BigDecimal("0.50"), InvestmentTransaction.Type.BUY);
 
@@ -34,7 +33,7 @@ public class InvestmentTransactionTest extends TestCase {
 	}
 
 	public void testSell() {
-		InvestmentTransaction trans = new InvestmentTransaction(new Day(),
+		InvestmentTransaction trans = new InvestmentTransaction(Day.today(),
 			acountManager.getOrCreateSecurity("test"), new BigDecimal("12.22"),
 			new BigDecimal("10"), new BigDecimal("0.50"), InvestmentTransaction.Type.SELL);
 
@@ -42,7 +41,7 @@ public class InvestmentTransactionTest extends TestCase {
 	}
 
 	public void testExpense() {
-		InvestmentTransaction trans = new InvestmentTransaction(new Day(),
+		InvestmentTransaction trans = new InvestmentTransaction(Day.today(),
 			acountManager.getOrCreateSecurity("test"), new BigDecimal("12.22"),
 			new BigDecimal("10"), new BigDecimal("0.50"), InvestmentTransaction.Type.EXPENSE);
 
@@ -50,7 +49,7 @@ public class InvestmentTransactionTest extends TestCase {
 	}
 
 	public void testIncome() {
-		InvestmentTransaction trans = new InvestmentTransaction(new Day(),
+		InvestmentTransaction trans = new InvestmentTransaction(Day.today(),
 			acountManager.getOrCreateSecurity("test"), new BigDecimal("12.22"),
 			new BigDecimal("10"), new BigDecimal("0.50"), InvestmentTransaction.Type.INCOME);
 
@@ -58,7 +57,7 @@ public class InvestmentTransactionTest extends TestCase {
 	}
 
 	public void testModifyAmount() {
-		InvestmentTransaction trans = new InvestmentTransaction(new Day(),
+		InvestmentTransaction trans = new InvestmentTransaction(Day.today(),
 			acountManager.getOrCreateSecurity("test"), new BigDecimal("12.22"),
 			new BigDecimal("10"), new BigDecimal("0.50"), InvestmentTransaction.Type.SELL);
 		try {

@@ -37,6 +37,7 @@ public class DividendStats extends ObservableModelObject {
 
 	private final ExchangeRates exchangeRates;
 
+	// Month => Dividends
 	private final Map<Day, List<Dividend>> groupedDividends = new HashMap<>();
 
 	private final ImmutableList<Value> performanceValues;
@@ -63,7 +64,7 @@ public class DividendStats extends ObservableModelObject {
 		report.setAccounts(accountManager.getAccounts().stream()
 			.filter(acc -> acc.getType() == Account.Type.INVESTMENT)
 			.collect(Collectors.toList()));
-		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new Day(), new AnalyzerFactory());
+		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), Day.today(), new AnalyzerFactory());
 		fullInventory.addPropertyChangeListener(inventoriyListener);
 		exchangeRates = new ExchangeRates(priceProviderFactory, accountManager);
 
@@ -161,7 +162,7 @@ public class DividendStats extends ObservableModelObject {
 		if (entry.getQuantity() != null) {
 			return entry.getQuantity();
 		}
-		Day today = new Day();
+		Day today = Day.today();
 		synchronized (fullInventory) {
 			Day payDate = entry.getPayDate();
 			if (payDate.after(today)) {

@@ -151,7 +151,7 @@ public class DividendEditorPart extends EditorPart {
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
 			Dividend entry = (Dividend) element;
-			if (columnIndex == 0 && entry.getPayDate().delta(new Day()) > 7) {
+			if (columnIndex == 0 && entry.getPayDate().delta(Day.today()) > 7) {
 				return Activator.getDefault().getColorProvider().get(Activator.GRAY_BG);
 			}
 			if (entry.isIncrease()) {
@@ -180,7 +180,7 @@ public class DividendEditorPart extends EditorPart {
 		report.addQuery(new SecurityInvestmentQuery(getSecurity()));
 		AccountManager accountManager = Activator.getDefault().getAccountManager();
 		report.setAccounts(accountManager.getAccounts());
-		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new Day(), new AnalyzerFactory());
+		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), Day.today(), new AnalyzerFactory());
 
 		currencies = Currencies.getInstance().getCurrenciesWithExchangeSecurity(accountManager);
 	}
@@ -411,7 +411,7 @@ public class DividendEditorPart extends EditorPart {
 			@Override
 			public void run() {
 				Currency currency = getCurrency();
-				dividends.add(new Dividend(new Day(), BigDecimal.ZERO, currency));
+				dividends.add(new Dividend(Day.today(), BigDecimal.ZERO, currency));
 				tableViewer.refresh();
 			}
 		});

@@ -76,7 +76,7 @@ public class AllAccountsPieView extends ViewPart {
 	}
 
 	protected void updateControls() {
-		final Day today = new Day();
+		final Day today = Day.today();
 		for (Account entry : Activator.getDefault().getAccountManager().getAccounts()) {
 			Inventory i;
 			if (inventories.containsKey(entry)) {

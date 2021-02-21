@@ -132,7 +132,7 @@ public class AccountListView extends ViewPart {
 
 	private Label saldo;
 
-	private Day date = new Day();
+	private Day date = Day.today();
 
 	private final PropertyChangeListener propertyChangeListener = new UniqueAsyncExecution() {
 

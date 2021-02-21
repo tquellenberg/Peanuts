@@ -33,7 +33,7 @@ public class FundamentalDatas {
 	}
 
 	public FundamentalData getCurrentFundamentalData() {
-		return getFundamentalData(new Day());
+		return getFundamentalData(Day.today());
 	}
 
 	public FundamentalData getFundamentalData(Day day) {

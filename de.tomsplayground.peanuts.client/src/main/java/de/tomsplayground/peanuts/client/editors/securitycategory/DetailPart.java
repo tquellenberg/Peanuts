@@ -74,7 +74,7 @@ public class DetailPart extends EditorPart {
 					for (InventoryEntry inventoryEntry : entries) {
 						if (inventoryEntry.getSecurity().equals(element)) {
 							// FIXME: Reports und Inventories brauchen eine Währung
-							return PeanutsUtil.formatCurrency(inventoryEntry.getMarketValue(new Day()), Currency.getInstance("EUR"));
+							return PeanutsUtil.formatCurrency(inventoryEntry.getMarketValue(Day.today()), Currency.getInstance("EUR"));
 						}
 					}
 				}

@@ -59,7 +59,7 @@ public class AlarmPropertyPage extends PropertyPage {
 			alarmModeList.select(stopLoss.getMode().ordinal());
 			stop.setText(PeanutsUtil.formatQuantity(stopLoss.getValue()));
 		} else {
-			date.setDay(new Day());
+			date.setDay(Day.today());
 			alarmModeList.select(0);
 			stop.setText("");
 		}

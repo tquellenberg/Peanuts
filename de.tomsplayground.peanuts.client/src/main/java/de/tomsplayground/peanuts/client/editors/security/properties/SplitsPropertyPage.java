@@ -185,7 +185,7 @@ public class SplitsPropertyPage extends PropertyPage {
 		manager.add(new Action("New") {
 			@Override
 			public void run() {
-				StockSplit stockSplit = new StockSplit(security, new Day(), 0, 0);
+				StockSplit stockSplit = new StockSplit(security, Day.today(), 0, 0);
 				stockSplits.add(stockSplit);
 				tableViewer.refresh();
 			}

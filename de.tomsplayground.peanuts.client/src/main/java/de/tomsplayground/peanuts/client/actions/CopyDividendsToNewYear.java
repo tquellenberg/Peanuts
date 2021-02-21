@@ -32,7 +32,7 @@ public class CopyDividendsToNewYear extends AbstractHandler {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				System.out.println("CopyDividendsToNewYear.execute()");
-				int year = new Day().year;
+				int year = Day.today().year;
 				try {
 					AccountManager accountManager = Activator.getDefault().getAccountManager();
 					Inventory fullInventory = accountManager.getFullInventory();

@@ -32,9 +32,9 @@ public class AccountTest extends TestCase {
 	}
 
 	public void testSimpleTransactions() {
-		Transaction deposit = new Transaction(new Day(), new BigDecimal("100.00"));
+		Transaction deposit = new Transaction(Day.today(), new BigDecimal("100.00"));
 		account1.addTransaction(deposit);
-		Transaction debit = new Transaction(new Day(), new BigDecimal("-75.00"));
+		Transaction debit = new Transaction(Day.today(), new BigDecimal("-75.00"));
 		account1.addTransaction(debit);
 
 		assertEquals(2, account1.getTransactions().size());
@@ -48,12 +48,12 @@ public class AccountTest extends TestCase {
 	}
 
 	public void testSplitTransaction() {
-		Transaction deposit = new Transaction(new Day(), new BigDecimal("100.00"));
-		Transaction split1 = new Transaction(new Day(), new BigDecimal("30.00"));
+		Transaction deposit = new Transaction(Day.today(), new BigDecimal("100.00"));
+		Transaction split1 = new Transaction(Day.today(), new BigDecimal("30.00"));
 		deposit.addSplit(split1);
-		deposit.addSplit(new Transaction(new Day(), new BigDecimal("70.00")));
+		deposit.addSplit(new Transaction(Day.today(), new BigDecimal("70.00")));
 		account1.addTransaction(deposit);
-		Transaction debit = new Transaction(new Day(), new BigDecimal("-75.00"));
+		Transaction debit = new Transaction(Day.today(), new BigDecimal("-75.00"));
 		account1.addTransaction(debit);
 
 		assertEquals(new BigDecimal("100.00"), account1.getBalance(deposit));
@@ -66,7 +66,7 @@ public class AccountTest extends TestCase {
 
 	public void testTransfer() {
 		Transfer t = new Transfer(account1, account2, new BigDecimal("75.00"),
-			new Day());
+			Day.today());
 		account1.addTransaction(t.getTransferFrom());
 		account2.addTransaction(t.getTransferTo());
 
@@ -97,7 +97,7 @@ public class AccountTest extends TestCase {
 	public void testModifyDateForTransfer() {
 		Day notNow = new Day(1999, 0, 1);
 		Transfer t = new Transfer(account1, account2, new BigDecimal("75.00"),
-			new Day());
+			Day.today());
 		account1.addTransaction(t.getTransferFrom());
 		account2.addTransaction(t.getTransferTo());
 		((Transaction) account1.getTransactions().get(0)).setDay(notNow);
@@ -106,7 +106,7 @@ public class AccountTest extends TestCase {
 	}
 
 	public void testModifyTransfer() {
-		Transfer t = new Transfer(account1, account2, new BigDecimal("75.00"), new Day());
+		Transfer t = new Transfer(account1, account2, new BigDecimal("75.00"), Day.today());
 		t.setMemo("Memo");
 		t.setLabel("Payee");
 		t.setCategory(new Category("c1", Category.Type.EXPENSE));
@@ -127,7 +127,7 @@ public class AccountTest extends TestCase {
 	}
 
 	public void testCloneTransfer() {
-		Transfer t = new Transfer(account1, account2, new BigDecimal("75.00"), new Day());
+		Transfer t = new Transfer(account1, account2, new BigDecimal("75.00"), Day.today());
 		t.setMemo("Memo");
 		t.setLabel("Payee");
 		t.setCategory(new Category("c1", Category.Type.EXPENSE));
@@ -148,7 +148,7 @@ public class AccountTest extends TestCase {
 	}
 
 	public void testCloneTransfer2() {
-		Transfer t = new Transfer(account1, account2, new BigDecimal("75.00"), new Day());
+		Transfer t = new Transfer(account1, account2, new BigDecimal("75.00"), Day.today());
 		t.setMemo("Memo");
 		t.setLabel("Payee");
 		t.setCategory(new Category("c1", Category.Type.EXPENSE));
@@ -166,7 +166,7 @@ public class AccountTest extends TestCase {
 	@SuppressWarnings("unused")
 	public void testTransferEqualAccounts() {
 		try {
-			new Transfer(account1, account1, new BigDecimal("75.00"), new Day());
+			new Transfer(account1, account1, new BigDecimal("75.00"), Day.today());
 			fail();
 		} catch (IllegalStateException e) {
 			// okay
@@ -175,7 +175,7 @@ public class AccountTest extends TestCase {
 
 	public void testRemoveNonExistionTransaction() {
 		try {
-			account1.removeTransaction(new Transaction(new Day(), BigDecimal.ONE));
+			account1.removeTransaction(new Transaction(Day.today(), BigDecimal.ONE));
 			fail();
 		} catch (IllegalArgumentException e) {
 			// okay
@@ -183,8 +183,8 @@ public class AccountTest extends TestCase {
 	}
 
 	public void testRemoveTransaction() {
-		Transaction transaction1 = new Transaction(new Day(), BigDecimal.ONE);
-		Transaction transaction2 = new Transaction(new Day(), BigDecimal.TEN);
+		Transaction transaction1 = new Transaction(Day.today(), BigDecimal.ONE);
+		Transaction transaction2 = new Transaction(Day.today(), BigDecimal.TEN);
 		account1.addTransaction(transaction1);
 		account1.addTransaction(transaction2);
 		account1.removeTransaction(transaction1);

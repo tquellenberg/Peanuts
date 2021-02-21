@@ -39,7 +39,7 @@ import de.tomsplayground.util.Day;
 
 public class PieEditorPart extends EditorPart {
 
-	private Day date = new Day();
+	private Day date = Day.today();
 
 	private JFreeChart chart;
 	private Inventory inventory;

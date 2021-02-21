@@ -50,7 +50,7 @@ import de.tomsplayground.util.Day;
 public class PriceEditorPart extends EditorPart {
 
 	private TableViewer tableViewer;
-	private final int colWidth[] = new int[5];
+	private final int colWidth[] = new int[2];
 	private boolean dirty = false;
 	private IPriceProvider priceProvider;
 
@@ -85,13 +85,7 @@ public class PriceEditorPart extends EditorPart {
 				case 0:
 					return PeanutsUtil.formatDate(price.getDay());
 				case 1:
-					return PeanutsUtil.formatCurrency(price.getOpen(), null);
-				case 2:
-					return PeanutsUtil.formatCurrency(price.getClose(), null);
-				case 3:
-					return PeanutsUtil.formatCurrency(price.getLow(), null);
-				case 4:
-					return PeanutsUtil.formatCurrency(price.getHigh(), null);
+					return PeanutsUtil.formatCurrency(price.getValue(), null);
 				default:
 					return "";
 			}
@@ -140,30 +134,12 @@ public class PriceEditorPart extends EditorPart {
 		col.addControlListener(saveSizeOnResize);
 
 		col = new TableColumn(table, SWT.LEFT);
-		col.setText("Open");
+		col.setText("Close");
 		col.setWidth((colWidth[1] > 0) ? colWidth[1] : 100);
 		col.setResizable(true);
 		col.addControlListener(saveSizeOnResize);
 
-		col = new TableColumn(table, SWT.LEFT);
-		col.setText("Close");
-		col.setWidth((colWidth[2] > 0) ? colWidth[2] : 100);
-		col.setResizable(true);
-		col.addControlListener(saveSizeOnResize);
-
-		col = new TableColumn(table, SWT.LEFT);
-		col.setText("Low");
-		col.setWidth((colWidth[3] > 0) ? colWidth[3] : 100);
-		col.setResizable(true);
-		col.addControlListener(saveSizeOnResize);
-
-		col = new TableColumn(table, SWT.LEFT);
-		col.setText("High");
-		col.setWidth((colWidth[4] > 0) ? colWidth[4] : 100);
-		col.setResizable(true);
-		col.addControlListener(saveSizeOnResize);
-
-		tableViewer.setColumnProperties(new String[] { "date", "open", "close", "low", "high" });
+		tableViewer.setColumnProperties(new String[] { "date", "close"});
 		tableViewer.setCellModifier(new ICellModifier() {
 
 			@Override
@@ -173,14 +149,8 @@ public class PriceEditorPart extends EditorPart {
 
 			private BigDecimal getValueByProperty(Price p, String property) {
 				BigDecimal v = null;
-				if (property.equals("open")) {
-					v = p.getOpen();
-				} else if (property.equals("close")) {
-					v = p.getClose();
-				} else if (property.equals("low")) {
-					v = p.getLow();
-				} else if (property.equals("high")) {
-					v = p.getHigh();
+				if (property.equals("close")) {
+					v = p.getValue();
 				}
 				if (v == null) {
 					v = BigDecimal.ZERO;
@@ -207,20 +177,14 @@ public class PriceEditorPart extends EditorPart {
 				Price p = (Price) ((TableItem) element).getData();
 				Price newPrice = null;
 				if (property.equals("date")) {
-					newPrice = new Price((Day) value, p.getOpen(), p.getClose(), p.getLow(), p.getHigh());
+					newPrice = new Price((Day) value, p.getValue());
 				} else {
 					try {
 						BigDecimal v = PeanutsUtil.parseCurrency((String) value);
 						BigDecimal oldV = getValueByProperty(p, property);
 						if (oldV.compareTo(v) != 0) {
-							if (property.equals("open")) {
-								newPrice = new Price(p.getDay(), v, p.getClose(), p.getLow(), p.getHigh());
-							} else if (property.equals("close")) {
-								newPrice = new Price(p.getDay(), p.getOpen(), v, p.getLow(), p.getHigh());
-							} else if (property.equals("low")) {
-								newPrice = new Price(p.getDay(), p.getOpen(), p.getClose(), p.getHigh(), v);
-							} else if (property.equals("high")) {
-								newPrice = new Price(p.getDay(), p.getOpen(), p.getClose(), v, p.getLow());
+							if (property.equals("close")) {
+								newPrice = new Price(p.getDay(), v);
 							}
 						}
 					} catch (ParseException e) {
@@ -276,7 +240,7 @@ public class PriceEditorPart extends EditorPart {
 				if (d != null) {
 					d = d.addDays(1);
 				} else {
-					d = new Day();
+					d = Day.today();
 				}
 				Price price = new Price(d, BigDecimal.ZERO);
 				priceProvider.setPrice(price);

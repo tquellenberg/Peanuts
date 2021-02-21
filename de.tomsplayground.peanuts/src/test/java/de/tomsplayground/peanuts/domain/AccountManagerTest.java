@@ -1,8 +1,6 @@
 package de.tomsplayground.peanuts.domain;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -233,7 +231,7 @@ public class AccountManagerTest {
 		cm.addCategory(new Category("test1", Category.Type.INCOME));
 		cm.addCategory(new Category("test2", Category.Type.EXPENSE));
 		Account account = cm.getOrCreateAccount("account", Account.Type.BANK);
-		BankTransaction transaction = new BankTransaction(new Day(), BigDecimal.ONE, "");
+		BankTransaction transaction = new BankTransaction(Day.today(), BigDecimal.ONE, "");
 		transaction.setCategory(cm.getCategory("test2"));
 		account.addTransaction(transaction);
 
@@ -256,7 +254,7 @@ public class AccountManagerTest {
 		category.addChildCategory(category2);
 		cm.addCategory(category);
 		Account account = cm.getOrCreateAccount("account", Account.Type.BANK);
-		BankTransaction transaction = new BankTransaction(new Day(), BigDecimal.ONE, "");
+		BankTransaction transaction = new BankTransaction(Day.today(), BigDecimal.ONE, "");
 		transaction.setCategory(category2);
 		account.addTransaction(transaction);
 

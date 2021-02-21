@@ -116,12 +116,12 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 				while (iterator.hasPrevious()) {
 					IPrice p = iterator.previous();
 					line[0] = p.getDay().toString();
-					line[1] = p.getOpen()==null?"":p.getOpen().toString();
-					line[2] = p.getHigh()==null?"":p.getHigh().toString();
-					line[3] = p.getLow()==null?"":p.getLow().toString();
-					line[4] = p.getClose()==null?"":p.getClose().toString();
+					line[1] = "";
+					line[2] = "";
+					line[3] = "";
+					line[4] = p.getValue()==null?"":p.getValue().toString();
 					line[5] = "0";
-					line[6] = line[4];
+					line[6] = "";
 					csvWriter.writeNext(line);
 				}
 				csvWriter.close();

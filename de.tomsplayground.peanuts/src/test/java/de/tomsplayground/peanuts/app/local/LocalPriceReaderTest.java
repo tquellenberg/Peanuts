@@ -27,10 +27,6 @@ public class LocalPriceReaderTest extends TestCase {
 		assertEquals(3, prices.size());
 		IPrice price = prices.get(0);
 		assertEquals(new BigDecimal("52.48"), price.getValue());
-		assertEquals(new BigDecimal("53.59"), price.getOpen());
-		assertEquals(new BigDecimal("53.60"), price.getHigh());
-		assertEquals(new BigDecimal("52.42"), price.getLow());
-		assertEquals(new BigDecimal("52.48"), price.getClose());
 		Day date = price.getDay();
 		assertEquals(new Day(2007, 4, 23), date);
 	}
