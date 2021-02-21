@@ -82,8 +82,8 @@ import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzedInvestmentT
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.domain.reporting.tax.RealizedGain;
 import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
+import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
-import de.tomsplayground.util.Day;
 
 public class InventoryEditorPart extends EditorPart {
 

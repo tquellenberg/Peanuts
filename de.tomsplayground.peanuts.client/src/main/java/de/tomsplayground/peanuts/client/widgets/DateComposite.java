@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
 import de.tomsplayground.peanuts.client.app.Activator;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 
 public class DateComposite extends Composite {

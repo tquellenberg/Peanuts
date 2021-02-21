@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.base.Security;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 @XStreamAlias("securityAlarm")
 public class SecurityAlarm {

@@ -3,7 +3,7 @@ package de.tomsplayground.peanuts.domain.process;
 import java.math.BigDecimal;
 
 import de.tomsplayground.peanuts.domain.base.AccountManager;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 import junit.framework.TestCase;
 
 public class InvestmentTransactionTest extends TestCase {

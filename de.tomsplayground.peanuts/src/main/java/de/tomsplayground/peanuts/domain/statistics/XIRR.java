@@ -13,8 +13,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.google.common.collect.Lists;
 
+import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
-import de.tomsplayground.util.Day;
 
 public class XIRR {
 

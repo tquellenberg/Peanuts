@@ -27,7 +27,7 @@ import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class AllAccountsPieView extends ViewPart {
 

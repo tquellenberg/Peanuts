@@ -10,8 +10,8 @@ import de.tomsplayground.peanuts.config.ConfigurableSupport;
 import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
+import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
-import de.tomsplayground.util.Day;
 
 @XStreamAlias("credit")
 public class Credit extends ObservableModelObject implements ICredit, IConfigurable {

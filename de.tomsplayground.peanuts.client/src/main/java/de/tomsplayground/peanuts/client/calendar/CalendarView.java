@@ -29,8 +29,8 @@ import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.domain.calendar.CalendarEntry;
 import de.tomsplayground.peanuts.domain.calendar.SecurityCalendarEntry;
+import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
-import de.tomsplayground.util.Day;
 
 public class CalendarView extends ViewPart {
 

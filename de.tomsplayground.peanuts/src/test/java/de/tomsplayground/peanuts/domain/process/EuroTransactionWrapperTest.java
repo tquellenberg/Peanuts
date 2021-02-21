@@ -8,7 +8,7 @@ import java.util.Currency;
 import org.junit.Test;
 
 import de.tomsplayground.peanuts.domain.base.Category;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 
 public class EuroTransactionWrapperTest {

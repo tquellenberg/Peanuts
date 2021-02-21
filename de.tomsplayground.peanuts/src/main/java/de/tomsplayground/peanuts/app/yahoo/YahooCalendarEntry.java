@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.tomsplayground.peanuts.domain.calendar.CalendarEntry;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class YahooCalendarEntry {
 

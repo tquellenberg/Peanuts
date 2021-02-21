@@ -1,21 +1,32 @@
-package de.tomsplayground.util;
+package de.tomsplayground.peanuts.util;
 
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.time.Month;
+import java.time.YearMonth;
 import java.util.Currency;
 
 import org.junit.Test;
 
 import de.tomsplayground.peanuts.Helper;
-import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class PeanutsUtilTest {
 
 	@Test
 	public void testFormatPercent() {
 		assertEquals("80,00%", PeanutsUtil.formatPercent(new BigDecimal("0.8")));
+	}
+
+	@Test
+	public void testYearMonthFormat() {
+		assertEquals("Feb. 2020", PeanutsUtil.formatMonth(YearMonth.of(2020, Month.FEBRUARY)));
+	}
+
+	@Test
+	public void testDayFormat() {
+		assertEquals("21.02.2020", PeanutsUtil.formatDate(new Day(2020, 1, 21)));
 	}
 
 	@Test

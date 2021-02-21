@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.domain.process;
 
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 
 public interface ITimedElement {

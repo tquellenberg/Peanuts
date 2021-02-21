@@ -21,7 +21,7 @@ import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.watchlist.WatchlistConfiguration;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class WatchlistManager extends ObservableModelObject {
 

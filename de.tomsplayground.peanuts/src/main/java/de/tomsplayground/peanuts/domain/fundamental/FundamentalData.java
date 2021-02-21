@@ -14,8 +14,8 @@ import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
+import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
-import de.tomsplayground.util.Day;
 
 @XStreamAlias("fundamental")
 public class FundamentalData implements Comparable<FundamentalData> {

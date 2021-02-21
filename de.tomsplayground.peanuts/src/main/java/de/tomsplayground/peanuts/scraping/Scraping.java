@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceBuilder;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class Scraping {
 

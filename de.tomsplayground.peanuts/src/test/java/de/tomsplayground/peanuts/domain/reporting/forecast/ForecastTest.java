@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.tomsplayground.peanuts.Helper;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 
 public class ForecastTest {

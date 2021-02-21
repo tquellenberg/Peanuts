@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 
 import com.google.common.collect.ImmutableList;
 
+import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
-import de.tomsplayground.util.Day;
 
 public class PriceProviderUtils {
 

@@ -36,7 +36,7 @@ import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProvider;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class YahooPriceReader extends PriceProvider {
 

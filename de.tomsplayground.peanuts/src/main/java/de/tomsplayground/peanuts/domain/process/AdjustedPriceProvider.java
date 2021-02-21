@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public abstract class AdjustedPriceProvider extends ObservableModelObject implements IPriceProvider {
 

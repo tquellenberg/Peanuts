@@ -23,7 +23,7 @@ import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.ITransferLocation;
 import de.tomsplayground.peanuts.domain.process.Transaction;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 @XStreamAlias("account")
 public class Account extends ObservableModelObject implements ITransferLocation, ITransactionProvider,

@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import de.tomsplayground.peanuts.domain.reporting.transaction.TimeIntervalReport.Interval;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class DateIterator implements Iterator<Day> {
 

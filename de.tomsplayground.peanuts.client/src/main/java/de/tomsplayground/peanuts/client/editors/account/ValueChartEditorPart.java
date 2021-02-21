@@ -171,7 +171,7 @@ public class ValueChartEditorPart extends EditorPart {
 		Iterator<BigDecimal> iterator2 = investmentValues.iterator();
 		for (BigDecimal v : values) {
 			sum = sum.add(v);
-			de.tomsplayground.util.Day d = dateIterator.next();
+			de.tomsplayground.peanuts.util.Day d = dateIterator.next();
 			Day day = new Day(d.day, d.month+1, d.year);
 			BigDecimal v1 = sum.add(iterator1.next());
 			BigDecimal v2 = iterator2.next();
@@ -195,7 +195,7 @@ public class ValueChartEditorPart extends EditorPart {
 		Iterator<BigDecimal> iterator2 = investmentValues.iterator();
 		for (BigDecimal v : values) {
 			sum = sum.add(v);
-			de.tomsplayground.util.Day d = dateIterator.next();
+			de.tomsplayground.peanuts.util.Day d = dateIterator.next();
 			Day day = new Day(d.day, d.month+1, d.year);
 			BigDecimal v1 = sum.add(iterator1.next());
 			s1.add(day, v1);
@@ -247,7 +247,7 @@ public class ValueChartEditorPart extends EditorPart {
 		Iterator<BigDecimal> investmentIter = investmentValues.iterator();
 		for (BigDecimal v : values) {
 			sum = sum.add(v);
-			de.tomsplayground.util.Day d = dateIterator.next();
+			de.tomsplayground.peanuts.util.Day d = dateIterator.next();
 			BigDecimal v1 = sum.add(valueIter.next());
 			BigDecimal v2 = investmentIter.next();
 			accountValueData.add(d, v1, v2);

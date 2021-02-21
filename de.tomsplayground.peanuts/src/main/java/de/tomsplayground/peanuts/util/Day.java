@@ -1,12 +1,12 @@
-package de.tomsplayground.util;
+package de.tomsplayground.peanuts.util;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.YearMonth;
 import java.util.Calendar;
 import java.util.Date;
-
 
 public class Day implements Serializable, Cloneable, Comparable<Day>{
 
@@ -16,8 +16,8 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 
 	private final static Day TODAY = fromCalendar(Calendar.getInstance());
 
-	public final int day;
-	public final int month;
+	public final int day;	// 1..
+	public final int month; // 0..
 	public final int year;
 
 	public static Day fromCalendar(Calendar cal) {
@@ -127,8 +127,8 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 		return Day.fromCalendar(cal);
 	}
 
-	public Day toMonth() {
-		return new Day(year, month, 1);
+	public YearMonth toYearMonth() {
+		return YearMonth.of(year, month+1);
 	}
 
 	/**

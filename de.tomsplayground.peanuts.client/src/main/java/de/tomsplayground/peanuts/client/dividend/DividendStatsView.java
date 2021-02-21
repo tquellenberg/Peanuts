@@ -4,8 +4,9 @@ import java.awt.BasicStroke;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
+import java.time.Month;
+import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,8 +54,8 @@ import de.tomsplayground.peanuts.domain.dividend.Dividend;
 import de.tomsplayground.peanuts.domain.dividend.DividendMonth;
 import de.tomsplayground.peanuts.domain.dividend.DividendStats;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
+import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
-import de.tomsplayground.util.Day;
 
 public class DividendStatsView extends ViewPart {
 
@@ -91,7 +92,7 @@ public class DividendStatsView extends ViewPart {
 			DividendMonth divStats = (DividendMonth)element;
 			switch (columnIndex) {
 				case 0:
-					return String.valueOf(divStats.getMonth().year);
+					return String.valueOf(divStats.getMonth().getYear());
 				case 1:
 					return PeanutsUtil.formatCurrency(getSum(divStats), Currencies.getInstance().getDefaultCurrency());
 				case 2:
@@ -216,7 +217,7 @@ public class DividendStatsView extends ViewPart {
 			DividendMonth divStats = (DividendMonth)element;
 			switch (columnIndex) {
 				case 0:
-					return PeanutsUtil.formatDate(divStats.getMonth());
+					return PeanutsUtil.formatMonth(divStats.getMonth());
 				case 1:
 					return PeanutsUtil.formatCurrency(divStats.getAmountInDefaultCurrency(), Currencies.getInstance().getDefaultCurrency());
 				case 2:
@@ -251,7 +252,7 @@ public class DividendStatsView extends ViewPart {
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
 			DividendMonth divStats = (DividendMonth)element;
-			if (divStats.getMonth().month == 11) {
+			if (divStats.getMonth().getMonth() == Month.DECEMBER) {
 				return Activator.getDefault().getColorProvider().get(Activator.GRAY_BG);
 			}
 			return null;
@@ -469,7 +470,7 @@ public class DividendStatsView extends ViewPart {
 		colNum++;
 	}
 
-	private void updateOneMonthTable(Day month) {
+	private void updateOneMonthTable(YearMonth month) {
 		List<Dividend> dividends = dividendStats.getDividends(month);
 		Collections.sort(dividends);
 		oneMonthListViewer.setInput(dividends);
@@ -546,7 +547,7 @@ public class DividendStatsView extends ViewPart {
 		dividendStatsListViewer.setInput(dividendMonths);
 
 		List<DividendMonth> yearlyStats = dividendMonths.stream()
-			.filter(s -> s.getMonth().month == Calendar.DECEMBER)
+			.filter(s -> s.getMonth().getMonth() == Month.DECEMBER)
 			.sorted()
 			.collect(Collectors.toList());
 		yearlyListViewer.setInput(yearlyStats);
@@ -589,15 +590,14 @@ public class DividendStatsView extends ViewPart {
 
 	private XYDataset createTotalDataset(StandardXYItemRenderer renderer) {
 		List<DividendMonth> dividendMonthList = dividendStats.getDividendMonths();
-		Day currentMonth = Day.today();
-		currentMonth = currentMonth.addDays(-currentMonth.day+1);
+		YearMonth currentMonth = Day.today().toYearMonth();
 		int currentYear = 0;
 		XYSeries timeSeries = null;
 		List<XYSeries> series = new ArrayList<>();
 		boolean future = false;
 		for (DividendMonth dividendMonth : dividendMonthList) {
-			if (dividendMonth.getMonth().year != currentYear) {
-				currentYear = dividendMonth.getMonth().year;
+			if (dividendMonth.getMonth().getYear() != currentYear) {
+				currentYear = dividendMonth.getMonth().getYear();
 				timeSeries = new XYSeries(getSeriesName(currentYear, future));
 				series.add(timeSeries);
 				if (future) {
@@ -607,16 +607,16 @@ public class DividendStatsView extends ViewPart {
 				}
 			}
 			if (! future && dividendMonth.getMonth().compareTo(currentMonth) >= 0) {
-				timeSeries.add(Integer.valueOf(dividendMonth.getMonth().month+1), dividendMonth.getYearlyAmount());
+				timeSeries.add(Integer.valueOf(dividendMonth.getMonth().getMonthValue()), dividendMonth.getYearlyAmount());
 				future = true;
 				timeSeries = new XYSeries(getSeriesName(currentYear, future));
 				series.add(timeSeries);
 				renderer.setSeriesStroke(series.size()-1, dash);
 			}
 			if (future) {
-				timeSeries.add(Integer.valueOf(dividendMonth.getMonth().month+1), dividendMonth.getFutureYearlyAmount());
+				timeSeries.add(Integer.valueOf(dividendMonth.getMonth().getMonthValue()), dividendMonth.getFutureYearlyAmount());
 			} else {
-				timeSeries.add(Integer.valueOf(dividendMonth.getMonth().month+1), dividendMonth.getYearlyAmount());
+				timeSeries.add(Integer.valueOf(dividendMonth.getMonth().getMonthValue()), dividendMonth.getYearlyAmount());
 			}
 		}
 

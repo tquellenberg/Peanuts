@@ -24,8 +24,8 @@ import de.tomsplayground.peanuts.domain.process.ITrailingStrategy;
 import de.tomsplayground.peanuts.domain.process.NoTrailingStrategy;
 import de.tomsplayground.peanuts.domain.process.PercentTrailingStrategy;
 import de.tomsplayground.peanuts.domain.process.StopLoss;
+import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
-import de.tomsplayground.util.Day;
 
 public class StopLossPropertyPage extends PropertyPage {
 

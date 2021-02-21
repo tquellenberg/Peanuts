@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import org.apache.commons.lang3.StringUtils;
 
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class LabeledTransaction extends Transaction {
 

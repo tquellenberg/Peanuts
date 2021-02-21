@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class SplitAdjustedPriceProvider extends AdjustedPriceProvider {
 

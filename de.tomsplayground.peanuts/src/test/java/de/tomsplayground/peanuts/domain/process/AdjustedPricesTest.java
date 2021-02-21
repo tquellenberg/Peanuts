@@ -13,7 +13,7 @@ import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.Helper;
 import de.tomsplayground.peanuts.domain.base.Security;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 
 public class AdjustedPricesTest {

@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.base.Category;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 @XStreamAlias("transfer-transaction")
 public class TransferTransaction extends LabeledTransaction {

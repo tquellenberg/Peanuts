@@ -14,7 +14,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Category;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 @XStreamAlias("transcation")
 public class Transaction extends ObservableModelObject implements ITransaction {

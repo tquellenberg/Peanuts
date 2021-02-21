@@ -238,7 +238,7 @@ public class ChartEditorPart extends EditorPart {
 		for (BigDecimal v : values) {
 			sum = sum.add(v);
 			BigDecimal inventoryValue = iterator.next();
-			de.tomsplayground.util.Day d = dateIterator.next();
+			de.tomsplayground.peanuts.util.Day d = dateIterator.next();
 			Day day = new Day(d.day, d.month+1, d.year);
 			s1.add(day, sum.add(inventoryValue));
 			int j = 0;

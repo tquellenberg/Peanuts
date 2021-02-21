@@ -11,7 +11,7 @@ import de.tomsplayground.peanuts.client.editors.account.AccountEditorInput;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.process.SavedTransaction;
 import de.tomsplayground.peanuts.domain.process.Transaction;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class InsertTransactionHandler extends AbstractHandler {
 

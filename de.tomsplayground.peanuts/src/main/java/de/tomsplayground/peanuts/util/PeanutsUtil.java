@@ -3,12 +3,13 @@ package de.tomsplayground.peanuts.util;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Currency;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -16,14 +17,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.tomsplayground.peanuts.domain.process.ITimedElement;
-import de.tomsplayground.util.Day;
 
 public class PeanutsUtil {
 
 	private final static Logger log = LoggerFactory.getLogger(PeanutsUtil.class);
 
-	private static final DateFormat dateFormat = DateFormat.getDateInstance();
-	private static final DateFormat dateTimeFormat = DateFormat.getDateTimeInstance();
+	private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
+	private static final DateTimeFormatter yearMonthFormatter = DateTimeFormatter.ofPattern("MMM yyyy");
+
 	private static final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 	private static final NumberFormat currencyValueFormat = NumberFormat.getNumberInstance();
 	private static final NumberFormat quantityFormat = NumberFormat.getNumberInstance();
@@ -117,20 +118,11 @@ public class PeanutsUtil {
 		if (date == null) {
 			return "";
 		}
-		try {
-			synchronized (dateFormat) {
-				return dateFormat.format(date.toCalendar().getTime());
-			}
-		} catch (IllegalArgumentException e) {
-			log.error("date:" + date);
-			throw e;
-		}
+		return date.toLocalDate().format(dateFormatter);
 	}
 
-	public static String formatDateTime(Date date) {
-		synchronized (dateTimeFormat) {
-			return dateTimeFormat.format(date);
-		}
+	public static String formatMonth(YearMonth month) {
+		return month.format(yearMonthFormatter);
 	}
 
 	public static BigDecimal parseQuantity(String str) throws ParseException {

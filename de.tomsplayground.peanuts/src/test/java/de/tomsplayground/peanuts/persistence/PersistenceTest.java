@@ -18,7 +18,7 @@ import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.process.Transaction;
 import de.tomsplayground.peanuts.domain.process.Transfer;
 import de.tomsplayground.peanuts.persistence.xstream.PersistenceService;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 
 public class PersistenceTest {

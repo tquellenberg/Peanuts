@@ -3,7 +3,7 @@ package de.tomsplayground.peanuts.domain.currenncy;
 import java.math.BigDecimal;
 import java.util.Currency;
 
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class DummyCurrencyConverter extends CurrencyConverter {
 

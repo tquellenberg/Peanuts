@@ -10,7 +10,7 @@ import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.Transaction;
 import de.tomsplayground.peanuts.domain.process.Transfer;
 import de.tomsplayground.peanuts.domain.process.TransferTransaction;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 import junit.framework.TestCase;
 
 public class AccountTest extends TestCase {

@@ -30,7 +30,7 @@ import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.query.IQuery;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 @XStreamAlias("report")
 public class Report extends ObservableModelObject implements ITransactionProvider, INamedElement, IConfigurable {

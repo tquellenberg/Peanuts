@@ -2,8 +2,8 @@ package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
 
+import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
-import de.tomsplayground.util.Day;
 
 public class AdjustedPrice implements IPrice {
 

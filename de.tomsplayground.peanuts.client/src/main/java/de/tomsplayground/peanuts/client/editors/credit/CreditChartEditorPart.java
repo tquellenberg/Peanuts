@@ -125,7 +125,7 @@ public class CreditChartEditorPart extends EditorPart {
 		TimeSeries s1 = new TimeSeries(getCredit().getName(), Month.class);
 		TimeSeries s2 = new TimeSeries(getCredit().getName(), Month.class);
 		for (; month.compareTo(endMonth) <= 0; month = (Month)month.next()) {
-			de.tomsplayground.util.Day day = new de.tomsplayground.util.Day(month.getYearValue(), month.getMonth() - 1, 1);
+			de.tomsplayground.peanuts.util.Day day = new de.tomsplayground.peanuts.util.Day(month.getYearValue(), month.getMonth() - 1, 1);
 			s1.add(month, credit.amount(day));
 			s2.add(month, credit.getInterest(day));
 		}

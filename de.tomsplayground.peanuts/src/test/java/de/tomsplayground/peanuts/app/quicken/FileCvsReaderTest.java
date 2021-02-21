@@ -14,7 +14,7 @@ import org.junit.Test;
 import com.opencsv.exceptions.CsvValidationException;
 
 import de.tomsplayground.peanuts.domain.process.IPrice;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 
 public class FileCvsReaderTest {

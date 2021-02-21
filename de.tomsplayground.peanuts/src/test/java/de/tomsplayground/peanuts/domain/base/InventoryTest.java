@@ -22,7 +22,7 @@ import de.tomsplayground.peanuts.domain.process.PriceProvider;
 import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.domain.process.Transaction;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class InventoryTest {
 

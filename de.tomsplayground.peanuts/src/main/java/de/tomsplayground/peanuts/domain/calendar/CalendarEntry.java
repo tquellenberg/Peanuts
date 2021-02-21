@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.domain.calendar;
 
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class CalendarEntry {
 

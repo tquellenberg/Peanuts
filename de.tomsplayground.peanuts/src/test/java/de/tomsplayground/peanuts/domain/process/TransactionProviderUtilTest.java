@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.base.TransactionProviderUtil;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 
 public class TransactionProviderUtilTest {

@@ -1,10 +1,12 @@
-package de.tomsplayground.util;
+package de.tomsplayground.peanuts.util;
 
 import static org.junit.Assert.*;
 
 import java.util.Calendar;
 
 import org.junit.Test;
+
+import de.tomsplayground.peanuts.util.Day;
 
 public class DayTest {
 

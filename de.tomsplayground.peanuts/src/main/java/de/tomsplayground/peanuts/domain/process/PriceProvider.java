@@ -11,8 +11,8 @@ import com.google.common.collect.Iterables;
 
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
+import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
-import de.tomsplayground.util.Day;
 
 
 public class PriceProvider extends ObservableModelObject implements IPriceProvider {

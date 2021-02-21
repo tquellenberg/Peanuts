@@ -110,12 +110,12 @@ public class ChartEditorPart extends EditorPart {
 				}
 				if (evt.getNewValue() instanceof Price) {
 					Price priceNew = (Price) evt.getNewValue();
-					de.tomsplayground.util.Day day = priceNew.getDay();
+					de.tomsplayground.peanuts.util.Day day = priceNew.getDay();
 					priceTimeSeries.add(new Day(day.day, day.month+1, day.year), priceNew.getValue());
 				} else  if (evt.getNewValue() != null) {
 					// Full update
 					for (IPrice p : priceProvider.getPrices()) {
-						de.tomsplayground.util.Day day = p.getDay();
+						de.tomsplayground.peanuts.util.Day day = p.getDay();
 						priceTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), p.getValue());
 					}
 				}
@@ -321,7 +321,7 @@ public class ChartEditorPart extends EditorPart {
 		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
 		if (inventory.getSecurities().contains(security)) {
 			BigDecimal avgPrice = inventory.getEntry(security).getAvgPrice();
-			return getInventoryCurrencyConverter().convert(avgPrice, de.tomsplayground.util.Day.today());
+			return getInventoryCurrencyConverter().convert(avgPrice, de.tomsplayground.peanuts.util.Day.today());
 		}
 		return null;
 	}
@@ -371,7 +371,7 @@ public class ChartEditorPart extends EditorPart {
 
 	protected void addSplitAnnotations(List<StockSplit> splits) {
 		for (StockSplit stockSplit : splits) {
-			de.tomsplayground.util.Day day = stockSplit.getDay();
+			de.tomsplayground.peanuts.util.Day day = stockSplit.getDay();
 			long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
 			ValueMarker valueMarker = new ValueMarker(x);
 			valueMarker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
@@ -380,7 +380,7 @@ public class ChartEditorPart extends EditorPart {
 		}
 	}
 
-	private BigDecimal getSplitRatio(de.tomsplayground.util.Day day) {
+	private BigDecimal getSplitRatio(de.tomsplayground.peanuts.util.Day day) {
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
 		return stockSplits.stream()
@@ -393,7 +393,7 @@ public class ChartEditorPart extends EditorPart {
 		List<XYAnnotation> annotations = new ArrayList<>();
 		IPriceProvider pp = getChartPriceProvider();
 		for (InvestmentTransaction investmentTransaction : getOrders()) {
-			de.tomsplayground.util.Day day = investmentTransaction.getDay();
+			de.tomsplayground.peanuts.util.Day day = investmentTransaction.getDay();
 			long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
 			double y = pp.getPrice(day).getValue().doubleValue();
 
@@ -540,7 +540,7 @@ public class ChartEditorPart extends EditorPart {
 		}
 		IPriceProvider adjustedPricePorvider = getChartPriceProvider();
 		for (IPrice price : adjustedPricePorvider.getPrices()) {
-			de.tomsplayground.util.Day day = price.getDay();
+			de.tomsplayground.peanuts.util.Day day = price.getDay();
 			BigDecimal pe = fundamentalDatas.getAdjustedContinuousEarnings(day, adjustedPricePorvider.getCurrency(), exchangeRates);
 			if (pe != null && pe.signum() > 0) {
 				BigDecimal fairPrice = pe.multiply(avgPE, PeanutsUtil.MC);
@@ -561,7 +561,7 @@ public class ChartEditorPart extends EditorPart {
 
 		priceTimeSeries = new TimeSeries(getEditorInput().getName(), Day.class);
 		for (IPrice price : getChartPriceProvider().getPrices()) {
-			de.tomsplayground.util.Day day = price.getDay();
+			de.tomsplayground.peanuts.util.Day day = price.getDay();
 			priceTimeSeries.add(new Day(day.day, day.month+1, day.year), price.getValue());
 		}
 		dataset.addSeries(priceTimeSeries);
@@ -602,14 +602,14 @@ public class ChartEditorPart extends EditorPart {
 	private void calculateCompareToValues() {
 		Security compareTo = getCompareTo();
 		if (compareTo != null && timeChart.getFromDate() != null) {
-			de.tomsplayground.util.Day fromDate = de.tomsplayground.util.Day.fromCalendar(timeChart.getFromDate());
+			de.tomsplayground.peanuts.util.Day fromDate = de.tomsplayground.peanuts.util.Day.fromCalendar(timeChart.getFromDate());
 			ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(compareTo);
 			IPriceProvider compareToPriceProvider = PriceProviderFactory.getInstance().getSplitAdjustedPriceProvider(compareTo, stockSplits);
 			IPrice p1 = priceProvider.getPrice(fromDate);
 			IPrice p2 = compareToPriceProvider.getPrice(fromDate);
 			BigDecimal adjust = p1.getValue().divide(p2.getValue(), PeanutsUtil.MC);
 			for (IPrice price : compareToPriceProvider.getPrices()) {
-				de.tomsplayground.util.Day day = price.getDay();
+				de.tomsplayground.peanuts.util.Day day = price.getDay();
 				BigDecimal value = price.getValue().multiply(adjust);
 				compareToPriceTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), value);
 			}
@@ -668,14 +668,14 @@ public class ChartEditorPart extends EditorPart {
 		SimpleMovingAverage simpleMovingAverage = new SimpleMovingAverage(days);
 		List<IPrice> sma = simpleMovingAverage.calculate(getChartPriceProvider().getPrices());
 		for (IPrice price : sma) {
-			de.tomsplayground.util.Day day = price.getDay();
+			de.tomsplayground.peanuts.util.Day day = price.getDay();
 			a1.addOrUpdate(new Day(day.day, day.month+1, day.year), price.getValue());
 		}
 	}
 
 	private void createStopLoss(TimeSeries a1, StopLoss stopLoss) {
 		for (Price price : stopLoss.getPrices(priceProvider)) {
-			de.tomsplayground.util.Day day = price.getDay();
+			de.tomsplayground.peanuts.util.Day day = price.getDay();
 			a1.addOrUpdate(new Day(day.day, day.month+1, day.year), price.getValue());
 		}
 	}

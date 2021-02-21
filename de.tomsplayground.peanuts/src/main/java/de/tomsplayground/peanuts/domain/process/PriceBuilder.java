@@ -2,7 +2,7 @@ package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
 
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class PriceBuilder {
 

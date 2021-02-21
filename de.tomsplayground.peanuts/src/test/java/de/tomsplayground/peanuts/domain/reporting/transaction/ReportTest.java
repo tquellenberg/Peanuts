@@ -13,7 +13,7 @@ import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.process.BankTransaction;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 
 public class ReportTest {

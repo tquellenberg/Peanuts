@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.Currency;
 
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
+import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
-import de.tomsplayground.util.Day;
 
 public class CurrencyConverter {
 

@@ -36,7 +36,7 @@ import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 import de.tomsplayground.peanuts.domain.watchlist.WatchlistConfiguration;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 @XStreamAlias("accountmanager")
 public class AccountManager extends ObservableModelObject implements ISecurityProvider {

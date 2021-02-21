@@ -6,7 +6,7 @@ import java.util.List;
 
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Category;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 import junit.framework.TestCase;
 
 public class TransactionTest extends TestCase {

@@ -35,8 +35,8 @@ import de.tomsplayground.peanuts.client.widgets.DateCellEditor;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.StockSplit;
+import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
-import de.tomsplayground.util.Day;
 
 public class SplitsPropertyPage extends PropertyPage {
 

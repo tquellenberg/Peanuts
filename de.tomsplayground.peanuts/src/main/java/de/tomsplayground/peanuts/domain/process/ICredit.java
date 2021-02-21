@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public interface ICredit extends INamedElement {
 

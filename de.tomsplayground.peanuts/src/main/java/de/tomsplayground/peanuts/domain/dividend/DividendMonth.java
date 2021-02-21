@@ -1,12 +1,11 @@
 package de.tomsplayground.peanuts.domain.dividend;
 
 import java.math.BigDecimal;
-
-import de.tomsplayground.util.Day;
+import java.time.YearMonth;
 
 public class DividendMonth implements Comparable<DividendMonth> {
 
-	private final Day month;
+	private final YearMonth month;
 
 	private final BigDecimal amountInDefaultCurrency;
 
@@ -22,7 +21,7 @@ public class DividendMonth implements Comparable<DividendMonth> {
 
 	private final BigDecimal investedAvg;
 
-	public DividendMonth(Day month, BigDecimal amountInDefaultCurrency, BigDecimal nettoInDefaultCurrency,
+	public DividendMonth(YearMonth month, BigDecimal amountInDefaultCurrency, BigDecimal nettoInDefaultCurrency,
 		BigDecimal futureAmountInDefaultCurrency, BigDecimal investedAvg) {
 		this.month = month;
 		this.amountInDefaultCurrency = amountInDefaultCurrency;
@@ -31,7 +30,7 @@ public class DividendMonth implements Comparable<DividendMonth> {
 		this.investedAvg = investedAvg;
 	}
 
-	public Day getMonth() {
+	public YearMonth getMonth() {
 		return month;
 	}
 

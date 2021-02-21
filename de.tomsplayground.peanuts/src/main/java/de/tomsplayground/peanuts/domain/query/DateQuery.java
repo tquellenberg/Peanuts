@@ -7,7 +7,7 @@ import com.google.common.base.Predicates;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.process.ITransaction;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 @XStreamAlias("dateQuery")
 public class DateQuery implements IQuery {

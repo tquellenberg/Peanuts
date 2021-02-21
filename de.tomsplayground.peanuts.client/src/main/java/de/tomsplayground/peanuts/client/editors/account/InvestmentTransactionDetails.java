@@ -45,8 +45,8 @@ import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction.Type;
 import de.tomsplayground.peanuts.domain.process.Transaction;
+import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
-import de.tomsplayground.util.Day;
 
 public class InvestmentTransactionDetails implements ITransactionDetail {
 

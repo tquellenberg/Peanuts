@@ -3,8 +3,9 @@ package de.tomsplayground.peanuts.domain.dividend;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
+import java.time.Month;
+import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,7 @@ import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer;
 import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer.Value;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class DividendStats extends ObservableModelObject {
 
@@ -38,7 +39,7 @@ public class DividendStats extends ObservableModelObject {
 	private final ExchangeRates exchangeRates;
 
 	// Month => Dividends
-	private final Map<Day, List<Dividend>> groupedDividends = new HashMap<>();
+	private final Map<YearMonth, List<Dividend>> groupedDividends = new HashMap<>();
 
 	private final ImmutableList<Value> performanceValues;
 
@@ -87,8 +88,9 @@ public class DividendStats extends ObservableModelObject {
 		groupedDividends.clear();
 		groupedDividends.putAll(accountManager.getSecurities().stream()
 			.flatMap(s -> s.getDividends().stream())
+			.sorted((d1, d2) -> d1.getPayDate().compareTo(d2.getPayDate()))   // Speed improvement for getQuantity
 			.filter(d -> getQuantity(d).signum() == 1)
-			.collect(Collectors.groupingBy(d -> d.getPayDate().toMonth())));
+			.collect(Collectors.groupingBy(d -> d.getPayDate().toYearMonth())));
 	}
 
 	public List<DividendMonth> getDividendMonths() {
@@ -100,7 +102,7 @@ public class DividendStats extends ObservableModelObject {
 		return result;
 	}
 
-	public List<Dividend> getDividends(Day month) {
+	public List<Dividend> getDividends(YearMonth month) {
 		if (groupedDividends.containsKey(month)) {
 			return new ArrayList<>(groupedDividends.get(month));
 		} else {
@@ -110,16 +112,16 @@ public class DividendStats extends ObservableModelObject {
 
 	private void addYearlyStatsToMonth(List<DividendMonth> result) {
 		if (! result.isEmpty()) {
-			int year = result.get(0).getMonth().year;
+			int year = result.get(0).getMonth().getYear();
 			BigDecimal yearlySum = BigDecimal.ZERO;
 			BigDecimal yearlyNetto = BigDecimal.ZERO;
 			BigDecimal futureYearlyAmount = BigDecimal.ZERO;
 			for (DividendMonth dividendMonth : result) {
-				if (dividendMonth.getMonth().year != year) {
+				if (dividendMonth.getMonth().getYear() != year) {
 					yearlySum = BigDecimal.ZERO;
 					yearlyNetto = BigDecimal.ZERO;
 					futureYearlyAmount = BigDecimal.ZERO;
-					year = dividendMonth.getMonth().year;
+					year = dividendMonth.getMonth().getYear();
 				}
 				yearlySum = yearlySum.add(dividendMonth.getAmountInDefaultCurrency());
 				dividendMonth.setYearlyAmount(yearlySum);
@@ -132,7 +134,7 @@ public class DividendStats extends ObservableModelObject {
 		}
 	}
 
-	private DividendMonth calcDividendMonth(Day month, List<Dividend> dividends) {
+	private DividendMonth calcDividendMonth(YearMonth month, List<Dividend> dividends) {
 		BigDecimal amountInDefaultCurrency = dividends.stream()
 			.map(Dividend::getAmountInDefaultCurrency)
 			.filter(Objects::nonNull)
@@ -146,8 +148,8 @@ public class DividendStats extends ObservableModelObject {
 			.reduce(BigDecimal.ZERO, BigDecimal::add);
 
 		BigDecimal investedAvg = BigDecimal.ZERO;
-		if (month.month == Calendar.DECEMBER) {
-			int year = month.year;
+		if (month.getMonth() == Month.DECEMBER) {
+			int year = month.getYear();
 			investedAvg = performanceValues.stream()
 				.filter(pv -> pv.getYear() == year)
 				.map(pv -> pv.getInvestedAvg())

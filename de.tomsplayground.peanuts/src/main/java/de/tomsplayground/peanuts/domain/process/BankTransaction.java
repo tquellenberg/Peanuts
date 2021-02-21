@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 @XStreamAlias("bank-transaction")
 public class BankTransaction extends LabeledTransaction {

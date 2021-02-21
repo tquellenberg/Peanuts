@@ -7,7 +7,7 @@ import java.math.MathContext;
 
 import org.junit.Test;
 
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class XIRRTest {
 

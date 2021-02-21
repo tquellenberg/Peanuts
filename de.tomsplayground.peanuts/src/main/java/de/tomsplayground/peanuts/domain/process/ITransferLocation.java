@@ -4,7 +4,7 @@ import java.util.Currency;
 
 import com.google.common.collect.ImmutableList;
 
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public interface ITransferLocation {
 

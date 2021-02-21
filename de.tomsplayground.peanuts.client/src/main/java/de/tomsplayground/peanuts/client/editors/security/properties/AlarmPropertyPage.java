@@ -22,8 +22,8 @@ import de.tomsplayground.peanuts.domain.alarm.SecurityAlarm;
 import de.tomsplayground.peanuts.domain.alarm.SecurityAlarm.Mode;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
-import de.tomsplayground.util.Day;
 
 public class AlarmPropertyPage extends PropertyPage {
 

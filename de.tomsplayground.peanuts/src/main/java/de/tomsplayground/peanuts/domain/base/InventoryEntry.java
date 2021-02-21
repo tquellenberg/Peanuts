@@ -10,7 +10,7 @@ import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction.Type;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzedInvestmentTransaction;
 import de.tomsplayground.peanuts.domain.statistics.XIRR;
-import de.tomsplayground.util.Day;
+import de.tomsplayground.peanuts.util.Day;
 
 public class InventoryEntry {
 
