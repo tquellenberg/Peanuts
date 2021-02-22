@@ -1,6 +1,5 @@
 package de.tomsplayground.peanuts.client.dividend;
 
-import java.awt.BasicStroke;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
@@ -13,9 +12,11 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -33,20 +34,10 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.experimental.chart.swt.ChartComposite;
-import org.jfree.ui.RectangleInsets;
 
 import de.tomsplayground.peanuts.client.app.Activator;
-import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
@@ -54,7 +45,6 @@ import de.tomsplayground.peanuts.domain.dividend.Dividend;
 import de.tomsplayground.peanuts.domain.dividend.DividendMonth;
 import de.tomsplayground.peanuts.domain.dividend.DividendStats;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
-import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class DividendStatsView extends ViewPart {
@@ -67,7 +57,7 @@ public class DividendStatsView extends ViewPart {
 	private final int colWidth2[] = new int[7];
 	private final int colWidth3[] = new int[7];
 
-	private final PropertyChangeListener securityChangeListener = new UniqueAsyncExecution() {
+	private final PropertyChangeListener dividendStatsChangeListener = new UniqueAsyncExecution() {
 		@Override
 		public Display getDisplay() {
 			return getSite().getShell().getDisplay();
@@ -75,7 +65,7 @@ public class DividendStatsView extends ViewPart {
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
 			if (evt.getPropertyName().equals("dividends")) {
-				updateData();
+				updateTableData();
 			}
 		}
 	};
@@ -85,6 +75,8 @@ public class DividendStatsView extends ViewPart {
 	private TableViewer yearlyListViewer;
 
 	private DividendStats dividendStats;
+
+	private DividendChart dividendChart;
 
 	private class YearlyListLabelProvider extends LabelProvider implements ITableLabelProvider {
 		@Override
@@ -289,12 +281,14 @@ public class DividendStatsView extends ViewPart {
 		}
 
 		dividendStats = new DividendStats(Activator.getDefault().getAccountManager(), PriceProviderFactory.getInstance());
-		dividendStats.addPropertyChangeListener(securityChangeListener);
+		dividendStats.addPropertyChangeListener(dividendStatsChangeListener);
+
+		dividendChart = new DividendChart(dividendStats);
 	}
 
 	@Override
 	public void dispose() {
-		dividendStats.removePropertyChangeListener(securityChangeListener);
+		dividendStats.removePropertyChangeListener(dividendStatsChangeListener);
 		dividendStats.dispose();
 		super.dispose();
 	}
@@ -395,7 +389,7 @@ public class DividendStatsView extends ViewPart {
 		});
 
 		// Right: chart
-		JFreeChart chart = createChart();
+		JFreeChart chart = dividendChart.createChart();
 		ChartComposite chartFrame = new ChartComposite(top, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
@@ -405,14 +399,14 @@ public class DividendStatsView extends ViewPart {
 		// Right bottom: yearly statistics
 		createYearlyTable(top);
 
-		updateData();
+		updateTableData();
 	}
 
 	private void createYearlyTable(Composite top) {
 		int colNum;
 		TableColumn col;
 
-		yearlyListViewer = new TableViewer(top, SWT.MULTI | SWT.FULL_SELECTION);
+		yearlyListViewer = new TableViewer(top, SWT.MULTI | SWT.FULL_SELECTION | SWT.SINGLE);
 		Table table = yearlyListViewer.getTable();
 		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gridData.heightHint = 200;
@@ -425,6 +419,13 @@ public class DividendStatsView extends ViewPart {
 		// must be called  before tableViewerColumn.setLabelProvider
 		yearlyListViewer.setLabelProvider(new YearlyListLabelProvider());
 		yearlyListViewer.setContentProvider(new ArrayContentProvider());
+		yearlyListViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				DividendMonth firstElement = (DividendMonth) event.getStructuredSelection().getFirstElement();
+				dividendChart.selectYear(firstElement.getMonth().getYear());
+			}
+		});
 
 		colNum = 0;
 		col = new TableColumn(table, SWT.LEFT);
@@ -541,7 +542,7 @@ public class DividendStatsView extends ViewPart {
 		oneMonthListViewer.setInput(new ArrayList<>());
 	}
 
-	private void updateData() {
+	private void updateTableData() {
 		List<DividendMonth> dividendMonths = dividendStats.getDividendMonths();
 		Collections.reverse(dividendMonths);
 		dividendStatsListViewer.setInput(dividendMonths);
@@ -551,84 +552,6 @@ public class DividendStatsView extends ViewPart {
 			.sorted()
 			.collect(Collectors.toList());
 		yearlyListViewer.setInput(yearlyStats);
-	}
-
-	private JFreeChart createChart() {
-		StandardXYItemRenderer renderer = new StandardXYItemRenderer();
-		XYDataset dataset = createTotalDataset(renderer);
-		JFreeChart chart = ChartFactory.createXYLineChart(
-			"Dividends", // title
-			"Month", // x-axis label
-			"Sum", // y-axis label
-			dataset,
-			PlotOrientation.VERTICAL,
-			true, // create legend?
-			true, // generate tooltips?
-			false // generate URLs?
-		);
-		chart.setBackgroundPaint(java.awt.Color.white);
-
-		XYPlot plot = (XYPlot) chart.getPlot();
-		plot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);
-		plot.setDomainGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
-		plot.setRangeGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
-		plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
-		plot.setDomainCrosshairVisible(true);
-		plot.setRangeCrosshairVisible(true);
-		plot.setDrawingSupplier(new PeanutsDrawingSupplier());
-		plot.setRenderer(renderer);
-
-		plot.getDomainAxis().setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-		return chart;
-	}
-
-	private static final BasicStroke dash = new BasicStroke(1.0f,
-        BasicStroke.CAP_BUTT,
-        BasicStroke.JOIN_MITER,
-        10.0f, new float[]{5.0f}, 0.0f);
-
-	private XYDataset createTotalDataset(StandardXYItemRenderer renderer) {
-		List<DividendMonth> dividendMonthList = dividendStats.getDividendMonths();
-		YearMonth currentMonth = Day.today().toYearMonth();
-		int currentYear = 0;
-		XYSeries timeSeries = null;
-		List<XYSeries> series = new ArrayList<>();
-		boolean future = false;
-		for (DividendMonth dividendMonth : dividendMonthList) {
-			if (dividendMonth.getMonth().getYear() != currentYear) {
-				currentYear = dividendMonth.getMonth().getYear();
-				timeSeries = new XYSeries(getSeriesName(currentYear, future));
-				series.add(timeSeries);
-				if (future) {
-					renderer.setSeriesStroke(series.size()-1, dash);
-				} else {
-					renderer.setSeriesStroke(series.size()-1, new BasicStroke(2.5f));
-				}
-			}
-			if (! future && dividendMonth.getMonth().compareTo(currentMonth) >= 0) {
-				timeSeries.add(Integer.valueOf(dividendMonth.getMonth().getMonthValue()), dividendMonth.getYearlyAmount());
-				future = true;
-				timeSeries = new XYSeries(getSeriesName(currentYear, future));
-				series.add(timeSeries);
-				renderer.setSeriesStroke(series.size()-1, dash);
-			}
-			if (future) {
-				timeSeries.add(Integer.valueOf(dividendMonth.getMonth().getMonthValue()), dividendMonth.getFutureYearlyAmount());
-			} else {
-				timeSeries.add(Integer.valueOf(dividendMonth.getMonth().getMonthValue()), dividendMonth.getYearlyAmount());
-			}
-		}
-
-		XYSeriesCollection dataset = new XYSeriesCollection();
-		for (XYSeries timeSeries2 : series) {
-			dataset.addSeries(timeSeries2);
-		}
-		return dataset;
-	}
-
-	private String getSeriesName(int year, boolean future) {
-		return ""+ year + ((future)?" future":"");
 	}
 
 	@Override
