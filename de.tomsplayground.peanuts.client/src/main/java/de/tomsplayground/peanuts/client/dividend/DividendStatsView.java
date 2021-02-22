@@ -423,7 +423,11 @@ public class DividendStatsView extends ViewPart {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				DividendMonth firstElement = (DividendMonth) event.getStructuredSelection().getFirstElement();
-				dividendChart.selectYear(firstElement.getMonth().getYear());
+				if (firstElement != null) {
+					dividendChart.selectYear(firstElement.getMonth().getYear());
+				} else {
+					dividendChart.deselectYear();
+				}
 			}
 		});
 

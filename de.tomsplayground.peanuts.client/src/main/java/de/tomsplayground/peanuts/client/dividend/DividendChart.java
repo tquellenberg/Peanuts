@@ -57,6 +57,22 @@ public class DividendChart {
 	}
 
 	public void selectYear(int year) {
+		// Deselect old serie
+		deselectYear();
+		// Select new serie
+		int currentYear = Day.today().year;
+		int newSeriesNumber = year-startYear;
+		if (year > currentYear) {
+			newSeriesNumber++;
+		}
+		selectedYear = year;
+		renderer.setSeriesStroke(newSeriesNumber, BOLD_STROKE);
+		if (selectedYear == currentYear) {
+			renderer.setSeriesStroke(newSeriesNumber+1, BOLD_DASH);
+		}
+	}
+
+	public void deselectYear() {
 		int currentYear = Day.today().year;
 		if (selectedYear != -1) {
 			// Deselect old serie
@@ -68,16 +84,7 @@ public class DividendChart {
 			if (selectedYear == currentYear) {
 				renderer.setSeriesStroke(oldSeriesNumber+1, BASIC_DASH);
 			}
-		}
-		// Select new serie
-		int newSeriesNumber = year-startYear;
-		if (year > currentYear) {
-			newSeriesNumber++;
-		}
-		selectedYear = year;
-		renderer.setSeriesStroke(newSeriesNumber, BOLD_STROKE);
-		if (selectedYear == currentYear) {
-			renderer.setSeriesStroke(newSeriesNumber+1, BOLD_DASH);
+			selectedYear = -1;
 		}
 	}
 
@@ -190,4 +197,5 @@ public class DividendChart {
 	private String getSeriesName(int year, boolean future) {
 		return ""+ year + ((future)?" future":"");
 	}
+
 }
