@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -34,22 +32,21 @@ public class Scraping {
 
 	private final static Logger log = LoggerFactory.getLogger(Scraping.class);
 
-	public static final String SCRAPING_PREFIX = "scaping.";
+	public static final String SCRAPING_XPATH = "scaping.close";
 
 	public static final String SCRAPING_URL = "scaping.url";
-
-	public static final String[] XPATH_KEYS = new String[]{"open", "close", "high", "low", "date"};
-
-	private final String scrapingUrl;
-	private final Map<String, String> xpathMap = new HashMap<String, String>();
-
-	private String result = "";
 
 	private static CloseableHttpClient httpClient;
 
 	private static HttpClientContext context;
 
 	private static boolean isInitialized = false;
+
+	private final String securityName;
+	private final String scrapingUrl;
+	private final String xpath;
+
+	private String result = "";
 
 	private static void init() {
 		if (! isInitialized) {
@@ -61,9 +58,8 @@ public class Scraping {
 	}
 
 	public Scraping(Security security) {
-		for (String key : XPATH_KEYS) {
-			xpathMap.put(key, security.getConfigurationValue(SCRAPING_PREFIX+key));
-		}
+		securityName = security.getName();
+		xpath = security.getConfigurationValue(SCRAPING_XPATH);
 		scrapingUrl = security.getConfigurationValue(SCRAPING_URL);
 	}
 
@@ -82,13 +78,13 @@ public class Scraping {
 			response1 = httpClient.execute(httpGet, context);
 			HttpEntity entity1 = response1.getEntity();
 			if (response1.getStatusLine().getStatusCode() != 200) {
-				log.error(response1.getStatusLine().toString() + " "+url);
+				log.error(response1.getStatusLine().toString() + " " + securityName);
 				return "";
 			} else {
 				return EntityUtils.toString(entity1);
 			}
 		} catch (IOException e) {
-			log.error("URL "+url + " - " + e.getMessage());
+			log.error(e.getMessage()+ " " + securityName);
 			return "";
 		} finally {
 			if (response1 != null) {
@@ -113,47 +109,34 @@ public class Scraping {
 			String string = xmlSerializer.getAsString(tagNode);
 
 			PriceBuilder priceBuilder = new PriceBuilder();
-			for (String key : XPATH_KEYS) {
-				String xpath = xpathMap.get(key);
-				if (StringUtils.isNotEmpty(xpath)) {
-					XPather xPather = new XPather(xpath);
-					Object[] result = xPather.evaluateAgainstNode(tagNode);
-					for (Object object : result) {
-						resultStr.append('>').append(object).append('\n');
-					}
-					if (result.length > 0) {
-						String value = result[0].toString().trim();
-						if (StringUtils.equals(key, "date")) {
-							Day day = scrapDay(value);
-							priceBuilder.setDay(day);
-							resultStr.append(key).append(": ").append(day).append('\n');
-						} else {
-							BigDecimal p = scapBigDecimal(value);
-							if (key.equals("close")) {
-								priceBuilder.setClose(p);
-							}
-							resultStr.append(key).append(": ").append(p).append('\n');
-						}
-					}
+
+			if (StringUtils.isNotEmpty(xpath)) {
+				XPather xPather = new XPather(xpath);
+				Object[] result = xPather.evaluateAgainstNode(tagNode);
+				for (Object object : result) {
+					resultStr.append('>').append(object).append('\n');
+				}
+				if (result.length > 0) {
+					String value = result[0].toString().trim();
+					priceBuilder.setClose(scapBigDecimal(value));
 				}
 			}
+
 			price = priceBuilder.build();
 			if (price.getValue().signum() == 0) {
+				log.warn("Scrapping "+securityName + " no price found.");
 				price = null;
 			}
 			resultStr.append("Price: ").append(price).append('\n');
 			resultStr.append('\n').append(string);
 		} catch (RuntimeException e) {
-			log.error("", e);
+			log.error("Scrapping "+securityName, e);
 			resultStr.append(e.getMessage());
 		} catch (IOException e) {
-			log.error("", e);
+			log.error("Scrapping "+securityName, e);
 			resultStr.append(e.getMessage());
 		} catch (XPatherException e) {
-			log.error("", e);
-			resultStr.append(e.getMessage());
-		} catch (ParseException e) {
-			log.error("", e);
+			log.error("Scrapping "+securityName, e);
 			resultStr.append(e.getMessage());
 		}
 		result = resultStr.toString();

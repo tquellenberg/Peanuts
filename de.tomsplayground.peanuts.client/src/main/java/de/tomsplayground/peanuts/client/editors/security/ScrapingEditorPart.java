@@ -1,8 +1,5 @@
 package de.tomsplayground.peanuts.client.editors.security;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -43,9 +40,9 @@ public class ScrapingEditorPart extends EditorPart {
 	private FormToolkit toolkit;
 	private EditorPartForm managedForm;
 	private Text scrapingUrl;
-	private final Map<String, Text> xpathMap = new HashMap<String, Text>();
 	private Text testResultText;
 	private boolean dirty;
+	private Text xpath;
 
 	private class EditorPartForm extends ManagedForm {
 		public EditorPartForm(FormToolkit toolkit, ScrolledForm form) {
@@ -94,17 +91,14 @@ public class ScrapingEditorPart extends EditorPart {
 				sectionPart.markDirty();
 			}});
 
-		for (String value : Scraping.XPATH_KEYS) {
-			toolkit.createLabel(sectionClient, "XPath "+value);
-			Text xpath = toolkit.createText(sectionClient, security.getConfigurationValue(Scraping.SCRAPING_PREFIX+value));
-			xpath.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			xpath.addModifyListener(new ModifyListener() {
-				@Override
-				public void modifyText(ModifyEvent e) {
-					sectionPart.markDirty();
-				}});
-			xpathMap.put(value, xpath);
-		}
+		toolkit.createLabel(sectionClient, "XPath ");
+		xpath = toolkit.createText(sectionClient, security.getConfigurationValue(Scraping.SCRAPING_XPATH));
+		xpath.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		xpath.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				sectionPart.markDirty();
+			}});
 
 		Composite buttonComposite = toolkit.createComposite(sectionClient);
 		buttonComposite.setLayout(new RowLayout());
@@ -177,10 +171,7 @@ public class ScrapingEditorPart extends EditorPart {
 	public void doSave(IProgressMonitor monitor) {
 		Security security = ((SecurityEditorInput)getEditorInput()).getSecurity();
 		security.putConfigurationValue(Scraping.SCRAPING_URL, scrapingUrl.getText());
-		for (String key : xpathMap.keySet()) {
-			String xpath = xpathMap.get(key).getText();
-			security.putConfigurationValue(Scraping.SCRAPING_PREFIX+key, xpath);
-		}
+		security.putConfigurationValue(Scraping.SCRAPING_XPATH, xpath.getText());
 		dirty = false;
 		managedForm.commit(true);
 	}
