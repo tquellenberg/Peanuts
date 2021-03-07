@@ -7,6 +7,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.comparison.Comparison;
 import de.tomsplayground.peanuts.client.watchlist.WatchEntry;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
@@ -44,6 +45,8 @@ public class PeanutsAdapterFactory implements IAdapterFactory {
 				return Activator.getDefault().getImageRegistry().getDescriptor(Activator.IMAGE_SECURITYCATEGORY);
 			} else if (obj instanceof SavedTransaction) {
 				return Activator.getDefault().getImageRegistry().getDescriptor(Activator.IMAGE_SAVED_TRANSACTION);
+			} else if (obj instanceof Comparison) {
+				return Activator.getDefault().getImageRegistry().getDescriptor(Activator.IMAGE_COMPARISON);
 			}
 			return null;
 		}

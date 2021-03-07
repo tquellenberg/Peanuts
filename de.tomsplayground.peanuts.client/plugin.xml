@@ -248,25 +248,25 @@
             default="false"
             icon="icons/table.png"
             id="de.tomsplayground.peanuts.client.accountEditor"
-            name="de.tomsplayground.peanuts.client.accountEditor"/>
+            name="Account"/>
       <editor
             class="de.tomsplayground.peanuts.client.editors.security.SecurityEditor"
             contributorClass="de.tomsplayground.peanuts.client.editors.security.SecurityEditorActionBarContributor"
             default="false"
             icon="icons/chart_curve.png"
             id="de.tomsplayground.peanuts.client.securityEditor"
-            name="de.tomsplayground.peanuts.client.securityEditor"/>
+            name="Security"/>
       <editor
             class="de.tomsplayground.peanuts.client.editors.report.ReportEditor"
             icon="icons/book.png"
             id="de.tomsplayground.peanuts.client.reportEditor"
-            name="de.tomsplayground.peanuts.client.reportEditor">
+            name="Report">
       </editor>
       <editor
             class="de.tomsplayground.peanuts.client.editors.forecast.ForecastEditor"
             icon="icons/weather_cloudy.png"
             id="de.tomsplayground.peanuts.client.forecastEditor"
-            name="de.tomsplayground.peanuts.client.forecastEditor">
+            name="Forecast">
       </editor>
       <editor
             class="de.tomsplayground.peanuts.client.editors.credit.CreditEditor"
@@ -280,6 +280,13 @@
             icon="icons/chart_pie.png"
             id="de.tomsplayground.peanuts.client.securityCategoryEditor"
             name="Security Category">
+      </editor>
+      <editor
+            class="de.tomsplayground.peanuts.client.comparison.ComparisonEditor"
+            default="false"
+            icon="icons/arrow_refresh.png"
+            id="de.tomsplayground.peanuts.client.comparisonEditor"
+            name="Comparision">
       </editor>
    </extension>
    <extension

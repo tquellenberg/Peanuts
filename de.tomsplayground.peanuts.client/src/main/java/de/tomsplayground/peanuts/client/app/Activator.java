@@ -66,6 +66,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String IMAGE_SECURITY = "security";
 	public static final String IMAGE_SECURITYCATEGORY = "security_category";
 	public static final String IMAGE_SAVED_TRANSACTION = "saved_transaction";
+	public static final String IMAGE_COMPARISON = "comparison";
 	public static final String IMAGE_ACCOUNT = "account";
 	public static final String IMAGE_CATEGORY = "category";
 	public static final String IMAGE_CATEGORY_INCOME = "category_income";
@@ -203,6 +204,7 @@ public class Activator extends AbstractUIPlugin {
 		getImageRegistry().put(IMAGE_CREDIT, getImageDescriptor("icons/script.png"));
 		getImageRegistry().put(IMAGE_LOAD_FILE, getImageDescriptor("icons/database_go.png"));
 		getImageRegistry().put(IMAGE_SAVED_TRANSACTION, getImageDescriptor("icons/date.png"));
+		getImageRegistry().put(IMAGE_COMPARISON, getImageDescriptor("icons/arrow_refresh.png"));
 	}
 
 	public Image getImage(String path) {
