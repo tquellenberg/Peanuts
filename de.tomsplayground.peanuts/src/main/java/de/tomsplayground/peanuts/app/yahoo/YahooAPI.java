@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.app.yahoo;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,18 +20,38 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.tomsplayground.peanuts.util.Day;
 
-public class DebtEquity {
+public class YahooAPI {
 
-	private final static Logger log = LoggerFactory.getLogger(DebtEquity.class);
+	private final static Logger log = LoggerFactory.getLogger(YahooAPI.class);
 
 	private final static CloseableHttpClient httpClient = HttpClients.createDefault();
+
+	public static class YahooData {
+		private final List<DebtEquityValue> debtEquityValue;
+		private final MarketCap marketCap;
+
+		public YahooData(List<DebtEquityValue> debtEquityValue, MarketCap marketCap) {
+			this.debtEquityValue = debtEquityValue;
+			this.marketCap = marketCap;
+		}
+		public List<DebtEquityValue> getDebtEquityValue() {
+			return debtEquityValue;
+		}
+		public MarketCap getMarketCap() {
+			return marketCap;
+		}
+		@Override
+		public String toString() {
+			return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+		}
+	}
 
 	public static class DebtEquityValue {
 		private Day endDate;
@@ -60,17 +81,19 @@ public class DebtEquity {
 	private final String apiKey;
 
 	public static void main(String[] args) {
-		List<DebtEquityValue> values = new DebtEquity("").readUrl("DIS");
+		YahooData yahooData = new YahooAPI("").readUrl("7974.T");
+		System.out.println(yahooData);
+		List<DebtEquityValue> values = yahooData.debtEquityValue;
 		for (DebtEquityValue debtEquityValue : values) {
 			System.out.println(debtEquityValue + "   " + debtEquityValue.getValue()+ " " + debtEquityValue.getYear());
 		}
 	}
 
-	public DebtEquity(String apiKey) {
+	public YahooAPI(String apiKey) {
 		this.apiKey = apiKey;
 	}
 
-	public List<DebtEquityValue> readUrl(String symbol) {
+	public YahooData readUrl(String symbol) {
 		String url = MessageFormat.format(API_URL, symbol);
 		HttpGet httpGet = new HttpGet(url);
 		httpGet.addHeader("x-rapidapi-host", API_HOST);
@@ -82,7 +105,10 @@ public class DebtEquity {
 			if (response1.getStatusLine().getStatusCode() != 200) {
 				log.error(response1.getStatusLine().toString() + " "+url);
 			} else {
-				return parseJsonData(EntityUtils.toString(entity1));
+				Map<String, Object> jsonMap = jsonToMap(EntityUtils.toString(entity1));
+				List<DebtEquityValue> debtEquity = parseJsonDataForDebtEquity(jsonMap);
+				MarketCap marketCap = parseJsonDataForMarketCap(jsonMap);
+				return new YahooData(debtEquity, marketCap);
 			}
 		} catch (IOException e) {
 			log.error("URL "+url + " - " + e.getMessage());
@@ -99,13 +125,21 @@ public class DebtEquity {
 		return null;
 	}
 
-	private List<DebtEquityValue> parseJsonData(String json) throws IOException, JsonParseException, JsonMappingException {
+	private MarketCap parseJsonDataForMarketCap(Map<String, Object> jsonMap) {
+		Map<?, ?> summaryDetail = (Map<?, ?>) jsonMap.get("summaryDetail");
+		if (summaryDetail == null) {
+			return null;
+		}
+		String currency = (String) summaryDetail.get("currency");
+		Map<?, ?> marketCapMap = (Map<?, ?>) summaryDetail.get("marketCap");
+		BigDecimal marketCap = new BigDecimal(((Number)marketCapMap.get("raw")).longValue());
+		return new MarketCap(marketCap, currency);
+	}
+
+	private List<DebtEquityValue> parseJsonDataForDebtEquity(Map<String, Object> jsonMap) {
 		List<DebtEquityValue> result = new ArrayList<>();
-		ObjectMapper mapper = new ObjectMapper();
-		TypeReference<HashMap<String,Object>> typeRef = new TypeReference<HashMap<String,Object>>() {};
-		Map<String,Object> jsonMap = mapper.readValue(json, typeRef);
-		result.addAll(getData(jsonMap, "balanceSheetHistory"));
-		List<DebtEquityValue> quarterly = getData(jsonMap, "balanceSheetHistoryQuarterly");
+		result.addAll(getDebtEquityData(jsonMap, "balanceSheetHistory"));
+		List<DebtEquityValue> quarterly = getDebtEquityData(jsonMap, "balanceSheetHistoryQuarterly");
 		if (! quarterly.isEmpty()) {
 			quarterly.sort((a,b) -> b.endDate.compareTo(a.endDate));
 			result.add(quarterly.get(0));
@@ -114,7 +148,14 @@ public class DebtEquity {
 		return result;
 	}
 
-	private List<DebtEquityValue> getData(Map<String,Object> jsonMap, String type) {
+	private Map<String, Object> jsonToMap(String json) throws JsonProcessingException, JsonMappingException {
+		ObjectMapper mapper = new ObjectMapper();
+		TypeReference<HashMap<String,Object>> typeRef = new TypeReference<HashMap<String,Object>>() {};
+		Map<String,Object> jsonMap = mapper.readValue(json, typeRef);
+		return jsonMap;
+	}
+
+	private List<DebtEquityValue> getDebtEquityData(Map<String,Object> jsonMap, String type) {
 		List<DebtEquityValue> result = new ArrayList<>();
 		Map data = (Map) jsonMap.get(type);
 		List<Map<String, Map>> jsonArray = (List<Map<String, Map>>) data.get("balanceSheetStatements");

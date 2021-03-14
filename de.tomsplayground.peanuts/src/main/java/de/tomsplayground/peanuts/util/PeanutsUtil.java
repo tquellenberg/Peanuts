@@ -58,6 +58,21 @@ public class PeanutsUtil {
 		}
 	}
 
+	public static String formatHugeNumber(BigDecimal value) {
+		NumberFormat numberInstance = NumberFormat.getNumberInstance();
+		numberInstance.setMinimumFractionDigits(1);
+		numberInstance.setMaximumFractionDigits(1);
+		if (value.compareTo(new BigDecimal(1000 * 1000 * 1000)) > 0) {
+			BigDecimal v2 = value.divide(new BigDecimal(1000 * 1000 * 1000), PeanutsUtil.MC);
+			return numberInstance.format(v2.setScale(1, RoundingMode.HALF_UP)) + " Mrd";
+		}
+		if (value.compareTo(new BigDecimal(1000 * 1000)) > 0) {
+			BigDecimal v2 = value.divide(new BigDecimal(1000 * 1000), PeanutsUtil.MC);
+			return numberInstance.format(v2.setScale(1, RoundingMode.HALF_UP)) + " Mio";
+		}
+		return numberInstance.format(value);
+	}
+
 	public static String formatCurrency(BigDecimal amount, Currency currency) {
 		if (amount == null) {
 			return "";

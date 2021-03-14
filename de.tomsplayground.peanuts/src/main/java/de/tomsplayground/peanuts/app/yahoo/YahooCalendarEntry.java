@@ -27,7 +27,7 @@ import de.tomsplayground.peanuts.util.Day;
 
 public class YahooCalendarEntry {
 
-	private final static Logger log = LoggerFactory.getLogger(DebtEquity.class);
+	private final static Logger log = LoggerFactory.getLogger(YahooAPI.class);
 
 	private final static CloseableHttpClient httpClient = HttpClients.createDefault();
 

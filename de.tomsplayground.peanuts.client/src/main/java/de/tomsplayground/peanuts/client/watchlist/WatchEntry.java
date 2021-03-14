@@ -7,11 +7,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import de.tomsplayground.peanuts.app.yahoo.MarketCap;
 import de.tomsplayground.peanuts.client.app.Activator;
-import de.tomsplayground.peanuts.client.editors.security.properties.IvrPropertyPage;
+import de.tomsplayground.peanuts.client.editors.security.FundamentalDataEditorPart;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
@@ -29,8 +28,6 @@ import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class WatchEntry {
 
-	private final static Logger log = LoggerFactory.getLogger(WatchEntry.class);
-
 	private static final BigDecimal TWO = new BigDecimal(2);
 
 	private final Security security;
@@ -42,6 +39,7 @@ public class WatchEntry {
 	BigDecimal peRatio = null;
 	BigDecimal robustness = null;
 	BigDecimal volatility = null;
+	BigDecimal marketCap = null;
 
 	private BigDecimal currencyAdjustedAvgReturnGrowth;
 
@@ -278,6 +276,7 @@ public class WatchEntry {
 		robustness = null;
 		volatility = null;
 		currencyAdjustedAvgReturnGrowth = null;
+		marketCap = null;
 	}
 
 	@Override
@@ -293,15 +292,16 @@ public class WatchEntry {
 		return volatility;
 	}
 
-	public BigDecimal getIvr() {
-		String ivrValueStr = security.getConfigurationValue(IvrPropertyPage.IVR_RANK);
-		if (StringUtils.isNotBlank(ivrValueStr)) {
-			try {
-				return new BigDecimal(ivrValueStr);
-			} catch (NumberFormatException e) {
-				log.error("IVR value: '"+ivrValueStr+"' for "+security, e);
+	public BigDecimal getMarketCap() {
+		if (marketCap == null) {
+			String currency = security.getConfigurationValue(FundamentalDataEditorPart.SECURITY_MARKET_CAP_CURRENCY);
+			String marketCapValueStr = security.getConfigurationValue(FundamentalDataEditorPart.SECURITY_MARKET_CAP_VALUE);
+			if (StringUtils.isNotEmpty(currency) && StringUtils.isNotEmpty(marketCapValueStr)) {
+				marketCap = new MarketCap(new BigDecimal(marketCapValueStr), currency).getMarketCapInDefaultCurrency(Activator.getDefault().getExchangeRates());
+			} else {
+				marketCap = BigDecimal.ZERO;
 			}
 		}
-		return null;
+		return marketCap;
 	}
 }

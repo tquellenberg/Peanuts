@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -59,14 +60,17 @@ import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.app.marketscreener.MarketScreener;
 import de.tomsplayground.peanuts.app.morningstar.KeyRatios;
-import de.tomsplayground.peanuts.app.yahoo.DebtEquity;
-import de.tomsplayground.peanuts.app.yahoo.DebtEquity.DebtEquityValue;
+import de.tomsplayground.peanuts.app.yahoo.MarketCap;
+import de.tomsplayground.peanuts.app.yahoo.YahooAPI;
+import de.tomsplayground.peanuts.app.yahoo.YahooAPI.DebtEquityValue;
+import de.tomsplayground.peanuts.app.yahoo.YahooAPI.YahooData;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
 import de.tomsplayground.peanuts.client.widgets.CurrencyComboViewer;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.fundamental.AvgFundamentalData;
@@ -80,6 +84,9 @@ import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class FundamentalDataEditorPart extends EditorPart {
+
+	public static final String SECURITY_MARKET_CAP_VALUE = "security.marketCap.value";
+	public static final String SECURITY_MARKET_CAP_CURRENCY = "security.marketCap.currency";
 
 	private static final BigDecimal DEPT_LIMIT = new BigDecimal("1.0");
 	private static final BigDecimal DIVIDENDE_LIMIT = new BigDecimal("0.9");
@@ -378,7 +385,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 		top.setLayout(layout);
 
 		Composite metaComposite = new Composite(top, SWT.NONE);
-		metaComposite.setLayout(new GridLayout(6, false));
+		metaComposite.setLayout(new GridLayout(7, false));
 		currencyComboViewer = new CurrencyComboViewer(metaComposite, false, false);
 		new Label(metaComposite, SWT.NONE).setText("Morningstar symbol:");
 		final Text morningstarSymbol = new Text(metaComposite, SWT.NONE);
@@ -424,6 +431,10 @@ public class FundamentalDataEditorPart extends EditorPart {
 				updateDeYahooData(security);
 			}
 		});
+
+		marketCapLable = new Label(metaComposite, SWT.NONE);
+		updateMarketCapLable();
+
 		updateButtonState();
 		getSecurity().addPropertyChangeListener(SecurityPropertyPage.YAHOO_SYMBOL, securityPropertyChangeListener);
 
@@ -688,6 +699,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 	};
 
 	private Button fourTradersGo;
+	private Label marketCapLable;
 
 	private void updateButtonState() {
 		Security security = getSecurity();
@@ -695,14 +707,43 @@ public class FundamentalDataEditorPart extends EditorPart {
 		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.FOUR_TRADERS_URL)));
 	}
 
+	private void updateMarketCapLable() {
+		Security security = getSecurity();
+		String currency = security.getConfigurationValue(SECURITY_MARKET_CAP_CURRENCY);
+		String marketCapValueStr = security.getConfigurationValue(SECURITY_MARKET_CAP_VALUE);
+
+		if (StringUtils.isNotEmpty(currency) && StringUtils.isNotEmpty(marketCapValueStr)) {
+			MarketCap marketCap = new MarketCap(new BigDecimal(marketCapValueStr), currency);
+			String labelText = "Market Cap: " + PeanutsUtil.formatHugeNumber(marketCap.getMarketCap())
+				+ " " + marketCap.getCurrency().getSymbol();
+			try {
+				Currency defaultCurrency = Currencies.getInstance().getDefaultCurrency();
+				if (! marketCap.getCurrency().equals(defaultCurrency)) {
+					BigDecimal valueDefaultCur = marketCap.getMarketCapInDefaultCurrency(Activator.getDefault().getExchangeRates());
+					labelText += " - " + PeanutsUtil.formatHugeNumber(valueDefaultCur) + " " + defaultCurrency.getSymbol();
+				}
+			} catch (IllegalArgumentException e) {
+				System.err.println("Unknown currency: "+currency);
+				labelText += " " + currency;
+			}
+			marketCapLable.setText(labelText);
+			marketCapLable.getParent().pack(true);
+		}
+	}
+
 	private void updateDeYahooData(final Security security) {
 		String symbol = security.getConfigurationValue(SecurityPropertyPage.YAHOO_SYMBOL);
 		try {
 			String apiKey = Activator.getDefault().getPreferenceStore().getString(Activator.RAPIDAPIKEY_PROPERTY);
-			DebtEquity debtEquity = new DebtEquity(apiKey);
-			List<DebtEquityValue> values = debtEquity.readUrl(symbol);
+			YahooData yahooData = new YahooAPI(apiKey).readUrl(symbol);
+			MarketCap marketCap = yahooData.getMarketCap();
+			if (marketCap != null) {
+				security.putConfigurationValue(SECURITY_MARKET_CAP_CURRENCY, Objects.toString(marketCap.getCurrency(), ""));
+				security.putConfigurationValue(SECURITY_MARKET_CAP_VALUE, marketCap.getMarketCap().toPlainString());
+				updateMarketCapLable();
+			}
 			boolean valueChanged = false;
-			for (DebtEquityValue debtEquityValue : values) {
+			for (DebtEquityValue debtEquityValue : yahooData.getDebtEquityValue()) {
 				for (FundamentalData oldData : fundamentalDataList) {
 					if (oldData.isIncluded(debtEquityValue.getDay())) {
 						BigDecimal newValue = new BigDecimal(debtEquityValue.getValue());

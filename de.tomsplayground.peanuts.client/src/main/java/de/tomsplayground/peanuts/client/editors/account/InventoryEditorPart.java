@@ -719,7 +719,7 @@ public class InventoryEditorPart extends EditorPart {
 		});
 
 		IPriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
-		ExchangeRates exchangeRates = new ExchangeRates(priceProviderFactory, Activator.getDefault().getAccountManager());
+		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
 		priceProviderFactory = new CurrencyAdjustedPriceProviderFactory(account.getCurrency(), priceProviderFactory, exchangeRates);
 		inventory = new Inventory(account, priceProviderFactory, date, new AnalyzerFactory());
 		inventory.setDate(date);

@@ -272,8 +272,7 @@ public class TaxPart extends EditorPart {
 
 		account = ((ITransactionProviderInput) getEditorInput()).getTransactionProvider();
 		IPriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
-		AccountManager accountManager = Activator.getDefault().getAccountManager();
-		ExchangeRates exchangeRates = new ExchangeRates(priceProviderFactory, accountManager);
+		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
 		priceProviderFactory = new CurrencyAdjustedPriceProviderFactory(account.getCurrency(), priceProviderFactory, exchangeRates);
 		Inventory inventory = new Inventory(account, priceProviderFactory, now, new AnalyzerFactory());
 
@@ -281,6 +280,7 @@ public class TaxPart extends EditorPart {
 		ImmutableList<AnalyzedInvestmentTransaction> realizedTransaction = realizedGain.getRealizedTransaction(selectedYear);
 		realizedTransaction = ImmutableList.sortedCopyOf((a,b) -> a.getDay().compareTo(b.getDay()), realizedTransaction);
 
+		AccountManager accountManager = Activator.getDefault().getAccountManager();
 		SecurityCategoryMapping securityCategoryMapping = accountManager.getSecurityCategoryMapping("Typ");
 
 		BigDecimal sumStocks = BigDecimal.ZERO;

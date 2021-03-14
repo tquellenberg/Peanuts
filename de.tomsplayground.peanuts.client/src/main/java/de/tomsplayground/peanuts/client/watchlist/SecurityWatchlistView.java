@@ -214,11 +214,11 @@ public class SecurityWatchlistView extends ViewPart {
 			return ObjectUtils.compare(v2, v1);
 		}
 	};
-	private final WatchEntryViewerComparator ivrComparator = new WatchEntryViewerComparator() {
+	private final WatchEntryViewerComparator marketCapComparator = new WatchEntryViewerComparator() {
 		@Override
 		public int compare(WatchEntry w1, WatchEntry w2) {
-			BigDecimal v1 = w1.getIvr();
-			BigDecimal v2 = w2.getIvr();
+			BigDecimal v1 = w1.getMarketCap();
+			BigDecimal v2 = w2.getMarketCap();
 			return ObjectUtils.compare(v1, v2);
 		}
 	};
@@ -378,7 +378,7 @@ public class SecurityWatchlistView extends ViewPart {
 					BigDecimal volatility = watchEntry.getVolatility();
 					return PeanutsUtil.formatPercent(volatility);
 				case 12:
-					return PeanutsUtil.formatPercent(watchEntry.getIvr());
+					return PeanutsUtil.formatHugeNumber(watchEntry.getMarketCap());
 				case 13:
 					return PeanutsUtil.formatPercent(watchEntry.getDayChange());
 				case 14:
@@ -706,13 +706,13 @@ public class SecurityWatchlistView extends ViewPart {
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("IVR");
+		col.setText("MCap");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
 		col.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setSorting((TableColumn)e.widget, ivrComparator);
+				setSorting((TableColumn)e.widget, marketCapComparator);
 			}
 		});
 		colNum++;
