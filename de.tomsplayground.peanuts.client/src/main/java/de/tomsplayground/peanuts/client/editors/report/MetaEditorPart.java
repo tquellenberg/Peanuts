@@ -346,7 +346,7 @@ public class MetaEditorPart extends EditorPart {
 		Set<Account> accounts = report.getAccounts();
 		for (TableItem tableItem : items) {
 			Account a = (Account) tableItem.getData();
-			tableItem.setChecked(accounts.contains(a) || report.allAccounts());
+			tableItem.setChecked(accounts.contains(a));
 		}
 		items = forecastViewer.getTable().getItems();
 		for (TableItem tableItem : items) {

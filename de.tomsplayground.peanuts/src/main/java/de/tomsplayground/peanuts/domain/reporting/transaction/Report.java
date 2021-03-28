@@ -46,8 +46,12 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	private final PropertyChangeListener accountChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(java.beans.PropertyChangeEvent evt) {
-			result = null;
-			getPropertyChangeSupport().firePropertyChange(evt);
+			if (evt.getPropertyName().equals("balance") || evt.getPropertyName().equals("transactions")) {
+				if (evt.getPropertyName().equals("transactions")) {
+					result = null;
+				}
+				getPropertyChangeSupport().firePropertyChange(evt);
+			}
 		}
 	};
 
@@ -55,26 +59,29 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 		this.name = name;
 	}
 
-	// FIXME: wird nicht beachtet
-	public boolean allAccounts() {
-		return accounts.isEmpty();
-	}
-
 	public void setAccounts(Collection<Account> accounts) {
 		if (CollectionUtils.isEqualCollection(this.accounts, accounts)) {
 			return;
 		}
+		removeListener();
 		Set<Account> oldAccounts = new HashSet<Account>(this.accounts);
-		for (Account account : oldAccounts) {
-			account.removePropertyChangeListener(accountChangeListener);
-		}
 		this.accounts.clear();
 		this.accounts.addAll(accounts);
-		for (Account account : this.accounts) {
-			account.addPropertyChangeListener(accountChangeListener);
-		}
+		addListener();
 		firePropertyChange("accounts", oldAccounts, accounts);
 		result = null;
+	}
+
+	private void removeListener() {
+		for (Account account : accounts) {
+			account.removePropertyChangeListener(accountChangeListener);
+		}
+	}
+
+	private void addListener() {
+		for (Account account : accounts) {
+			account.addPropertyChangeListener(accountChangeListener);
+		}
 	}
 
 	public Set<Account> getAccounts() {
@@ -88,6 +95,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	public void addQuery(IQuery query) {
 		queries.add(query);
 		firePropertyChange("query", null, query);
+		removeListener();
 		result = null;
 	}
 
@@ -95,6 +103,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 		Set<IQuery> oldQueries = new HashSet<IQuery>(queries);
 		queries.clear();
 		firePropertyChange("queries", oldQueries, null);
+		removeListener();
 		result = null;
 	}
 
@@ -193,7 +202,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	}
 
 	public void reconfigureAfterDeserialization() {
-		// not used
+		addListener();
 	}
 
 	private transient ConfigurableSupport configurableSupport;
