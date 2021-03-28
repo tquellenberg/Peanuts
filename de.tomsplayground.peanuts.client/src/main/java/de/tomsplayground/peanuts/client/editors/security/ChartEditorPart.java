@@ -271,7 +271,11 @@ public class ChartEditorPart extends EditorPart {
 
 		alternativeCurrency = security.getFundamentalDatas().getCurrency();
 		if (security.getCurrency().equals(alternativeCurrency)) {
-			alternativeCurrency = Currencies.getInstance().getDefaultCurrency();
+			if (security.getCurrency().equals(Currencies.getInstance().getDefaultCurrency())) {
+				alternativeCurrency = Currency.getInstance("USD");
+			} else {
+				alternativeCurrency = Currencies.getInstance().getDefaultCurrency();
+			}
 		}
 		Label text = new Label(buttons, SWT.NONE);
 		text.setText("Convert from "+security.getCurrency().getCurrencyCode()+" to "+alternativeCurrency.getCurrencyCode());
