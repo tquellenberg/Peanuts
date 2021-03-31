@@ -581,46 +581,42 @@ public class FundamentalDataEditorPart extends EditorPart {
 			public void modify(Object element, String property, Object value) {
 				FundamentalData p = (FundamentalData) ((TableItem) element).getData();
 				try {
+					boolean changed = false;
 					if (property.equals("year")) {
 						Integer newYear = Integer.valueOf((String) value);
 						if (newYear.intValue() != p.getYear()) {
 							p.setYear(newYear.intValue());
-							p.updateLastModifyDate();
-							tableViewer.update(p, new String[]{property});
-							markDirty();
+							changed = true;
 						}
 					} else if (property.equals("fiscalYear")) {
 						Integer newFiscalYear = Integer.valueOf((String) value);
 						if (newFiscalYear.intValue() != p.getFicalYearEndsMonth()) {
 							p.setFicalYearEndsMonth(newFiscalYear.intValue());
-							p.updateLastModifyDate();
-							tableViewer.update(p, new String[]{property});
-							markDirty();
+							changed = true;
 						}
 					} else if (property.equals("div")) {
 						BigDecimal v = PeanutsUtil.parseCurrency((String) value);
 						if (v.compareTo(p.getDividende()) != 0) {
 							p.setDividende(v);
-							p.updateLastModifyDate();
-							tableViewer.update(p, new String[]{property});
-							markDirty();
+							changed = true;
 						}
 					} else if (property.equals("EPS")) {
 						BigDecimal v = PeanutsUtil.parseCurrency((String) value);
 						if (v.compareTo(p.getEarningsPerShare()) != 0) {
 							p.setEarningsPerShare(v);
-							p.updateLastModifyDate();
-							tableViewer.update(p, new String[]{property});
-							markDirty();
+							changed = true;
 						}
 					} else if (property.equals("deRatio")) {
 						BigDecimal v = PeanutsUtil.parseCurrency((String) value);
 						if (v.compareTo(p.getDebtEquityRatio()) != 0) {
 							p.setDebtEquityRatio(v);
-							p.updateLastModifyDate();
-							tableViewer.update(p, new String[]{property});
-							markDirty();
+							changed = true;
 						}
+					}
+					if (changed) {
+						p.updateLastModifyDate();
+						tableViewer.refresh();
+						markDirty();
 					}
 				} catch (ParseException | NumberFormatException e) {
 					// Okay
