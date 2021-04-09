@@ -93,7 +93,7 @@ public class PieEditorPart extends EditorPart {
 
 		Report report = new Report("temp");
 		report.setAccounts(Activator.getDefault().getAccountManager().getAccounts());
-		inventory = new Inventory(report, PriceProviderFactory.getInstance(), date, new AnalyzerFactory());
+		inventory = new Inventory(report, PriceProviderFactory.getInstance(), new AnalyzerFactory());
 		inventory.addPropertyChangeListener(inventoryChangeListener);
 
 		dataset = new DefaultPieDataset();

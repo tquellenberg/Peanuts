@@ -65,7 +65,7 @@ public class DividendStats extends ObservableModelObject {
 		report.setAccounts(accountManager.getAccounts().stream()
 			.filter(acc -> acc.getType() == Account.Type.INVESTMENT)
 			.collect(Collectors.toList()));
-		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), Day.today(), new AnalyzerFactory());
+		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new AnalyzerFactory());
 		fullInventory.addPropertyChangeListener(inventoriyListener);
 		exchangeRates = new ExchangeRates(priceProviderFactory, accountManager);
 

@@ -721,7 +721,7 @@ public class InventoryEditorPart extends EditorPart {
 		IPriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
 		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
 		priceProviderFactory = new CurrencyAdjustedPriceProviderFactory(account.getCurrency(), priceProviderFactory, exchangeRates);
-		inventory = new Inventory(account, priceProviderFactory, date, new AnalyzerFactory());
+		inventory = new Inventory(account, priceProviderFactory, new AnalyzerFactory());
 		inventory.setDate(date);
 		inventory.addPropertyChangeListener(inventoryChangeListener);
 		treeViewer.setInput(inventory);

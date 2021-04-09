@@ -244,7 +244,7 @@ public class AccountListView extends ViewPart {
 		accounts = Activator.getDefault().getAccountManager().getAccounts();
 		for (Account account : accounts) {
 			account.addPropertyChangeListener(propertyChangeListener);
-			Inventory inventory = new Inventory(account, PriceProviderFactory.getInstance(), date, new AnalyzerFactory());
+			Inventory inventory = new Inventory(account, PriceProviderFactory.getInstance(), new AnalyzerFactory());
 			inventory.addPropertyChangeListener(propertyChangeListener);
 			inventories.put(account, inventory);
 		}

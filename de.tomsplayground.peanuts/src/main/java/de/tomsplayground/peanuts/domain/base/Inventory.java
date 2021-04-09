@@ -61,21 +61,17 @@ public class Inventory extends ObservableModelObject {
 	};
 
 	public Inventory(Account account) {
-		this(account, null, null, null);
+		this(account, null, null);
 	}
 
 	public Inventory(ITransactionProvider account, IPriceProviderFactory priceProviderFactory) {
-		this(account, priceProviderFactory, null, null);
+		this(account, priceProviderFactory, null);
 	}
 
-	public Inventory(ITransactionProvider account, IPriceProviderFactory priceProviderFactory, Day day, AnalyzerFactory analizerFactory) {
+	public Inventory(ITransactionProvider account, IPriceProviderFactory priceProviderFactory, AnalyzerFactory analizerFactory) {
 		this.account = account;
 		this.priceProviderFactory = priceProviderFactory;
-		if (day == null) {
-			this.day = Day.today();
-		} else {
-			this.day = day;
-		}
+		this.day = Day.today();
 		this.analizerFactory = analizerFactory;
 		setTransactions(account.getTransactionsByDate(null, day));
 		if (account instanceof ObservableModelObject) {

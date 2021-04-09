@@ -180,7 +180,7 @@ public class DividendEditorPart extends EditorPart {
 		report.addQuery(new SecurityInvestmentQuery(getSecurity()));
 		AccountManager accountManager = Activator.getDefault().getAccountManager();
 		report.setAccounts(accountManager.getAccounts());
-		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), Day.today(), new AnalyzerFactory());
+		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new AnalyzerFactory());
 
 		currencies = Currencies.getInstance().getCurrenciesWithExchangeSecurity(accountManager);
 	}

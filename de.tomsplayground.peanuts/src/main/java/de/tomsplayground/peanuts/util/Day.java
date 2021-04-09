@@ -12,9 +12,9 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 
 	private static final long serialVersionUID = 817177201924284505L;
 
-	public final static Day ZERO = new Day(0, 0, 1);
+	public static final Day ZERO = new Day(0, 0, 1);
 
-	private final static Day TODAY = fromCalendar(Calendar.getInstance());
+	private static final Today today = new Today();
 
 	public final int day;	// 1..
 	public final int month; // 0..
@@ -47,7 +47,7 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 	}
 
 	public static Day today() {
-		return TODAY;
+		return today.getToday();
 	}
 
 	/**

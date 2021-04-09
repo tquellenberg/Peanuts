@@ -268,13 +268,11 @@ public class TaxPart extends EditorPart {
 	}
 
 	private void setData() {
-		Day now = Day.today();
-
 		account = ((ITransactionProviderInput) getEditorInput()).getTransactionProvider();
 		IPriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
 		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
 		priceProviderFactory = new CurrencyAdjustedPriceProviderFactory(account.getCurrency(), priceProviderFactory, exchangeRates);
-		Inventory inventory = new Inventory(account, priceProviderFactory, now, new AnalyzerFactory());
+		Inventory inventory = new Inventory(account, priceProviderFactory, new AnalyzerFactory());
 
 		RealizedGain realizedGain = new RealizedGain(inventory);
 		ImmutableList<AnalyzedInvestmentTransaction> realizedTransaction = realizedGain.getRealizedTransaction(selectedYear);

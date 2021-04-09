@@ -81,8 +81,9 @@ public class AllAccountsPieView extends ViewPart {
 			Inventory i;
 			if (inventories.containsKey(entry)) {
 				i = inventories.get(entry);
+				i.setDate(today);
 			} else {
-				i = new Inventory(entry, PriceProviderFactory.getInstance(), today, new AnalyzerFactory());
+				i = new Inventory(entry, PriceProviderFactory.getInstance(), new AnalyzerFactory());
 				inventories.put(entry, i);
 				i.addPropertyChangeListener(accountChangeListener);
 			}

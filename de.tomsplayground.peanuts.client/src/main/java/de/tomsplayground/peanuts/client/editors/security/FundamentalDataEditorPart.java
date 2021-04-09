@@ -647,11 +647,11 @@ public class FundamentalDataEditorPart extends EditorPart {
 		fundamentalDataList = cloneFundamentalData(fundamentalDatas.getDatas());
 		if (! fundamentalDataList.isEmpty()) {
 			Currency currency = fundamentalDatas.getCurrency();
-			currencyComboViewer.selectCurrency(currency);
 			currencyConverter = exchangeRates.createCurrencyConverter(currency, security.getCurrency());
 		} else {
 			currencyConverter = exchangeRates.createCurrencyConverter(security.getCurrency(), security.getCurrency());
 		}
+		currencyComboViewer.selectCurrency(currencyConverter.getFromCurrency());
 
 		tableRows = new ArrayList<Object>();
 		tableRows.addAll(fundamentalDataList);

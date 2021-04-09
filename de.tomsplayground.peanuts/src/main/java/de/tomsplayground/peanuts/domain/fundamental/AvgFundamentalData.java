@@ -53,23 +53,16 @@ public class AvgFundamentalData {
 
 	private List<FundamentalData> getHistoricData() {
 		final Day now = Day.today();
-		return Lists.newArrayList(Iterables.filter(datas, new Predicate<FundamentalData>(){
-			@Override
-			public boolean apply(FundamentalData input) {
-				return input.getFiscalEndDay().before(now);
-			}
-		}));
+		return datas.stream()
+			.filter(input -> input.getFiscalEndDay().before(now))
+			.collect(Collectors.toList());
 	}
 
 	private List<FundamentalData> getHistoricAndCurrentData() {
 		final Day now = Day.today();
-		return Lists.newArrayList(Iterables.filter(datas, new Predicate<FundamentalData>(){
-			@Override
-			public boolean apply(FundamentalData input) {
-				int delta = now.delta(input.getFiscalEndDay());
-				return delta <= 360;
-			}
-		}));
+		return datas.stream()
+			.filter(input -> now.delta(input.getFiscalEndDay()) <= 360)
+			.collect(Collectors.toList());
 	}
 
 	public BigDecimal getAvgPE() {

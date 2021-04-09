@@ -202,7 +202,7 @@ public class InventoryTest {
 			public IPriceProvider getSplitAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
 				return getPriceProvider(security);
 			}
-		}, now, new AnalyzerFactory());
+		}, new AnalyzerFactory());
 
 		Collection<InventoryEntry> entries = inventory.getEntries();
 		assertEquals(1, entries.size());
