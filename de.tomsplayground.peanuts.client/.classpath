@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/de.tomsplayground.peanuts"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpclient-4.5.13.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-lang3-3.11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-io-2.8.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xstream-1.4.15.jar"/>
@@ -12,7 +13,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/jackson-annotations-2.10.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackson-core-2.10.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackson-databind-2.10.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/httpclient-4.5.11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/httpcore-4.4.13.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/htmlcleaner-2.23.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-1.9.4.jar"/>
