@@ -37,10 +37,10 @@ Bundle-ClassPath: .,
  lib/iText-2.1.1.jar,
  lib/joda-time-2.10.5.jar,
  lib/opencsv-5.1.jar,
- lib/xstream-1.4.15.jar,
  lib/commons-io-2.8.0.jar,
  lib/commons-lang3-3.11.jar,
- lib/httpclient-4.5.13.jar
+ lib/httpclient-4.5.13.jar,
+ lib/xstream-1.4.17.jar
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.forms,
