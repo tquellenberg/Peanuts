@@ -3,10 +3,10 @@ package de.tomsplayground.peanuts.client.editors.securitycategory;
 import static com.google.common.collect.Collections2.*;
 import static de.tomsplayground.peanuts.client.util.MinQuantity.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Currency;
 import java.util.List;
 
@@ -70,13 +70,8 @@ public class DetailPart extends EditorPart {
 					return ((Security)element).getName();
 				}
 				if (columnIndex == 1) {
-					Collection<InventoryEntry> entries = inventory.getEntries();
-					for (InventoryEntry inventoryEntry : entries) {
-						if (inventoryEntry.getSecurity().equals(element)) {
-							// FIXME: Reports und Inventories brauchen eine Währung
-							return PeanutsUtil.formatCurrency(inventoryEntry.getMarketValue(Day.today()), Currency.getInstance("EUR"));
-						}
-					}
+					// FIXME: Reports und Inventories brauchen eine Währung
+					return PeanutsUtil.formatCurrency(calc((Security)element), Currency.getInstance("EUR"));
 				}
 			}
 			return null;
@@ -86,6 +81,15 @@ public class DetailPart extends EditorPart {
 		public Image getColumnImage(Object element, int columnIndex) {
 			return null;
 		}
+	}
+
+	private BigDecimal calc(Security sec) {
+		for (InventoryEntry inventoryEntry : inventory.getEntries()) {
+			if (inventoryEntry.getSecurity().equals(sec)) {
+				return inventoryEntry.getMarketValue(Day.today());
+			}
+		}
+		return BigDecimal.ZERO;
 	}
 
 	public class ContentProvider implements ITreeContentProvider {
@@ -139,12 +143,7 @@ public class DetailPart extends EditorPart {
 					securities = new ArrayList<Security>(content.getSecuritiesByCategory(category));
 					securities.retainAll(inventory.getSecurities());
 				}
-				Collections.sort(securities, new Comparator<Security>() {
-					@Override
-					public int compare(Security o1, Security o2) {
-						return o1.getName().compareToIgnoreCase(o2.getName());
-					}
-				});
+				securities.sort((a, b) -> calc(b).compareTo(calc(a)));
 				return securities.toArray();
 			}
 			return null;

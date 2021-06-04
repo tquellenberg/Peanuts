@@ -36,6 +36,7 @@ import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 import de.tomsplayground.peanuts.domain.watchlist.WatchlistConfiguration;
+import de.tomsplayground.peanuts.util.Day;
 
 @XStreamAlias("accountmanager")
 public class AccountManager extends ObservableModelObject implements ISecurityProvider {
@@ -564,6 +565,9 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 				report.setAccounts(getAccounts());
 
 				fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new AnalyzerFactory());
+			} else {
+				// Day may have changed
+				fullInventory.setDate(Day.today());
 			}
 			return fullInventory;
 		}

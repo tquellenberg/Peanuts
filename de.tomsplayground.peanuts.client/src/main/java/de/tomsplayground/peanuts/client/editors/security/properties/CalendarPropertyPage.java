@@ -17,6 +17,8 @@ import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -67,6 +69,19 @@ public class CalendarPropertyPage extends PropertyPage {
 				default:
 					return "";
 			}
+		}
+	}
+
+	private class CalendarListViewerComparator extends ViewerComparator {
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			if (e1 instanceof SecurityCalendarEntry && e2 instanceof SecurityCalendarEntry) {
+				SecurityCalendarEntry w1 = (SecurityCalendarEntry) e1;
+				SecurityCalendarEntry w2 = (SecurityCalendarEntry) e2;
+				int compare = w1.getDay().compareTo(w2.getDay());
+				return compare;
+			}
+			return 0;
 		}
 	}
 
@@ -153,6 +168,7 @@ public class CalendarPropertyPage extends PropertyPage {
 		tableViewer.setLabelProvider(new SecurityCalendarEntryTableLabelProvider());
 		tableViewer.setContentProvider(new ArrayContentProvider());
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		tableViewer.setComparator(new CalendarListViewerComparator());
 
 		securityCalendarEntry = Lists.newArrayList(Activator.getDefault().getAccountManager().getCalendarEntries(security));
 		tableViewer.setInput(securityCalendarEntry);
