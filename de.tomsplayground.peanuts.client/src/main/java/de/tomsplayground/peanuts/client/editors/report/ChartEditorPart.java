@@ -42,6 +42,7 @@ import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.Year;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.chart.JFreeChartFonts;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.chart.TimeChart;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
@@ -207,9 +208,11 @@ public class ChartEditorPart extends EditorPart {
 		plot.setDomainCrosshairVisible(true);
 		plot.setRangeCrosshairVisible(true);
 		plot.setDrawingSupplier(new PeanutsDrawingSupplier());
+		plot.getRangeAxis().setTickLabelFont(JFreeChartFonts.getTickLabelFont());
 
 		DateAxis axis = (DateAxis) plot.getDomainAxis();
 		axis.setDateFormatOverride(axisDateFormat);
+		axis.setTickLabelFont(JFreeChartFonts.getTickLabelFont());
 
 		return chart;
 	}
