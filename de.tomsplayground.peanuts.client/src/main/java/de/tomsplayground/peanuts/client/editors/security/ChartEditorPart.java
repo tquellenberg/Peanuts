@@ -40,11 +40,11 @@ import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYAreaRenderer;
+import org.jfree.chart.swt.ChartComposite;
 import org.jfree.data.Range;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.experimental.chart.swt.ChartComposite;
 import org.jfree.ui.LengthAdjustmentType;
 import org.jfree.ui.RectangleAnchor;
 import org.jfree.ui.RectangleInsets;
@@ -504,6 +504,8 @@ public class ChartEditorPart extends EditorPart {
 
 		NumberAxis rangeAxis2 = new NumberAxis("Price "+getInventoryCurrencyConverter().getToCurrency().getSymbol());
 		rangeAxis2.setAutoRange(false);
+		System.out.println(rangeAxis2.getTickLabelFont());
+		System.out.println(rangeAxis2.getLabelFont());
 		pricePlot = new XYPlot(dataset, null, rangeAxis2, renderer);
 		combiPlot.add(pricePlot, showPeDeltaChart ? 70 : 100);
 		pricePlot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);

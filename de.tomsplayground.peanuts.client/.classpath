@@ -2,6 +2,10 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/de.tomsplayground.peanuts"/>
+	<classpathentry exported="true" kind="lib" path="lib/swtgraphics2d-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jfreechart-swt-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jfreechart-1.0.19.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jcommon-1.0.23.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/guava-30.1.1-jre.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xstream-1.4.17.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/httpclient-4.5.13.jar"/>
@@ -24,11 +28,7 @@
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/de.tomsplayground.peanuts-0.1-SNAPSHOT.jar" sourcepath="/de.tomsplayground.peanuts"/>
-	<classpathentry kind="lib" path="lib/jcommon-1.0.13.jar"/>
 	<classpathentry kind="lib" path="lib/jdom2-2.0.5.jar"/>
-	<classpathentry kind="lib" path="lib/jfreechart-1.0.10-experimental.jar"/>
-	<classpathentry kind="lib" path="lib/jfreechart-1.0.10-swt.jar"/>
-	<classpathentry kind="lib" path="lib/jfreechart-1.0.10.jar"/>
 	<classpathentry kind="lib" path="lib/jsr305-3.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/logback-classic-1.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/logback-core-1.2.3.jar"/>

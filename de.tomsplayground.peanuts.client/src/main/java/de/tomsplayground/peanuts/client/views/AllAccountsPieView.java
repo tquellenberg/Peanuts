@@ -16,8 +16,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot3D;
+import org.jfree.chart.swt.ChartComposite;
 import org.jfree.data.general.DefaultPieDataset;
-import org.jfree.experimental.chart.swt.ChartComposite;
 import org.jfree.util.SortOrder;
 
 import de.tomsplayground.peanuts.client.app.Activator;

@@ -23,8 +23,8 @@ import org.eclipse.ui.part.EditorPart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot3D;
+import org.jfree.chart.swt.ChartComposite;
 import org.jfree.data.general.DefaultPieDataset;
-import org.jfree.experimental.chart.swt.ChartComposite;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
