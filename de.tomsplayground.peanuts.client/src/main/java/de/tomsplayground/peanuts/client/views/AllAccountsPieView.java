@@ -17,8 +17,8 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot3D;
 import org.jfree.chart.swt.ChartComposite;
+import org.jfree.chart.util.SortOrder;
 import org.jfree.data.general.DefaultPieDataset;
-import org.jfree.util.SortOrder;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
@@ -102,8 +102,8 @@ public class AllAccountsPieView extends ViewPart {
 		plot.setCircular(true);
 		plot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);
 		plot.setLabelBackgroundPaint(Color.WHITE);
-		plot.setBaseSectionOutlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
-		plot.setBaseSectionPaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
+		plot.setDefaultSectionOutlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
+		plot.setDefaultSectionPaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
 		plot.setOutlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
 		plot.setDrawingSupplier(new PeanutsDrawingSupplier());
 	}

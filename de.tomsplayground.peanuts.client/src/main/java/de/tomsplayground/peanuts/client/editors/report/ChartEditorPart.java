@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,6 +32,7 @@ import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.swt.ChartComposite;
+import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.Month;
 import org.jfree.data.time.Quarter;
@@ -38,7 +40,6 @@ import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.Year;
-import org.jfree.ui.RectangleInsets;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
@@ -218,7 +219,7 @@ public class ChartEditorPart extends EditorPart {
 		TimeIntervalReport intervalReport = new TimeIntervalReport(report, TimeIntervalReport.Interval.DAY, PriceProviderFactory.getInstance());
 		List<BigDecimal> values = intervalReport.getValues();
 		List<BigDecimal> inventoryValues = intervalReport.getInventoryValues();
-		TimeSeries s1 = new TimeSeries(getEditorInput().getName(), Day.class);
+		TimeSeries s1 = new TimeSeries(getEditorInput().getName());
 		List<Forecast> forecasts = new ArrayList<Forecast>(Activator.getDefault().getAccountManager().getForecasts());
 		for (Iterator<Forecast> iter = forecasts.iterator(); iter.hasNext(); ) {
 			Forecast f = iter.next();
@@ -229,7 +230,7 @@ public class ChartEditorPart extends EditorPart {
 		TimeSeries forecastSeries[] = new TimeSeries[forecasts.size()];
 		int i = 0;
 		for (Forecast forecast : forecasts) {
-			forecastSeries[i] = new TimeSeries(forecast.getName(), Day.class);
+			forecastSeries[i] = new TimeSeries(forecast.getName());
 			i++;
 		}
 		BigDecimal sum = BigDecimal.ZERO;
@@ -263,14 +264,14 @@ public class ChartEditorPart extends EditorPart {
 		TimeIntervalReport intervalReport = new TimeIntervalReport(report, interval, PriceProviderFactory.getInstance());
 		List<BigDecimal> values = intervalReport.getValues();
 		List<BigDecimal> inventoryValues = intervalReport.getInventoryValues();
-		TimeSeries s1 = new TimeSeries(getEditorInput().getName(), intervalClass);
+		TimeSeries s1 = new TimeSeries(getEditorInput().getName());
 		BigDecimal lastInventoryValue = BigDecimal.ZERO;
 		Iterator<BigDecimal> iterator = inventoryValues.iterator();
 		DateIterator dateIterator = intervalReport.dateIterator();
 		for (BigDecimal v : values) {
 			BigDecimal inventoryValue = iterator.next();
 			Calendar cal = dateIterator.next().toCalendar();
-			RegularTimePeriod time = RegularTimePeriod.createInstance(intervalClass, cal.getTime(), cal.getTimeZone());
+			RegularTimePeriod time = RegularTimePeriod.createInstance(intervalClass, cal.getTime(), cal.getTimeZone(), Locale.getDefault());
 			s1.add(time, v.add(inventoryValue.subtract(lastInventoryValue)));
 			lastInventoryValue = inventoryValue;
 		}

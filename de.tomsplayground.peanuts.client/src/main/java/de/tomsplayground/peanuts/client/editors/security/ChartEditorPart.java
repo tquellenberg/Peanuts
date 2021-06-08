@@ -3,6 +3,7 @@ package de.tomsplayground.peanuts.client.editors.security;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
@@ -41,14 +42,14 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.chart.swt.ChartComposite;
+import org.jfree.chart.ui.LengthAdjustmentType;
+import org.jfree.chart.ui.RectangleAnchor;
+import org.jfree.chart.ui.RectangleInsets;
+import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.Range;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.ui.LengthAdjustmentType;
-import org.jfree.ui.RectangleAnchor;
-import org.jfree.ui.RectangleInsets;
-import org.jfree.ui.TextAnchor;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -487,7 +488,7 @@ public class ChartEditorPart extends EditorPart {
 		chart.setBackgroundPaint(Color.WHITE);
 
 		StandardXYItemRenderer renderer = new StandardXYItemRenderer();
-		renderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
+		renderer.setDefaultToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
 		renderer.setSeriesPaint(0, Color.BLACK);
 		int nextPos = 1;
 		if (isShowAvg()) {
@@ -504,8 +505,6 @@ public class ChartEditorPart extends EditorPart {
 
 		NumberAxis rangeAxis2 = new NumberAxis("Price "+getInventoryCurrencyConverter().getToCurrency().getSymbol());
 		rangeAxis2.setAutoRange(false);
-		System.out.println(rangeAxis2.getTickLabelFont());
-		System.out.println(rangeAxis2.getLabelFont());
 		pricePlot = new XYPlot(dataset, null, rangeAxis2, renderer);
 		combiPlot.add(pricePlot, showPeDeltaChart ? 70 : 100);
 		pricePlot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);
@@ -517,7 +516,7 @@ public class ChartEditorPart extends EditorPart {
 
 		if (showPeDeltaChart) {
 			XYAreaRenderer xyAreaRenderer = new XYAreaRenderer();
-			xyAreaRenderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
+			xyAreaRenderer.setDefaultToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
 			xyAreaRenderer.setSeriesPaint(0, new PeanutsDrawingSupplier().getNextPaint());
 			NumberAxis rangeAxis = new NumberAxis("PE delta %");
 			rangeAxis.setAutoRange(false);
@@ -565,15 +564,15 @@ public class ChartEditorPart extends EditorPart {
 		dataset.removeAllSeries();
 		dataset2.removeAllSeries();
 
-		priceTimeSeries = new TimeSeries(getEditorInput().getName(), Day.class);
+		priceTimeSeries = new TimeSeries(getEditorInput().getName());
 		for (IPrice price : getChartPriceProvider().getPrices()) {
 			de.tomsplayground.peanuts.util.Day day = price.getDay();
 			priceTimeSeries.add(new Day(day.day, day.month+1, day.year), price.getValue());
 		}
 		dataset.addSeries(priceTimeSeries);
 
-		average20Days = new TimeSeries("MA20", Day.class);
-		average100Days = new TimeSeries("MA100", Day.class);
+		average20Days = new TimeSeries("MA20");
+		average100Days = new TimeSeries("MA100");
 
 		if (isShowAvg()) {
 			createMovingAverage(average20Days, 20);
@@ -582,18 +581,18 @@ public class ChartEditorPart extends EditorPart {
 			dataset.addSeries(average100Days);
 		}
 
-		stopLoss = new TimeSeries("Stop Loss", Day.class);
+		stopLoss = new TimeSeries("Stop Loss");
 		updateStopLoss();
 		dataset.addSeries(stopLoss);
 
 		Security compareTo = getCompareTo();
 		if (compareTo != null) {
-			compareToPriceTimeSeries = new TimeSeries(compareTo.getName(), Day.class);
+			compareToPriceTimeSeries = new TimeSeries(compareTo.getName());
 			dataset.addSeries(compareToPriceTimeSeries);
 		}
 
-		fixedPePrice = new TimeSeries("EPS * avg PE", Day.class);
-		peDeltaTimeSeries = new TimeSeries("PE delta %", Day.class);
+		fixedPePrice = new TimeSeries("EPS * avg PE");
+		peDeltaTimeSeries = new TimeSeries("PE delta %");
 		calculateFixedPePrice();
 		if (! fixedPePrice.isEmpty()) {
 			dataset.addSeries(fixedPePrice);

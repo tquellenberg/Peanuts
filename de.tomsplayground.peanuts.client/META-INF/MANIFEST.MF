@@ -37,10 +37,9 @@ Bundle-ClassPath: .,
  lib/httpclient-4.5.13.jar,
  lib/xstream-1.4.17.jar,
  lib/guava-30.1.1-jre.jar,
- lib/jcommon-1.0.23.jar,
- lib/jfreechart-1.0.19.jar,
  lib/jfreechart-swt-1.0.jar,
- lib/swtgraphics2d-1.0.jar
+ lib/swtgraphics2d-1.0.jar,
+ lib/jfreechart-1.5.3.jar
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.forms,

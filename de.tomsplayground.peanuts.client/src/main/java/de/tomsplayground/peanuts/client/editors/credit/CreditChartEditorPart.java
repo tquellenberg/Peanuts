@@ -23,11 +23,11 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.swt.ChartComposite;
+import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.time.Month;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.IntervalXYDataset;
-import org.jfree.ui.RectangleInsets;
 
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.chart.TimeChart;
@@ -122,8 +122,8 @@ public class CreditChartEditorPart extends EditorPart {
 		ICredit credit = getCredit();
 		Month month = new Month(credit.getStart().month + 1, credit.getStart().year);
 		Month endMonth = new Month(credit.getEnd().month + 1, credit.getEnd().year);
-		TimeSeries s1 = new TimeSeries(getCredit().getName(), Month.class);
-		TimeSeries s2 = new TimeSeries(getCredit().getName(), Month.class);
+		TimeSeries s1 = new TimeSeries(getCredit().getName());
+		TimeSeries s2 = new TimeSeries(getCredit().getName());
 		for (; month.compareTo(endMonth) <= 0; month = (Month)month.next()) {
 			de.tomsplayground.peanuts.util.Day day = new de.tomsplayground.peanuts.util.Day(month.getYearValue(), month.getMonth() - 1, 1);
 			s1.add(month, credit.amount(day));

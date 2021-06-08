@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.client.chart;
 
 import java.util.Calendar;
+import java.util.Locale;
 
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYAnnotation;
@@ -115,14 +116,14 @@ public class TimeChart {
 				@SuppressWarnings("unchecked")
 				Class<RegularTimePeriod> timePeriodClass = serie.getTimePeriodClass();
 				if (! serie.isEmpty()) {
-					int start = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, from.getTime(), from.getTimeZone()));
+					int start = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, from.getTime(), from.getTimeZone(), Locale.getDefault()));
 					if (start < 0) {
 						start = -start - 1;
 						if (start == serie.getItemCount()) {
 							start = serie.getItemCount() - 1;
 						}
 					}
-					int end = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, to.getTime(), to.getTimeZone()));
+					int end = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, to.getTime(), to.getTimeZone(), Locale.getDefault()));
 					if (end < 0) {
 						end = - end - 1;
 					}

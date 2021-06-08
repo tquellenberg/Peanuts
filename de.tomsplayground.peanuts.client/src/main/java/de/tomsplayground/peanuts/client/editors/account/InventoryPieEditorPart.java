@@ -156,8 +156,8 @@ public class InventoryPieEditorPart extends EditorPart {
 		plot.setCircular(true);
 		plot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);
 		plot.setLabelBackgroundPaint(java.awt.Color.WHITE);
-		plot.setBaseSectionOutlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
-		plot.setBaseSectionPaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
+		plot.setDefaultSectionOutlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
+		plot.setDefaultSectionPaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
 		plot.setOutlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
 		plot.setDrawingSupplier(new PeanutsDrawingSupplier());
 	}

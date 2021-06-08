@@ -196,7 +196,7 @@ public class ComparisonEditor extends EditorPart {
 		for (int i = 0; i < dataset.getSeriesCount(); i++) {
 			renderer.setSeriesStroke(i, BASIC_STROKE);
 		}
-		renderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
+		renderer.setDefaultToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
 
 		XYPlot xyPlot = chart.getXYPlot();
 		xyPlot.setBackgroundPaint(new Color(230, 230, 230));
@@ -220,7 +220,7 @@ public class ComparisonEditor extends EditorPart {
 		for (Security security : getComparisonInput().getSecurities()) {
 			Day start = getComparisonInput().getStartDate();
 			Day end = Day.today();
-			TimeSeries series = new TimeSeries(StringUtils.abbreviate(security.getName(), 18), org.jfree.data.time.Day.class);
+			TimeSeries series = new TimeSeries(StringUtils.abbreviate(security.getName(), 18));
 			IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
 			BigDecimal startValue = priceProvider.getPrice(start).getValue();
 

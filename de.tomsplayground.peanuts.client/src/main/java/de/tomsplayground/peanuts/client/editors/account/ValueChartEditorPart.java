@@ -32,10 +32,10 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.chart.swt.ChartComposite;
+import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.ui.RectangleInsets;
 
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.chart.TimeChart;
@@ -134,7 +134,7 @@ public class ValueChartEditorPart extends EditorPart {
 
 		TimeSeriesCollection dataset = createTotalDataset();
 		StandardXYItemRenderer standardXYItemRenderer = new StandardXYItemRenderer();
-		standardXYItemRenderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
+		standardXYItemRenderer.setDefaultToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
 		XYPlot subplot1 = new XYPlot(dataset, null,  new NumberAxis("Value"), standardXYItemRenderer);
 		plot.add(subplot1, 70);
 		subplot1.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
@@ -142,7 +142,7 @@ public class ValueChartEditorPart extends EditorPart {
 		subplot1.setRangeCrosshairVisible(true);
 
 		XYAreaRenderer xyAreaRenderer = new XYAreaRenderer();
-		xyAreaRenderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
+		xyAreaRenderer.setDefaultToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
 		XYPlot subplot2 = new XYPlot(createGainLossDataset(), null, new NumberAxis("Gain/Loss"), xyAreaRenderer);
 		subplot2.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
 		subplot2.setDomainCrosshairVisible(true);
@@ -165,7 +165,7 @@ public class ValueChartEditorPart extends EditorPart {
 		DateIterator dateIterator = intervalReport.dateIterator();
 		List<BigDecimal> inventoryValues = intervalReport.getInventoryValues();
 		List<BigDecimal> investmentValues = intervalReport.getInvestmentValues();
-		TimeSeries s3 = new TimeSeries("Saldo", Day.class);
+		TimeSeries s3 = new TimeSeries("Saldo");
 		BigDecimal sum = BigDecimal.ZERO;
 		Iterator<BigDecimal> iterator1 = inventoryValues.iterator();
 		Iterator<BigDecimal> iterator2 = investmentValues.iterator();
@@ -188,8 +188,8 @@ public class ValueChartEditorPart extends EditorPart {
 		DateIterator dateIterator = intervalReport.dateIterator();
 		List<BigDecimal> inventoryValues = intervalReport.getInventoryValues();
 		List<BigDecimal> investmentValues = intervalReport.getInvestmentValues();
-		TimeSeries s1 = new TimeSeries(getEditorInput().getName(), Day.class);
-		TimeSeries s2 = new TimeSeries("Invested sum", Day.class);
+		TimeSeries s1 = new TimeSeries(getEditorInput().getName());
+		TimeSeries s2 = new TimeSeries("Invested sum");
 		BigDecimal sum = BigDecimal.ZERO;
 		Iterator<BigDecimal> iterator1 = inventoryValues.iterator();
 		Iterator<BigDecimal> iterator2 = investmentValues.iterator();
