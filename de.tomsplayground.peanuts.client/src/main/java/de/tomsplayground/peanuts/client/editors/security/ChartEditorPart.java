@@ -57,6 +57,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.chart.JFreeChartFonts;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.chart.TimeChart;
 import de.tomsplayground.peanuts.client.editors.security.properties.ChartPropertyPage;
@@ -482,6 +483,7 @@ public class ChartEditorPart extends EditorPart {
 
 		DateAxis axis = new DateAxis("Date");
 		axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
+		axis.setTickLabelFont(JFreeChartFonts.getTickLabelFont());
 		CombinedDomainXYPlot combiPlot = new CombinedDomainXYPlot(axis);
 		combiPlot.setDrawingSupplier(new PeanutsDrawingSupplier());
 		JFreeChart chart = new JFreeChart(getEditorInput().getName(), combiPlot);
@@ -505,6 +507,7 @@ public class ChartEditorPart extends EditorPart {
 
 		NumberAxis rangeAxis2 = new NumberAxis("Price "+getInventoryCurrencyConverter().getToCurrency().getSymbol());
 		rangeAxis2.setAutoRange(false);
+		rangeAxis2.setTickLabelFont(JFreeChartFonts.getTickLabelFont());
 		pricePlot = new XYPlot(dataset, null, rangeAxis2, renderer);
 		combiPlot.add(pricePlot, showPeDeltaChart ? 70 : 100);
 		pricePlot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);
@@ -521,6 +524,7 @@ public class ChartEditorPart extends EditorPart {
 			NumberAxis rangeAxis = new NumberAxis("PE delta %");
 			rangeAxis.setAutoRange(false);
 			rangeAxis.setRange(peRatioChartRange);
+			rangeAxis.setTickLabelFont(JFreeChartFonts.getTickLabelFont());
 
 			XYPlot plot2 = new XYPlot(dataset2, null, rangeAxis, xyAreaRenderer);
 			plot2.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));

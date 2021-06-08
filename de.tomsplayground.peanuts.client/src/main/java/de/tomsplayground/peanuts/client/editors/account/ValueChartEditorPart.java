@@ -37,6 +37,7 @@ import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
+import de.tomsplayground.peanuts.client.chart.JFreeChartFonts;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.chart.TimeChart;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
@@ -135,7 +136,9 @@ public class ValueChartEditorPart extends EditorPart {
 		TimeSeriesCollection dataset = createTotalDataset();
 		StandardXYItemRenderer standardXYItemRenderer = new StandardXYItemRenderer();
 		standardXYItemRenderer.setDefaultToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
-		XYPlot subplot1 = new XYPlot(dataset, null,  new NumberAxis("Value"), standardXYItemRenderer);
+		NumberAxis numberAxis1 = new NumberAxis("Value");
+		numberAxis1.setTickLabelFont(JFreeChartFonts.getTickLabelFont());
+		XYPlot subplot1 = new XYPlot(dataset, null,  numberAxis1, standardXYItemRenderer);
 		plot.add(subplot1, 70);
 		subplot1.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
 		subplot1.setDomainCrosshairVisible(true);
@@ -143,7 +146,9 @@ public class ValueChartEditorPart extends EditorPart {
 
 		XYAreaRenderer xyAreaRenderer = new XYAreaRenderer();
 		xyAreaRenderer.setDefaultToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
-		XYPlot subplot2 = new XYPlot(createGainLossDataset(), null, new NumberAxis("Gain/Loss"), xyAreaRenderer);
+		NumberAxis numberAxis2 = new NumberAxis("Gain/Loss");
+		numberAxis2.setTickLabelFont(JFreeChartFonts.getTickLabelFont());
+		XYPlot subplot2 = new XYPlot(createGainLossDataset(), null, numberAxis2, xyAreaRenderer);
 		subplot2.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
 		subplot2.setDomainCrosshairVisible(true);
 		subplot2.setRangeCrosshairVisible(true);
@@ -153,6 +158,7 @@ public class ValueChartEditorPart extends EditorPart {
 
 		DateAxis axis = (DateAxis) plot.getDomainAxis();
 		axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
+		axis.setTickLabelFont(JFreeChartFonts.getTickLabelFont());
 
 		timeChart = new TimeChart(chart, dataset);
 		timeChart.setChartType(chartType);
