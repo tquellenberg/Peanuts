@@ -27,11 +27,9 @@ public class CopyDividendsToNewYear extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		System.out.println("CopyDividendsToNewYear.execute()");
 		Job copyDividendsJob = new Job("Copy dividends") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				System.out.println("CopyDividendsToNewYear.execute()");
 				int year = Day.today().year;
 				try {
 					AccountManager accountManager = Activator.getDefault().getAccountManager();

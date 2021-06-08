@@ -772,7 +772,6 @@ public class InventoryEditorPart extends EditorPart {
 		gainingLabel.setText(PeanutsUtil.formatCurrency(inventory.getUnrealizedGainings(), account.getCurrency()));
 		RealizedGain realizedGain = new RealizedGain(inventory);
 		BigDecimal realized = realizedGain.gain(date.year);
-//		realizedGain.getRealizedTransaction(2020).forEach(t -> System.out.println(t.getDay() + " "+ t.getSecurity().getName()+ " "+t.getGain()));
 		realizedLabel.setText(PeanutsUtil.formatCurrency(realized, account.getCurrency()));
 		marketValueLabel.setText(PeanutsUtil.formatCurrency(inventory.getMarketValue(), account.getCurrency()));
 		changeLabel.setText(PeanutsUtil.formatCurrency(inventory.getDayChange(), account.getCurrency()));

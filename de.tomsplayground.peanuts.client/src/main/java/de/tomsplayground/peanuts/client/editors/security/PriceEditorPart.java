@@ -171,7 +171,6 @@ public class PriceEditorPart extends EditorPart {
 			@Override
 			public void modify(Object element, String property, Object value) {
 				if (element == null) {
-					System.out.println("modify "+property + " " +value);
 					return;
 				}
 				Price p = (Price) ((TableItem) element).getData();

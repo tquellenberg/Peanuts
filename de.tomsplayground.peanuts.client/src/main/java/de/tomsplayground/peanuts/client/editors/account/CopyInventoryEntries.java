@@ -22,7 +22,6 @@ public class CopyInventoryEntries extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		System.out.println("CopyInventoryEntries.execute()");
 		ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
 		Clipboard cb = new Clipboard(Display.getDefault());
 		String content = "";
@@ -31,7 +30,6 @@ public class CopyInventoryEntries extends AbstractHandler {
 			Iterator iterator = ((IStructuredSelection) currentSelection).iterator();
 			while (iterator.hasNext()) {
 				InventoryEntry entry = (InventoryEntry) iterator.next();
-				System.out.println(entry.getSecurity().getName());
 				content += entry.getSecurity().getName()
 					+ "\t" + entry.getSecurity().getISIN()
 					+ "\t" + PeanutsUtil.formatCurrency(entry.getInvestedAmount(), null)

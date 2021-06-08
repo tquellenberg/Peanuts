@@ -95,7 +95,6 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 	}
 
 	private void updateFundamentaData(Security security, List<FundamentalData> newDatas) {
-		System.out.println("Updating fundamenta data for " + security.getName());
 		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
 		Currency dataCurrency = fundamentalDatas.getCurrency();
 		List<FundamentalData> existingDatas = new ArrayList<>(fundamentalDatas.getDatas());
