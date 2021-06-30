@@ -463,7 +463,7 @@ public class DividendStatsView extends ViewPart {
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Investment");
+		col.setText("Invested avg");
 		col.setWidth((colWidth3[colNum] > 0) ? colWidth3[colNum] : 80);
 		col.setResizable(true);
 		colNum++;

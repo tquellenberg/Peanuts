@@ -29,6 +29,7 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.IntervalXYDataset;
 
+import de.tomsplayground.peanuts.client.chart.JFreeChartFonts;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.chart.TimeChart;
 import de.tomsplayground.peanuts.domain.process.Credit;
@@ -110,9 +111,11 @@ public class CreditChartEditorPart extends EditorPart {
 		plot.setDomainCrosshairVisible(true);
 		plot.setRangeCrosshairVisible(true);
 		plot.setDrawingSupplier(new PeanutsDrawingSupplier());
+		plot.getRangeAxis().setTickLabelFont(JFreeChartFonts.getTickLabelFont());
 
 		DateAxis axis = (DateAxis) plot.getDomainAxis();
-		axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
+		axis.setDateFormatOverride(new SimpleDateFormat("MMM yyyy"));
+		axis.setTickLabelFont(JFreeChartFonts.getTickLabelFont());
 
 		return chart;
 	}

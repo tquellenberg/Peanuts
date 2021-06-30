@@ -31,6 +31,8 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.swt.ChartComposite;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.time.Day;
@@ -158,6 +160,7 @@ public class ChartEditorPart extends EditorPart {
 		JFreeChart chart;
 		SimpleDateFormat axisDateFormat;
 		if (type.equals("in total")) {
+			// in total: line chart
 			TimeSeriesCollection dataset = createTotalDataset();
 			chart = ChartFactory.createTimeSeriesChart(
 				getEditorInput().getName(), // title
@@ -170,9 +173,9 @@ public class ChartEditorPart extends EditorPart {
 				);
 			timeChart = new TimeChart(chart, dataset);
 			timeChart.setChartType(timerange);
-			axisDateFormat = new SimpleDateFormat("MMM-yyyy");
+			axisDateFormat = new SimpleDateFormat("MMM yyyy");
 		} else {
-			// per month / year
+			// per month / year: bar chart
 			TimeSeriesCollection dataset;
 			if (type.equals("per month")) {
 				dataset = createDeltaDataset(TimeIntervalReport.Interval.MONTH, Month.class);
@@ -196,6 +199,9 @@ public class ChartEditorPart extends EditorPart {
 				false // generate URLs?
 				);
 			timeChart = new TimeChart(chart, dataset);
+
+			XYBarRenderer renderer = (XYBarRenderer) ( (XYPlot)chart.getPlot()).getRenderer();
+			renderer.setBarPainter(new StandardXYBarPainter());
 		}
 
 		chart.setBackgroundPaint(Color.white);

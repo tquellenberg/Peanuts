@@ -18,6 +18,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import de.tomsplayground.peanuts.client.chart.JFreeChartFonts;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.domain.dividend.DividendMonth;
 import de.tomsplayground.peanuts.domain.dividend.DividendStats;
@@ -109,10 +110,13 @@ public class DividendChart {
 		plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
 		plot.setDomainCrosshairVisible(true);
 		plot.setRangeCrosshairVisible(true);
+		plot.setBackgroundPaint(Color.white);
 		plot.setDrawingSupplier(new PeanutsDrawingSupplier());
 		plot.setRenderer(renderer);
 
 		plot.getDomainAxis().setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+		plot.getDomainAxis().setTickLabelFont(JFreeChartFonts.getTickLabelFont());
+		plot.getRangeAxis().setTickLabelFont(JFreeChartFonts.getTickLabelFont());
 
 		return chart;
 	}

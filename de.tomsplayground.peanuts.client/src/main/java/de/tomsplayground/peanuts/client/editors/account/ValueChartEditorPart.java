@@ -140,7 +140,7 @@ public class ValueChartEditorPart extends EditorPart {
 		numberAxis1.setTickLabelFont(JFreeChartFonts.getTickLabelFont());
 		XYPlot subplot1 = new XYPlot(dataset, null,  numberAxis1, standardXYItemRenderer);
 		plot.add(subplot1, 70);
-		subplot1.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
+		subplot1.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 0.0));
 		subplot1.setDomainCrosshairVisible(true);
 		subplot1.setRangeCrosshairVisible(true);
 
@@ -149,7 +149,7 @@ public class ValueChartEditorPart extends EditorPart {
 		NumberAxis numberAxis2 = new NumberAxis("Gain/Loss");
 		numberAxis2.setTickLabelFont(JFreeChartFonts.getTickLabelFont());
 		XYPlot subplot2 = new XYPlot(createGainLossDataset(), null, numberAxis2, xyAreaRenderer);
-		subplot2.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
+		subplot2.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 0.0));
 		subplot2.setDomainCrosshairVisible(true);
 		subplot2.setRangeCrosshairVisible(true);
 		plot.add(subplot2, 30);
@@ -157,7 +157,7 @@ public class ValueChartEditorPart extends EditorPart {
 		plot.setDrawingSupplier(new PeanutsDrawingSupplier());
 
 		DateAxis axis = (DateAxis) plot.getDomainAxis();
-		axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
+		axis.setDateFormatOverride(new SimpleDateFormat("MMM yyyy"));
 		axis.setTickLabelFont(JFreeChartFonts.getTickLabelFont());
 
 		timeChart = new TimeChart(chart, dataset);

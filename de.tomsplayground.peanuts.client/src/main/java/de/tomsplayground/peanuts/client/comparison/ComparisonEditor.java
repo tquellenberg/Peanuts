@@ -3,6 +3,7 @@ package de.tomsplayground.peanuts.client.comparison;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +30,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
@@ -36,6 +38,7 @@ import org.jfree.chart.swt.ChartComposite;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
+import de.tomsplayground.peanuts.client.chart.JFreeChartFonts;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
@@ -203,6 +206,11 @@ public class ComparisonEditor extends EditorPart {
 		xyPlot.setDomainCrosshairVisible(true);
 		xyPlot.setRangeCrosshairVisible(true);
 		xyPlot.setRenderer(renderer);
+		xyPlot.getRangeAxis().setTickLabelFont(JFreeChartFonts.getTickLabelFont());
+
+		DateAxis axis = (DateAxis) xyPlot.getDomainAxis();
+		axis.setDateFormatOverride(new SimpleDateFormat("MMM yyyy"));
+		axis.setTickLabelFont(JFreeChartFonts.getTickLabelFont());
 
 		return chart;
 	}

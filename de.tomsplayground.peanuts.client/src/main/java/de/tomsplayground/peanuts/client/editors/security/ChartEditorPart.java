@@ -2,8 +2,6 @@ package de.tomsplayground.peanuts.client.editors.security;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.GraphicsEnvironment;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
@@ -311,10 +309,11 @@ public class ChartEditorPart extends EditorPart {
 			avgPriceAnnotation.setPaint(Color.black);
 			avgPriceAnnotation.setLabelPaint(Color.black);
 			avgPriceAnnotation.setLabel("Avg Price");
-			avgPriceAnnotation.setLabelFont(new Font("SansSerif", Font.PLAIN, 10));
+			avgPriceAnnotation.setLabelFont(JFreeChartFonts.getTickLabelFont());
 			avgPriceAnnotation.setLabelOffsetType(LengthAdjustmentType.EXPAND);
 			avgPriceAnnotation.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
 			avgPriceAnnotation.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
+			avgPriceAnnotation.setLabelBackgroundColor((Color) PeanutsDrawingSupplier.BACKGROUND_PAINT);
 
 			pricePlot.addRangeMarker(avgPriceAnnotation);
 		} else {
@@ -482,7 +481,7 @@ public class ChartEditorPart extends EditorPart {
 		boolean showPeDeltaChart = ! fundamentalDatas.isEmpty();
 
 		DateAxis axis = new DateAxis("Date");
-		axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
+		axis.setDateFormatOverride(new SimpleDateFormat("MMM yyyy"));
 		axis.setTickLabelFont(JFreeChartFonts.getTickLabelFont());
 		CombinedDomainXYPlot combiPlot = new CombinedDomainXYPlot(axis);
 		combiPlot.setDrawingSupplier(new PeanutsDrawingSupplier());
