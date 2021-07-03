@@ -1,6 +1,5 @@
 package de.tomsplayground.peanuts.domain.reporting.transaction;
 
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -9,23 +8,23 @@ import de.tomsplayground.peanuts.util.Day;
 
 public class DateIterator implements Iterator<Day> {
 
-	private final Calendar pointer;
 	private final Interval interval;
 	private final Day end;
+
+	private Day pointer;
 
 	public DateIterator(Day start, Day end, Interval interval) {
 		if (end.before(start)) {
 			throw new IllegalArgumentException("end before start");
 		}
 		this.interval = interval;
-		this.pointer = start.toCalendar();
 		this.end = end;
+		this.pointer = start;
 	}
 
 	@Override
 	public boolean hasNext() {
-		Day result = Day.fromCalendar(pointer);
-		return !(result.after(end));
+		return !(pointer.after(end));
 	}
 
 	@Override
@@ -33,29 +32,29 @@ public class DateIterator implements Iterator<Day> {
 		if (!hasNext()) {
 			throw new NoSuchElementException();
 		}
-		Day result = Day.fromCalendar(pointer);
+		Day result = pointer;
 		switch (interval) {
 			case DAY:
-				pointer.add(Calendar.DAY_OF_MONTH, 1);
+				pointer = pointer.addDays(1);
 				break;
 			case MONTH:
-				pointer.add(Calendar.MONTH, 1);
+				pointer = pointer.addMonth(1);
 				break;
 			case QUARTER:
-				pointer.add(Calendar.MONTH, 3);
+				pointer = pointer.addMonth(3);
 				break;
 			case YEAR:
-				pointer.add(Calendar.YEAR, 1);
+				pointer = pointer.addYear(1);
 				break;
 			case DECADE:
-				pointer.add(Calendar.YEAR, 10);
+				pointer = pointer.addYear(10);
 				break;
 		}
 		return result;
 	}
 
 	public Day currentRangeEnd() {
-		return Day.fromCalendar(pointer);
+		return pointer;
 	}
 
 	@Override

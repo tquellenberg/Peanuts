@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,7 +159,7 @@ public class YahooPriceReader extends PriceProvider {
 					Integer t = timestamps.get(i);
 					Double v = close.get(i);
 					if (t != null && v != null) {
-						Day date = Day.fromDate(new Date(t*1000L));
+						Day date = Day.from(LocalDate.ofEpochDay(t / Day.SECONDS_PER_DAY));
 						Price price = new Price(date, new BigDecimal(String.valueOf(v)));
 						if (isValidPrice(price)) {
 							prices.add(price);
@@ -196,7 +196,7 @@ public class YahooPriceReader extends PriceProvider {
 			double price = (double) result.get("regularMarketPrice");
 			int time = (int) result.get("regularMarketTime");
 
-			Day date = Day.fromDate(new Date(time*1000L));
+			Day date = Day.from(LocalDate.ofEpochDay(time / Day.SECONDS_PER_DAY));
 			BigDecimal value = new BigDecimal(String.valueOf(price));
 			Price price2 = new Price(date, value);
 			prices.add(price2);

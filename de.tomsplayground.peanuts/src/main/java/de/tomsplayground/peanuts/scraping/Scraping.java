@@ -2,8 +2,8 @@ package de.tomsplayground.peanuts.scraping;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -35,6 +35,8 @@ public class Scraping {
 	public static final String SCRAPING_XPATH = "scaping.close";
 
 	public static final String SCRAPING_URL = "scaping.url";
+
+	private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
 	private static CloseableHttpClient httpClient;
 
@@ -151,10 +153,9 @@ public class Scraping {
 		return value;
 	}
 
-	public static Day scrapDay(String value) throws ParseException {
+	public static Day scrapDay(String value) {
 		value = removeTrailingText(value);
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-		Day date = Day.fromDate((dateFormat.parse(value)));
+		Day date = Day.from(LocalDate.parse(value, dateFormatter));
 		return date;
 	}
 

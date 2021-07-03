@@ -2,7 +2,6 @@ package de.tomsplayground.peanuts.client.editors.account;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.Calendar;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -258,7 +257,7 @@ public class TransactionDetails implements ITransactionDetail {
 		this.transaction = transaction;
 		this.parentTransaction = parentTransaction;
 		if (transaction == null) {
-			dateComposite.setDate(Calendar.getInstance());
+			dateComposite.setDay(Day.today());
 			categoryComposite.setCategory(null);
 			memo.setText("");
 			label.setText("");

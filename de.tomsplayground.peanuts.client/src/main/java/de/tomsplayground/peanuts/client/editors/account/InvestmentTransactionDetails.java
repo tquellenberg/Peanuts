@@ -4,7 +4,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Currency;
 
 import org.eclipse.core.runtime.IStatus;
@@ -336,7 +335,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		this.currentSelectedCurrency = account.getCurrency();
 		this.currencyCombo.selectCurrency(account.getCurrency());
 		if (transaction == null) {
-			date.setDate(Calendar.getInstance());
+			date.setDay(Day.today());
 			memo.setText("");
 			categoryComposite.setCategory(null);
 			security.setText("");

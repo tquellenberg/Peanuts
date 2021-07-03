@@ -2,8 +2,8 @@ package de.tomsplayground.peanuts.app.yahoo;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +85,7 @@ public class YahooCalendarEntry {
 		Map<String,Object> earnings = (Map<String, Object>) calendarEvents.get("earnings");
 		List<Map<String,Object>> earningsDate = (List<Map<String, Object>>) earnings.get("earningsDate");
 		Map<String,Object> date = earningsDate.get(0);
-		Day day = Day.fromDate(new Date(((Number)date.get("raw")).longValue()*1000L));
+		Day day = Day.from(LocalDate.ofEpochDay(((Number)date.get("raw")).longValue() / Day.SECONDS_PER_DAY));
 		String name = "Earnings";
 		result.add(new CalendarEntry(day, name));
 		return result;

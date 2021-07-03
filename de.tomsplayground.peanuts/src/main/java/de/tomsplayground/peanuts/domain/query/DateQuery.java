@@ -1,6 +1,5 @@
 package de.tomsplayground.peanuts.domain.query;
 
-import java.util.Calendar;
 import java.util.function.Predicate;
 
 import com.google.common.base.Predicates;
@@ -50,18 +49,13 @@ public class DateQuery implements IQuery {
 	}
 
 	private void calculateDates() {
-		Calendar d = Calendar.getInstance();
+		Day now = Day.today();
 		if (timeRange == TimeRange.THIS_YEAR) {
-			d.set(Calendar.DAY_OF_MONTH, 1);
-			d.set(Calendar.MONTH, Calendar.JANUARY);
-			start = Day.fromCalendar(d);
-			d.add(Calendar.YEAR, 1);
-			end = Day.fromCalendar(d);
+			start = new Day(now.year, 0, 1);
+			end = start.addYear(1);
 		} else if (timeRange == TimeRange.LAST_12_MONTH) {
-			d.add(Calendar.DAY_OF_MONTH, 1);
-			end = Day.fromCalendar(d);
-			d.add(Calendar.YEAR, -1);
-			start = Day.fromCalendar(d);
+			end = now.addDays(1);
+			start = end.addYear(-1);
 		}
 	}
 

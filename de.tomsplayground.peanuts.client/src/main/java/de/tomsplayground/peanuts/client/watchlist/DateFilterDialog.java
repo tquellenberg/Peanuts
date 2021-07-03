@@ -50,7 +50,7 @@ public class DateFilterDialog extends Dialog {
 		if (startDay == null) {
 			startDay = Day.today();
 		}
-		datePickerFrom.setDate(startDay.toCalendar());
+		datePickerFrom.setDay(startDay);
 		datePickerFrom.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
@@ -66,7 +66,7 @@ public class DateFilterDialog extends Dialog {
 		if (endDay == null) {
 			endDay = Day.today();
 		}
-		datePickerTo.setDate(endDay.toCalendar());
+		datePickerTo.setDay(endDay);
 		datePickerTo.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {

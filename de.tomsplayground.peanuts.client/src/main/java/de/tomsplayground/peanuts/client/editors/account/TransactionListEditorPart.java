@@ -18,6 +18,7 @@ import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableColorProvider;
+import org.eclipse.jface.viewers.ITableFontProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -92,8 +93,7 @@ public class TransactionListEditorPart extends EditorPart {
 						if (evt.getPropertyName().equals("date")) {
 							transactionTree.getTree().showSelection();
 						}
-						Account account = ((AccountEditorInput)getEditorInput()).getAccount();
-						saldo.setText(PeanutsUtil.formatCurrency(account.getBalance(), account.getCurrency()));
+						updateSaldoLabel();
 					} else {
 						Transaction t = (Transaction) evt.getSource();
 						transactionTree.update(t, null);
@@ -106,8 +106,7 @@ public class TransactionListEditorPart extends EditorPart {
 				if (evt.getNewValue() instanceof Transaction) {
 					update((Transaction)evt.getNewValue());
 				}
-				Account account = (Account) evt.getSource();
-				saldo.setText(PeanutsUtil.formatCurrency(account.getBalance(), account.getCurrency()));
+				updateSaldoLabel();
 			}
 		}
 
@@ -135,8 +134,7 @@ public class TransactionListEditorPart extends EditorPart {
 
 	private Label saldo;
 
-	private static class AccountLabelProvider extends LabelProvider implements ITableLabelProvider,
-	ITableColorProvider {
+	private static class AccountLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider, ITableFontProvider {
 
 		private Color red;
 		private Account account;
@@ -203,12 +201,6 @@ public class TransactionListEditorPart extends EditorPart {
 		}
 
 		@Override
-		public boolean isLabelProperty(Object element, String property) {
-			// TODO: ???
-			return false;
-		}
-
-		@Override
 		public Color getBackground(Object element, int columnIndex) {
 			return null;
 		}
@@ -219,12 +211,20 @@ public class TransactionListEditorPart extends EditorPart {
 				return null;
 			}
 			Transaction trans = (Transaction) element;
+			if (trans.getDay().after(Day.today())) {
+				return Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW);
+			}
 			if (columnIndex == 2 && trans.getAmount().signum() == -1) {
 				return red;
 			}
 			if (columnIndex == 3 && account.getBalance(trans).signum() == -1) {
 				return red;
 			}
+			return null;
+		}
+
+		@Override
+		public Font getFont(Object element, int columnIndex) {
 			return null;
 		}
 	}
@@ -383,7 +383,7 @@ public class TransactionListEditorPart extends EditorPart {
 		transactionTree.setLabelProvider(new AccountLabelProvider(red, account));
 		transactionTree.setContentProvider(new TransactionListContentProvider());
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		saldo.setText(PeanutsUtil.formatCurrency(account.getBalance(), account.getCurrency()));
+		updateSaldoLabel();
 
 		final IAction addBankTransactionAction = new Action() {
 			@Override
@@ -530,6 +530,11 @@ public class TransactionListEditorPart extends EditorPart {
 			}
 			select(transactions.get(transactions.size()-1));
 		}
+	}
+
+	private void updateSaldoLabel() {
+		Account account = ((AccountEditorInput) getEditorInput()).account;
+		saldo.setText(PeanutsUtil.formatCurrency(account.getBalance(Day.today()), account.getCurrency()));
 	}
 
 	public void select(ITransaction trans) {

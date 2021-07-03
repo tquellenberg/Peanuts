@@ -4,7 +4,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
@@ -62,30 +61,29 @@ public class TimeIntervalReport extends ObservableModelObject {
 			start = Day.today();
 			end = Day.today();
 		} else {
-			Calendar startCal = transactions.get(0).getDay().toCalendar();
+			Day startDay = transactions.get(0).getDay();
 			switch (interval) {
 				case DAY:
 					break;
 				case MONTH:
-					startCal.set(Calendar.DAY_OF_MONTH, 1);
+					startDay = new Day(startDay.year, startDay.month, 1);
 					break;
 				case QUARTER:
-					int month = startCal.get(Calendar.MONTH);
-					startCal.set(Calendar.DAY_OF_MONTH, 1);
-					startCal.set(Calendar.MONTH, month - (month % 3));
+					int month = startDay.month;
+					month = month - (month % 3);
+					startDay = new Day(startDay.year, month, 1);
 					break;
 				case YEAR:
-					startCal.set(Calendar.DAY_OF_MONTH, 1);
-					startCal.set(Calendar.MONTH, 0);
+					startDay = new Day(startDay.year, 0, 1);
 					break;
 				case DECADE:
-					int year = startCal.get(Calendar.YEAR);
-					startCal.set(Calendar.DAY_OF_MONTH, 1);
-					startCal.set(Calendar.MONTH, 0);
-					startCal.set(Calendar.YEAR, year - (year % 10));
+					int year = startDay.year;
+					year = year - (year % 10);
+					startDay = new Day(year, 0, 1);
 					break;
 			}
-			start = Day.fromCalendar(startCal);
+			start = startDay;
+
 			Day lastDay = transactions.get(transactions.size()-1).getDay();
 			if (lastDay.after(Day.today())) {
 				end = lastDay;

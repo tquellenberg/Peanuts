@@ -2,11 +2,10 @@ package de.tomsplayground.peanuts.util;
 
 import static org.junit.Assert.*;
 
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.Month;
 
 import org.junit.Test;
-
-import de.tomsplayground.peanuts.util.Day;
 
 public class DayTest {
 
@@ -27,10 +26,9 @@ public class DayTest {
 	}
 
 	@Test
-	public void testFromCalendar() throws Exception {
-		Calendar cal = Calendar.getInstance();
-		cal.set(2008, 2, 12);
-		Day d = Day.fromCalendar(cal);
+	public void testFromLocalDate() throws Exception {
+		LocalDate localDate = LocalDate.of(2008, Month.MARCH, 12);
+		Day d = Day.from(localDate);
 
 		assertEquals(new Day(2008, 2, 12), d);
 	}

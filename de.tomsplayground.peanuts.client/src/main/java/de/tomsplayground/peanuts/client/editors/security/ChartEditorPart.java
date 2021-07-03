@@ -610,7 +610,7 @@ public class ChartEditorPart extends EditorPart {
 	private void calculateCompareToValues() {
 		Security compareTo = getCompareTo();
 		if (compareTo != null && timeChart.getFromDate() != null) {
-			de.tomsplayground.peanuts.util.Day fromDate = de.tomsplayground.peanuts.util.Day.fromCalendar(timeChart.getFromDate());
+			de.tomsplayground.peanuts.util.Day fromDate = timeChart.getFromDate();
 			ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(compareTo);
 			IPriceProvider compareToPriceProvider = PriceProviderFactory.getInstance().getSplitAdjustedPriceProvider(compareTo, stockSplits);
 			IPrice p1 = priceProvider.getPrice(fromDate);

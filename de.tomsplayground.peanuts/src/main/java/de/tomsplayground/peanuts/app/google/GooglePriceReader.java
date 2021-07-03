@@ -6,11 +6,11 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Locale;
 
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +28,7 @@ public class GooglePriceReader extends PriceProvider {
 
 	private final static Logger log = LoggerFactory.getLogger(GooglePriceReader.class);
 
-	private final FastDateFormat fastDateFormat = FastDateFormat.getInstance("dd-MMM-yy", Locale.US);
+	private final static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("d-MMM-yy", Locale.US);
 
 	private final Reader reader;
 
@@ -67,8 +67,6 @@ public class GooglePriceReader extends PriceProvider {
 					}
 				}
 				setPrice(new Price(d, close));
-			} catch (ParseException e) {
-				log.error(e.getMessage() + " Value: " + Arrays.toString(values));
 			} catch (NumberFormatException e) {
 				log.error(e.getMessage() + " Value: " + Arrays.toString(values));
 			} catch (IllegalArgumentException e) {
@@ -78,8 +76,8 @@ public class GooglePriceReader extends PriceProvider {
 		csvReader.close();
 	}
 
-	protected Day readDay(String dayStr) throws ParseException {
-		return Day.fromDate(fastDateFormat.parse(dayStr));
+	protected Day readDay(String dayStr) {
+		return Day.from(LocalDate.parse(dayStr, dateFormatter));
 	}
 
 }

@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.util;
 
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,17 +29,17 @@ public class Today {
 
 	public Today() {
 		schedule();
-		today = Day.fromCalendar(Calendar.getInstance());
+		today = Day.from(LocalDate.now());
 	}
 
 	private void schedule() {
-		int offset = Math.min(60 - Calendar.getInstance().get(Calendar.MINUTE), 15);
+		int offset = Math.min(60 - LocalDateTime.now().getMinute(), 15);
 		service.schedule(this::checkDay, offset, TimeUnit.MINUTES);
 	}
 
 	private void checkDay() {
 		try {
-			Day newday = Day.fromCalendar(Calendar.getInstance());
+			Day newday = Day.from(LocalDate.now());
 			if (! newday.equals(today)) {
 				log.info("Day change to {}", newday);
 				today = newday;

@@ -2,8 +2,10 @@ package de.tomsplayground.peanuts.client.editors.security;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -164,15 +166,15 @@ public class DevelopmentEditorPart extends EditorPart {
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		IPriceProvider prices = PriceProviderFactory.getInstance().getPriceProvider(security);
 
-		development(result, prices, Calendar.DAY_OF_MONTH, -7, "One week");
-		development(result, prices, Calendar.MONTH, -1, "One month");
-		development(result, prices, Calendar.MONTH, -3, "Three months");
-		development(result, prices, Calendar.MONTH, -6, "Six months");
-		development(result, prices, Calendar.YEAR, -1, "One year");
-		development(result, prices, Calendar.YEAR, -3, "Three years");
-		development(result, prices, Calendar.YEAR, -5, "Five years");
-		development(result, prices, Calendar.YEAR, -7, "Seven years");
-		development(result, prices, Calendar.YEAR, -10, "Ten years");
+		development(result, prices, ChronoUnit.DAYS, -7, "One week");
+		development(result, prices, ChronoUnit.MONTHS, -1, "One month");
+		development(result, prices, ChronoUnit.MONTHS, -3, "Three months");
+		development(result, prices, ChronoUnit.MONTHS, -6, "Six months");
+		development(result, prices, ChronoUnit.YEARS, -1, "One year");
+		development(result, prices, ChronoUnit.YEARS, -3, "Three years");
+		development(result, prices, ChronoUnit.YEARS, -5, "Five years");
+		development(result, prices, ChronoUnit.YEARS, -7, "Seven years");
+		development(result, prices, ChronoUnit.YEARS, -10, "Ten years");
 
 		ImmutableSet<StopLoss> stopLosses = Activator.getDefault().getAccountManager().getStopLosses(security);
 		if (! stopLosses.isEmpty()) {
@@ -196,11 +198,11 @@ public class DevelopmentEditorPart extends EditorPart {
 		return result;
 	}
 
-	private void development(List<String[]> result, IPriceProvider prices, int field, int delta, String text) {
-		Calendar date = Calendar.getInstance();
-		Day to = Day.fromCalendar(date);
-		date.add(field, delta);
-		Day from = Day.fromCalendar(date);
+	private void development(List<String[]> result, IPriceProvider prices, TemporalUnit field, int delta, String text) {
+		LocalDate date = LocalDate.now();
+		Day to = Day.from(date);
+		date = date.plus(delta, field);
+		Day from = Day.from(date);
 		IPrice price1 = prices.getPrice(from);
 		IPrice price2 = prices.getPrice(to);
 		BigDecimal diff = price2.getValue().subtract(price1.getValue());

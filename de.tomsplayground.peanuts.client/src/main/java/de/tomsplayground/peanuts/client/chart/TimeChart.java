@@ -1,7 +1,7 @@
 package de.tomsplayground.peanuts.client.chart;
 
-import java.util.Calendar;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYAnnotation;
@@ -14,6 +14,8 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
 import com.google.common.collect.ImmutableList;
+
+import de.tomsplayground.peanuts.util.Day;
 
 public class TimeChart {
 
@@ -66,45 +68,46 @@ public class TimeChart {
 		this.type = RANGE.fromName(type);
 		XYPlot plot = getPlot();
 		DateAxis dateAxis = ((DateAxis)plot.getDomainAxis());
-		Calendar to = Calendar.getInstance();
-		to.add(Calendar.DAY_OF_MONTH, 14);
-		Calendar from = getFromDate();
+
+		Day to = Day.today();
+		to = to.addDays(14);
+
+		Day from = getFromDate();
 		if (from != null) {
-			dateAxis.setRange(from.getTime(), to.getTime());
+			dateAxis.setRange(from.toDate(), to.toDate());
 		} else {
 			dateAxis.setAutoRange(true);
 		}
 		adjustRangeAxis(plot, from, to);
 	}
 
-	public Calendar getFromDate() {
-		Calendar from = Calendar.getInstance();
+	public Day getFromDate() {
+		Day from = Day.today();
 		switch(type) {
-			case TEN_YEARS: from.add(Calendar.YEAR, -10);
+			case TEN_YEARS: from = from.addYear(-10);
 						break;
-			case SEVEN_YEARS: from.add(Calendar.YEAR, -7);
+			case SEVEN_YEARS: from = from.addYear(-7);
 						break;
-			case FIVE_YEARS: from.add(Calendar.YEAR, -5);
+			case FIVE_YEARS: from = from.addYear(-5);
 						break;
-			case THREE_YEARS: from.add(Calendar.YEAR, -3);
+			case THREE_YEARS: from = from.addYear(-3);
 						break;
-			case TWO_YEARS: from.add(Calendar.YEAR, -2);
+			case TWO_YEARS:  from = from.addYear(-2);
 						break;
-			case ONE_YEARS: from.add(Calendar.YEAR, -1);
+			case ONE_YEARS:  from = from.addYear(-1);
 						break;
-			case THIS_YEARS: from.set(Calendar.DAY_OF_MONTH, 1);
-							 from.set(Calendar.MONTH, 0);
+			case THIS_YEARS: from = new Day(from.year, 0, 1);
 						break;
-			case SIX_MONTHS: from.add(Calendar.MONTH, -6);
+			case SIX_MONTHS: from = from.addMonth(-6);
 						break;
-			case ONE_MONTHS: from.add(Calendar.MONTH, -1);
+			case ONE_MONTHS: from = from.addMonth(-1);
 						break;
 			default: from = null;
 		}
 		return from;
 	}
 
-	private void adjustRangeAxis(XYPlot plot, Calendar from, Calendar to) {
+	private void adjustRangeAxis(XYPlot plot, Day from, Day to) {
 		if (plot.getDomainAxis().isAutoRange()) {
 			plot.getRangeAxis().setAutoRange(true);
 		} else {
@@ -116,14 +119,14 @@ public class TimeChart {
 				@SuppressWarnings("unchecked")
 				Class<RegularTimePeriod> timePeriodClass = serie.getTimePeriodClass();
 				if (! serie.isEmpty()) {
-					int start = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, from.getTime(), from.getTimeZone(), Locale.getDefault()));
+					int start = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, from.toDate(), TimeZone.getDefault(), Locale.getDefault()));
 					if (start < 0) {
 						start = -start - 1;
 						if (start == serie.getItemCount()) {
 							start = serie.getItemCount() - 1;
 						}
 					}
-					int end = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, to.getTime(), to.getTimeZone(), Locale.getDefault()));
+					int end = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, to.toDate(), TimeZone.getDefault(), Locale.getDefault()));
 					if (end < 0) {
 						end = - end - 1;
 					}

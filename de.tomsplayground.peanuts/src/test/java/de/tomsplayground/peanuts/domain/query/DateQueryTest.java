@@ -1,7 +1,6 @@
 package de.tomsplayground.peanuts.domain.query;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -28,7 +27,6 @@ public class DateQueryTest {
 		assertEquals(c2, report.getEnd());
 	}
 
-	@SuppressWarnings("unused")
 	@Test
 	public void testWrongTimeRangeManual() {
 		Day c1 = new Day(2001, 1, 1);

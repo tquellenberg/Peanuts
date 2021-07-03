@@ -1,33 +1,32 @@
 package de.tomsplayground.peanuts.util;
 
 import java.io.Serializable;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.YearMonth;
-import java.util.Calendar;
+import java.time.ZoneId;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
-public class Day implements Serializable, Cloneable, Comparable<Day>{
+public class Day implements Serializable, Cloneable, Comparable<Day> {
 
 	private static final long serialVersionUID = 817177201924284505L;
+
+	public static final long SECONDS_PER_DAY = 24 * 60 * 60;
 
 	public static final Day ZERO = new Day(0, 0, 1);
 
 	private static final Today today = new Today();
 
-	public final int day;	// 1..
-	public final int month; // 0..
-	public final int year;
+	public final short day;	// 1..
+	public final short month; // 0..
+	public final short year;
 
-	public static Day fromCalendar(Calendar cal) {
-		return new Day(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
-	}
-
-	public static Day fromDate(Date date) {
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		return fromCalendar(cal);
+	public static Day from(LocalDate date) {
+		return new Day(date.getYear(), date.getMonthValue()-1, date.getDayOfMonth());
 	}
 
 	/**
@@ -63,9 +62,9 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 		if (! (month >= 0 && month <= 11)) {
 			throw new IllegalArgumentException("month: 0-11");
 		}
-		this.day = day;
-		this.month = month;
-		this.year = year;
+		this.day = (short) day;
+		this.month = (short) month;
+		this.year = (short) year;
 	}
 
 	@Override
@@ -110,21 +109,15 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 	}
 
 	public Day addDays(int amount) {
-		Calendar cal = this.toCalendar();
-		cal.add(Calendar.DAY_OF_MONTH, amount);
-		return Day.fromCalendar(cal);
+		return Day.from(toLocalDate().plus(amount, ChronoUnit.DAYS));
 	}
 
 	public Day addMonth(int amount) {
-		Calendar cal = this.toCalendar();
-		cal.add(Calendar.MONTH, amount);
-		return Day.fromCalendar(cal);
+		return Day.from(toLocalDate().plus(amount, ChronoUnit.MONTHS));
 	}
 
 	public Day addYear(int amount) {
-		Calendar cal = this.toCalendar();
-		cal.add(Calendar.YEAR, amount);
-		return Day.fromCalendar(cal);
+		return Day.from(toLocalDate().plus(amount, ChronoUnit.YEARS));
 	}
 
 	public YearMonth toYearMonth() {
@@ -142,13 +135,6 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 		return delta;
 	}
 
-	public Calendar toCalendar() {
-		Calendar cal = Calendar.getInstance();
-		cal.clear();
-		cal.set(year, month, day);
-		return cal;
-	}
-
 	public LocalDateTime toLocalDateTime() {
 		return LocalDateTime.of(year, Month.of(month+1), day, 0, 0);
 	}
@@ -157,12 +143,16 @@ public class Day implements Serializable, Cloneable, Comparable<Day>{
 		return LocalDate.of(year, Month.of(month+1), day);
 	}
 
+	public Date toDate() {
+		return Date.from(toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+	}
+
 	public Day adjustWorkday() {
-		int i = toCalendar().get(Calendar.DAY_OF_WEEK);
-		if (i == Calendar.SUNDAY) {
+		int i = toLocalDate().get(ChronoField.DAY_OF_WEEK);
+		if (i == DayOfWeek.SUNDAY.getValue()) {
 			return addDays(-2);
 		}
-		if (i == Calendar.SATURDAY) {
+		if (i == DayOfWeek.SATURDAY.getValue()) {
 			return addDays(-1);
 		}
 		return this;

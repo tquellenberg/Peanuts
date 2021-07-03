@@ -3,8 +3,8 @@ package de.tomsplayground.peanuts.app.yahoo;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -163,7 +163,7 @@ public class YahooAPI {
 			Map jsonObject = jsonArray.get(i);
 			if (jsonObject.containsKey("endDate") && jsonObject.containsKey("longTermDebt") && jsonObject.containsKey("totalStockholderEquity")) {
 				DebtEquityValue debtEquityValue = new DebtEquityValue();
-				debtEquityValue.endDate = Day.fromDate(new Date(((Number)((Map)jsonObject.get("endDate")).get("raw")).longValue()*1000L));
+				debtEquityValue.endDate = Day.from(LocalDate.ofEpochDay(((Number)((Map)jsonObject.get("endDate")).get("raw")).longValue() / Day.SECONDS_PER_DAY));
 				debtEquityValue.longTermDebt = ((Number)((Map)jsonObject.get("longTermDebt")).get("raw")).longValue();
 				debtEquityValue.totalStockholderEquity = ((Number)((Map)jsonObject.get("totalStockholderEquity")).get("raw")).longValue();
 				result.add(debtEquityValue);

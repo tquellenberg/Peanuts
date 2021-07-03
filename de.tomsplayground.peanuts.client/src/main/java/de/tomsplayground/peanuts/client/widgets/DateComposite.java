@@ -1,7 +1,6 @@
 package de.tomsplayground.peanuts.client.widgets;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -94,23 +93,12 @@ public class DateComposite extends Composite {
 		date.setEnabled(enabled);
 	}
 
-	public Calendar getDate() {
-		Calendar newDate = Calendar.getInstance();
-		newDate.clear();
-		newDate.set(date.getYear(), date.getMonth(), date.getDay());
-		return newDate;
-	}
-
 	public Day getDay() {
 		return new Day(date.getYear(), date.getMonth(), date.getDay());
 	}
 
 	public void setDay(Day day) {
 		date.setDate(day.year, day.month, day.day);
-	}
-
-	public void setDate(Calendar calendar) {
-		date.setDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 	}
 
 	public void addModifyListener(final ModifyListener listener) {

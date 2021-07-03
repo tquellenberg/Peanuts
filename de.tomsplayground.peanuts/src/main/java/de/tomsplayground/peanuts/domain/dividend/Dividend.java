@@ -11,10 +11,13 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.util.Day;
 
+@XStreamAlias("dividend")
 public class Dividend implements Comparable<Dividend> {
 
 	private Day payDate;

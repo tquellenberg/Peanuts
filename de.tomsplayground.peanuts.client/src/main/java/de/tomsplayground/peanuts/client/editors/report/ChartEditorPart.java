@@ -6,10 +6,10 @@ import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -279,8 +279,8 @@ public class ChartEditorPart extends EditorPart {
 		DateIterator dateIterator = intervalReport.dateIterator();
 		for (BigDecimal v : values) {
 			BigDecimal inventoryValue = iterator.next();
-			Calendar cal = dateIterator.next().toCalendar();
-			RegularTimePeriod time = RegularTimePeriod.createInstance(intervalClass, cal.getTime(), cal.getTimeZone(), Locale.getDefault());
+			de.tomsplayground.peanuts.util.Day cal = dateIterator.next();
+			RegularTimePeriod time = RegularTimePeriod.createInstance(intervalClass, cal.toDate(), TimeZone.getDefault(), Locale.getDefault());
 			s1.add(time, v.add(inventoryValue.subtract(lastInventoryValue)));
 			lastInventoryValue = inventoryValue;
 		}
