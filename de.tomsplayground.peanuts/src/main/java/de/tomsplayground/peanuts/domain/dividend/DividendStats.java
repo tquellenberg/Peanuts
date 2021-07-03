@@ -88,9 +88,19 @@ public class DividendStats extends ObservableModelObject {
 		groupedDividends.clear();
 		groupedDividends.putAll(accountManager.getSecurities().stream()
 			.flatMap(s -> s.getDividends().stream())
-			.sorted((d1, d2) -> d1.getPayDate().compareTo(d2.getPayDate()))   // Speed improvement for getQuantity
-			.filter(d -> getQuantity(d).signum() == 1)
+			.sorted((d1, d2) -> d1.getPayDate().compareTo(d2.getPayDate()))   // Speed improvement for setQuantity
+			.map(this::setQuantity)
+			.filter(d -> d.getQuantity().signum() == 1)
 			.collect(Collectors.groupingBy(d -> d.getPayDate().toYearMonth())));
+	}
+
+	private Dividend setQuantity(Dividend d) {
+		if (d.getQuantity() != null) {
+			return d;
+		}
+		Dividend clonedDividend = new Dividend(d);
+		clonedDividend.setQuantity(getQuantity(d));
+		return clonedDividend;
 	}
 
 	public List<DividendMonth> getDividendMonths() {
@@ -176,7 +186,7 @@ public class DividendStats extends ObservableModelObject {
 	}
 
 	private BigDecimal futureDividend(Dividend d) {
-		BigDecimal quantity = getQuantity(d);
+		BigDecimal quantity = d.getQuantity();
 		if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
 			return BigDecimal.ZERO;
 		}
