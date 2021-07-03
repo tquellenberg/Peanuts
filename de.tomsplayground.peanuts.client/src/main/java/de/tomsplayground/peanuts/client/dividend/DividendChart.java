@@ -14,7 +14,6 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.ui.RectangleInsets;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -52,6 +51,7 @@ public class DividendChart {
 	private Integer startYear = null;
 
 	private StandardXYItemRenderer renderer;
+	private XYSeriesCollection dataset;
 
 	public DividendChart(DividendStats dividendStats) {
 		this.dividendStats = dividendStats;
@@ -91,7 +91,8 @@ public class DividendChart {
 
 	public JFreeChart createChart() {
 		renderer = new StandardXYItemRenderer();
-		XYDataset dataset = createTotalDataset(renderer);
+		dataset = new XYSeriesCollection();
+		createTotalDataset(renderer, dataset);
 		JFreeChart chart = ChartFactory.createXYLineChart(
 			"Dividends", // title
 			"Month", // x-axis label
@@ -121,7 +122,11 @@ public class DividendChart {
 		return chart;
 	}
 
-	private XYDataset createTotalDataset(StandardXYItemRenderer renderer) {
+	public void updateChart() {
+		createTotalDataset(renderer, dataset);
+	}
+
+	private void createTotalDataset(StandardXYItemRenderer renderer, XYSeriesCollection dataset) {
 		YearMonth currentMonth = Day.today().toYearMonth();
 		int year = 0;
 		XYSeries timeSeries = null;
@@ -134,13 +139,15 @@ public class DividendChart {
 				if (startYear == null) {
 					startYear = year;
 				}
-				timeSeries = newSeries(renderer, year, series, future);
+				timeSeries = newSeries(renderer, year, series.size(), future);
+				series.add(timeSeries);
 			}
 			if (! future && dividendMonth.getMonth().compareTo(currentMonth) >= 0) {
 				timeSeries.add(Integer.valueOf(dividendMonth.getMonth().getMonthValue()), dividendMonth.getYearlyAmount());
 				// Switch to future
 				future = true;
-				timeSeries = newSeries(renderer, year, series, future);
+				timeSeries = newSeries(renderer, year, series.size(), future);
+				series.add(timeSeries);
 			}
 			if (future) {
 				timeSeries.add(Integer.valueOf(dividendMonth.getMonth().getMonthValue()), dividendMonth.getFutureYearlyAmount());
@@ -149,22 +156,20 @@ public class DividendChart {
 			}
 		}
 
-		XYSeriesCollection dataset = new XYSeriesCollection();
+		dataset.removeAllSeries();
 		for (XYSeries timeSeries2 : series) {
 			dataset.addSeries(timeSeries2);
 		}
-		return dataset;
 	}
 
-	private XYSeries newSeries(StandardXYItemRenderer renderer, int year, List<XYSeries> series, boolean future) {
+	private XYSeries newSeries(StandardXYItemRenderer renderer, int year, int series, boolean future) {
 		XYSeries timeSeries = new XYSeries(getSeriesName(year, future));
 		if (future) {
-			renderer.setSeriesStroke(series.size(), BASIC_DASH);
+			renderer.setSeriesStroke(series, BASIC_DASH);
 		} else {
-			renderer.setSeriesStroke(series.size(), BASIC_STROKE);
+			renderer.setSeriesStroke(series, BASIC_STROKE);
 		}
-		renderer.setSeriesPaint(series.size(), getColor(year));
-		series.add(timeSeries);
+		renderer.setSeriesPaint(series, getColor(year));
 		return timeSeries;
 	}
 

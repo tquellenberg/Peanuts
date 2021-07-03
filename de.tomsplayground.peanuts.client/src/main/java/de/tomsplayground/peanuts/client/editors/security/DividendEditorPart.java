@@ -515,8 +515,7 @@ public class DividendEditorPart extends EditorPart {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		Security security = getSecurity();
-		security.updateDividends(dividends);
+		getSecurity().updateDividends(cloneDividends(dividends));
 		dirty = false;
 	}
 

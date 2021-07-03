@@ -66,6 +66,7 @@ public class DividendStatsView extends ViewPart {
 		public void doit(PropertyChangeEvent evt, Display display) {
 			if (evt.getPropertyName().equals("dividends")) {
 				updateTableData();
+				dividendChart.updateChart();
 			}
 		}
 	};
