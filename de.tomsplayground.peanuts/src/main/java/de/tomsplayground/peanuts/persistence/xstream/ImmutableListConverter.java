@@ -1,7 +1,6 @@
 package de.tomsplayground.peanuts.persistence.xstream;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -29,9 +28,8 @@ public class ImmutableListConverter extends AbstractCollectionConverter {
 	@Override
 	public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
 		Collection collection = (Collection) source;
-		for (Iterator iterator = collection.iterator(); iterator.hasNext();) {
-			Object item = iterator.next();
-			writeItem(item, context, writer);
+		for (Object item : collection) {
+			writeCompleteItem(item, context, writer);
 		}
 	}
 
@@ -39,10 +37,7 @@ public class ImmutableListConverter extends AbstractCollectionConverter {
 	public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
 		Builder<Object> builder = ImmutableList.builder();
 		while (reader.hasMoreChildren()) {
-			reader.moveDown();
-			Object item = readItem(reader, context, builder);
-			builder.add(item);
-			reader.moveUp();
+			builder.add(readCompleteItem(reader, context, builder));
 		}
 		return builder.build();
 	}

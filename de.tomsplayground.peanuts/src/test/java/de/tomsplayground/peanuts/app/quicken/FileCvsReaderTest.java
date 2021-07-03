@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.List;
 
 import org.junit.Test;
@@ -20,7 +19,7 @@ import de.tomsplayground.peanuts.util.Day;
 public class FileCvsReaderTest {
 
 	@Test
-	public void testRead() throws IOException, ParseException, CsvValidationException {
+	public void testRead() throws IOException, CsvValidationException {
 		Reader in = new InputStreamReader(FileCsvReader.class.getResourceAsStream("/quotes.TXT"));
 		FileCsvReader reader = new FileCsvReader(null, in);
 		reader.read();

@@ -96,9 +96,6 @@ public class Activator extends AbstractUIPlugin {
 	private ExchangeRates exchangeRates;
 	private String passphrase;
 
-//	private IbConnection ibConnection;
-	private IvrUpdater ivrUpdater;
-
 	/**
 	 * The constructor
 	 */
@@ -154,9 +151,6 @@ public class Activator extends AbstractUIPlugin {
 			}
 		}, "(objectclass=" + ApplicationHandle.class.getName() + ")");
 
-//		ibConnection = new IbConnection();
-//		ibConnection.start();
-		ivrUpdater = new IvrUpdater();
 	}
 
 	private void initFonts() {
@@ -269,7 +263,6 @@ public class Activator extends AbstractUIPlugin {
 				createLockFile(filename);
 			}
 		}
-		ivrUpdater.init();
 	}
 
 	private Reader getReader(String filename) throws FileNotFoundException {
@@ -327,9 +320,6 @@ public class Activator extends AbstractUIPlugin {
 			save(getFilename());
 			removeLockFile();
 		}
-//		ibConnection.stop();
-//		ibConnection = null;
-		ivrUpdater.destroy();
 		plugin = null;
 		super.stop(context);
 	}

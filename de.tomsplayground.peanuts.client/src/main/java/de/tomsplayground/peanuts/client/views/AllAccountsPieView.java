@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.part.ViewPart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PiePlot3D;
+import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.swt.ChartComposite;
 import org.jfree.chart.util.SortOrder;
 import org.jfree.data.general.DefaultPieDataset;
@@ -35,7 +35,7 @@ public class AllAccountsPieView extends ViewPart {
 
 	public static final String ID = "de.tomsplayground.peanuts.client.AllAccountsPieView";
 
-	private DefaultPieDataset dataset;
+	private DefaultPieDataset<String> dataset;
 	private JFreeChart chart;
 	private final Map<Account, Inventory> inventories = new HashMap<Account, Inventory>();
 	private Shell shell;
@@ -58,7 +58,7 @@ public class AllAccountsPieView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		shell = parent.getShell();
 
-		dataset = new DefaultPieDataset();
+		dataset = new DefaultPieDataset<String>();
 		createChart();
 		chartFrame = new ChartComposite(parent, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -96,8 +96,9 @@ public class AllAccountsPieView extends ViewPart {
 	}
 
 	private void createChart() {
-		chart = ChartFactory.createPieChart3D("", dataset, false, true, false);
-		PiePlot3D plot = (PiePlot3D) chart.getPlot();
+		chart = ChartFactory.createPieChart("", dataset, false, true, false);
+		@SuppressWarnings("rawtypes")
+		PiePlot plot = (PiePlot) chart.getPlot();
 		plot.setForegroundAlpha(0.6f);
 		plot.setCircular(true);
 		plot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);

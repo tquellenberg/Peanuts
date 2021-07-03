@@ -26,7 +26,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PiePlot3D;
+import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.swt.ChartComposite;
 import org.jfree.data.general.DefaultPieDataset;
 
@@ -50,7 +50,7 @@ public class InventoryPieEditorPart extends EditorPart {
 
 	private Inventory inventory;
 	private JFreeChart chart;
-	private DefaultPieDataset dataset;
+	private DefaultPieDataset<String> dataset;
 
 	private final PropertyChangeListener inventoryChangeListener = new UniqueAsyncExecution() {
 
@@ -116,7 +116,7 @@ public class InventoryPieEditorPart extends EditorPart {
 		inventory.setDate(date);
 		inventory.addPropertyChangeListener(inventoryChangeListener);
 
-		dataset = new DefaultPieDataset();
+		dataset = new DefaultPieDataset<String>();
 		createChart();
 		chartFrame = new ChartComposite(top, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -150,8 +150,9 @@ public class InventoryPieEditorPart extends EditorPart {
 	}
 
 	private void createChart() {
-		chart = ChartFactory.createPieChart3D("", dataset, false, true, false);
-		PiePlot3D plot = (PiePlot3D) chart.getPlot();
+		chart = ChartFactory.createPieChart("", dataset, false, true, false);
+		@SuppressWarnings("rawtypes")
+		PiePlot plot = (PiePlot) (chart.getPlot());
 		plot.setForegroundAlpha(0.6f);
 		plot.setCircular(true);
 		plot.setBackgroundPaint(PeanutsDrawingSupplier.BACKGROUND_PAINT);

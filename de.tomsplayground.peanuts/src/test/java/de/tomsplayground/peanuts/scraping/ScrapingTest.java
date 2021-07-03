@@ -3,7 +3,6 @@ package de.tomsplayground.peanuts.scraping;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 
 import org.junit.Test;
 
@@ -12,7 +11,7 @@ import de.tomsplayground.peanuts.util.Day;
 public class ScrapingTest {
 
 	@Test
-	public void testDayWitText() throws ParseException {
+	public void testDayWitText() {
 		Day day = Scraping.scrapDay("12.12.2005Test");
 
 		assertEquals(new Day(2005, 11, 12), day);
