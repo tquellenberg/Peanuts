@@ -19,6 +19,9 @@ import de.tomsplayground.peanuts.domain.note.Note;
 import de.tomsplayground.peanuts.domain.process.BankTransaction;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
+import de.tomsplayground.peanuts.domain.process.NoTrailingStrategy;
+import de.tomsplayground.peanuts.domain.process.PercentTrailingStrategy;
+import de.tomsplayground.peanuts.domain.process.SavedTransaction;
 import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.domain.process.StopLoss;
 import de.tomsplayground.peanuts.domain.process.Transaction;
@@ -34,52 +37,65 @@ import de.tomsplayground.peanuts.persistence.IPersistenceService;
 
 public class PersistenceService implements IPersistenceService {
 
-	private final XStream stream;
+	private static final Class<?>[] PERSISTENCE_TYPES = new Class[]{
+		Account.class,
+		AccountManager.class,
+		Transaction.class,
+		TransferTransaction.class,
+		InvestmentTransaction.class,
+		Category.class,
+		BankTransaction.class,
+		Security.class,
+		FundamentalData.class,
+		Report.class,
+		Forecast.class,
+		DateQuery.class,
+		CategoryQuery.class,
+		Credit.class,
+		StockSplit.class,
+		SecurityCategoryMapping.class,
+		StopLoss.class,
+		SecurityCalendarEntry.class,
+		Dividend.class,
+		Note.class,
+		WatchlistConfiguration.class,
+		CategoryFilter.class,
+		SecurityAlarm.class,
+		SavedTransaction.class,
+		NoTrailingStrategy.class,
+		PercentTrailingStrategy.class
+	};
+
+	private final XStream xstream;
 
 	public PersistenceService() {
-		stream = new XStream();
-		stream.aliasType("immutableList", ImmutableList.class);
-		stream.setMode(XStream.ID_REFERENCES);
-		stream.addDefaultImplementation(DummyImmutableList.class, ImmutableList.class);
-		stream.registerConverter(new ImmutableListConverter(stream.getMapper()));
-		stream.registerConverter(new ISO8601GregorianCalendarConverter());
-		stream.processAnnotations(new Class[]{
-			Account.class,
-			AccountManager.class,
-			Transaction.class,
-			TransferTransaction.class,
-			InvestmentTransaction.class,
-			Category.class,
-			BankTransaction.class,
-			Security.class,
-			FundamentalData.class,
-			Report.class,
-			Forecast.class,
-			DateQuery.class,
-			CategoryQuery.class,
-			Credit.class,
-			StockSplit.class,
-			SecurityCategoryMapping.class,
-			StopLoss.class,
-			SecurityCalendarEntry.class,
-			Dividend.class,
-			Note.class,
-			WatchlistConfiguration.class,
-			CategoryFilter.class,
-			SecurityAlarm.class
-		});
+		xstream = new XStream();
+		xstream.aliasType("immutableList", ImmutableList.class);
+		xstream.setMode(XStream.ID_REFERENCES);
+		xstream.allowTypes(PERSISTENCE_TYPES);
+		// Additional classes
+		// TODO: replace by simple types
+		xstream.allowTypes(new String[] {
+			"org.joda.time.chrono.ISOChronology$Stub", "org.joda.time.chrono.ISOChronology",
+			"org.joda.time.DateTimeZone$Stub", "org.joda.time.DateTimeZone",
+			"de.tomsplayground.peanuts.domain.reporting.transaction.Report$1",
+			"com.google.common.collect.ImmutableList$SerializedForm"});
+		xstream.addDefaultImplementation(DummyImmutableList.class, ImmutableList.class);
+		xstream.registerConverter(new ImmutableListConverter(xstream.getMapper()));
+		xstream.registerConverter(new ISO8601GregorianCalendarConverter());
+		xstream.processAnnotations(PERSISTENCE_TYPES);
 	}
 
 	@Override
 	public String write(AccountManager accountManager) {
 		StringWriter stringWriter = new StringWriter();
-		stream.marshal(accountManager, new CompactWriter(stringWriter));
+		xstream.marshal(accountManager, new CompactWriter(stringWriter));
 		return stringWriter.toString();
 	}
 
 	@Override
 	public AccountManager readAccountManager(String xml) {
-		return (AccountManager) stream.fromXML(xml);
+		return (AccountManager) xstream.fromXML(xml);
 	}
 
 }
