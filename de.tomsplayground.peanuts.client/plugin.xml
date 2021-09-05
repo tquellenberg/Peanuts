@@ -206,6 +206,10 @@
             id="de.tomsplayground.peanuts.client.ignore"
             name="Ignore Fundamental Data">
       </command>
+      <command
+            id="de.tomsplayground.peanuts.client.createDividendTransaction.cmd"
+            name="Create Dividend Transaction">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -399,6 +403,11 @@
                commandId="de.tomsplayground.peanuts.client.lock"
                icon="icons/lock.png"
                label="Lock"
+               style="push">
+         </command>
+         <command
+               commandId="de.tomsplayground.peanuts.client.createDividendTransaction.cmd"
+               label="Create Transaction"
                style="push">
          </command>
       </menuContribution>
@@ -819,6 +828,20 @@
                <iterate>
                   <instanceof
                         value="de.tomsplayground.peanuts.domain.fundamental.FundamentalData">
+                  </instanceof>
+               </iterate>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.tomsplayground.peanuts.client.dividend.CreateDividendTransaction"
+            commandId="de.tomsplayground.peanuts.client.createDividendTransaction.cmd">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <iterate>
+                  <instanceof
+                        value="de.tomsplayground.peanuts.domain.dividend.Dividend">
                   </instanceof>
                </iterate>
             </with>

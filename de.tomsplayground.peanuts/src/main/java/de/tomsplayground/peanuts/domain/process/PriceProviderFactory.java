@@ -78,14 +78,11 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 					mergePrices(localPriceProvider, remotePriceProvider, overideExistingData);
 				}
 			} else {
-				IPriceProvider remotePriceProvider = readHistoricalPricesFromYahoo(security, localPriceProvider.getPrices().size() < 100);
+				boolean full = localPriceProvider.getPrices().size() < 100 || overideExistingData;
+				IPriceProvider remotePriceProvider = readHistoricalPricesFromYahoo(security, full);
 				if (remotePriceProvider != null) {
 					mergePrices(localPriceProvider, remotePriceProvider, overideExistingData);
 				}
-//				IPriceProvider remotePriceProvider2 = readLastPricesFromYahoo(security);
-//				if (remotePriceProvider2 != null) {
-//					mergePrices(localPriceProvider, remotePriceProvider2, true);
-//				}
 			}
 			saveToLocal(security, localPriceProvider);
 		}

@@ -8,6 +8,7 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -84,17 +85,20 @@ public class DividendStatsView extends ViewPart {
 		public String getColumnText(Object element, int columnIndex) {
 			DividendMonth divStats = (DividendMonth)element;
 			switch (columnIndex) {
-				case 0:
+				case 0: // Year
 					return String.valueOf(divStats.getMonth().getYear());
-				case 1:
+				case 1: // Sum
 					return PeanutsUtil.formatCurrency(getSum(divStats), Currencies.getInstance().getDefaultCurrency());
-				case 2:
+				case 2: // Change
+					int year = divStats.getMonth().getYear();
 					@SuppressWarnings("unchecked") List<DividendMonth> input = (List<DividendMonth>) yearlyListViewer.getInput();
-					int pos = input.indexOf(divStats);
-					if (pos < 1) {
+					Optional<DividendMonth> preYear = input.stream()
+						.filter(ds -> ds.getMonth().getYear() == (year-1))
+						.findAny();
+					if (! preYear.isPresent()) {
 						return "";
 					} else {
-						BigDecimal lastYearSum = getSum(input.get(pos-1));
+						BigDecimal lastYearSum = getSum(preYear.get());
 						if (lastYearSum.signum() != 0) {
 							BigDecimal change = getSum(divStats).divide(lastYearSum, PeanutsUtil.MC).subtract(BigDecimal.ONE);
 							return PeanutsUtil.formatPercent(change);
@@ -102,9 +106,9 @@ public class DividendStatsView extends ViewPart {
 							return "";
 						}
 					}
-				case 3:
+				case 3: // Netto
 					return PeanutsUtil.formatCurrency(divStats.getYearlyNetto(), Currencies.getInstance().getDefaultCurrency());
-				case 4:
+				case 4: // Tax
 					BigDecimal brutto = divStats.getYearlyAmount();
 					BigDecimal netto = divStats.getYearlyNetto();
 					if (brutto.signum() > 0 && netto.signum() > 0) {
@@ -113,9 +117,9 @@ public class DividendStatsView extends ViewPart {
 					} else {
 						return null;
 					}
-				case 5:
+				case 5: // Invested Avg
 					return PeanutsUtil.formatCurrency(divStats.getInvestedAvg(), Currencies.getInstance().getDefaultCurrency());
-				case 6:
+				case 6: // Quote
 					if (divStats.getInvestedAvg().signum() != 0) {
 						BigDecimal quote = getSum(divStats).divide(divStats.getInvestedAvg(), PeanutsUtil.MC);
 						return PeanutsUtil.formatPercent(quote);
@@ -554,7 +558,7 @@ public class DividendStatsView extends ViewPart {
 
 		List<DividendMonth> yearlyStats = dividendMonths.stream()
 			.filter(s -> s.getMonth().getMonth() == Month.DECEMBER)
-			.sorted()
+			.sorted(Collections.reverseOrder())
 			.collect(Collectors.toList());
 		yearlyListViewer.setInput(yearlyStats);
 	}

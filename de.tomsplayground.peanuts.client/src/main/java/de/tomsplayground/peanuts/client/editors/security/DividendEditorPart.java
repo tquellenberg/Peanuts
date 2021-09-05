@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.util.Currency;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -49,6 +50,7 @@ import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.widgets.DateCellEditor;
+import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
@@ -57,6 +59,7 @@ import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.dividend.Dividend;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
+import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.query.SecurityInvestmentQuery;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
@@ -126,6 +129,12 @@ public class DividendEditorPart extends EditorPart {
 					return PeanutsUtil.formatCurrency(entry.getNettoAmountInDefaultCurrency(), Currencies.getInstance().getDefaultCurrency());
 				case 9:
 					return PeanutsUtil.formatPercent(getDividendYoc(entry));
+				case 10:
+					InvestmentTransaction booked = isBooked(entry);
+					if (booked != null) {
+						return PeanutsUtil.formatDate(booked.getDay());
+					}
+					return "";
 				default:
 					return "";
 			}
@@ -263,8 +272,14 @@ public class DividendEditorPart extends EditorPart {
 		col.setResizable(true);
 		colNumber++;
 
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Booked");
+		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setResizable(true);
+		colNumber++;
+
 		tableViewer.setColumnProperties(new String[] { "payDay", "dividend", "currency", "numberOfShares", "amount",
-			"amountInDefaultCurrency", "tax", "netto"});
+			"amountInDefaultCurrency", "tax", "netto", "booked"});
 		tableViewer.setCellModifier(new ICellModifier() {
 
 			@Override
@@ -377,15 +392,17 @@ public class DividendEditorPart extends EditorPart {
 			}
 		});
 
-		MenuManager menu = new MenuManager();
-		menu.setRemoveAllWhenShown(true);
-		menu.addMenuListener(new IMenuListener() {
+		MenuManager menuManager = new MenuManager();
+		menuManager.setRemoveAllWhenShown(true);
+		menuManager.addMenuListener(new IMenuListener() {
 			@Override
 			public void menuAboutToShow(IMenuManager manager) {
 				fillContextMenu(manager);
 			}
 		});
-		table.setMenu(menu.createContextMenu(table));
+		table.setMenu(menuManager.createContextMenu(table));
+		getSite().registerContextMenu(menuManager, tableViewer);
+		getSite().setSelectionProvider(tableViewer);
 	}
 
 	private int getCurrencyPos(Currency currency) {
@@ -500,6 +517,27 @@ public class DividendEditorPart extends EditorPart {
 			}
 		};
 		manager.add(toggleIncreaseAction);
+	}
+
+	private InvestmentTransaction isBooked(Dividend dividend) {
+		Day payDate = dividend.getPayDate();
+		BigDecimal amount = dividend.getNettoAmountInDefaultCurrency();
+
+		AccountManager accountManager = Activator.getDefault().getAccountManager();
+		List<Account> invAccounts = accountManager.getAccounts().stream()
+			.filter(acc -> acc.getType() == Account.Type.INVESTMENT)
+			.collect(Collectors.toList());
+		for (Account account : invAccounts) {
+			Optional<InvestmentTransaction> findAny = account.getTransactionsByDate(payDate.addDays(-1), payDate.addDays(14)).stream()
+				.filter(InvestmentTransaction.class::isInstance)
+				.map (InvestmentTransaction.class::cast)
+				.filter(t -> (t.getSecurity().equals(dividend.getSecurity()) && t.getAmount().compareTo(amount) == 0))
+				.findAny();
+			if (findAny.isPresent()) {
+				return findAny.get();
+			}
+		}
+		return null;
 	}
 
 	@Override

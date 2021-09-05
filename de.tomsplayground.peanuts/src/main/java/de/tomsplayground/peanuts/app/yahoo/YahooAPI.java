@@ -158,7 +158,15 @@ public class YahooAPI {
 	private List<DebtEquityValue> getDebtEquityData(Map<String,Object> jsonMap, String type) {
 		List<DebtEquityValue> result = new ArrayList<>();
 		Map data = (Map) jsonMap.get(type);
+		if (data == null) {
+			log.warn("No data of '{}' in JSON map", type);
+			return result;
+		}
 		List<Map<String, Map>> jsonArray = (List<Map<String, Map>>) data.get("balanceSheetStatements");
+		if (jsonArray == null) {
+			log.warn("No data of 'balanceSheetStatements' in '{}' JSON map", type);
+			return result;
+		}
 		for (int i=0; i< jsonArray.size(); i++) {
 			Map jsonObject = jsonArray.get(i);
 			if (jsonObject.containsKey("endDate") && jsonObject.containsKey("longTermDebt") && jsonObject.containsKey("totalStockholderEquity")) {

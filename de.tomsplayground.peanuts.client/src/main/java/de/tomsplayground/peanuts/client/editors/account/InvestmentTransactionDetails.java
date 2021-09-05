@@ -85,7 +85,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 			if ( !internalUpdate) {
 				try {
 					Type type = getTransactionType();
-					BigDecimal newQuantity = PeanutsUtil.parseCurrency(quantity.getText());
+					BigDecimal newQuantity = PeanutsUtil.parseQuantity(quantity.getText());
 					BigDecimal newPrice = PeanutsUtil.parseCurrency(price.getText());
 					BigDecimal newCommission = PeanutsUtil.parseCurrency(commission.getText());
 					BigDecimal newAmount = InvestmentTransaction.calculateAmount(type, newPrice, newQuantity, newCommission);
@@ -285,7 +285,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 				securityName);
 			Category newCategory = categoryComposite.getCategory();
 			Day newDate = date.getDay();
-			BigDecimal newQuantity = PeanutsUtil.parseCurrency(quantity.getText());
+			BigDecimal newQuantity = PeanutsUtil.parseQuantity(quantity.getText());
 			BigDecimal newPrice = PeanutsUtil.parseCurrency(price.getText());
 			BigDecimal newCommission = PeanutsUtil.parseCurrency(commission.getText());
 			Type type = getTransactionType();

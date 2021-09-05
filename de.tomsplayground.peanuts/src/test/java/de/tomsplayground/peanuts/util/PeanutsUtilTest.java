@@ -55,4 +55,25 @@ public class PeanutsUtilTest {
 		assertEquals("105,00", currency);
 	}
 
+	@Test
+	public void testFormatQuantity() {
+		BigDecimal amount = new BigDecimal("105");
+		String currency = PeanutsUtil.formatQuantity(amount);
+		assertEquals("105", currency);
+	}
+
+	@Test
+	public void testFormatQuantity2() {
+		BigDecimal amount = new BigDecimal("105.1230");
+		String currency = PeanutsUtil.formatQuantity(amount);
+		assertEquals("105,123", currency);
+	}
+
+	@Test
+	public void testFormatQuantity3() {
+		BigDecimal amount = new BigDecimal("105.1234567890");
+		String currency = PeanutsUtil.formatQuantity(amount);
+		assertEquals("105,12345679", currency);
+	}
+
 }

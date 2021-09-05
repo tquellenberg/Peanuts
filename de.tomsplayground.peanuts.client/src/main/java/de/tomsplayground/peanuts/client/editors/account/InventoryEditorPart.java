@@ -174,6 +174,15 @@ public class InventoryEditorPart extends EditorPart {
 		}
 	};
 
+	private final InventoryComparator dailyChangeComparator = new InventoryComparator() {
+		@Override
+		public int compareInventoryEntry(Viewer viewer, InventoryEntry i1, InventoryEntry i2) {
+			Day dayBefore = date.addDays(-1);
+			return i1.getChange(dayBefore, date).compareTo(i2.getChange(dayBefore, date));
+		}
+	};
+
+
 	private final PropertyChangeListener inventoryChangeListener = new UniqueAsyncExecution() {
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
@@ -699,6 +708,12 @@ public class InventoryEditorPart extends EditorPart {
 		col.setText("Change");
 		col.setResizable(true);
 		col.setWidth((colWidth[10] > 0) ? colWidth[10] : 100);
+		col.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSorting((TreeColumn)e.widget, dailyChangeComparator);
+			}
+		});
 		col.addControlListener(saveSizeOnResize);
 
 		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
