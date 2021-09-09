@@ -1,5 +1,6 @@
 package de.tomsplayground.peanuts.client.editors.security;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -40,6 +41,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -66,6 +68,7 @@ import de.tomsplayground.peanuts.app.yahoo.YahooAPI.DebtEquityValue;
 import de.tomsplayground.peanuts.app.yahoo.YahooAPI.YahooData;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
+import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.client.widgets.CurrencyComboViewer;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
@@ -370,7 +373,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 	@Override
 	public void dispose() {
-		getSecurity().removePropertyChangeListener(SecurityPropertyPage.YAHOO_SYMBOL, securityPropertyChangeListener);
+		getSecurity().removePropertyChangeListener(securityPropertyChangeListener);
 		super.dispose();
 	}
 
@@ -436,7 +439,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 		updateMarketCapLable();
 
 		updateButtonState();
-		getSecurity().addPropertyChangeListener(SecurityPropertyPage.YAHOO_SYMBOL, securityPropertyChangeListener);
+		getSecurity().addPropertyChangeListener(securityPropertyChangeListener);
 
 		tableViewer = new TableViewer(top, SWT.FULL_SELECTION | SWT.MULTI);
 		Table table = tableViewer.getTable();
@@ -687,10 +690,20 @@ public class FundamentalDataEditorPart extends EditorPart {
 		getSite().setSelectionProvider(tableViewer);
 	}
 
-	private final PropertyChangeListener securityPropertyChangeListener = new PropertyChangeListener() {
+	private final PropertyChangeListener securityPropertyChangeListener = new UniqueAsyncExecution() {
 		@Override
-		public void propertyChange(java.beans.PropertyChangeEvent evt) {
-			updateButtonState();
+		public void doit(PropertyChangeEvent evt, Display display) {
+			if (evt.getPropertyName().equals(SecurityPropertyPage.YAHOO_SYMBOL)) {
+				updateButtonState();
+			}
+			if (evt.getPropertyName().equals(FundamentalDatas.OVERRIDDEN_AVG_PE) ||
+				evt.getPropertyName().equals("fundamentalData")) {
+				tableViewer.refresh(true);
+			}
+		}
+		@Override
+		public Display getDisplay() {
+			return getSite().getShell().getDisplay();
 		}
 	};
 
