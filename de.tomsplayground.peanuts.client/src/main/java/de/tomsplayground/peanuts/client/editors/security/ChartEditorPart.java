@@ -311,8 +311,8 @@ public class ChartEditorPart extends EditorPart {
 			avgPriceAnnotation.setLabel("Avg Price");
 			avgPriceAnnotation.setLabelFont(JFreeChartFonts.getTickLabelFont());
 			avgPriceAnnotation.setLabelOffsetType(LengthAdjustmentType.EXPAND);
-			avgPriceAnnotation.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
-			avgPriceAnnotation.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
+			avgPriceAnnotation.setLabelAnchor(RectangleAnchor.TOP_LEFT);
+			avgPriceAnnotation.setLabelTextAnchor(TextAnchor.BOTTOM_LEFT);
 			avgPriceAnnotation.setLabelBackgroundColor((Color) PeanutsDrawingSupplier.BACKGROUND_PAINT);
 
 			pricePlot.addRangeMarker(avgPriceAnnotation);

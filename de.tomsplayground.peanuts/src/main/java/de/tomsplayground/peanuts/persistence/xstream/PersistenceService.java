@@ -84,6 +84,7 @@ public class PersistenceService implements IPersistenceService {
 		xstream.registerConverter(new ImmutableListConverter(xstream.getMapper()));
 		xstream.registerConverter(new ISO8601GregorianCalendarConverter());
 		xstream.processAnnotations(PERSISTENCE_TYPES);
+		xstream.ignoreUnknownElements();
 	}
 
 	@Override

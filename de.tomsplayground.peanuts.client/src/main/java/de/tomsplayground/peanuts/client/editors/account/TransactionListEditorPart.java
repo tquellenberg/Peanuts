@@ -49,6 +49,8 @@ import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.part.EditorPart;
 
+import com.google.common.collect.Lists;
+
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.widgets.TransactionListContentProvider;
 import de.tomsplayground.peanuts.client.widgets.TransactionListContentProvider.TimeTreeNode;
@@ -517,18 +519,21 @@ public class TransactionListEditorPart extends EditorPart {
 		getSite().setSelectionProvider(transactionTree);
 		account.addPropertyChangeListener(propertyChangeListener);
 
-//		List<Transaction> transactions = account.getTransactions();
-//		transactionTree.setInput(transactions);
 		transactionTree.setInput(account);
 		List<ITransaction> transactions = account.getTransactions();
 		if (! transactions.isEmpty()) {
-			TreeItem[] items = transactionTree.getTree().getItems();
-			if (items.length > 0) {
-				TreeItem treeItem = items[items.length - 1];
-				transactionTree.expandToLevel(treeItem.getData(), 1);
-				transactionTree.setSelection(new StructuredSelection(transactions.get(transactions.size() - 1)), true);
+			Day today = Day.today();
+			ITransaction t = Lists.reverse(transactions).stream()
+				.filter(tx -> (! tx.getDay().after(today)))
+				.findFirst()
+				.orElse(transactions.get(transactions.size() - 1));
+			for (TreeItem treeItem : transactionTree.getTree().getItems()) {
+				if (((TimeTreeNode)treeItem.getData()).getDate().year == t.getDay().year) {
+					transactionTree.expandToLevel(treeItem.getData(), 1);
+					transactionTree.setSelection(new StructuredSelection(t), true);
+				}
 			}
-			select(transactions.get(transactions.size()-1));
+			select(t);
 		}
 	}
 

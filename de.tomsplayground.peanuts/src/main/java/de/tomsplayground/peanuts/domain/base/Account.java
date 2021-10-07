@@ -59,8 +59,9 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 		public void propertyChange(PropertyChangeEvent evt) {
 			if (evt.getPropertyName().equals("date")) {
 				Transaction t = (Transaction) evt.getSource();
-				transactions.remove(t);
-				addTransactionInternal(t);
+				if (transactions.remove(t)) {
+					addTransactionInternal(t);
+				}
 			}
 			if (evt.getPropertyName().equals("split")) {
 				if (evt.getOldValue() != null) {

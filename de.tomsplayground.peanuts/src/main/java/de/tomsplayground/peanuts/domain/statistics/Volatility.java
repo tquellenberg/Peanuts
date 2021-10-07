@@ -32,14 +32,14 @@ public class Volatility {
 	}
 
 	public double calculateVolatility(ImmutableList<BigDecimal> values) {
-		log.info("Size: "+values.size());
+		log.debug("Size: {}", values.size());
 		BigDecimal v1 = values.get(0);
 		double yield[] = new double[values.size()-1];
 		int i = 0;
 		for (BigDecimal v2 : values.subList(1, values.size())) {
 			yield[i] = Math.log(v2.divide(v1, PeanutsUtil.MC).doubleValue());
 			if (log.isDebugEnabled()) {
-				log.info("V1:"+v1+ " V2:"+v2+" Y:"+yield[i]);
+				log.debug("V1:"+v1+ " V2:"+v2+" Y:"+yield[i]);
 			}
 			i++;
 			v1 = v2;
@@ -49,18 +49,18 @@ public class Volatility {
 			avg += r;
 		}
 		avg = avg / yield.length;
-		log.info("AVG: "+avg);
+		log.debug("AVG: {}", avg);
 		double volatility = 0;
 		for (double r : yield) {
 			double d = (r - avg);
 			volatility += (d*d);
 		}
-		log.info("Vola1: "+volatility);
+		log.debug("Vola1: {}", volatility);
 		if (volatility < 0.001) {
 			return 0.0;
 		}
 		volatility = Math.sqrt((volatility * 252) / (yield.length - 1));
-		log.info("Vola2: "+volatility);
+		log.debug("Vola2: {}", volatility);
 		return volatility;
 	}
 

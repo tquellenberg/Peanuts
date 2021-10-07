@@ -1,6 +1,23 @@
 Dash board (Security screening)
 ===============================
 
+
+
+*** Wiederholte Transaktionen
+
+- Widerholung Monatlich oder Jährlich
+- Werden nur 4-6 Wochen im Voraus in Transaktionsliste angezeigt
+- Können mit einem Klick zu echter Transaktion materalisiert werden
+
+
+
+*** Dividenden
+
+- Besonderer Status, wenn Zahlung der Transaktion (mit Datum und Höhe) bestätigt wurde
+
+
+
+
 Top 10 Watch list
 =================
 - Name

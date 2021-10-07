@@ -34,6 +34,7 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.service.application.ApplicationHandle;
 
+import de.tomsplayground.peanuts.client.savedtransaction.SavedTransactionManager;
 import de.tomsplayground.peanuts.client.util.PeanutsAdapterFactory;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
@@ -262,6 +263,12 @@ public class Activator extends AbstractUIPlugin {
 				setFilename(filename);
 				createLockFile(filename);
 			}
+		}
+
+		try {
+			SavedTransactionManager.createFuturTransactions(90);
+		} catch (Throwable t) {
+			t.printStackTrace();
 		}
 	}
 

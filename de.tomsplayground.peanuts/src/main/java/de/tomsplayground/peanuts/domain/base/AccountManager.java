@@ -210,21 +210,22 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 		return getByName(reports, name);
 	}
 
-	public boolean removeSavedTransaction(String name) {
-		SavedTransaction toDelete = getByName(savedTransactions, name);
+	public boolean removeSavedTransaction(SavedTransaction toDelete) {
 		if (toDelete != null) {
 			List<SavedTransaction> list = new ArrayList<SavedTransaction>(savedTransactions);
-			list.remove(toDelete);
-			savedTransactions = ImmutableList.copyOf(list);
-			firePropertyChange("savedTransaction", toDelete, null);
+			if (list.remove(toDelete)) {
+				savedTransactions = ImmutableList.copyOf(list);
+				firePropertyChange("savedTransaction", toDelete, null);
+				return true;
+			}
 		}
-		return toDelete != null;
+		return false;
 	}
 
 	public void addSavedTransaction(SavedTransaction savedTransaction) {
 		List<SavedTransaction> list = new ArrayList<SavedTransaction>(savedTransactions);
 		list.add(savedTransaction);
-		Collections.sort(savedTransactions, NAMED_COMPARATOR);
+		Collections.sort(list, NAMED_COMPARATOR);
 		savedTransactions = ImmutableList.copyOf(list);
 		firePropertyChange("savedTransaction", null, savedTransaction);
 	}
