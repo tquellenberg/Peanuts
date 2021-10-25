@@ -64,13 +64,12 @@ public class TimeChart {
 		this.series = series;
 	}
 
-	public void setChartType(String type) {
+	public void setChartType(String type, Day to) {
 		this.type = RANGE.fromName(type);
 		XYPlot plot = getPlot();
 		DateAxis dateAxis = ((DateAxis)plot.getDomainAxis());
 
-		Day to = Day.today();
-		to = to.addDays(14);
+		to = to.addDays(rightOffset());
 
 		Day from = getFromDate();
 		if (from != null) {
@@ -79,6 +78,25 @@ public class TimeChart {
 			dateAxis.setAutoRange(true);
 		}
 		adjustRangeAxis(plot, from, to);
+	}
+
+	private int rightOffset() {
+		switch(type) {
+			case ALL:
+			case TEN_YEARS:
+			case SEVEN_YEARS:
+				return 14;
+			case FIVE_YEARS:
+			case THREE_YEARS:
+			case TWO_YEARS:
+			case ONE_YEARS:
+				return 7;
+			case THIS_YEARS:
+			case SIX_MONTHS:
+			case ONE_MONTHS:
+			default:
+				return 2;
+		}
 	}
 
 	public Day getFromDate() {

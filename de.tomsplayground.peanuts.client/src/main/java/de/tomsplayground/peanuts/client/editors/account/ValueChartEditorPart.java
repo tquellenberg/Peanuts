@@ -28,11 +28,14 @@ import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
+import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.chart.swt.ChartComposite;
+import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleInsets;
+import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -110,7 +113,7 @@ public class ValueChartEditorPart extends EditorPart {
 			public void widgetSelected(SelectionEvent e) {
 				Combo c = (Combo)e.getSource();
 				String type = c.getItem(c.getSelectionIndex());
-				timeChart.setChartType(type);
+				timeChart.setChartType(type, intervalReport.getEnd());
 				dirty = true;
 				firePropertyChange(IEditorPart.PROP_DIRTY);
 			}
@@ -128,6 +131,17 @@ public class ValueChartEditorPart extends EditorPart {
 		super.dispose();
 	}
 
+	private void todayMarker(XYPlot plot) {
+		de.tomsplayground.peanuts.util.Day day = de.tomsplayground.peanuts.util.Day.today();
+		long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
+		ValueMarker valueMarker = new ValueMarker(x);
+		valueMarker.setAlpha(0.50f);
+		valueMarker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
+		valueMarker.setLabelAnchor(RectangleAnchor.BOTTOM_LEFT);
+		valueMarker.setLabel("Today");
+		plot.addDomainMarker(valueMarker);
+	}
+
 	private JFreeChart createChart(String chartType) {
 		CombinedDomainXYPlot plot = new CombinedDomainXYPlot(new DateAxis("Date"));
 		JFreeChart chart = new JFreeChart(getEditorInput().getName(), plot);
@@ -143,6 +157,7 @@ public class ValueChartEditorPart extends EditorPart {
 		subplot1.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 0.0));
 		subplot1.setDomainCrosshairVisible(true);
 		subplot1.setRangeCrosshairVisible(true);
+		todayMarker(subplot1);
 
 		XYAreaRenderer xyAreaRenderer = new XYAreaRenderer();
 		xyAreaRenderer.setDefaultToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
@@ -161,7 +176,7 @@ public class ValueChartEditorPart extends EditorPart {
 		axis.setTickLabelFont(JFreeChartFonts.getTickLabelFont());
 
 		timeChart = new TimeChart(chart, dataset);
-		timeChart.setChartType(chartType);
+		timeChart.setChartType(chartType, intervalReport.getEnd());
 
 		return chart;
 	}

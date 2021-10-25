@@ -18,7 +18,7 @@ import de.tomsplayground.peanuts.util.Day;
 public class SavedTransaction extends ObservableModelObject implements INamedElement, IDeletable {
 
 	private final String name;
-	private final Transaction transaction;
+	private Transaction transaction;
 
 	public enum Interval {
 		MONTHLY,
@@ -65,12 +65,20 @@ public class SavedTransaction extends ObservableModelObject implements INamedEle
 		return transaction;
 	}
 
+	public void setTransaction(Transaction transaction) {
+		Transaction oldTransaction = this.transaction;
+		this.transaction = transaction;
+		firePropertyChange("transaction", oldTransaction, transaction);
+	}
+
 	public Day getStart() {
 		return start;
 	}
 
 	public void setStart(Day start) {
+		Day oldStart = this.start;
 		this.start = start;
+		firePropertyChange("start", oldStart, start);
 	}
 
 	public boolean isAutomaticExecution() {

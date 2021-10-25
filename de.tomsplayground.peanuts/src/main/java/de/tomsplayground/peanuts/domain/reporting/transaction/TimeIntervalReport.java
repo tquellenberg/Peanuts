@@ -131,6 +131,14 @@ public class TimeIntervalReport extends ObservableModelObject {
 		}
 	}
 
+	public Day getEnd() {
+		return end;
+	}
+
+	public Day getStart() {
+		return start;
+	}
+
 	public DateIterator dateIterator() {
 		return new DateIterator(start, end, interval);
 	}

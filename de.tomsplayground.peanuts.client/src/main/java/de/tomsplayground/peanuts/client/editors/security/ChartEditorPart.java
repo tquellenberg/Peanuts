@@ -256,13 +256,13 @@ public class ChartEditorPart extends EditorPart {
 		}
 		String chartType = StringUtils.defaultString(security.getConfigurationValue(CHART_TYPE), "all");
 		displayType.setText(chartType);
-		timeChart.setChartType(chartType);
+		timeChart.setChartType(chartType, de.tomsplayground.peanuts.util.Day.today());
 		displayType.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Combo c = (Combo)e.getSource();
 				String type = c.getItem(c.getSelectionIndex());
-				timeChart.setChartType(type);
+				timeChart.setChartType(type, de.tomsplayground.peanuts.util.Day.today());
 				dirty = true;
 				firePropertyChange(IEditorPart.PROP_DIRTY);
 				calculateCompareToValues();
@@ -291,7 +291,7 @@ public class ChartEditorPart extends EditorPart {
 				}
 				addAvgPriceAnnotation();
 				pricePlot.getRangeAxis().setLabel("Price "+getInventoryCurrencyConverter().getToCurrency().getSymbol());
-				timeChart.setChartType(displayType.getItem(displayType.getSelectionIndex()));
+				timeChart.setChartType(displayType.getItem(displayType.getSelectionIndex()), de.tomsplayground.peanuts.util.Day.today());
 			}
 		});
 
@@ -379,7 +379,8 @@ public class ChartEditorPart extends EditorPart {
 			de.tomsplayground.peanuts.util.Day day = stockSplit.getDay();
 			long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
 			ValueMarker valueMarker = new ValueMarker(x);
-			valueMarker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
+			valueMarker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
+			valueMarker.setLabelAnchor(RectangleAnchor.BOTTOM_LEFT);
 			valueMarker.setLabel("Split "+stockSplit.getFrom()+":"+stockSplit.getTo());
 			pricePlot.addDomainMarker(valueMarker);
 		}

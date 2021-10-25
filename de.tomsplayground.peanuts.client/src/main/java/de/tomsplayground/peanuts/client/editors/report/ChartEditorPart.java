@@ -30,11 +30,14 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.swt.ChartComposite;
+import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleInsets;
+import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.Month;
 import org.jfree.data.time.Quarter;
@@ -134,7 +137,7 @@ public class ChartEditorPart extends EditorPart {
 				Combo c = (Combo)e.getSource();
 				String type = c.getItem(c.getSelectionIndex());
 				if (timeChart != null) {
-					timeChart.setChartType(type);
+					timeChart.setChartType(type, getReport().getMaxDate());
 					dirty = true;
 					firePropertyChange(IEditorPart.PROP_DIRTY);
 				}
@@ -143,6 +146,17 @@ public class ChartEditorPart extends EditorPart {
 
 		Report report = getReport();
 		report.addPropertyChangeListener(reportChangeListener);
+	}
+
+	private void todayMarker(XYPlot plot) {
+		de.tomsplayground.peanuts.util.Day day = de.tomsplayground.peanuts.util.Day.today();
+		long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
+		ValueMarker valueMarker = new ValueMarker(x);
+		valueMarker.setAlpha(0.50f);
+		valueMarker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
+		valueMarker.setLabelAnchor(RectangleAnchor.BOTTOM_LEFT);
+		valueMarker.setLabel("Today");
+		plot.addDomainMarker(valueMarker);
 	}
 
 	private Report getReport() {
@@ -172,8 +186,10 @@ public class ChartEditorPart extends EditorPart {
 				false // generate URLs?
 				);
 			timeChart = new TimeChart(chart, dataset);
-			timeChart.setChartType(timerange);
+			timeChart.setChartType(timerange, getReport().getMaxDate());
 			axisDateFormat = new SimpleDateFormat("MMM yyyy");
+
+			todayMarker((XYPlot) chart.getPlot());
 		} else {
 			// per month / year: bar chart
 			TimeSeriesCollection dataset;

@@ -77,13 +77,13 @@ public class CreditChartEditorPart extends EditorPart {
 		displayType.add("1 month");
 		String chartType = StringUtils.defaultString(getCredit().getConfigurationValue(CHART_TYPE), "all");
 		displayType.setText(chartType);
-		timeChart.setChartType(chartType);
+		timeChart.setChartType(chartType, getCredit().getEnd());
 		displayType.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Combo c = (Combo)e.getSource();
 				String type = c.getItem(c.getSelectionIndex());
-				timeChart.setChartType(type);
+				timeChart.setChartType(type, getCredit().getEnd());
 				dirty = true;
 				firePropertyChange(IEditorPart.PROP_DIRTY);
 			}

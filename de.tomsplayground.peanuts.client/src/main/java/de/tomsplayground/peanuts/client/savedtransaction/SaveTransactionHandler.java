@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -23,24 +22,26 @@ public class SaveTransactionHandler extends AbstractHandler {
 		ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
 		Transaction transaction = (Transaction) ((IStructuredSelection)currentSelection).getFirstElement();
 		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
-		InputDialog dialog = new InputDialog(window.getShell(), "Save transaction", "Name", "", new IInputValidator() {
-			@Override
-			public String isValid(String newText) {
-				SavedTransaction savedTransaction = Activator.getDefault().getAccountManager().getSavedTransaction(newText);
-				if (savedTransaction != null) {
-					return "Saved transaction with this name already exist.";
-				}
-				if (StringUtils.isBlank(newText)) {
-					return "Name must no be empty";
-				}
-				return null;
-			}
-		});
+		InputDialog dialog = new InputDialog(window.getShell(), "Save transaction", "Name", "", t -> validName(t));
 		if (dialog.open() == Window.OK) {
-			SavedTransaction savedTransaction = new SavedTransaction(dialog.getValue().trim(), transaction);
-			Activator.getDefault().getAccountManager().addSavedTransaction(savedTransaction);
+			String name = dialog.getValue().trim();
+			SavedTransaction savedTransaction = Activator.getDefault().getAccountManager().getSavedTransaction(name);
+			if (savedTransaction != null) {
+				// Update
+				savedTransaction.setTransaction(transaction);
+			} else {
+				// New
+				SavedTransaction newSavedTransaction = new SavedTransaction(name, transaction);
+				Activator.getDefault().getAccountManager().addSavedTransaction(newSavedTransaction);
+			}
 		}
 		return null;
 	}
 
+	private String validName(String newText) {
+		if (StringUtils.isBlank(newText)) {
+			return "Name must no be empty";
+		}
+		return null;
+	}
 }
