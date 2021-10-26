@@ -87,9 +87,9 @@ public class PriceProvider extends ObservableModelObject implements IPriceProvid
 		if (pos >= 0) {
 			return lp.get(pos);
 		} else {
-			pos = -pos - 1;
-			if (pos >= lp.size()) {
-				pos --;
+			pos = -pos - 2;
+			if (pos < 0) {
+				return new Price(date, BigDecimal.ZERO);
 			}
 			return lp.get(pos);
 		}

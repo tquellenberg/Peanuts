@@ -524,7 +524,7 @@ public class TransactionListEditorPart extends EditorPart {
 		if (! transactions.isEmpty()) {
 			Day today = Day.today();
 			ITransaction t = Lists.reverse(transactions).stream()
-				.filter(tx -> (! tx.getDay().after(today)))
+				.filter(tx -> tx.getDay().beforeOrEquals(today))
 				.findFirst()
 				.orElse(transactions.get(transactions.size() - 1));
 			for (TreeItem treeItem : transactionTree.getTree().getItems()) {

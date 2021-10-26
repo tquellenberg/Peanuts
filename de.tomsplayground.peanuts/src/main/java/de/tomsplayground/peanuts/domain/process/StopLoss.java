@@ -35,7 +35,7 @@ public class StopLoss {
 		Day d = start;
 		BigDecimal stop = startPrice;
 		Day today = Day.today();
-		while (! d.after(today)) {
+		while (d.beforeOrEquals(today)) {
 			IPrice price = priceProvider.getPrice(d);
 			stop = strategy.calculateStop(stop, price);
 			builder.add(new Price(d, stop));

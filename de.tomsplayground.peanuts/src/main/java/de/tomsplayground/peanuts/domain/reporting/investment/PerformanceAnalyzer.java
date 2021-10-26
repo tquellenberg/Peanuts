@@ -132,9 +132,9 @@ public class PerformanceAnalyzer {
 		Inventory inventory = new Inventory(account, priceProviderFactory);
 		List<Value> elements = new ArrayList<>();
 		for (; year <= endYear; year++) {
-			Day r1 = new Day(year, 0, 1);
-			Day r2 = new Day(year, 11, 31);
-			inventory.setDate(r1.addDays(-1));
+			Day r1 = new Day(year-1, 11, 31);
+			Day r2 = new Day(year,   11, 31);
+			inventory.setDate(r1);
 			BigDecimal marketValueStart = inventory.getMarketValue().add(account.getBalance(r1));
 			inventory.setDate(r2);
 			BigDecimal marketValueEnd = inventory.getMarketValue().add(account.getBalance(r2));

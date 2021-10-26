@@ -14,36 +14,41 @@ public class TransactionProviderUtil {
 	 * Both date can be null.
 	 *
 	 */
-	public static ImmutableList<ITransaction> getTransactionsByDate(ITransactionProvider provider, Day from, Day to) {
+	public static ImmutableList<ITransaction> getTransactionsByDate(ImmutableList<ITransaction> transactions, Day from, Day to) {
 		int fromIndex;
-		ImmutableList<ITransaction> transactions = provider.getTransactions();
 		if (from != null) {
 			fromIndex = PeanutsUtil.binarySearch(transactions, from);
 			if (fromIndex >= 0) {
-				while (fromIndex > 0 && transactions.get(fromIndex - 1).getDay().equals(from))
+				while (fromIndex > 0 && transactions.get(fromIndex - 1).getDay().equals(from)) {
 					fromIndex --;
+				}
 			} else {
 				fromIndex = -fromIndex - 1;
 			}
-		} else
+		} else {
 			fromIndex = 0;
+		}
 		int toIndex;
 		if (to != null) {
 			if (from != null && from.delta(to) < 7) {
 				// Shortcut: start directly with fromIndex
 				toIndex = fromIndex;
-				while (toIndex < transactions.size() && ! transactions.get(toIndex).getDay().after(to))
+				while (toIndex < transactions.size() && transactions.get(toIndex).getDay().beforeOrEquals(to)) {
 					toIndex ++;
+				}
 			} else {
 				toIndex = PeanutsUtil.binarySearch(transactions, to);
 				if (toIndex >= 0) {
-					while (toIndex < (transactions.size() - 1) && transactions.get(toIndex + 1).getDay().equals(to))
+					// Exact match: include equal date entries
+					while (toIndex < transactions.size() && transactions.get(toIndex).getDay().beforeOrEquals(to)) {
 						toIndex ++;
-					toIndex ++;
+					}
 				} else {
+					// Not found: insert position
 					toIndex = -toIndex - 1;
-					if (toIndex > transactions.size())
+					if (toIndex > transactions.size()) {
 						toIndex --;
+					}
 				}
 			}
 		} else {

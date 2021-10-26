@@ -24,7 +24,7 @@ public class DateIterator implements Iterator<Day> {
 
 	@Override
 	public boolean hasNext() {
-		return !(pointer.after(end));
+		return pointer.beforeOrEquals(end);
 	}
 
 	@Override

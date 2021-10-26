@@ -252,7 +252,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	 */
 	@Override
 	public ImmutableList<ITransaction> getTransactionsByDate(Day from, Day to) {
-		return TransactionProviderUtil.getTransactionsByDate(this, from, to);
+		return TransactionProviderUtil.getTransactionsByDate(getTransactions(), from, to);
 	}
 
 	@Override

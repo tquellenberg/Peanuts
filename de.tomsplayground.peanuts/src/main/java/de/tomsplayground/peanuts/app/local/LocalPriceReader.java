@@ -47,7 +47,7 @@ public class LocalPriceReader extends PriceProvider {
 			if (StringUtils.isNotBlank(values[0])) {
 				try {
 					Day d = Day.fromString(values[0]);
-					if (d.year < 3000) {
+					if (d.year < 2100 && ! d.equals(Day._1_1_1970)) {
 						BigDecimal close = getValue(values, 4);
 						Price price = new Price(d, close);
 						prices.add(price);

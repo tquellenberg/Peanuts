@@ -18,6 +18,7 @@ public class Day implements Serializable, Cloneable, Comparable<Day> {
 	public static final long SECONDS_PER_DAY = 24 * 60 * 60;
 
 	public static final Day ZERO = new Day(0, 0, 1);
+	public static final Day _1_1_1970 = new Day(1970, 0, 1);
 
 	private static final Today today = new Today();
 
@@ -102,6 +103,10 @@ public class Day implements Serializable, Cloneable, Comparable<Day> {
 
 	public boolean before(Day d) {
 		return this.compareTo(d) < 0;
+	}
+
+	public boolean beforeOrEquals(Day d) {
+		return this.compareTo(d) <= 0;
 	}
 
 	public boolean after(Day d) {

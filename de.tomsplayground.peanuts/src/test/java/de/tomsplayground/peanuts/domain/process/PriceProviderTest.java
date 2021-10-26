@@ -40,6 +40,15 @@ public class PriceProviderTest {
 	}
 
 	@Test
+	public void testGetPrice2() {
+		pp.setPrice(new Price(new Day(2008, 4, 2), BigDecimal.ONE));
+		pp.setPrice(new Price(new Day(2008, 4, 5), BigDecimal.TEN));
+
+		IPrice price = pp.getPrice(new Day(2008, 4, 3));
+		assertEquals(BigDecimal.ONE, price.getValue());
+	}
+
+	@Test
 	public void testSetPrice() throws Exception {
 
 		pp.setPrice(new Price(c1, BigDecimal.ZERO));

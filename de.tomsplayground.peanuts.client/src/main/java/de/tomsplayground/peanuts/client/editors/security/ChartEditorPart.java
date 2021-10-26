@@ -614,6 +614,9 @@ public class ChartEditorPart extends EditorPart {
 			de.tomsplayground.peanuts.util.Day fromDate = timeChart.getFromDate();
 			ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(compareTo);
 			IPriceProvider compareToPriceProvider = PriceProviderFactory.getInstance().getSplitAdjustedPriceProvider(compareTo, stockSplits);
+			if (compareToPriceProvider.getMinDate().after(fromDate)) {
+				fromDate = compareToPriceProvider.getMinDate();
+			}
 			IPrice p1 = priceProvider.getPrice(fromDate);
 			IPrice p2 = compareToPriceProvider.getPrice(fromDate);
 			BigDecimal adjust = p1.getValue().divide(p2.getValue(), PeanutsUtil.MC);

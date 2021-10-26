@@ -36,7 +36,7 @@ public class AlarmManager {
 		if (triggerd) {
 			return false;
 		}
-		while (!day.after(today) && !triggerd) {
+		while (day.beforeOrEquals(today) && !triggerd) {
 			IPrice price = priceProvider.getPrice(day);
 			if (price != null) {
 				switch (securityAlarm.getMode()) {

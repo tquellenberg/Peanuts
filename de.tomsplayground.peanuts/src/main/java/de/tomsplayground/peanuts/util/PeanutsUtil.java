@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 
@@ -152,21 +153,22 @@ public class PeanutsUtil {
 		return amount;
 	}
 
+	/**
+	 *
+	 * @param prices
+	 * @param date
+	 * @return the index of the search key, if it is contained in the list; otherwise, (-(insertion point) - 1).
+	 *    The insertion point is defined as the point at which the key would be inserted into the list: the index of
+	 *    the first element greater than the key, or list.size() if all elements in the list are less than the specified key.
+	 *    Note that this guarantees that the return value will be >= 0 if and only if the key is found.
+	 */
 	public static int binarySearch(List<? extends ITimedElement> prices, Day date) {
-		int low = 0;
-		int high = prices.size() - 1;
-		while (low <= high) {
-			int mid = (low + high) >> 1;
-			int cmp = prices.get(mid).getDay().compareTo(date);
-			if (cmp < 0) {
-				low = mid + 1;
-			} else if (cmp > 0) {
-				high = mid - 1;
-			} else {
-				return mid; // key found
+		return Collections.binarySearch(prices, new ITimedElement() {
+			@Override
+			public Day getDay() {
+				return date;
 			}
-		}
-		return -(low + 1); // key not found
+		}, (a, b) -> a.getDay().compareTo(b.getDay()));
 	}
 
 }
