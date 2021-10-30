@@ -3,11 +3,16 @@ package de.tomsplayground.peanuts.domain.currenncy;
 import java.math.BigDecimal;
 import java.util.Currency;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class CurrencyConverter {
+
+	private final static Logger log = LoggerFactory.getLogger(CurrencyConverter.class);
 
 	private final IPriceProvider priceProvider;
 	private final Currency from;
@@ -43,7 +48,8 @@ public class CurrencyConverter {
 		}
 		BigDecimal rate = priceProvider.getPrice(day).getValue();
 		if (rate.signum() == 0) {
-			throw new RuntimeException("Rate must not be zero. Date:"+day);
+			log.error("No value for {} for currency {} {}", day, from, to);
+			return BigDecimal.ZERO;
 		}
 		if (inverse) {
 			return value.divide(rate, PeanutsUtil.MC);

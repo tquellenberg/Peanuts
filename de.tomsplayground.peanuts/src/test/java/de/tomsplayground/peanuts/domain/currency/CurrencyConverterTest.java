@@ -54,12 +54,7 @@ public class CurrencyConverterTest {
 	@Test
 	public void emptyPriceProviderTest() {
 		Day date = Day.today();
-		try {
-			currencyConverter.convert(new BigDecimal("1.20"), date);
-			fail();
-		} catch (RuntimeException e) {
-			// Okay
-		}
+		assertEquals(BigDecimal.ZERO, currencyConverter.convert(new BigDecimal("1.20"), date));
 	}
 
 	@Test
