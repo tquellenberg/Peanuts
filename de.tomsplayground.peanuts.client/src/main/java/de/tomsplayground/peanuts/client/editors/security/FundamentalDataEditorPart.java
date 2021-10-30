@@ -92,6 +92,9 @@ public class FundamentalDataEditorPart extends EditorPart {
 	public static final String SECURITY_MARKET_CAP_CURRENCY = "security.marketCap.currency";
 
 	private static final BigDecimal DEPT_LIMIT = new BigDecimal("1.0");
+	private static final BigDecimal DIV_LIMIT = new BigDecimal("0.03");
+	private static final BigDecimal EPS_GROWTH_LIMIT_UP = new BigDecimal("0.08");
+	private static final BigDecimal EPS_GROWTH_LIMIT_DOWN = new BigDecimal("0.02");
 	private static final BigDecimal DIVIDENDE_LIMIT = new BigDecimal("0.9");
 
 	private TableViewer tableViewer;
@@ -296,7 +299,26 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
-			if (element instanceof FundamentalData) {
+			if (element instanceof AvgFundamentalData) {
+				if (columnIndex == 7 || columnIndex == 9) {
+					FundamentalDatas fundamentalDatas = new FundamentalDatas(fundamentalDataList, getSecurity());
+					AvgFundamentalData data = fundamentalDatas.getAvgFundamentalData(priceProvider, Activator.getDefault().getExchangeRates());
+					BigDecimal avgEpsGrowth;
+					if (columnIndex == 7) {
+						avgEpsGrowth = data.getAvgEpsGrowth();
+					} else {
+						avgEpsGrowth = data.getCurrencyAdjustedAvgEpsGrowth();
+					}
+					if (avgEpsGrowth != null) {
+						if (avgEpsGrowth.subtract(BigDecimal.ONE).compareTo(EPS_GROWTH_LIMIT_UP) >= 0) {
+							return Activator.getDefault().getColorProvider().get(Activator.GREEN_BG);
+						}
+						if (avgEpsGrowth.subtract(BigDecimal.ONE).compareTo(EPS_GROWTH_LIMIT_DOWN) <= 0) {
+							return Activator.getDefault().getColorProvider().get(Activator.RED_BG);
+						}
+					}
+				}
+			} else if (element instanceof FundamentalData) {
 				FundamentalData data = (FundamentalData) element;
 				if (data.isIgnoreInAvgCalculation()) {
 					return Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW);
@@ -322,6 +344,11 @@ public class FundamentalDataEditorPart extends EditorPart {
 					BigDecimal debtEquityRatio = data.getDebtEquityRatio();
 					if (debtEquityRatio.compareTo(DEPT_LIMIT) >= 0 || debtEquityRatio.signum() == -1) {
 						return Activator.getDefault().getColorProvider().get(Activator.RED_BG);
+					}
+				} else if (columnIndex == 12) {
+					BigDecimal divYield = divYield(data);
+					if (divYield.compareTo(DIV_LIMIT) >= 0) {
+						return Activator.getDefault().getColorProvider().get(Activator.GREEN_BG);
 					}
 				}
 			}
