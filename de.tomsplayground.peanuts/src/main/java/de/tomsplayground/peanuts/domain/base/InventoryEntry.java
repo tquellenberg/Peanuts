@@ -18,6 +18,8 @@ public class InventoryEntry {
 	private final IPriceProvider priceprovider;
 
 	private ImmutableList<InvestmentTransaction> transactions = ImmutableList.of();
+	
+	private BigDecimal quantity = BigDecimal.ZERO;
 
 	public InventoryEntry(Security security, IPriceProvider priceprovider) {
 		this.security = security;
@@ -29,14 +31,6 @@ public class InventoryEntry {
 	}
 
 	public BigDecimal getQuantity() {
-		BigDecimal quantity = BigDecimal.ZERO;
-		for (InvestmentTransaction t : transactions) {
-			if (t.getType() == InvestmentTransaction.Type.BUY) {
-				quantity = quantity.add(t.getQuantity());
-			} else if (t.getType() == InvestmentTransaction.Type.SELL) {
-				quantity = quantity.subtract(t.getQuantity());
-			}
-		}
 		return quantity;
 	}
 
@@ -46,6 +40,11 @@ public class InventoryEntry {
 				t.getSecurity().getName());
 		}
 		transactions = new ImmutableList.Builder<InvestmentTransaction>().addAll(transactions).add(t).build();
+		if (t.getType() == InvestmentTransaction.Type.BUY) {
+			quantity = quantity.add(t.getQuantity());
+		} else if (t.getType() == InvestmentTransaction.Type.SELL) {
+			quantity = quantity.subtract(t.getQuantity());
+		}
 	}
 
 	public ImmutableList<InvestmentTransaction> getTransactions() {
@@ -75,7 +74,6 @@ public class InventoryEntry {
 	}
 
 	public BigDecimal getMarketValue(Day day) {
-		BigDecimal quantity = getQuantity();
 		if (priceprovider != null && quantity.signum() != 0) {
 			return priceprovider.getPrice(day).getValue().multiply(quantity);
 		}

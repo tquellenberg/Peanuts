@@ -3,13 +3,12 @@ package de.tomsplayground.peanuts.domain.base;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Currency;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
@@ -50,7 +49,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	final private Map<String, String> displayConfiguration = new HashMap<String, String>();
 
 	// Process
-	final private List<Transaction> transactions = new LinkedList<Transaction>();
+	final private List<Transaction> transactions = new ArrayList<Transaction>();
 
 	transient private PropertyChangeListener transactionChangeListener = new TransactionPropertyListener();
 
@@ -108,7 +107,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	@Override
 	public BigDecimal getBalance(Day date) {
 		BigDecimal balance = transactions.parallelStream()
-			.filter(t -> (t.getDay().compareTo(date) <= 0))
+			.filter(t -> t.getDay().beforeOrEquals(date))
 			.map(Transaction::getAmount)
 			.reduce(startBalance, BigDecimal::add);
 		return balance;
@@ -117,7 +116,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	public BigDecimal getBalance(Transaction t) {
 		BigDecimal balance = startBalance;
 		for (Transaction t2 : transactions) {
-			if (t2.getSplits().contains(t)) {
+			if (t2.hasSplits() && t2.getSplits().contains(t)) {
 				for (ITransaction t3 : t2.getSplits()) {
 					balance = balance.add(t3.getAmount());
 					if (t == t3) {
@@ -173,28 +172,30 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	}
 
 	public void addTransactionInternal(Transaction transaction) {
-		ListIterator<Transaction> iter = transactions.listIterator();
-		while (iter.hasNext()) {
-			Transaction t = iter.next();
+		if (transactions.isEmpty() || 
+				transactions.get(transactions.size()-1).getDay().beforeOrEquals(transaction.getDay())) {
+			transactions.add(transaction);
+			return;
+		}
+		for (int i = 0; i < transactions.size(); i++) {
+			Transaction t = transactions.get(i);
 			if (t.getDay().after(transaction.getDay())) {
-				iter.previous();
-				break;
+				transactions.add(i, transaction);
+				return;
 			}
 		}
-		iter.add(transaction);
 	}
 
 	@Override
 	public void removeTransaction(Transaction transaction) {
-		ListIterator<Transaction> iter = transactions.listIterator();
-		while (iter.hasNext()) {
-			Transaction t = iter.next();
+		for (int i = 0; i < transactions.size(); i++) {
+			Transaction t = transactions.get(i);
 			if (t.equals(transaction)) {
 				t.removePropertyChangeListener(transactionChangeListener);
-				iter.remove();
+				transactions.remove(i);
 				firePropertyChange("transactions", transaction, null);
 				return;
-			} else if (t.getSplits().contains(transaction)) {
+			} else if (t.hasSplits() && t.getSplits().contains(transaction)) {
 				transaction.removePropertyChangeListener(transactionChangeListener);
 				t.removeSplit(transaction);
 				return;
@@ -209,7 +210,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 			if (t == transaction) {
 				return i;
 			}
-			if (t.getSplits().contains(transaction)) {
+			if (t.hasSplits() && t.getSplits().contains(transaction)) {
 				return i;
 			}
 			i++;
@@ -310,12 +311,10 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	}
 
 	public Transaction getParentTransaction(Transaction split) {
-		for (Transaction t : transactions) {
-			if (t.getSplits().contains(split)) {
-				return t;
-			}
-		}
-		return null;
+		return transactions.parallelStream()
+			.filter(t -> t.hasSplits() && t.getSplits().contains(split))
+			.findAny()
+			.orElse(null);
 	}
 
 	private transient ConfigurableSupport configurableSupport;

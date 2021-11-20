@@ -4,13 +4,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,12 +127,12 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		}
 	}
 
-	protected IPriceProvider readFromLocal(Security security) {
+	private IPriceProvider readFromLocal(Security security) {
 		synchronized (security) {
 			File file = new File(localFilename(security));
 			if (file.canRead()) {
 				try (FileReader reader = new FileReader(file)) {
-					return buildPriceProvider(security, IOUtils.toString(reader));
+					return buildPriceProvider(security, reader);
 				} catch (IOException e) {
 					return null;
 				}
@@ -142,10 +141,10 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		}
 	}
 
-	protected IPriceProvider buildPriceProvider(Security security, String csv) {
+	private IPriceProvider buildPriceProvider(Security security, Reader csv) {
 		IPriceProvider reader;
 		try {
-			reader = new LocalPriceReader(security, new StringReader(csv));
+			reader = new LocalPriceReader(security, csv);
 		} catch (IOException | CsvValidationException e) {
 			log.error("buildPriceProvider " + security.getName() + " " + e.getMessage());
 			return null;
@@ -153,7 +152,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		return reader;
 	}
 
-	protected IPriceProvider readHistoricalPricesFromGoogle(Security security) {
+	private IPriceProvider readHistoricalPricesFromGoogle(Security security) {
 		String ticker = StringUtils.removeStart(security.getTicker(), GOOGLE_PREFIX);
 		try {
 			return new GooglePriceReader(security, ticker);
