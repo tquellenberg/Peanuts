@@ -41,6 +41,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	final private Map<String, String> displayConfiguration = new HashMap<String, String>();
 
 	private transient ImmutableList<ITransaction> result;
+	private transient BalanceCache balanceCache;
 
 
 	private final PropertyChangeListener accountChangeListener = new PropertyChangeListener() {
@@ -70,6 +71,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 		addListener();
 		firePropertyChange("accounts", oldAccounts, accounts);
 		result = null;
+		balanceCache = null;
 	}
 
 	private void removeListener() {
@@ -97,6 +99,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 		firePropertyChange("query", null, query);
 		removeListener();
 		result = null;
+		balanceCache = null;
 	}
 
 	public void clearQueries() {
@@ -105,6 +108,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 		firePropertyChange("queries", oldQueries, null);
 		removeListener();
 		result = null;
+		balanceCache = null;
 	}
 
 	@Override
@@ -132,6 +136,7 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 				.filter(queryPredicate())
 				.sorted(AccountManager.DAY_COMPARATOR)
 				.collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf));
+			balanceCache = new BalanceCache(result);
 		}
 		return result;
 	}
@@ -168,28 +173,23 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	}
 
 	@Override
-	public BigDecimal getBalance(Day date) {
-		BigDecimal balance = BigDecimal.ZERO;
-		for (Account account : accounts) {
-			balance = balance.add(account.getBalance(date));
-		}
-		return balance;
-	}
-
-	@Override
 	public Currency getCurrency() {
 		return Currencies.getInstance().getDefaultCurrency();
 	}
 
+	@Override
+	public BigDecimal getBalance(Day date) {
+		getTransactions();
+		return balanceCache.getBalance(date);
+	}
+
 	public BigDecimal getBalance(ITransaction t) {
-		BigDecimal balance = BigDecimal.ZERO;
-		for (ITransaction t2 : getTransactions()) {
-			balance = balance.add(t2.getAmount());
-			if (t == t2) {
-				return balance;
-			}
+		getTransactions();
+		BigDecimal balance = balanceCache.getBalance(t);
+		if (balance == null) {
+			throw new IllegalArgumentException("Transaction does not belong to report:" + t);
 		}
-		throw new IllegalArgumentException("Transaction does not belong to report:" + t);
+		return balance;
 	}
 
 	public ImmutableList<ITransaction> getTransactionsByDate(Day date) {
