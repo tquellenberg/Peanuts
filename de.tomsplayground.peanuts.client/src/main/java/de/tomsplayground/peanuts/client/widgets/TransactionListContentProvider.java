@@ -27,7 +27,7 @@ public class TransactionListContentProvider implements ITreeContentProvider {
 			return date;
 		}
 		public ImmutableList<ITransaction> getTransactions() {
-			return provider.getTransactionsByDate(new Day(date.year, 0, 1), new Day(date.year, 11, 31));
+			return provider.getTransactionsByDate(Day.of(date.year, 0, 1), Day.of(date.year, 11, 31));
 		}
 	}
 
@@ -39,7 +39,7 @@ public class TransactionListContentProvider implements ITreeContentProvider {
 		start = provider.getMinDate()!=null?provider.getMinDate():Day.today();
 		end = provider.getMaxDate()!=null?provider.getMaxDate():Day.today();
 		for (int year = start.year; year <= end.year; year++) {
-			Day d = new Day(year, 0, 1);
+			Day d = Day.of(year, 0, 1);
 			TimeTreeNode treeNode = new TransactionListContentProvider.TimeTreeNode(d, provider);
 			nodes.add(treeNode);
 		}

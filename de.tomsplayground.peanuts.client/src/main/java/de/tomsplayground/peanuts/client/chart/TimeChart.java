@@ -114,7 +114,7 @@ public class TimeChart {
 						break;
 			case ONE_YEARS:  from = from.addYear(-1);
 						break;
-			case THIS_YEARS: from = new Day(from.year, 0, 1);
+			case THIS_YEARS: from = Day.of(from.year, 0, 1);
 						break;
 			case SIX_MONTHS: from = from.addMonth(-6);
 						break;

@@ -10,20 +10,20 @@ import de.tomsplayground.peanuts.util.Day;
 
 public class CreditTest {
 
-	private static final Day BEFORE_END_OF_FIRST_YEAR = new Day(2008, 11, 30);
-	private static final Day END_OF_FIRST_YEAR = new Day(2008, 11, 31);
-	private static final Day FIRST_DAY_OF_SECOND_YEAR = new Day(2009, 0, 1);
-	private static final Day FIRST_MONTH_OF_SECOND_YEAR = new Day(2009, 0, 31);
-	private static final Day END_OF_SECOND_YEAR = new Day(2009, 11, 31);
-	private static final Day FIRST_DAY_OF_THIRD_YEAR = new Day(2010, 0, 1);
-	private static final Day END_OF_THIRD_YEAR = new Day(2010, 11, 31);
+	private static final Day BEFORE_END_OF_FIRST_YEAR = Day.of(2008, 11, 30);
+	private static final Day END_OF_FIRST_YEAR = Day.of(2008, 11, 31);
+	private static final Day FIRST_DAY_OF_SECOND_YEAR = Day.of(2009, 0, 1);
+	private static final Day FIRST_MONTH_OF_SECOND_YEAR = Day.of(2009, 0, 31);
+	private static final Day END_OF_SECOND_YEAR = Day.of(2009, 11, 31);
+	private static final Day FIRST_DAY_OF_THIRD_YEAR = Day.of(2010, 0, 1);
+	private static final Day END_OF_THIRD_YEAR = Day.of(2010, 11, 31);
 
 	private static final BigDecimal CREDIT_AMOUNT = new BigDecimal("48000.00");
 	private static final BigDecimal INTEREST_RATE = new BigDecimal("4.0");
 
 	@Test
 	public void testAnnualInterest() throws Exception {
-		Credit credit = new Credit(new Day(2008, 0, 1), END_OF_THIRD_YEAR, CREDIT_AMOUNT, INTEREST_RATE);
+		Credit credit = new Credit(Day.of(2008, 0, 1), END_OF_THIRD_YEAR, CREDIT_AMOUNT, INTEREST_RATE);
 
 		Helper.assertEquals(new BigDecimal("1920"), credit.getInterest(BEFORE_END_OF_FIRST_YEAR));
 		Helper.assertEquals(CREDIT_AMOUNT, credit.amount(BEFORE_END_OF_FIRST_YEAR));
@@ -46,7 +46,7 @@ public class CreditTest {
 
 	@Test
 	public void testPartialAnnualInterest() throws Exception {
-		Credit credit = new Credit(new Day(2008, 2, 1), END_OF_THIRD_YEAR, CREDIT_AMOUNT, INTEREST_RATE);
+		Credit credit = new Credit(Day.of(2008, 2, 1), END_OF_THIRD_YEAR, CREDIT_AMOUNT, INTEREST_RATE);
 
 		Helper.assertEquals(new BigDecimal("1600"), credit.getInterest(END_OF_FIRST_YEAR));
 		Helper.assertEquals(CREDIT_AMOUNT, credit.amount(END_OF_FIRST_YEAR));
@@ -60,7 +60,7 @@ public class CreditTest {
 
 	@Test
 	public void testPartialAnnualInterest2() throws Exception {
-		Credit credit = new Credit(new Day(2008, 11, 1), END_OF_THIRD_YEAR, CREDIT_AMOUNT, INTEREST_RATE);
+		Credit credit = new Credit(Day.of(2008, 11, 1), END_OF_THIRD_YEAR, CREDIT_AMOUNT, INTEREST_RATE);
 
 		Helper.assertEquals(new BigDecimal("160"), credit.getInterest(END_OF_FIRST_YEAR));
 		Helper.assertEquals(CREDIT_AMOUNT, credit.amount(END_OF_FIRST_YEAR));
@@ -69,7 +69,7 @@ public class CreditTest {
 
 	@Test
 	public void testMonthlyPayment1Month() throws Exception {
-		Credit credit = new Credit(new Day(2008, 11, 1), END_OF_THIRD_YEAR, CREDIT_AMOUNT, INTEREST_RATE);
+		Credit credit = new Credit(Day.of(2008, 11, 1), END_OF_THIRD_YEAR, CREDIT_AMOUNT, INTEREST_RATE);
 		credit.setPayment(new BigDecimal("300"));
 
 		Helper.assertEquals(new BigDecimal("160"), credit.getInterest(END_OF_FIRST_YEAR));
@@ -81,7 +81,7 @@ public class CreditTest {
 
 	@Test
 	public void testMonthlyPayment2Month() throws Exception {
-		Credit credit = new Credit(new Day(2008, 10, 1), END_OF_THIRD_YEAR, CREDIT_AMOUNT, INTEREST_RATE);
+		Credit credit = new Credit(Day.of(2008, 10, 1), END_OF_THIRD_YEAR, CREDIT_AMOUNT, INTEREST_RATE);
 		credit.setPayment(new BigDecimal("300"));
 
 		Helper.assertEquals(new BigDecimal("319"), credit.getInterest(END_OF_FIRST_YEAR));
@@ -92,7 +92,7 @@ public class CreditTest {
 
 	@Test
 	public void yearlyPaimentFirstYear() throws Exception {
-		Credit credit = new Credit(new Day(2008, 9, 1), END_OF_THIRD_YEAR, CREDIT_AMOUNT, INTEREST_RATE);
+		Credit credit = new Credit(Day.of(2008, 9, 1), END_OF_THIRD_YEAR, CREDIT_AMOUNT, INTEREST_RATE);
 		credit.setPayment(new BigDecimal("5000"));
 		credit.setPaymentInterval(PaymentInterval.YEARLY);
 
@@ -106,7 +106,7 @@ public class CreditTest {
 		Helper.assertEquals(new BigDecimal("48480"), credit.amount(FIRST_MONTH_OF_SECOND_YEAR));
 		Helper.assertEquals(new BigDecimal("161.60"), credit.getInterest(FIRST_MONTH_OF_SECOND_YEAR));
 
-		Day firstPayment = new Day(2009, 9, 1);
+		Day firstPayment = Day.of(2009, 9, 1);
 		// 48000 + 480 - 5000
 		Helper.assertEquals(new BigDecimal("43480"), credit.amount(firstPayment));
 		// (9 * 161,60) + 1 * (43480 * 4% / 12)

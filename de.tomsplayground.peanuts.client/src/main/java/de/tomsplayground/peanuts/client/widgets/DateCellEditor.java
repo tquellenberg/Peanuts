@@ -67,7 +67,7 @@ public class DateCellEditor extends CellEditor {
 
 	@Override
 	protected Object doGetValue() {
-		Day date = new Day(dateTime.getYear(), dateTime.getMonth(), dateTime.getDay());
+		Day date = Day.of(dateTime.getYear(), dateTime.getMonth(), dateTime.getDay());
 		return date;
 	}
 

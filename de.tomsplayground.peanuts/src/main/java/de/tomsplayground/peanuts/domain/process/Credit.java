@@ -59,7 +59,7 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 				a = amount;
 				month = day.month - start.month + 1;
 			} else {
-				a  = amount(new Day(day.year, 0, 1));
+				a  = amount(Day.of(day.year, 0, 1));
 				month = day.month + 1;
 			}
 			BigDecimal p = BigDecimal.ZERO;
@@ -72,7 +72,7 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 				a = amount;
 				month = day.month - start.month + 1;
 			} else {
-				a  = amount(new Day(day.year, 0, 1));
+				a  = amount(Day.of(day.year, 0, 1));
 				month = day.month + 1;
 				int paymentMonth = month - start.month;
 				if (paymentMonth > 0) {
@@ -102,7 +102,7 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 				a = amount;
 				month = day.month - start.month;
 			} else {
-				Day endOfLastYear = new Day(day.year - 1, 11, 31);
+				Day endOfLastYear = Day.of(day.year - 1, 11, 31);
 				a = amount(endOfLastYear).add(getInterest(endOfLastYear));
 				month = day.month + 1;
 			}
@@ -111,7 +111,7 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 			if (day.year == start.year) {
 				a = amount;
 			} else {
-				Day endOfLastYear = new Day(day.year - 1, 11, 31);
+				Day endOfLastYear = Day.of(day.year - 1, 11, 31);
 				a = amount(endOfLastYear).add(getInterest(endOfLastYear));
 				if (day.month > start.month || (day.month == start.month && day.day >= start.day)) {
 					a = a.subtract(paymentAmount);

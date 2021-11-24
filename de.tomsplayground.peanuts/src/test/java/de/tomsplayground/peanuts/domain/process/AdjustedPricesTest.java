@@ -21,13 +21,13 @@ public class AdjustedPricesTest {
 	@Test
 	public void simpleTest() throws Exception {
 		List<Price> prices = new ArrayList<Price>();
-		prices.add(new Price(new Day(2008, 10, 1), new BigDecimal("10")));
-		prices.add(new Price(new Day(2008, 10, 2), new BigDecimal("5")));
-		prices.add(new Price(new Day(2008, 10, 3), new BigDecimal("5")));
+		prices.add(new Price(Day.of(2008, 10, 1), new BigDecimal("10")));
+		prices.add(new Price(Day.of(2008, 10, 2), new BigDecimal("5")));
+		prices.add(new Price(Day.of(2008, 10, 3), new BigDecimal("5")));
 		PriceProvider priceProvider = new PriceProvider(null);
 		priceProvider.setPrices(prices, true);
 
-		List<StockSplit> splits = Collections.singletonList(new StockSplit(new Security("sec"), new Day(2008, 10, 2), 1, 2));
+		List<StockSplit> splits = Collections.singletonList(new StockSplit(new Security("sec"), Day.of(2008, 10, 2), 1, 2));
 
 		SplitAdjustedPriceProvider splitAdjustedPrices = new SplitAdjustedPriceProvider(priceProvider, splits);
 		List<IPrice> adjustPrices = splitAdjustedPrices.getPrices();
@@ -41,15 +41,15 @@ public class AdjustedPricesTest {
 	@Test
 	public void multiSplitTest() throws Exception {
 		List<Price> prices = new ArrayList<Price>();
-		prices.add(new Price(new Day(2008, 10, 1), new BigDecimal("10")));
-		prices.add(new Price(new Day(2008, 10, 2), new BigDecimal("5")));
-		prices.add(new Price(new Day(2008, 10, 3), new BigDecimal("5")));
+		prices.add(new Price(Day.of(2008, 10, 1), new BigDecimal("10")));
+		prices.add(new Price(Day.of(2008, 10, 2), new BigDecimal("5")));
+		prices.add(new Price(Day.of(2008, 10, 3), new BigDecimal("5")));
 		PriceProvider priceProvider = new PriceProvider(null);
 		priceProvider.setPrices(prices, true);
 
 		List<StockSplit> splits = Lists.newArrayList(
-				new StockSplit(new Security("sec"), new Day(2008, 10, 2), 1, 2),
-				new StockSplit(new Security("sec"), new Day(2008, 10, 3), 1, 2));
+				new StockSplit(new Security("sec"), Day.of(2008, 10, 2), 1, 2),
+				new StockSplit(new Security("sec"), Day.of(2008, 10, 3), 1, 2));
 
 		SplitAdjustedPriceProvider splitAdjustedPrices = new SplitAdjustedPriceProvider(priceProvider, splits);
 		List<IPrice> adjustPrices = splitAdjustedPrices.getPrices();

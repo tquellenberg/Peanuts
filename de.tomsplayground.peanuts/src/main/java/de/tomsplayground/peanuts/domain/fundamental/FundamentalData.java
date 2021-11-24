@@ -95,7 +95,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 
 	public Day getFiscalStartDay() {
 		if (fiscalStartDay == null) {
-			fiscalStartDay = new Day(year, 0, 1).addMonth(getFicalYearEndsMonth());
+			fiscalStartDay = Day.of(year, 0, 1).addMonth(getFicalYearEndsMonth());
 		}
 		return fiscalStartDay;
 	}

@@ -18,8 +18,8 @@ public class GooglePriceProviderTest {
 		Reader in = new InputStreamReader(GooglePriceReader.class.getResourceAsStream("/Google_Data.csv"));
 		GooglePriceReader googlePriceReader = new GooglePriceReader(null, in);
 
-		assertEquals(new Day(2011, 0, 28), googlePriceReader.getMaxDate());
-		assertEquals(new Day(2010, 1, 1), googlePriceReader.getMinDate());
-		assertEquals(new BigDecimal("43.63"), googlePriceReader.getPrice(new Day(2011, 0, 28)).getValue());
+		assertEquals(Day.of(2011, 0, 28), googlePriceReader.getMaxDate());
+		assertEquals(Day.of(2010, 1, 1), googlePriceReader.getMinDate());
+		assertEquals(new BigDecimal("43.63"), googlePriceReader.getPrice(Day.of(2011, 0, 28)).getValue());
 	}
 }

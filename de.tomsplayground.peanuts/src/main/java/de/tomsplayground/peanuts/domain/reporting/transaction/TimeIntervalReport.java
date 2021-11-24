@@ -66,20 +66,20 @@ public class TimeIntervalReport extends ObservableModelObject {
 				case DAY:
 					break;
 				case MONTH:
-					startDay = new Day(startDay.year, startDay.month, 1);
+					startDay = Day.of(startDay.year, startDay.month, 1);
 					break;
 				case QUARTER:
 					int month = startDay.month;
 					month = month - (month % 3);
-					startDay = new Day(startDay.year, month, 1);
+					startDay = Day.of(startDay.year, month, 1);
 					break;
 				case YEAR:
-					startDay = new Day(startDay.year, 0, 1);
+					startDay = Day.of(startDay.year, 0, 1);
 					break;
 				case DECADE:
 					int year = startDay.year;
 					year = year - (year % 10);
-					startDay = new Day(year, 0, 1);
+					startDay = Day.of(year, 0, 1);
 					break;
 			}
 			start = startDay;

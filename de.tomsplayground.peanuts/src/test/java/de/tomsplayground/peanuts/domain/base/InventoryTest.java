@@ -149,7 +149,7 @@ public class InventoryTest {
 		// remove investmentTransaction1
 		investmmentAccount.reset();
 
-		final Day now = new Day(2008, 4, 3);
+		final Day now = Day.of(2008, 4, 3);
 		// one share
 		InvestmentTransaction buy = new InvestmentTransaction(now.addDays(-1), apple, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY);
 		investmmentAccount.addTransaction(buy);

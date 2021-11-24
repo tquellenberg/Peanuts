@@ -10,8 +10,8 @@ import de.tomsplayground.peanuts.util.Day;
 
 public class PriceTest {
 
-	private static final Day DATE = new Day(2008, 2, 29);
-	private static final Day OTHER_DATE = new Day(2008, 2, 28);
+	private static final Day DATE = Day.of(2008, 2, 29);
+	private static final Day OTHER_DATE = Day.of(2008, 2, 28);
 
 	private static final BigDecimal TWO = new BigDecimal("2.00");
 	private static final BigDecimal DIFFERENT_TWO = new BigDecimal("2.0");

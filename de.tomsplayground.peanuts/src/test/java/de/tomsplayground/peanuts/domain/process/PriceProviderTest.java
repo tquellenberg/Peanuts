@@ -23,8 +23,8 @@ public class PriceProviderTest {
 	@Before
 	public void setUp() {
 		pp = new PriceProvider(null);
-		c1 = new Day(2008, 4, 1);
-		dateAfterC1 = new Day(2008, 4, 2);
+		c1 = Day.of(2008, 4, 1);
+		dateAfterC1 = Day.of(2008, 4, 2);
 	}
 
 	@Test
@@ -41,10 +41,10 @@ public class PriceProviderTest {
 
 	@Test
 	public void testGetPrice2() {
-		pp.setPrice(new Price(new Day(2008, 4, 2), BigDecimal.ONE));
-		pp.setPrice(new Price(new Day(2008, 4, 5), BigDecimal.TEN));
+		pp.setPrice(new Price(Day.of(2008, 4, 2), BigDecimal.ONE));
+		pp.setPrice(new Price(Day.of(2008, 4, 5), BigDecimal.TEN));
 
-		IPrice price = pp.getPrice(new Day(2008, 4, 3));
+		IPrice price = pp.getPrice(Day.of(2008, 4, 3));
 		assertEquals(BigDecimal.ONE, price.getValue());
 	}
 

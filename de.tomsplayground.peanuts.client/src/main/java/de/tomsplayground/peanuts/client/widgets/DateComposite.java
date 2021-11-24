@@ -94,7 +94,7 @@ public class DateComposite extends Composite {
 	}
 
 	public Day getDay() {
-		return new Day(date.getYear(), date.getMonth(), date.getDay());
+		return Day.of(date.getYear(), date.getMonth(), date.getDay());
 	}
 
 	public void setDay(Day day) {

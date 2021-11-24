@@ -20,14 +20,14 @@ public class Day implements Serializable, Cloneable, Comparable<Day> {
 	public static final Day ZERO = new Day(0, 0, 1);
 	public static final Day _1_1_1970 = new Day(1970, 0, 1);
 
-	private static final Today today = new Today();
+	private static final DayCache DAY_CACHE = new DayCache();
 
 	public final short day;	// 1..
 	public final short month; // 0..
 	public final short year;
 
 	public static Day from(LocalDate date) {
-		return new Day(date.getYear(), date.getMonthValue()-1, date.getDayOfMonth());
+		return of(date.getYear(), date.getMonthValue()-1, date.getDayOfMonth());
 	}
 
 	/**
@@ -43,29 +43,33 @@ public class Day implements Serializable, Cloneable, Comparable<Day> {
 		int year = Integer.parseInt(split[0]);
 		int month = Integer.parseInt(split[1]);
 		int day = Integer.parseInt(split[2]);
-		return new Day(year, month-1, day);
+		return of(year, month-1, day);
 	}
 
 	public static Day today() {
-		return today.getToday();
+		return DAY_CACHE.getToday();
 	}
 
+	Day(int year, int month, int day) {
+		this.day = (short) day;
+		this.month = (short) month;
+		this.year = (short) year;
+	}
+	
 	/**
 	 * Create new Day object.
 	 * @param year
 	 * @param month 0..11
 	 * @param day 1..31
 	 */
-	public Day(int year, int month, int day) {
+	public static Day of(int year, int month, int day) {
 		if (! (day > 0 && day <= 31)) {
 			throw new IllegalArgumentException("day: 1-31");
 		}
 		if (! (month >= 0 && month <= 11)) {
 			throw new IllegalArgumentException("month: 0-11");
 		}
-		this.day = (short) day;
-		this.month = (short) month;
-		this.year = (short) year;
+		return DAY_CACHE.getDay(year, month, day);
 	}
 
 	@Override

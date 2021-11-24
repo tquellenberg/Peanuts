@@ -34,7 +34,7 @@ public class TransactionTest extends TestCase {
 
 	public void testSplit() {
 		Day now = Day.today();
-		Day notNow = new Day(1999, 1, 1);
+		Day notNow = Day.of(1999, 1, 1);
 		Transaction trans = new Transaction(now, new BigDecimal("0.00"));
 		Category cat = acountManager.getOrCreateCategory("test");
 		List<Transaction> splits = new ArrayList<Transaction>();
@@ -75,7 +75,7 @@ public class TransactionTest extends TestCase {
 
 	public void testUpdateDateWithSplits() {
 		Day now = Day.today();
-		Day notNow = new Day(1999, 1, 1);
+		Day notNow = Day.of(1999, 1, 1);
 		Transaction trans = new Transaction(now, new BigDecimal("0.00"));
 		Category cat = acountManager.getOrCreateCategory("test");
 		List<Transaction> splits = new ArrayList<Transaction>();

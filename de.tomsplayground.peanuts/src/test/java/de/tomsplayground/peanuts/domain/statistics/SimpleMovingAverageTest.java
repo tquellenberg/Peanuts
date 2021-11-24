@@ -21,7 +21,7 @@ public class SimpleMovingAverageTest {
 	public void testMovingAverage() throws Exception {
 		SimpleMovingAverage movingAverage = new SimpleMovingAverage(3);
 
-		Day day = new Day(2008, 9, 18);
+		Day day = Day.of(2008, 9, 18);
 		ImmutableList<Price> prices = ImmutableList.of(
 			new Price(day, new BigDecimal("5")),
 			new Price(day.addDays(1), new BigDecimal("10")),
@@ -32,10 +32,10 @@ public class SimpleMovingAverageTest {
 		assertEquals(2, sma.size());
 		IPrice price = sma.get(0);
 		Helper.assertEquals(new BigDecimal("10"), price.getValue());
-		assertEquals(new Day(2008, 9, 20), price.getDay());
+		assertEquals(Day.of(2008, 9, 20), price.getDay());
 		price = sma.get(1);
 		Helper.assertEquals(new BigDecimal("15"), price.getValue());
-		assertEquals(new Day(2008, 9, 21), price.getDay());
+		assertEquals(Day.of(2008, 9, 21), price.getDay());
 	}
 
 }

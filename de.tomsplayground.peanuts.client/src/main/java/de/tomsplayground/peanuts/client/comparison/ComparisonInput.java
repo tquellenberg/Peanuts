@@ -18,14 +18,14 @@ import de.tomsplayground.peanuts.util.Day;
 
 public class ComparisonInput implements IEditorInput {
 
-	public final static List<Day> START_DAYS = Lists.newArrayList(new Day(2020, 1, 1), new Day(2020, 2, 23),
-		new Day(2020, 8, 2), new Day(2020, 9, 30), new Day(2021, 0, 1), Day.today().addMonth(-1), Day.today().addDays(-14));
+	public final static List<Day> START_DAYS = Lists.newArrayList(Day.of(2020, 1, 1), Day.of(2020, 2, 23),
+		Day.of(2020, 8, 2), Day.of(2020, 9, 30), Day.of(2021, 0, 1), Day.today().addMonth(-1), Day.today().addDays(-14));
 
 	private final List<String> isins = Lists.newArrayList("XLC", "XLY", "XLP", "XLE", "XLF", "XLV", "XLI", "XLB", "XLRE", "XLK", "XLU", "SPY");
 
 	private final List<Security> securities = new ArrayList<>();
 
-	private Day startDate = new Day(2020, 1, 1);
+	private Day startDate = Day.of(2020, 1, 1);
 
 	public ComparisonInput() {
 		AccountManager accountManager = Activator.getDefault().getAccountManager();

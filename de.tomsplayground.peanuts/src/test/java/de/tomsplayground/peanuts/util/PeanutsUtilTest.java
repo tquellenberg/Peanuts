@@ -26,7 +26,7 @@ public class PeanutsUtilTest {
 
 	@Test
 	public void testDayFormat() {
-		assertEquals("21.02.2020", PeanutsUtil.formatDate(new Day(2020, 1, 21)));
+		assertEquals("21.02.2020", PeanutsUtil.formatDate(Day.of(2020, 1, 21)));
 	}
 
 	@Test

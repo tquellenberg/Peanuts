@@ -15,7 +15,7 @@ public class EuroTransactionWrapperTest {
 
 	@Test
 	public void simple() throws Exception {
-		Day day = new Day(2000, 5, 10);
+		Day day = Day.of(2000, 5, 10);
 		Category cat = new Category("test", Category.Type.EXPENSE);
 		Transaction t = new Transaction(day, BigDecimal.TEN, cat, "memo");
 		EuroTransactionWrapper wrapper = new EuroTransactionWrapper(t, Currency.getInstance("DEM"));
@@ -27,7 +27,7 @@ public class EuroTransactionWrapperTest {
 
 	@Test
 	public void splitTransaction() throws Exception {
-		Day day = new Day(2000, 5, 10);
+		Day day = Day.of(2000, 5, 10);
 		Transaction t = new Transaction(day, BigDecimal.ZERO);
 		t.addSplit(new Transaction(day, BigDecimal.TEN));
 		t.addSplit(new Transaction(day, BigDecimal.TEN));

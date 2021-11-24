@@ -14,7 +14,7 @@ public class ScrapingTest {
 	public void testDayWitText() {
 		Day day = Scraping.scrapDay("12.12.2005Test");
 
-		assertEquals(new Day(2005, 11, 12), day);
+		assertEquals(Day.of(2005, 11, 12), day);
 	}
 
 	@Test

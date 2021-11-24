@@ -44,7 +44,7 @@ public class PerformanceAnalyzerTest {
 			@Override
 			public IPriceProvider getPriceProvider(Security security) {
 				SimplePriceProvider simplePriceProvider = new SimplePriceProvider();
-				simplePriceProvider.setPrice(new Price(new Day(2008, 3, 13), new BigDecimal("9.00")));
+				simplePriceProvider.setPrice(new Price(Day.of(2008, 3, 13), new BigDecimal("9.00")));
 				return simplePriceProvider;
 			}
 			@Override
@@ -152,7 +152,7 @@ public class PerformanceAnalyzerTest {
 		Account account2 = accountManager.getOrCreateAccount("X2", Account.Type.BANK);
 
 		// 1. Addition on 1.7.2010 (+100)
-		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), new Day(2010, 6, 1));
+		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), Day.of(2010, 6, 1));
 		account2.addTransaction(transfer.getTransferFrom());
 		account.addTransaction(transfer.getTransferTo());
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
@@ -166,12 +166,12 @@ public class PerformanceAnalyzerTest {
 		Account account2 = accountManager.getOrCreateAccount("X2", Account.Type.BANK);
 
 		// 1. Addition on 1.4.2010 (+100)
-		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), new Day(2010, 3, 1));
+		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), Day.of(2010, 3, 1));
 		account2.addTransaction(transfer.getTransferFrom());
 		account.addTransaction(transfer.getTransferTo());
 
 		// 2. Leaving on 1.7.2010 (1100)
-		transfer = new Transfer(account2, account, new BigDecimal("-100.00"), new Day(2010, 6, 1));
+		transfer = new Transfer(account2, account, new BigDecimal("-100.00"), Day.of(2010, 6, 1));
 		account2.addTransaction(transfer.getTransferFrom());
 		account.addTransaction(transfer.getTransferTo());
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);

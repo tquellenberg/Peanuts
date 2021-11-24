@@ -18,8 +18,8 @@ public class DateQueryTest {
 
 	@Test
 	public void testTimeRangeManual() {
-		Day c1 = new Day(2001, 1, 1);
-		Day c2 = new Day(2001, 5, 3);
+		Day c1 = Day.of(2001, 1, 1);
+		Day c2 = Day.of(2001, 5, 3);
 		DateQuery report = new DateQuery(c1, c2);
 
 		assertEquals(DateQuery.TimeRange.MANUAL, report.getTimeRange());
@@ -29,8 +29,8 @@ public class DateQueryTest {
 
 	@Test
 	public void testWrongTimeRangeManual() {
-		Day c1 = new Day(2001, 1, 1);
-		Day c2 = new Day(2001, 5, 3);
+		Day c1 = Day.of(2001, 1, 1);
+		Day c2 = Day.of(2001, 5, 3);
 
 		try {
 			new DateQuery(c2, c1);

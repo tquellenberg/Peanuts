@@ -29,12 +29,12 @@ public class FileCvsReaderTest {
 		assertEquals(14, prices.size());
 		assertEquals(new BigDecimal("2.392"), prices.get(0).getValue());
 		Day date = prices.get(0).getDay();
-		assertEquals(new Day(2007, 7, 1), date);
+		assertEquals(Day.of(2007, 7, 1), date);
 
 		Day day = reader.getMinDate();
-		assertEquals(new Day(2007, 7, 1), day);
+		assertEquals(Day.of(2007, 7, 1), day);
 
 		day = reader.getMaxDate();
-		assertEquals(new Day(2007, 7, 20), day);
+		assertEquals(Day.of(2007, 7, 20), day);
 	}
 }
