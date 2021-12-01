@@ -23,7 +23,6 @@ import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
-import de.tomsplayground.peanuts.domain.query.InvestmentQuery;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer;
 import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer.Value;
@@ -61,7 +60,6 @@ public class DividendStats extends ObservableModelObject {
 	public DividendStats(AccountManager accountManager, IPriceProviderFactory priceProviderFactory) {
 		this.accountManager = accountManager;
 		Report report = new Report("temp");
-		report.addQuery(new InvestmentQuery());
 		report.setAccounts(accountManager.getAccounts().stream()
 			.filter(acc -> acc.getType() == Account.Type.INVESTMENT)
 			.collect(Collectors.toList()));
