@@ -7,6 +7,8 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
@@ -19,6 +21,8 @@ import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class FundamentalDatas {
+
+	private final static Logger log = LoggerFactory.getLogger(FundamentalDatas.class);
 
 	public static final String OVERRIDDEN_AVG_PE = "OverriddenAvgPE";
 
@@ -52,7 +56,12 @@ public class FundamentalDatas {
 		if (StringUtils.isBlank(overriddenAvgPE)) {
 			return null;
 		}
-		return new BigDecimal(overriddenAvgPE);
+		try {
+			return new BigDecimal(overriddenAvgPE);
+		} catch (NumberFormatException e) {
+			log.error("OVERRIDDEN_AVG_PE for "+security.getName(), e);
+			return null;
+		}
 	}
 
 	public Optional<DateTime> getMaxModificationDate() {
