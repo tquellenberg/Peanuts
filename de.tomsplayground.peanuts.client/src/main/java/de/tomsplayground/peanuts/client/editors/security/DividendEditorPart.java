@@ -210,6 +210,7 @@ public class DividendEditorPart extends EditorPart {
 		Table table = tableViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
+		table.setFont(Activator.getDefault().getNormalFont());
 
 		int colNumber = 0;
 		TableColumn col = new TableColumn(table, SWT.LEFT);

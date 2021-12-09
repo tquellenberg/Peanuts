@@ -350,6 +350,7 @@ public class NavigationView extends ViewPart {
 		viewer = filteredTree.getViewer();
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider());
+		viewer.getTree().setFont(Activator.getDefault().getNormalFont());
 		updateModel();
 		viewer.setInput(root);
 		propertyChangeListener = new PropertyChangeListener() {

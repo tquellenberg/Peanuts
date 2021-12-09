@@ -99,6 +99,7 @@ public class CategoryTreeView extends ViewPart {
 
 		// Drag-Source
 		final Tree tree = viewer.getTree();
+		tree.setFont(Activator.getDefault().getNormalFont());
 		Transfer[] types = new Transfer[] { PeanutsTransfer.INSTANCE };
 		int operations = DND.DROP_COPY | DND.DROP_LINK;
 		final DragSource source = new DragSource(tree, operations);

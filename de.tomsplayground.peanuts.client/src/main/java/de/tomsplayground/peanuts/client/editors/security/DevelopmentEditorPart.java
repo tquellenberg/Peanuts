@@ -112,6 +112,7 @@ public class DevelopmentEditorPart extends EditorPart {
 		Table table = tableViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
+		table.setFont(Activator.getDefault().getNormalFont());
 
 		ControlListener saveSizeOnResize = new ControlListener() {
 			@Override

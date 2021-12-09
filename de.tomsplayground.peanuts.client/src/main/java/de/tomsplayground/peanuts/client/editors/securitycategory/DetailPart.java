@@ -70,7 +70,7 @@ public class DetailPart extends EditorPart {
 					return ((Security)element).getName();
 				}
 				if (columnIndex == 1) {
-					// FIXME: Reports und Inventories brauchen eine Währung
+					// FIXME: Reports und Inventories brauchen eine Wï¿½hrung
 					return PeanutsUtil.formatCurrency(calc((Security)element), Currency.getInstance("EUR"));
 				}
 			}
@@ -199,6 +199,7 @@ public class DetailPart extends EditorPart {
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(true);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		tree.setFont(Activator.getDefault().getNormalFont());
 		treeViewer.setContentProvider(new ContentProvider());
 		treeViewer.setLabelProvider(new LabelProvider());
 		treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {

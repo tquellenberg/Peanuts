@@ -38,6 +38,7 @@ import org.jfree.chart.swt.ChartComposite;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
+import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.JFreeChartFonts;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.IPrice;
@@ -112,6 +113,7 @@ public class ComparisonEditor extends EditorPart {
 		Table table = tableViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
+		table.setFont(Activator.getDefault().getNormalFont());
 
 		TableColumn col = new TableColumn(table, SWT.LEFT);
 		col.setText("State");

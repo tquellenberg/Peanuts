@@ -165,6 +165,7 @@ public class AlarmView extends ViewPart {
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		table.setFont(Activator.getDefault().getNormalFont());
 		ColumnViewerToolTipSupport.enableFor(alarmListViewer);
 		// must be called  before tableViewerColumn.setLabelProvider
 		alarmListViewer.setLabelProvider(new AlarmListLabelProvider());

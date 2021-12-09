@@ -135,6 +135,7 @@ public class CalendarView extends ViewPart {
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		table.setFont(Activator.getDefault().getNormalFont());
 		ColumnViewerToolTipSupport.enableFor(calendarListViewer);
 		// must be called  before tableViewerColumn.setLabelProvider
 		calendarListViewer.setLabelProvider(new CalendarListLabelProvider());

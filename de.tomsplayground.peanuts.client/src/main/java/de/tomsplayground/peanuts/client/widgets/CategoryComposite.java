@@ -74,6 +74,7 @@ public class CategoryComposite extends Composite {
 						dialog.close();
 					}
 				});
+				viewer.getTree().setFont(Activator.getDefault().getNormalFont());
 
 				dialog.setSize(300, 400);
 				Monitor primary = getDisplay().getPrimaryMonitor();

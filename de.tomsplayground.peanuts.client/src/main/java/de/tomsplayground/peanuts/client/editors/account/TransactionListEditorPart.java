@@ -325,6 +325,7 @@ public class TransactionListEditorPart extends EditorPart {
 		Tree table = transactionTree.getTree();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
+		table.setFont(Activator.getDefault().getNormalFont());
 
 		ControlListener saveSizeOnResize = new ControlListener() {
 			@Override

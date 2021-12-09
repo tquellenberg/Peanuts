@@ -333,6 +333,7 @@ public class DividendStatsView extends ViewPart {
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		table.setFont(Activator.getDefault().getNormalFont());
 		ColumnViewerToolTipSupport.enableFor(dividendStatsListViewer);
 		// must be called  before tableViewerColumn.setLabelProvider
 		dividendStatsListViewer.setLabelProvider(new DividendStatsListLabelProvider());
@@ -413,6 +414,7 @@ public class DividendStatsView extends ViewPart {
 
 		yearlyListViewer = new TableViewer(top, SWT.MULTI | SWT.FULL_SELECTION | SWT.SINGLE);
 		Table table = yearlyListViewer.getTable();
+		table.setFont(Activator.getDefault().getNormalFont());
 		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gridData.heightHint = 200;
 		gridData.minimumHeight = 200;
@@ -493,6 +495,7 @@ public class DividendStatsView extends ViewPart {
 
 		oneMonthListViewer = new TableViewer(top, SWT.MULTI | SWT.FULL_SELECTION);
 		Table table = oneMonthListViewer.getTable();
+		table.setFont(Activator.getDefault().getNormalFont());
 		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gridData.heightHint = 200;
 		gridData.minimumHeight = 200;

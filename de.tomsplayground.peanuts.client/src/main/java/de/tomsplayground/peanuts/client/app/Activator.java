@@ -159,11 +159,21 @@ public class Activator extends AbstractUIPlugin {
 		FontData[] fontDatas = fontRegistry.getFontData(JFaceResources.DEFAULT_FONT);
 		if (fontDatas.length > 0) {
 			FontData fontData = fontDatas[0];
-			fontData.setHeight(fontData.getHeight()-2);
-			fontRegistry.put("de.tomsplayground.fonts.small", fontDatas);
+			fontRegistry.put("de.tomsplayground.fonts.default", new FontData[]{
+					new FontData(fontData.getName(), 12 , fontData.getStyle())});
+			fontRegistry.put("de.tomsplayground.fonts.small", new FontData[]{
+					new FontData(fontData.getName(), 11 , fontData.getStyle())});
 		}
 	}
 
+	public Font getNormalFont() {
+		FontRegistry fontRegistry = JFaceResources.getFontRegistry();
+		if (! fontRegistry.hasValueFor("de.tomsplayground.fonts.default")) {
+			initFonts();
+		}
+		return fontRegistry.get("de.tomsplayground.fonts.default");
+	}
+	
 	public Font getSmallFont() {
 		FontRegistry fontRegistry = JFaceResources.getFontRegistry();
 		if (! fontRegistry.hasValueFor("de.tomsplayground.fonts.small")) {
@@ -187,28 +197,30 @@ public class Activator extends AbstractUIPlugin {
 
 	@Override
 	protected void initializeImageRegistry(ImageRegistry registry) {
-		getImageRegistry().put(IMAGE_ACCOUNT, getImageDescriptor("/icons/table.png"));
-		getImageRegistry().put(IMAGE_SECURITY, getImageDescriptor("/icons/chart_curve.png"));
-		getImageRegistry().put(IMAGE_SECURITYCATEGORY, getImageDescriptor("/icons/chart_pie.png"));
-		getImageRegistry().put(IMAGE_CATEGORY, getImageDescriptor("/icons/folder.png"));
-		getImageRegistry().put(IMAGE_CATEGORY_INCOME, getImageDescriptor("/icons/folder_add.png"));
-		getImageRegistry().put(IMAGE_CATEGORY_EXPENSE, getImageDescriptor("/icons/folder_delete.png"));
-		getImageRegistry().put(IMAGE_CALENDAR, getImageDescriptor("icons/calendar.png"));
-		getImageRegistry().put(IMAGE_REPORT, getImageDescriptor("icons/book.png"));
-		getImageRegistry().put(IMAGE_FORECAST, getImageDescriptor("icons/weather_cloudy.png"));
-		getImageRegistry().put(IMAGE_CREDIT, getImageDescriptor("icons/script.png"));
-		getImageRegistry().put(IMAGE_LOAD_FILE, getImageDescriptor("icons/database_go.png"));
-		getImageRegistry().put(IMAGE_SAVED_TRANSACTION, getImageDescriptor("icons/date.png"));
-		getImageRegistry().put(IMAGE_COMPARISON, getImageDescriptor("icons/arrow_refresh.png"));
+		ImageRegistry imageRegistry = getImageRegistry();
+		imageRegistry.put(IMAGE_ACCOUNT, getImageDescriptor("/icons/table.png"));
+		imageRegistry.put(IMAGE_SECURITY, getImageDescriptor("/icons/chart_curve.png"));
+		imageRegistry.put(IMAGE_SECURITYCATEGORY, getImageDescriptor("/icons/chart_pie.png"));
+		imageRegistry.put(IMAGE_CATEGORY, getImageDescriptor("/icons/folder.png"));
+		imageRegistry.put(IMAGE_CATEGORY_INCOME, getImageDescriptor("/icons/folder_add.png"));
+		imageRegistry.put(IMAGE_CATEGORY_EXPENSE, getImageDescriptor("/icons/folder_delete.png"));
+		imageRegistry.put(IMAGE_CALENDAR, getImageDescriptor("icons/calendar.png"));
+		imageRegistry.put(IMAGE_REPORT, getImageDescriptor("icons/book.png"));
+		imageRegistry.put(IMAGE_FORECAST, getImageDescriptor("icons/weather_cloudy.png"));
+		imageRegistry.put(IMAGE_CREDIT, getImageDescriptor("icons/script.png"));
+		imageRegistry.put(IMAGE_LOAD_FILE, getImageDescriptor("icons/database_go.png"));
+		imageRegistry.put(IMAGE_SAVED_TRANSACTION, getImageDescriptor("icons/date.png"));
+		imageRegistry.put(IMAGE_COMPARISON, getImageDescriptor("icons/arrow_refresh.png"));
 	}
 
 	public Image getImage(String path) {
-		ImageDescriptor imageDescriptor = getImageRegistry().getDescriptor(path);
+		ImageRegistry imageRegistry = getImageRegistry();
+		ImageDescriptor imageDescriptor = imageRegistry.getDescriptor(path);
 		if (imageDescriptor == null) {
 			imageDescriptor = getImageDescriptor(path);
-			getImageRegistry().put(path, imageDescriptor);
+			imageRegistry.put(path, imageDescriptor);
 		}
-		return imageDescriptor.createImage();
+		return imageRegistry.get(path);
 	}
 
 	public synchronized ColorRegistry getColorProvider() {

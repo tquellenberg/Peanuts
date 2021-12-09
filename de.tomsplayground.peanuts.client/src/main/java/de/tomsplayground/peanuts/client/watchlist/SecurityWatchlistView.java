@@ -531,6 +531,7 @@ public class SecurityWatchlistView extends ViewPart {
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		table.setFont(Activator.getDefault().getNormalFont());
 		ColumnViewerToolTipSupport.enableFor(securityListViewer);
 		// must be called  before tableViewerColumn.setLabelProvider
 		securityListViewer.setLabelProvider(new SecurityListLabelProvider());

@@ -220,6 +220,7 @@ public class AccountListView extends ViewPart {
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		table.setFont(Activator.getDefault().getNormalFont());
 
 		TableColumn col = new TableColumn(table, SWT.LEFT);
 		col.setText("Name");

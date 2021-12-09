@@ -550,6 +550,7 @@ public class InventoryEditorPart extends EditorPart {
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(true);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		tree.setFont(Activator.getDefault().getNormalFont());
 		treeViewer.setContentProvider(new InventoryContentProvider());
 		Color red = Activator.getDefault().getColorProvider().get(Activator.RED);
 		treeViewer.setLabelProvider(new InventoryLabelProvider(red, account.getCurrency()));

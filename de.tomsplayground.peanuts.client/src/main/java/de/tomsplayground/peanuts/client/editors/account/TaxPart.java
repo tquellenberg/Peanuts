@@ -188,6 +188,7 @@ public class TaxPart extends EditorPart {
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		table.setFont(Activator.getDefault().getNormalFont());
 
 		int colNumber = 0;
 
