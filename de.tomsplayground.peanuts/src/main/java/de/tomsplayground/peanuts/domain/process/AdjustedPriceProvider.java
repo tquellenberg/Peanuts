@@ -48,7 +48,7 @@ public abstract class AdjustedPriceProvider extends ObservableModelObject implem
 	}
 
 	@Override
-	public void setPrices(List<? extends IPrice> prices, boolean overideExistingData) {
+	public boolean setPrices(List<? extends IPrice> prices, boolean overideExistingData) {
 		throw new NotImplementedException("setPrice");
 	}
 

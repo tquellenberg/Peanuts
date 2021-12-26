@@ -1,10 +1,12 @@
 package de.tomsplayground.peanuts.domain.process;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -70,26 +72,28 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 
 	public void refresh(Security security, boolean overideExistingData) {
 		if (StringUtils.isNotBlank(security.getTicker())) {
+			boolean changed = false;
 			IPriceProvider localPriceProvider = getPriceProvider(security);
 			if (security.getTicker().startsWith(GOOGLE_PREFIX)) {
 				IPriceProvider remotePriceProvider = readHistoricalPricesFromGoogle(security);
 				if (remotePriceProvider != null) {
-					mergePrices(localPriceProvider, remotePriceProvider, overideExistingData);
+					changed = mergePrices(localPriceProvider, remotePriceProvider, overideExistingData);
 				}
 			} else {
 				boolean full = localPriceProvider.getPrices().size() < 100 || overideExistingData;
 				IPriceProvider remotePriceProvider = readHistoricalPricesFromYahoo(security, full);
 				if (remotePriceProvider != null) {
-					mergePrices(localPriceProvider, remotePriceProvider, overideExistingData);
+					changed = mergePrices(localPriceProvider, remotePriceProvider, overideExistingData);
 				}
 			}
-			saveToLocal(security, localPriceProvider);
+			if (changed) {
+				saveToLocal(security, localPriceProvider);
+			}
 		}
 	}
 
-	private void mergePrices(IPriceProvider localPriceProvider, IPriceProvider remotePriceProvider, boolean overideExistingData) {
-		List<IPrice> prices = remotePriceProvider.getPrices();
-		localPriceProvider.setPrices(prices, overideExistingData);
+	private boolean mergePrices(IPriceProvider localPriceProvider, IPriceProvider remotePriceProvider, boolean overideExistingData) {
+		return localPriceProvider.setPrices(remotePriceProvider.getPrices(), overideExistingData);
 	}
 
 	protected String localFilename(Security security) {
@@ -98,8 +102,9 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 
 	public void saveToLocal(Security security, IPriceProvider priceProvider) {
 		synchronized (security) {
+			log.info("Saving prices for {}", security.getName());
 			File file = new File(localFilename(security));
-			try (FileWriter writer = new FileWriter(file)) {
+			try (Writer writer = new BufferedWriter(new FileWriter(file))) {
 				List<IPrice> prices = priceProvider.getPrices();
 
 				ICSVWriter csvWriter = new CSVWriterBuilder(writer)

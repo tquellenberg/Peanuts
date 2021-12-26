@@ -109,7 +109,7 @@ public class PriceProvider extends ObservableModelObject implements IPriceProvid
 	}
 
 	@Override
-	public void setPrices(List<? extends IPrice> prices, boolean overideExistingData) {
+	public boolean setPrices(List<? extends IPrice> prices, boolean overideExistingData) {
 		boolean change = false;
 		if (this.prices.isEmpty()) {
 			this.prices = ImmutableList.copyOf(prices.stream().sorted(new Comparator<IPrice>() {
@@ -128,6 +128,7 @@ public class PriceProvider extends ObservableModelObject implements IPriceProvid
 		if (change) {
 			firePropertyChange("prices", null, prices);
 		}
+		return change;
 	}
 
 	private IPrice setPriceInternal(IPrice newPrice, boolean overideExistingData) {

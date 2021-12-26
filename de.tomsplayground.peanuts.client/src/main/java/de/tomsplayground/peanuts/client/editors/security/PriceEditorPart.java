@@ -257,9 +257,11 @@ public class PriceEditorPart extends EditorPart {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		PriceProviderFactory.getInstance().saveToLocal(security, priceProvider);
-		dirty = false;
+		if (dirty) {
+			Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+			PriceProviderFactory.getInstance().saveToLocal(security, priceProvider);
+			dirty = false;
+		}
 	}
 
 	@Override
