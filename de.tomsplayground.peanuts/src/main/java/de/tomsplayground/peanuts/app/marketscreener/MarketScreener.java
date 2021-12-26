@@ -41,7 +41,7 @@ public class MarketScreener {
 		.setDefaultRequestConfig(defaultRequestConfig).build();
 
 	public static void main(String[] args) {
-		List<FundamentalData> scrapFinancials = new MarketScreener().scrapFinancials("https://www.marketscreener.com/BABCOCK-INTERNATIONAL-GRO-9583549/financials/");
+		List<FundamentalData> scrapFinancials = new MarketScreener().scrapFinancials("https://www.marketscreener.com/quote/stock/KELLOGG-COMPANY-13226/financials/");
 		for (FundamentalData fundamentalData : scrapFinancials) {
 			System.out.println(fundamentalData);
 		}
@@ -94,7 +94,7 @@ public class MarketScreener {
 				}
 			}
 
-			for (int i = 4; i < 8; i++) {
+			for (int i = 6; i <= 10; i++) {
 				FundamentalData fundamentalData = new FundamentalData();
 
 				// Year
@@ -104,27 +104,28 @@ public class MarketScreener {
 					// Okay
 					continue;
 				}
+				String yearStr = result[0].toString().strip();
 				try {
-					String yearStr = result[0].toString().strip();
 					int year = Integer.parseInt(yearStr);
 					fundamentalData.setYear(year);
 				} catch (NumberFormatException e) {
 					// Okay
-					log.info("NumberFormatException: "+e.getMessage());
+					log.info("NumberFormatException: "+e.getMessage() + " '"+yearStr+"' "+financialsUrl);
 					continue;
 				}
 
 				// EPS
 				xPather = new XPather("tbody/tr[9]/td[" + i + "]/text()");
 				result = xPather.evaluateAgainstNode(incomeTable);
+				String cellText = result[0].toString();
 				try {
-					BigDecimal eps = parseNumber(result[0].toString());
+					BigDecimal eps = parseNumber(cellText);
 					if (isPence) {
 						eps = eps.divide(new BigDecimal(100));
 					}
 					fundamentalData.setEarningsPerShare(eps);
 				} catch (NumberFormatException e) {
-					log.info("NumberFormatException: "+e.getMessage());
+					log.info("NumberFormatException: "+e.getMessage() + " '"+cellText+"' "+financialsUrl);
 					// Okay
 					continue;
 				}
@@ -132,14 +133,15 @@ public class MarketScreener {
 				// Dividend
 				xPather = new XPather("tbody/tr[10]/td[" + i + "]/text()");
 				result = xPather.evaluateAgainstNode(incomeTable);
+				cellText = result[0].toString();
 				try {
-					BigDecimal dividend = parseNumber(result[0].toString());
+					BigDecimal dividend = parseNumber(cellText);
 					if (isPence) {
 						dividend = dividend.divide(new BigDecimal(100));
 					}
 					fundamentalData.setDividende(dividend);
 				} catch (NumberFormatException e) {
-					log.info("NumberFormatException: "+e.getMessage());
+					log.info("NumberFormatException: "+e.getMessage() + " '"+cellText+"' "+financialsUrl);
 					// Okay
 				}
 
