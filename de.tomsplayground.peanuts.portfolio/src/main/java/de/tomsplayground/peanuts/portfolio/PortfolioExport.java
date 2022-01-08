@@ -2,9 +2,12 @@ package de.tomsplayground.peanuts.portfolio;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.google.common.collect.Sets;
 
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.Account.Type;
@@ -26,8 +29,10 @@ import name.abuchen.portfolio.model.Client;
 import name.abuchen.portfolio.model.ClientFactory;
 import name.abuchen.portfolio.model.Portfolio;
 import name.abuchen.portfolio.model.PortfolioTransaction;
+import name.abuchen.portfolio.model.SaveFlag;
 import name.abuchen.portfolio.model.SecurityEvent;
 import name.abuchen.portfolio.model.SecurityPrice;
+import name.abuchen.portfolio.model.Transaction;
 import name.abuchen.portfolio.model.Transaction.Unit;
 import name.abuchen.portfolio.money.Money;
 
@@ -68,7 +73,7 @@ public class PortfolioExport {
 		for (Security security : accountManager.getSecurities()) {
 			name.abuchen.portfolio.model.Security s = securityMap.get(security);
 			for (IPrice price : priceProviderFactory.getPriceProvider(security).getPrices()) {
-				s.addPrice(new SecurityPrice(price.getDay().toLocalDate(), price.getClose().movePointRight(4).longValue()));
+				s.addPrice(new SecurityPrice(price.getDay().toLocalDate(), price.getValue().movePointRight(8).longValue()));
 			}
 			for (StockSplit stockSplit : accountManager.getStockSplits(security)) {
 		        SecurityEvent event = new SecurityEvent(stockSplit.getDay().toLocalDate(), SecurityEvent.Type.STOCK_SPLIT,
@@ -85,7 +90,7 @@ public class PortfolioExport {
 			a.setRetired(account.isDeleted());
 			a.setCurrencyCode(account.getCurrency().getCurrencyCode());
 			client.addAccount(a);
-			if (account.getType() == Type.INVESTMENT) {
+			if (account.getType() == Type.INVESTMENT || account.getType() == Type.COMMODITY) {
 				Portfolio portfolio = new Portfolio();
 				portfolio.setName(account.getName());
 				portfolio.setRetired(account.isDeleted());
@@ -114,12 +119,18 @@ public class PortfolioExport {
 			if (amount < 0) {
 				Account targetAccount = (Account) tt.getTarget();
 				AccountTransferEntry transferEntry = new AccountTransferEntry(a, accountMap.get(targetAccount));
-				transferEntry.setCurrencyCode(account.getCurrency().getCurrencyCode());
+				transferEntry.setCurrencyCode(currencyCode);
 				transferEntry.setAmount(-amount);
 				transferEntry.setDate(date);
 				if (! account.getCurrency().equals(targetAccount.getCurrency())) {
 					transferEntry.getTargetTransaction().setCurrencyCode(targetAccount.getCurrency().getCurrencyCode());
 					transferEntry.getTargetTransaction().setAmount(tt.getComplement().getAmount().movePointRight(2).longValue());
+
+		            Transaction.Unit forex = new Transaction.Unit(Transaction.Unit.Type.GROSS_VALUE,
+                            Money.of(currencyCode, -amount),
+                            Money.of(targetAccount.getCurrency().getCurrencyCode(), tt.getComplement().getAmount().movePointRight(2).longValue()),
+                            new BigDecimal((double)-amount / (double)tt.getComplement().getAmount().movePointRight(2).longValue()));
+		            transferEntry.getSourceTransaction().addUnit(forex);
 				}
 				transferEntry.insert();
 			}
@@ -142,7 +153,7 @@ public class PortfolioExport {
 					buySellEntry.setCurrencyCode(currencyCode);
 					buySellEntry.setDate(date);
 					buySellEntry.setSecurity(security);
-					buySellEntry.setShares(ivt.getQuantity().movePointRight(6).longValue());
+					buySellEntry.setShares(ivt.getQuantity().movePointRight(8).longValue());
 					buySellEntry.getPortfolioTransaction().addUnit(new Unit(Unit.Type.FEE, Money.of(currencyCode, ivt.getCommission().movePointRight(2).longValue())));
 					buySellEntry.insert();
 				} else {
@@ -212,7 +223,7 @@ public class PortfolioExport {
 	}
 
 	private void savePortfolio(Client client) throws IOException {
-		ClientFactory.save(client, new File(portfolioFilename), "AES256", password.toCharArray());
+		ClientFactory.saveAs(client, new File(portfolioFilename), password.toCharArray(), Sets.newHashSet(SaveFlag.AES256));
 	}
 
 	private AccountManager loadPeanuts() {

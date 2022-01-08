@@ -9,7 +9,7 @@
 	<name>Portfolio Export</name>
 	<version>0.1-SNAPSHOT</version>
 	<properties>
-		<project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -20,12 +20,12 @@
 		<dependency>
 			<groupId>name.abuchen.portfolio</groupId>
 			<artifactId>name.abuchen.portfolio</artifactId>
-			<version>0.40.2-SNAPSHOT</version>
+			<version>0.56.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.osgi</groupId>
-			<artifactId>org.eclipse.osgi</artifactId>
-			<version>3.7.1</version>
+		    <groupId>org.eclipse.core</groupId>
+		    <artifactId>runtime</artifactId>
+		    <version>3.10.0-v20140318-2214</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -35,10 +35,10 @@
 				<version>2.3.2</version>
 				<configuration>
 					<compilerArguments>
-						<encoding>ISO-8859-1</encoding>
+						<encoding>UTF-8</encoding>
 					</compilerArguments>
-					<source>10</source>
-					<target>10</target>
+					<source>11</source>
+					<target>11</target>
 				</configuration>
 			</plugin>
 		</plugins>
