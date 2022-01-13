@@ -103,6 +103,7 @@ public class SavedTransactionPropertyPage extends PropertyPage {
 		IAdaptable adapter = getElement();
 		SavedTransaction savedTransaction = adapter.getAdapter(SavedTransaction.class);
 		SavedTransaction savedTransaction2;
+		
 		if (automaticExecution.getSelection()) {
 			Day date = startDate.getDay();
 			Interval interval = SavedTransaction.Interval.values()[intervalCombo.getSelectionIndex()];
@@ -111,7 +112,7 @@ public class SavedTransactionPropertyPage extends PropertyPage {
 			savedTransaction2 = new SavedTransaction(savedTransaction.getName(), savedTransaction.getTransaction());
 		}
 		AccountManager accountManager = Activator.getDefault().getAccountManager();
-		accountManager.removeSavedTransaction(savedTransaction);
+		accountManager.removeSavedTransaction(accountManager.getSavedTransaction(savedTransaction.getName()));
 		accountManager.addSavedTransaction(savedTransaction2);
 
 		if (savedTransaction2.isAutomaticExecution()) {
