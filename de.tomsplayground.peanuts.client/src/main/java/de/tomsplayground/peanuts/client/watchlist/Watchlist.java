@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -26,6 +28,8 @@ import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.domain.watchlist.WatchlistConfiguration;
 
 public class Watchlist extends ObservableModelObject implements INamedElement {
+
+	private final static Logger log = LoggerFactory.getLogger(Watchlist.class);
 
 	private final PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
 		@Override
@@ -96,6 +100,7 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 	}
 
 	public WatchEntry removeEntry(Security security) {
+		log.info("Remove {} from watch list {}", security.getName(), configuration.getName());		
 		for (Iterator<WatchEntry> iterator = entries.iterator(); iterator.hasNext();) {
 			WatchEntry watchEntry = iterator.next();
 			if (watchEntry.getSecurity().equals(security)) {
@@ -107,9 +112,11 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 				}
 				firePropertyChange("entries", watchEntry, null);
 				security.removePropertyChangeListener(propertyChangeListener);
+				log.info("Successfully removed");
 				return watchEntry;
 			}
 		}
+		log.error("Security {} not found in watch list {}", security.getName(), configuration.getName());
 		return null;
 	}
 
