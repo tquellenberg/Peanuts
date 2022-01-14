@@ -137,6 +137,7 @@ public class TaxPart extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		restoreState();
+		account = ((ITransactionProviderInput) getEditorInput()).getTransactionProvider();
 
 		Composite top = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
@@ -158,7 +159,13 @@ public class TaxPart extends EditorPart {
 		l.setFont(boldFont);
 
 		final Combo yearCombo = new Combo(banner, SWT.DROP_DOWN | SWT.READ_ONLY);
-		for (int i = 1990; i <= 2021; i++ ) {
+		short startYear;
+		if (! account.getTransactions().isEmpty()) {
+			startYear = account.getTransactions().get(0).getDay().year;
+		} else {
+			startYear = Day.today().year;
+		}
+		for (int i = startYear; i <= Day.today().year; i++ ) {
 			yearCombo.add(Integer.toString(i));
 		}
 		yearCombo.select(yearCombo.indexOf(Integer.toString(selectedYear)));
@@ -169,6 +176,7 @@ public class TaxPart extends EditorPart {
 				if (StringUtils.isNotBlank(yearString) && StringUtils.isNumeric(yearString)) {
 					selectedYear = Integer.parseInt(yearString);
 					setData();
+					saveState();
 				}
 			}
 		});
@@ -269,7 +277,6 @@ public class TaxPart extends EditorPart {
 	}
 
 	private void setData() {
-		account = ((ITransactionProviderInput) getEditorInput()).getTransactionProvider();
 		IPriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
 		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
 		priceProviderFactory = new CurrencyAdjustedPriceProviderFactory(account.getCurrency(), priceProviderFactory, exchangeRates);
