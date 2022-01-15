@@ -11,6 +11,7 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.google.common.collect.ImmutableList;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -54,7 +55,9 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).append("name", name).toString();
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("name", name)
+				.toString();
 	}
 
 	public String getISIN() {

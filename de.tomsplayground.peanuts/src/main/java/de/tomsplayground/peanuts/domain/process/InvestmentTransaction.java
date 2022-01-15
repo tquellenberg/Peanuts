@@ -3,6 +3,9 @@ package de.tomsplayground.peanuts.domain.process;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.base.AccountManager;
@@ -113,5 +116,15 @@ public class InvestmentTransaction extends Transaction {
 			quantity = BigDecimal.ONE;
 			price = getAmount();
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).
+				append("day", getDay()).
+				append("type", type).
+				append("security", security).
+				append("amount", getAmount()).
+				toString();
 	}
 }

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -55,8 +56,11 @@ public class StockSplit implements ITimedElement {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).append("security", security).append("day", day).
-			append("from", from).append("to", to).toString();
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("security", security)
+				.append("day", day)
+				.append("from", from)
+				.append("to", to).toString();
 	}
 
 	@Override

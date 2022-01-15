@@ -8,6 +8,7 @@ import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -31,7 +32,7 @@ public class Category implements Serializable, INamedElement {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).
 			append("name", name).
 			append("type", type).
 			toString();

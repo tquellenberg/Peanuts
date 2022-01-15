@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.google.common.collect.ImmutableList;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -168,7 +170,11 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 
 	@Override
 	public String toString() {
-		return "Transaction[" + day + ", " + amount + ", " + category + "]";
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).
+				append("day", day).
+				append("amount", amount).
+				append("category", category).
+				toString();
 	}
 
 	@Override
