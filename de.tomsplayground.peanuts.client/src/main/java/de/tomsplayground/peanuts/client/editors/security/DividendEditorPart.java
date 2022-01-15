@@ -1,11 +1,12 @@
 package de.tomsplayground.peanuts.client.editors.security;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Currency;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -49,8 +50,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.client.widgets.DateCellEditor;
-import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
@@ -77,9 +78,31 @@ public class DividendEditorPart extends EditorPart {
 
 	private List<Dividend> dividends;
 
-	private Inventory fullInventory;
+	private Report securityReport;
+
+	private Inventory securityInventory;
 
 	private ImmutableList<Currency> currencies;
+
+	private final PropertyChangeListener propertyChangeListener = new UniqueAsyncExecution() {
+		@Override
+		public void doit(PropertyChangeEvent evt, Display display) {
+			InvestmentTransaction invTr = null;
+			if (evt.getNewValue() instanceof InvestmentTransaction) {
+				invTr = (InvestmentTransaction) evt.getNewValue();
+			} else if (evt.getOldValue() instanceof InvestmentTransaction) {
+				invTr = (InvestmentTransaction) evt.getOldValue();
+			}
+			if (invTr != null && invTr.getSecurity().equals(getSecurity())) {
+				tableViewer.refresh(true);
+			}
+		}
+
+		@Override
+		public Display getDisplay() {
+			return getSite().getShell().getDisplay();
+		}
+	};
 
 	private class DividendTableLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 
@@ -173,7 +196,6 @@ public class DividendEditorPart extends EditorPart {
 		public Image getColumnImage(Object element, int columnIndex) {
 			return null;
 		}
-
 	}
 
 	@Override
@@ -185,20 +207,27 @@ public class DividendEditorPart extends EditorPart {
 		setInput(input);
 		setPartName(input.getName());
 
-		Report report = new Report("temp");
-		report.addQuery(new SecurityInvestmentQuery(getSecurity()));
+		securityReport = new Report("securityReport: " + getSecurity().getName());
+		securityReport.addQuery(new SecurityInvestmentQuery(getSecurity()));
+		securityReport.addPropertyChangeListener("transactions", propertyChangeListener);
+		
 		AccountManager accountManager = Activator.getDefault().getAccountManager();
-		report.setAccounts(accountManager.getAccounts());
-		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new AnalyzerFactory());
+		securityReport.setAccounts(accountManager.getAccounts());
+		securityInventory = new Inventory(securityReport, PriceProviderFactory.getInstance(), new AnalyzerFactory());
 
 		currencies = Currencies.getInstance().getCurrenciesWithExchangeSecurity(accountManager);
+	}
+	
+	@Override
+	public void dispose() {
+		securityInventory.dispose();
+		securityReport.removePropertyChangeListener("transactions", propertyChangeListener);
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
 		final Security security = getSecurity();
 		dividends = cloneDividends(security.getDividends());
-
 
 		Composite top = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
@@ -524,21 +553,12 @@ public class DividendEditorPart extends EditorPart {
 		Day payDate = dividend.getPayDate();
 		BigDecimal amount = dividend.getNettoAmountInDefaultCurrency();
 
-		AccountManager accountManager = Activator.getDefault().getAccountManager();
-		List<Account> invAccounts = accountManager.getAccounts().stream()
-			.filter(acc -> acc.getType() == Account.Type.INVESTMENT)
-			.collect(Collectors.toList());
-		for (Account account : invAccounts) {
-			Optional<InvestmentTransaction> findAny = account.getTransactionsByDate(payDate.addDays(-1), payDate.addDays(14)).stream()
+		return securityReport
+				.getTransactionsByDate(payDate.addDays(-1), payDate.addDays(14)).stream()
 				.filter(InvestmentTransaction.class::isInstance)
-				.map (InvestmentTransaction.class::cast)
-				.filter(t -> (t.getSecurity().equals(dividend.getSecurity()) && t.getAmount().compareTo(amount) == 0))
-				.findAny();
-			if (findAny.isPresent()) {
-				return findAny.get();
-			}
-		}
-		return null;
+				.map(InvestmentTransaction.class::cast)
+				.filter(t -> t.getAmount().compareTo(amount) == 0)
+				.findAny().orElse(null);
 	}
 
 	@Override
@@ -619,15 +639,15 @@ public class DividendEditorPart extends EditorPart {
 		if (entry.getQuantity() != null) {
 			return entry.getQuantity();
 		}
-		fullInventory.setDate(entry.getPayDate());
-		InventoryEntry inventoryEntry = fullInventory.getInventoryEntry(getSecurity());
+		securityInventory.setDate(entry.getPayDate());
+		InventoryEntry inventoryEntry = securityInventory.getInventoryEntry(getSecurity());
 
 		return inventoryEntry.getQuantity();
 	}
 
 	private BigDecimal getDividendYoc(Dividend entry) {
-		fullInventory.setDate(entry.getPayDate());
-		InventoryEntry inventoryEntry = fullInventory.getInventoryEntry(getSecurity());
+		securityInventory.setDate(entry.getPayDate());
+		InventoryEntry inventoryEntry = securityInventory.getInventoryEntry(getSecurity());
 		BigDecimal quantity = entry.getQuantity();
 		if (quantity == null) {
 			quantity = inventoryEntry.getQuantity();
