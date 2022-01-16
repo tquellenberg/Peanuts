@@ -32,6 +32,7 @@ import name.abuchen.portfolio.model.PortfolioTransaction;
 import name.abuchen.portfolio.model.SaveFlag;
 import name.abuchen.portfolio.model.SecurityEvent;
 import name.abuchen.portfolio.model.SecurityPrice;
+import name.abuchen.portfolio.model.TaxonomyTemplate;
 import name.abuchen.portfolio.model.Transaction;
 import name.abuchen.portfolio.model.Transaction.Unit;
 import name.abuchen.portfolio.money.Money;
@@ -63,6 +64,8 @@ public class PortfolioExport {
 
 	private Client convert(AccountManager accountManager) {
 		Client client = new Client();
+		client.addTaxonomy(TaxonomyTemplate.byId("regions-msci").build());
+		client.addTaxonomy(TaxonomyTemplate.byId("industry-gics-1st-level").build());		
 		convertSecurities(accountManager, client);
 		convertAccounts(accountManager, client);
 		convertSecurityPrices(accountManager);
@@ -223,7 +226,7 @@ public class PortfolioExport {
 	}
 
 	private void savePortfolio(Client client) throws IOException {
-		ClientFactory.saveAs(client, new File(portfolioFilename), password.toCharArray(), Sets.newHashSet(SaveFlag.AES256));
+		ClientFactory.saveAs(client, new File(portfolioFilename), password.toCharArray(), Sets.newHashSet(SaveFlag.XML, SaveFlag.AES128));
 	}
 
 	private AccountManager loadPeanuts() {
