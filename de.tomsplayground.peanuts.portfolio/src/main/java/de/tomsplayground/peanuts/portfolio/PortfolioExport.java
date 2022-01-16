@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Sets;
@@ -20,11 +21,14 @@ import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.domain.process.TransferTransaction;
+import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 import de.tomsplayground.peanuts.persistence.Persistence;
 import de.tomsplayground.peanuts.persistence.xstream.PersistenceService;
 import name.abuchen.portfolio.model.AccountTransaction;
 import name.abuchen.portfolio.model.AccountTransferEntry;
 import name.abuchen.portfolio.model.BuySellEntry;
+import name.abuchen.portfolio.model.Classification;
+import name.abuchen.portfolio.model.Classification.Assignment;
 import name.abuchen.portfolio.model.Client;
 import name.abuchen.portfolio.model.ClientFactory;
 import name.abuchen.portfolio.model.Portfolio;
@@ -32,6 +36,8 @@ import name.abuchen.portfolio.model.PortfolioTransaction;
 import name.abuchen.portfolio.model.SaveFlag;
 import name.abuchen.portfolio.model.SecurityEvent;
 import name.abuchen.portfolio.model.SecurityPrice;
+import name.abuchen.portfolio.model.Taxonomy;
+import name.abuchen.portfolio.model.Taxonomy.Visitor;
 import name.abuchen.portfolio.model.TaxonomyTemplate;
 import name.abuchen.portfolio.model.Transaction;
 import name.abuchen.portfolio.model.Transaction.Unit;
@@ -47,6 +53,10 @@ public class PortfolioExport {
 	private final Map<Security, name.abuchen.portfolio.model.Security> securityMap = new HashMap<>();
 	private final Map<name.abuchen.portfolio.model.Account, Portfolio> portfolioMap = new HashMap<>();
 	private PriceProviderFactory priceProviderFactory;
+	private Taxonomy regionsTaxonomy;
+	private Taxonomy gicsTaxonomy;
+	private List<SecurityCategoryMapping> securityCategoryMappings;
+	private SecurityCategoryMapping regionsMapping;
 
 	public static void main(String[] args) throws IOException {
 		PortfolioExport portfolioExport = new PortfolioExport();
@@ -63,12 +73,22 @@ public class PortfolioExport {
 	}
 
 	private Client convert(AccountManager accountManager) {
+		securityCategoryMappings = accountManager.getSecurityCategoryMappings();
+		for (SecurityCategoryMapping securityCategoryMapping : securityCategoryMappings) {
+			if (securityCategoryMapping.getName().equals("Region")) {
+				regionsMapping = securityCategoryMapping;
+			}
+		}
+
 		Client client = new Client();
-		client.addTaxonomy(TaxonomyTemplate.byId("regions-msci").build());
-		client.addTaxonomy(TaxonomyTemplate.byId("industry-gics-1st-level").build());		
+		regionsTaxonomy = TaxonomyTemplate.byId("regions-msci").build();
+		gicsTaxonomy = TaxonomyTemplate.byId("industry-gics-1st-level").build();
+		client.addTaxonomy(regionsTaxonomy);
+		client.addTaxonomy(gicsTaxonomy);
 		convertSecurities(accountManager, client);
 		convertAccounts(accountManager, client);
 		convertSecurityPrices(accountManager);
+		
 		return client;
 	}
 
@@ -76,12 +96,13 @@ public class PortfolioExport {
 		for (Security security : accountManager.getSecurities()) {
 			name.abuchen.portfolio.model.Security s = securityMap.get(security);
 			for (IPrice price : priceProviderFactory.getPriceProvider(security).getPrices()) {
-				s.addPrice(new SecurityPrice(price.getDay().toLocalDate(), price.getValue().movePointRight(8).longValue()));
+				s.addPrice(new SecurityPrice(price.getDay().toLocalDate(),
+						price.getValue().movePointRight(8).longValue()));
 			}
 			for (StockSplit stockSplit : accountManager.getStockSplits(security)) {
-		        SecurityEvent event = new SecurityEvent(stockSplit.getDay().toLocalDate(), SecurityEvent.Type.STOCK_SPLIT,
-		        	stockSplit.getTo() + ":" + stockSplit.getFrom());
-		        s.addEvent(event);
+				SecurityEvent event = new SecurityEvent(stockSplit.getDay().toLocalDate(),
+						SecurityEvent.Type.STOCK_SPLIT, stockSplit.getTo() + ":" + stockSplit.getFrom());
+				s.addEvent(event);
 			}
 		}
 	}
@@ -117,7 +138,7 @@ public class PortfolioExport {
 		LocalDateTime date = tx.getDay().toLocalDateTime();
 		long amount = tx.getAmount().movePointRight(2).longValue();
 		if (tx instanceof TransferTransaction) {
-			TransferTransaction tt = (TransferTransaction)tx;
+			TransferTransaction tt = (TransferTransaction) tx;
 			checkTransferTransaction(account, tt);
 			if (amount < 0) {
 				Account targetAccount = (Account) tt.getTarget();
@@ -125,24 +146,28 @@ public class PortfolioExport {
 				transferEntry.setCurrencyCode(currencyCode);
 				transferEntry.setAmount(-amount);
 				transferEntry.setDate(date);
-				if (! account.getCurrency().equals(targetAccount.getCurrency())) {
+				if (!account.getCurrency().equals(targetAccount.getCurrency())) {
 					transferEntry.getTargetTransaction().setCurrencyCode(targetAccount.getCurrency().getCurrencyCode());
-					transferEntry.getTargetTransaction().setAmount(tt.getComplement().getAmount().movePointRight(2).longValue());
+					transferEntry.getTargetTransaction()
+							.setAmount(tt.getComplement().getAmount().movePointRight(2).longValue());
 
-		            Transaction.Unit forex = new Transaction.Unit(Transaction.Unit.Type.GROSS_VALUE,
-                            Money.of(currencyCode, -amount),
-                            Money.of(targetAccount.getCurrency().getCurrencyCode(), tt.getComplement().getAmount().movePointRight(2).longValue()),
-                            new BigDecimal((double)-amount / (double)tt.getComplement().getAmount().movePointRight(2).longValue()));
-		            transferEntry.getSourceTransaction().addUnit(forex);
+					Transaction.Unit forex = new Transaction.Unit(Transaction.Unit.Type.GROSS_VALUE,
+							Money.of(currencyCode, -amount),
+							Money.of(targetAccount.getCurrency().getCurrencyCode(),
+									tt.getComplement().getAmount().movePointRight(2).longValue()),
+							new BigDecimal((double) -amount
+									/ (double) tt.getComplement().getAmount().movePointRight(2).longValue()));
+					transferEntry.getSourceTransaction().addUnit(forex);
 				}
 				transferEntry.insert();
 			}
 		} else {
 			if (tx instanceof InvestmentTransaction) {
-				InvestmentTransaction ivt = (InvestmentTransaction)tx;
+				InvestmentTransaction ivt = (InvestmentTransaction) tx;
 				name.abuchen.portfolio.model.Security security = securityMap.get(ivt.getSecurity());
 
-				if (ivt.getType() == InvestmentTransaction.Type.BUY || ivt.getType() == InvestmentTransaction.Type.SELL) {
+				if (ivt.getType() == InvestmentTransaction.Type.BUY
+						|| ivt.getType() == InvestmentTransaction.Type.SELL) {
 					PortfolioTransaction.Type type = null;
 					if (ivt.getType() == InvestmentTransaction.Type.BUY) {
 						type = PortfolioTransaction.Type.BUY;
@@ -157,7 +182,8 @@ public class PortfolioExport {
 					buySellEntry.setDate(date);
 					buySellEntry.setSecurity(security);
 					buySellEntry.setShares(ivt.getQuantity().movePointRight(8).longValue());
-					buySellEntry.getPortfolioTransaction().addUnit(new Unit(Unit.Type.FEE, Money.of(currencyCode, ivt.getCommission().movePointRight(2).longValue())));
+					buySellEntry.getPortfolioTransaction().addUnit(new Unit(Unit.Type.FEE,
+							Money.of(currencyCode, ivt.getCommission().movePointRight(2).longValue())));
 					buySellEntry.insert();
 				} else {
 					name.abuchen.portfolio.model.AccountTransaction.Type type = AccountTransaction.Type.DEPOSIT;
@@ -190,8 +216,9 @@ public class PortfolioExport {
 //		if (tt1.isSource() == tt2.isSource()) {
 //			System.err.println(account1.getName()+ " "+tt1.getDay() + " " + account2.getName()+ " " + tt1.getAmount() + " SOURCE EQUALS");
 //		}
-		if (! account2.getFlatTransactions().contains(tt2)) {
-			System.err.println(account1.getName()+ " "+tt1.getDay() + " " + account2.getName()+ " " + tt1.getAmount() + " TARGET MISSING");
+		if (!account2.getFlatTransactions().contains(tt2)) {
+			System.err.println(account1.getName() + " " + tt1.getDay() + " " + account2.getName() + " "
+					+ tt1.getAmount() + " TARGET MISSING");
 		}
 	}
 
@@ -209,8 +236,32 @@ public class PortfolioExport {
 			s.setWkn(security.getWKN());
 			s.setTickerSymbol(security.getMorningstarSymbol());
 			client.addSecurity(s);
+			
+			attachTaxonomy(security, s);
 			securityMap.put(security, s);
 		}
+	}
+
+	private void attachTaxonomy(Security security, name.abuchen.portfolio.model.Security s) {
+		String category = regionsMapping.getCategory(security);
+		if (category.equals("USA")) {
+			category = "Vereinigte Staaten";
+		}
+		if (category.equals("UK")) {
+			category = "Großbritannien";
+		}
+		if (category.equals("Singapore")) {
+			category = "Singapur";
+		}		
+		String country = category;
+		regionsTaxonomy.foreach(new Visitor() {
+			@Override
+			public void visit(Classification c) {
+				if (c.getName().equals(country)) {
+					c.addAssignment(new Assignment(s));
+				}
+			}
+		});
 	}
 
 	private void setPeanutsFilename(String peanutsFilename) {
@@ -226,7 +277,8 @@ public class PortfolioExport {
 	}
 
 	private void savePortfolio(Client client) throws IOException {
-		ClientFactory.saveAs(client, new File(portfolioFilename), password.toCharArray(), Sets.newHashSet(SaveFlag.XML, SaveFlag.AES128));
+		ClientFactory.saveAs(client, new File(portfolioFilename), password.toCharArray(),
+				Sets.newHashSet(SaveFlag.XML, SaveFlag.AES128));
 	}
 
 	private AccountManager loadPeanuts() {
