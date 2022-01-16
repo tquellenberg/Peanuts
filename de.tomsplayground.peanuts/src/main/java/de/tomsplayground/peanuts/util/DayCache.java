@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import de.tomsplayground.peanuts.events.Events;
 
 public class DayCache {
@@ -16,10 +18,11 @@ public class DayCache {
 	private final static int MONTH_SLOTS = 31;
 	private final static int YEAR_SLOTS = MONTH_SLOTS * 12;
 	private final static int YEAR = LocalDate.now().getYear();
-	
+
 	private final Day[] cache = new Day[YEAR_SLOTS * 30];
-	
-	private final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+
+	private final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(
+			new ThreadFactoryBuilder().setNameFormat(DayCache.class.getSimpleName() + "-%d").setDaemon(true).build());
 
 	private Day today;
 
@@ -73,7 +76,7 @@ public class DayCache {
 	private void checkDay() {
 		try {
 			Day newday = Day.from(LocalDate.now());
-			if (! newday.equals(today)) {
+			if (!newday.equals(today)) {
 				log.info("Day change to {}", newday);
 				today = newday;
 				sendEvent();
