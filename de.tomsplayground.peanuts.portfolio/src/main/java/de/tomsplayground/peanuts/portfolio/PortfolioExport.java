@@ -3,6 +3,7 @@ package de.tomsplayground.peanuts.portfolio;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -53,10 +54,14 @@ public class PortfolioExport {
 	private final Map<Security, name.abuchen.portfolio.model.Security> securityMap = new HashMap<>();
 	private final Map<name.abuchen.portfolio.model.Account, Portfolio> portfolioMap = new HashMap<>();
 	private PriceProviderFactory priceProviderFactory;
-	private Taxonomy regionsTaxonomy;
-	private Taxonomy gicsTaxonomy;
-	private List<SecurityCategoryMapping> securityCategoryMappings;
+
 	private SecurityCategoryMapping regionsMapping;
+	private Taxonomy regionsTaxonomy;
+
+	private SecurityCategoryMapping sectorMapping;
+	private Taxonomy sectorTaxonomy;
+
+	private List<SecurityCategoryMapping> securityCategoryMappings;
 
 	public static void main(String[] args) throws IOException {
 		PortfolioExport portfolioExport = new PortfolioExport();
@@ -78,13 +83,16 @@ public class PortfolioExport {
 			if (securityCategoryMapping.getName().equals("Region")) {
 				regionsMapping = securityCategoryMapping;
 			}
+			if (securityCategoryMapping.getName().equals("Sector")) {
+				sectorMapping = securityCategoryMapping;
+			}
 		}
 
 		Client client = new Client();
 		regionsTaxonomy = TaxonomyTemplate.byId("regions-msci").build();
-		gicsTaxonomy = TaxonomyTemplate.byId("industry-gics-1st-level").build();
+		sectorTaxonomy = TaxonomyTemplate.byId("industry-gics-1st-level").build();
 		client.addTaxonomy(regionsTaxonomy);
-		client.addTaxonomy(gicsTaxonomy);
+		client.addTaxonomy(sectorTaxonomy);
 		convertSecurities(accountManager, client);
 		convertAccounts(accountManager, client);
 		convertSecurityPrices(accountManager);
@@ -96,8 +104,7 @@ public class PortfolioExport {
 		for (Security security : accountManager.getSecurities()) {
 			name.abuchen.portfolio.model.Security s = securityMap.get(security);
 			for (IPrice price : priceProviderFactory.getPriceProvider(security).getPrices()) {
-				s.addPrice(new SecurityPrice(price.getDay().toLocalDate(),
-						price.getValue().movePointRight(8).longValue()));
+				s.addPrice(new SecurityPrice(price.getDay().toLocalDate(), toPpPrice(price.getValue())));
 			}
 			for (StockSplit stockSplit : accountManager.getStockSplits(security)) {
 				SecurityEvent event = new SecurityEvent(stockSplit.getDay().toLocalDate(),
@@ -131,12 +138,24 @@ public class PortfolioExport {
 			}
 		}
 	}
+	
+	private long toPpQuantity(BigDecimal v) {
+		return toPpPrice(v);
+	}
+
+	private long toPpAmount(BigDecimal v) {
+		return v.setScale(2, RoundingMode.HALF_UP).movePointRight(2).longValue();
+	}
+
+	private long toPpPrice(BigDecimal v) {
+		return v.setScale(8, RoundingMode.HALF_UP).movePointRight(8).longValue();
+	}
 
 	private void convertTransaction(Account account, ITransaction tx) {
 		name.abuchen.portfolio.model.Account a = accountMap.get(account);
 		String currencyCode = account.getCurrency().getCurrencyCode();
 		LocalDateTime date = tx.getDay().toLocalDateTime();
-		long amount = tx.getAmount().movePointRight(2).longValue();
+		long amount = toPpAmount(tx.getAmount());
 		if (tx instanceof TransferTransaction) {
 			TransferTransaction tt = (TransferTransaction) tx;
 			checkTransferTransaction(account, tt);
@@ -149,14 +168,14 @@ public class PortfolioExport {
 				if (!account.getCurrency().equals(targetAccount.getCurrency())) {
 					transferEntry.getTargetTransaction().setCurrencyCode(targetAccount.getCurrency().getCurrencyCode());
 					transferEntry.getTargetTransaction()
-							.setAmount(tt.getComplement().getAmount().movePointRight(2).longValue());
+							.setAmount(toPpAmount(tt.getComplement().getAmount()));
 
 					Transaction.Unit forex = new Transaction.Unit(Transaction.Unit.Type.GROSS_VALUE,
 							Money.of(currencyCode, -amount),
 							Money.of(targetAccount.getCurrency().getCurrencyCode(),
-									tt.getComplement().getAmount().movePointRight(2).longValue()),
+									toPpAmount(tt.getComplement().getAmount())),
 							new BigDecimal((double) -amount
-									/ (double) tt.getComplement().getAmount().movePointRight(2).longValue()));
+									/ (double) toPpAmount(tt.getComplement().getAmount())));
 					transferEntry.getSourceTransaction().addUnit(forex);
 				}
 				transferEntry.insert();
@@ -181,9 +200,9 @@ public class PortfolioExport {
 					buySellEntry.setCurrencyCode(currencyCode);
 					buySellEntry.setDate(date);
 					buySellEntry.setSecurity(security);
-					buySellEntry.setShares(ivt.getQuantity().movePointRight(8).longValue());
+					buySellEntry.setShares(toPpQuantity(ivt.getQuantity()));
 					buySellEntry.getPortfolioTransaction().addUnit(new Unit(Unit.Type.FEE,
-							Money.of(currencyCode, ivt.getCommission().movePointRight(2).longValue())));
+							Money.of(currencyCode, toPpAmount(ivt.getCommission()))));
 					buySellEntry.insert();
 				} else {
 					name.abuchen.portfolio.model.AccountTransaction.Type type = AccountTransaction.Type.DEPOSIT;
@@ -237,12 +256,13 @@ public class PortfolioExport {
 			s.setTickerSymbol(security.getMorningstarSymbol());
 			client.addSecurity(s);
 			
-			attachTaxonomy(security, s);
+			attachTaxonomyRegion(security, s);
+			attachTaxonomySector(security, s);
 			securityMap.put(security, s);
 		}
 	}
 
-	private void attachTaxonomy(Security security, name.abuchen.portfolio.model.Security s) {
+	private void attachTaxonomyRegion(Security security, name.abuchen.portfolio.model.Security s) {
 		String category = regionsMapping.getCategory(security);
 		if (category.equals("USA")) {
 			category = "Vereinigte Staaten";
@@ -253,11 +273,61 @@ public class PortfolioExport {
 		if (category.equals("Singapore")) {
 			category = "Singapur";
 		}		
+		if (category.equals("Korea")) {
+			category = "Südkorea";
+		}		
 		String country = category;
 		regionsTaxonomy.foreach(new Visitor() {
 			@Override
 			public void visit(Classification c) {
 				if (c.getName().equals(country)) {
+					c.addAssignment(new Assignment(s));
+				}
+			}
+		});
+	}
+
+	private void attachTaxonomySector(Security security, name.abuchen.portfolio.model.Security s) {
+		String category = sectorMapping.getCategory(security);
+		if (category.equals("Technology")) {
+			category = "Informationstechnologie";
+		}
+		if (category.equals("Consumer Defensive")) {
+			category = "Basiskonsumgüter";
+		}
+		if (category.equals("Healthcare")) {
+			category = "Gesundheitswesen";
+		}		
+		if (category.equals("Industrials")) {
+			category = "Industrie";
+		}		
+		if (category.equals("Financial Services")) {
+			category = "Finanzwesen";
+		}		
+		if (category.equals("Basic Materials")) {
+			category = "Roh-, Hilfs- & Betriebsstoffe";
+		}		
+		if (category.equals("Utilities")) {
+			category = "Versorgungsbetriebe";
+		}		
+		if (category.equals("Real Estate")) {
+			category = "Immobilien";
+		}		
+		if (category.equals("Communication Services")) {
+			category = "Kommunikationsdienste";
+		}		
+		if (category.equals("Energy")) {
+			category = "Energie";
+		}		
+		if (category.equals("Consumer Cyclical")) {
+			category = "Nicht-Basiskonsumgüter";
+		}		
+		System.out.println(category);
+		String sector = category;
+		sectorTaxonomy.foreach(new Visitor() {
+			@Override
+			public void visit(Classification c) {
+				if (c.getName().equals(sector)) {
 					c.addAssignment(new Assignment(s));
 				}
 			}
