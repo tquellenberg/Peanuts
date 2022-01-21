@@ -31,8 +31,8 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
+import de.tomsplayground.peanuts.app.yahoo.YahooAPI;
 import de.tomsplayground.peanuts.app.yahoo.YahooSecurity;
-import de.tomsplayground.peanuts.app.yahoo.YahooSecuritySearcher;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Security;
@@ -82,7 +82,8 @@ public class SecurityNewWizardPage extends WizardPage {
 		public IStatus runInUIThread(IProgressMonitor monitor) {
 			monitor.beginTask("Refreshing", IProgressMonitor.UNKNOWN);
 			if (StringUtils.length(query) > 3) {
-				List<YahooSecurity> result = new YahooSecuritySearcher().search(query);
+				String apiKey = Activator.getDefault().getPreferenceStore().getString(Activator.RAPIDAPIKEY_PROPERTY);
+				List<YahooSecurity> result = new YahooAPI(apiKey).search(query);				
 				if (! monitor.isCanceled() && ! yahooTickerSearchResult.getTable().isDisposed()) {
 					yahooTickerSearchResult.setInput(result);
 				}

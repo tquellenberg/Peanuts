@@ -1,7 +1,11 @@
 package de.tomsplayground.peanuts.app.yahoo;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -9,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.http.HttpEntity;
@@ -17,6 +22,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.TagNode;
+import org.htmlcleaner.XPather;
+import org.htmlcleaner.XPatherException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +33,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.util.Day;
 
@@ -75,13 +85,18 @@ public class YahooAPI {
 		}
 	}
 
-	private static final String API_URL = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-financials?symbol={0}";
+	private static final String GET_FINANCIALS_URL = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-financials?symbol={0}";
+	private static final String SEARCH_URL = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/auto-complete?q={0}";
+	
 	private static final String API_HOST = "apidojo-yahoo-finance-v1.p.rapidapi.com";
 
 	private final String apiKey;
 
 	public static void main(String[] args) {
-		YahooData yahooData = new YahooAPI("").readUrl("7974.T");
+		YahooAPI yahooAPI = new YahooAPI("3d0c631c91mshf041639c3c0c9b3p1b2c1djsn49134a20e4e7");
+//		yahooAPI.search("tesla");
+		
+		YahooData yahooData = yahooAPI.getYahooData("7974.T");		
 		System.out.println(yahooData);
 		List<DebtEquityValue> values = yahooData.debtEquityValue;
 		for (DebtEquityValue debtEquityValue : values) {
@@ -93,8 +108,8 @@ public class YahooAPI {
 		this.apiKey = apiKey;
 	}
 
-	public YahooData readUrl(String symbol) {
-		String url = MessageFormat.format(API_URL, symbol);
+	public Map<String, Object> readUrl(String symbol, String urlTemplate) {
+		String url = MessageFormat.format(urlTemplate, symbol);
 		HttpGet httpGet = new HttpGet(url);
 		httpGet.addHeader("x-rapidapi-host", API_HOST);
 		httpGet.addHeader("x-rapidapi-key", apiKey);
@@ -105,10 +120,7 @@ public class YahooAPI {
 			if (response1.getStatusLine().getStatusCode() != 200) {
 				log.error(response1.getStatusLine().toString() + " "+url);
 			} else {
-				Map<String, Object> jsonMap = jsonToMap(EntityUtils.toString(entity1));
-				List<DebtEquityValue> debtEquity = parseJsonDataForDebtEquity(jsonMap);
-				MarketCap marketCap = parseJsonDataForMarketCap(jsonMap);
-				return new YahooData(debtEquity, marketCap);
+				return jsonToMap(EntityUtils.toString(entity1));
 			}
 		} catch (IOException e) {
 			log.error("URL "+url + " - " + e.getMessage());
@@ -179,4 +191,37 @@ public class YahooAPI {
 		}
 		return result;
 	}
+	
+	public YahooData getYahooData(String symbol) {
+		Map<String, Object> jsonMap = readUrl(symbol, GET_FINANCIALS_URL);
+		
+		List<DebtEquityValue> debtEquity = parseJsonDataForDebtEquity(jsonMap);
+		MarketCap marketCap = parseJsonDataForMarketCap(jsonMap);
+		return new YahooData(debtEquity, marketCap);		
+	}
+	
+	public List<YahooSecurity> search(String query) {
+		List<YahooSecurity> result = Lists.newArrayList();
+		String queryEnc = "";
+		try {
+			queryEnc = URLEncoder.encode(query, StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e) {
+		}
+		Map<String, Object> resultJson = readUrl(queryEnc, SEARCH_URL);
+		if (resultJson != null) {
+			List<Map<String, String>> quotes = (List<Map<String, String>>) resultJson.get("quotes");
+			if (quotes != null) {
+				for (Map<String, String> quote : quotes) {
+					System.out.println(quote);
+					String symbol = quote.get("symbol");
+					String name = quote.get("shortname");
+					String exchange = quote.get("exchDisp");
+					
+					result.add(new YahooSecurity(symbol, name, exchange));
+				}
+			}
+		}
+		return result;
+	}
+
 }
