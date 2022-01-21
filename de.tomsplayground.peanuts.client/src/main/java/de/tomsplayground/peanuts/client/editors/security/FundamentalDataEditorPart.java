@@ -695,7 +695,8 @@ public class FundamentalDataEditorPart extends EditorPart {
 				Currency selectedCurrency = currencyComboViewer.getSelectedCurrency();
 				ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
 				currencyConverter = exchangeRates.createCurrencyConverter(selectedCurrency, security.getCurrency());
-				tableViewer.refresh();
+				updateFundamentalData(selectedCurrency);				
+				tableViewer.refresh(true);
 				markDirty();
 			}
 
@@ -735,6 +736,12 @@ public class FundamentalDataEditorPart extends EditorPart {
 		}
 	};
 
+	private void updateFundamentalData(Currency selectedCurrency) {
+		for (FundamentalData d : fundamentalDataList) {
+			d.setCurrency(selectedCurrency);
+		}
+	}
+	
 	private Button fourTradersGo;
 	private Label marketCapLable;
 
@@ -772,7 +779,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 		String symbol = security.getConfigurationValue(SecurityPropertyPage.YAHOO_SYMBOL);
 		try {
 			String apiKey = Activator.getDefault().getPreferenceStore().getString(Activator.RAPIDAPIKEY_PROPERTY);
-			YahooData yahooData = new YahooAPI(apiKey).readUrl(symbol);
+			YahooData yahooData = new YahooAPI(apiKey).getYahooData(symbol);
 			MarketCap marketCap = yahooData.getMarketCap();
 			if (marketCap != null) {
 				security.putConfigurationValue(SECURITY_MARKET_CAP_CURRENCY, Objects.toString(marketCap.getCurrency(), ""));
