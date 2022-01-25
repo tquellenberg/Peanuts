@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,7 @@ import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.Account.Type;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.dividend.Dividend;
 import de.tomsplayground.peanuts.domain.note.Note;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
@@ -36,6 +38,7 @@ import name.abuchen.portfolio.model.Portfolio;
 import name.abuchen.portfolio.model.PortfolioTransaction;
 import name.abuchen.portfolio.model.SaveFlag;
 import name.abuchen.portfolio.model.SecurityEvent;
+import name.abuchen.portfolio.model.SecurityEvent.DividendEvent;
 import name.abuchen.portfolio.model.SecurityPrice;
 import name.abuchen.portfolio.model.Taxonomy;
 import name.abuchen.portfolio.model.Taxonomy.Visitor;
@@ -253,12 +256,20 @@ public class PortfolioExport {
 			}
 			s.setNote(sb.toString());
 			s.setWkn(security.getWKN());
-			s.setTickerSymbol(security.getMorningstarSymbol());
+			s.setTickerSymbol(security.getTicker());
 			client.addSecurity(s);
 			
 			attachTaxonomyRegion(security, s);
 			attachTaxonomySector(security, s);
 			securityMap.put(security, s);
+			
+			for (Dividend dividend : security.getDividends()) {
+				LocalDate exDate = dividend.getPayDate().toLocalDate();
+				LocalDate payDate = exDate;
+				Money amount = Money.of(dividend.getCurrency().getCurrencyCode(), toPpAmount(dividend.getAmountPerShare()));
+				String source = "Peanuts";
+				s.addEvent(new DividendEvent(exDate, payDate, amount, source));
+			}
 		}
 	}
 
