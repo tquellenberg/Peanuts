@@ -93,9 +93,11 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 	private static final BigDecimal DEPT_LIMIT = new BigDecimal("1.0");
 	private static final BigDecimal DIV_LIMIT = new BigDecimal("0.03");
-	private static final BigDecimal EPS_GROWTH_LIMIT_UP = new BigDecimal("0.08");
+	private static final BigDecimal EPS_GROWTH_LIMIT_UP = new BigDecimal("0.07");
 	private static final BigDecimal EPS_GROWTH_LIMIT_DOWN = new BigDecimal("0.02");
-	private static final BigDecimal DIVIDENDE_LIMIT = new BigDecimal("0.9");
+	private static final BigDecimal DIVIDEND_LIMIT = new BigDecimal("0.9");
+	private static final BigDecimal DIVIDEND_GROWTH_UP = new BigDecimal("0.08");
+	private static final BigDecimal DIVIDEND_GROWTH_DOWN = new BigDecimal("0.02");
 
 	private TableViewer tableViewer;
 	private final int colWidth[] = new int[15];
@@ -224,6 +226,18 @@ public class FundamentalDataEditorPart extends EditorPart {
 				switch (columnIndex) {
 					case 0:
 						return "Avg";
+					case 3:
+						BigDecimal avgDividendGrowth = data.getAvgDividendGrowth();
+						if (avgDividendGrowth == null) {
+							return "";
+						}
+						return PeanutsUtil.formatPercent(avgDividendGrowth.subtract(BigDecimal.ONE));
+					case 5:
+						BigDecimal avgCurrencyAdjustedDividendGrowth = data.getAvgCurrencyAdjustedDividendGrowth();
+						if (avgCurrencyAdjustedDividendGrowth == null) {
+							return "";
+						}
+						return PeanutsUtil.formatPercent(avgCurrencyAdjustedDividendGrowth.subtract(BigDecimal.ONE));
 					case 7:
 						BigDecimal avgEpsGrowth = data.getAvgEpsGrowth();
 						if (avgEpsGrowth == null) {
@@ -300,9 +314,25 @@ public class FundamentalDataEditorPart extends EditorPart {
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
 			if (element instanceof AvgFundamentalData) {
+				FundamentalDatas fundamentalDatas = new FundamentalDatas(fundamentalDataList, getSecurity());
+				AvgFundamentalData data = fundamentalDatas.getAvgFundamentalData(priceProvider, Activator.getDefault().getExchangeRates());
+				if (columnIndex == 3 || columnIndex == 5) {
+					BigDecimal avgDividendGrowth;
+					if (columnIndex == 3) {
+						avgDividendGrowth = data.getAvgDividendGrowth();
+					} else {
+						avgDividendGrowth = data.getAvgCurrencyAdjustedDividendGrowth();
+					}
+					if (avgDividendGrowth != null) {
+						if (avgDividendGrowth.subtract(BigDecimal.ONE).compareTo(DIVIDEND_GROWTH_UP) >= 0) {
+							return Activator.getDefault().getColorProvider().get(Activator.GREEN_BG);
+						}
+						if (avgDividendGrowth.subtract(BigDecimal.ONE).compareTo(DIVIDEND_GROWTH_DOWN) <= 0) {
+							return Activator.getDefault().getColorProvider().get(Activator.RED_BG);
+						}
+					}					
+				}
 				if (columnIndex == 7 || columnIndex == 9) {
-					FundamentalDatas fundamentalDatas = new FundamentalDatas(fundamentalDataList, getSecurity());
-					AvgFundamentalData data = fundamentalDatas.getAvgFundamentalData(priceProvider, Activator.getDefault().getExchangeRates());
 					BigDecimal avgEpsGrowth;
 					if (columnIndex == 7) {
 						avgEpsGrowth = data.getAvgEpsGrowth();
@@ -330,7 +360,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 							return Activator.getDefault().getColorProvider().get(Activator.RED_BG);
 						} else {
 							BigDecimal ratio = dividende.divide(earningsPerShare, PeanutsUtil.MC);
-							if (ratio.compareTo(DIVIDENDE_LIMIT) > 0) {
+							if (ratio.compareTo(DIVIDEND_LIMIT) > 0) {
 								return Activator.getDefault().getColorProvider().get(Activator.RED_BG);
 							}
 						}

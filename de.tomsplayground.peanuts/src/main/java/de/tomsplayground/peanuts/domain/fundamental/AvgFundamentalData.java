@@ -177,4 +177,36 @@ public class AvgFundamentalData {
 		return new BigDecimal(Math.pow(change.doubleValue(), 1.0 / yearDelta), PeanutsUtil.MC);
 	}
 
+	public BigDecimal getAvgDividendGrowth() {
+		return getAvgDividendGroth(getHistoricAndCurrentData());
+	}
+
+	public BigDecimal getAvgCurrencyAdjustedDividendGrowth() {
+		return getAvgDividendGroth(getAdjustedData(getHistoricAndCurrentData()));
+	}
+
+	private BigDecimal getAvgDividendGroth(List<? extends FundamentalData> historicAndCurrentData) {
+		int size = historicAndCurrentData.size();
+		if (size < 2) {
+			return null;
+		}
+		FundamentalData startData = historicAndCurrentData.get(Math.max(size - 6, 0));
+		BigDecimal startDividende = startData.getDividende();
+		if (startDividende.signum() == 0) {
+			startData = historicAndCurrentData.get(Math.max(size - 5, 0));
+			startDividende = startData.getDividende();
+		}
+		if (startDividende.signum() == 0) {
+			return null;
+		}
+
+		FundamentalData currentData = historicAndCurrentData.get(size - 1);
+		BigDecimal currentDividende = currentData.getDividende();
+
+		int yearDelta = currentData.getYear() - startData.getYear();
+		
+		BigDecimal change = currentDividende.divide(startDividende.abs(), PeanutsUtil.MC);
+		return new BigDecimal(Math.pow(change.doubleValue(), 1.0 / yearDelta), PeanutsUtil.MC);
+	}
+
 }
