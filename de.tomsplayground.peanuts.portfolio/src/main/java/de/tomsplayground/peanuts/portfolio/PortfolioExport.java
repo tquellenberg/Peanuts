@@ -15,6 +15,7 @@ import com.google.common.collect.Sets;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.Account.Type;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
+import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.dividend.Dividend;
 import de.tomsplayground.peanuts.domain.note.Note;
@@ -27,6 +28,7 @@ import de.tomsplayground.peanuts.domain.process.TransferTransaction;
 import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 import de.tomsplayground.peanuts.persistence.Persistence;
 import de.tomsplayground.peanuts.persistence.xstream.PersistenceService;
+import de.tomsplayground.peanuts.util.Day;
 import name.abuchen.portfolio.model.AccountTransaction;
 import name.abuchen.portfolio.model.AccountTransferEntry;
 import name.abuchen.portfolio.model.BuySellEntry;
@@ -137,7 +139,7 @@ public class PortfolioExport {
 		for (Account account : accountManager.getAccounts()) {
 			System.out.println(account.getName());
 			for (ITransaction tx : account.getFlatTransactions()) {
-				convertTransaction(account, tx);
+				convertTransaction(account, tx, accountManager.getFullInventory());
 			}
 		}
 	}
@@ -154,7 +156,7 @@ public class PortfolioExport {
 		return v.setScale(8, RoundingMode.HALF_UP).movePointRight(8).longValue();
 	}
 
-	private void convertTransaction(Account account, ITransaction tx) {
+	private void convertTransaction(Account account, ITransaction tx, Inventory inventory) {
 		name.abuchen.portfolio.model.Account a = accountMap.get(account);
 		String currencyCode = account.getCurrency().getCurrencyCode();
 		LocalDateTime date = tx.getDay().toLocalDateTime();
@@ -186,7 +188,8 @@ public class PortfolioExport {
 		} else {
 			if (tx instanceof InvestmentTransaction) {
 				InvestmentTransaction ivt = (InvestmentTransaction) tx;
-				name.abuchen.portfolio.model.Security security = securityMap.get(ivt.getSecurity());
+				Security peanutsSecurity = ivt.getSecurity();
+				name.abuchen.portfolio.model.Security security = securityMap.get(peanutsSecurity);
 
 				if (ivt.getType() == InvestmentTransaction.Type.BUY
 						|| ivt.getType() == InvestmentTransaction.Type.SELL) {
@@ -212,11 +215,25 @@ public class PortfolioExport {
 					if (ivt.getType() == InvestmentTransaction.Type.EXPENSE) {
 						type = AccountTransaction.Type.TAXES;
 						amount = -amount;
+						AccountTransaction t = new AccountTransaction(date, currencyCode, amount, security, type);
+						a.addTransaction(t);
 					} else if (ivt.getType() == InvestmentTransaction.Type.INCOME) {
 						type = AccountTransaction.Type.DIVIDENDS;
+						AccountTransaction t = new AccountTransaction(date, currencyCode, amount, security, type);
+						
+						inventory.setDate(tx.getDay());
+						BigDecimal shares = inventory.getInventoryEntry(peanutsSecurity).getQuantity();
+						t.setShares(toPpQuantity(shares));
+						
+						Dividend dividendDetails = findDividend(peanutsSecurity.getDividends(), tx.getDay());
+						if (dividendDetails != null) {
+							BigDecimal tax = dividendDetails.getTaxInDefaultCurrency();
+							if (tax != null) {
+								t.addUnit(new Unit(Unit.Type.TAX, Money.of(currencyCode, toPpAmount(tax))));
+							}
+						}
+						a.addTransaction(t);
 					}
-					AccountTransaction t = new AccountTransaction(date, currencyCode, amount, security, type);
-					a.addTransaction(t);
 				}
 			} else {
 				name.abuchen.portfolio.model.AccountTransaction.Type type;
@@ -230,6 +247,12 @@ public class PortfolioExport {
 				a.addTransaction(t);
 			}
 		}
+	}
+	
+	private Dividend findDividend(List<Dividend> all, Day date) {
+		return all.stream()
+			.filter(d -> Math.abs(d.getPayDate().delta(date)) < 10)
+			.findAny().orElse(null);
 	}
 
 	private void checkTransferTransaction(Account account1, TransferTransaction tt1) {
