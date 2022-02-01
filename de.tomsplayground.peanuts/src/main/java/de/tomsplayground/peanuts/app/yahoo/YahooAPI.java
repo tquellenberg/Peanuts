@@ -3,7 +3,6 @@ package de.tomsplayground.peanuts.app.yahoo;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
@@ -13,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.http.HttpEntity;
@@ -22,10 +20,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPather;
-import org.htmlcleaner.XPatherException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +87,7 @@ public class YahooAPI {
 	private final String apiKey;
 
 	public static void main(String[] args) {
-		YahooAPI yahooAPI = new YahooAPI("3d0c631c91mshf041639c3c0c9b3p1b2c1djsn49134a20e4e7");
+		YahooAPI yahooAPI = new YahooAPI("");
 //		yahooAPI.search("tesla");
 		
 		YahooData yahooData = yahooAPI.getYahooData("7974.T");		
