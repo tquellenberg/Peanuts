@@ -23,6 +23,10 @@ public class MarketCap {
 	public MarketCap(BigDecimal marketCap, String currency) {
 		this.marketCap = marketCap;
 		Currency c = null;
+		// Market cap is always in main currency
+		if (currency.equals("ZAc")) {
+			currency = "ZAR";
+		}
 		try {
 			c = Currency.getInstance(currency.toUpperCase());
 		} catch (IllegalArgumentException e) {
