@@ -99,31 +99,7 @@ public class ChartEditorPart extends EditorPart {
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
 			if (! chartComposite.isDisposed()) {
-				if (evt.getOldValue() instanceof Price) {
-					Price priceOld = (Price) evt.getOldValue();
-					Day day = new Day(priceOld.getDay().day, priceOld.getDay().month+1, priceOld.getDay().year);
-					priceTimeSeries.delete(day);
-					if (isShowAvg()) {
-						average20Days.delete(day);
-						average100Days.delete(day);
-					}
-				}
-				if (evt.getNewValue() instanceof Price) {
-					Price priceNew = (Price) evt.getNewValue();
-					de.tomsplayground.peanuts.util.Day day = priceNew.getDay();
-					priceTimeSeries.add(new Day(day.day, day.month+1, day.year), priceNew.getValue());
-				} else  if (evt.getNewValue() != null) {
-					// Full update
-					for (IPrice p : priceProvider.getPrices()) {
-						de.tomsplayground.peanuts.util.Day day = p.getDay();
-						priceTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), p.getValue());
-					}
-				}
-				if (isShowAvg()) {
-					createMovingAverage(average20Days, 20);
-					createMovingAverage(average100Days, 100);
-				}
-				updateStopLoss();
+				fullChartUpdate();
 			}
 		}
 		@Override
@@ -135,32 +111,9 @@ public class ChartEditorPart extends EditorPart {
 	private final PropertyChangeListener securityPropertyChangeListener = new UniqueAsyncExecution() {
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
-			if (chartComposite.isDisposed()) {
+			if (! chartComposite.isDisposed()) {
+				fullChartUpdate();
 				return;
-			}
-			if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_AVG)) {
-				if (isShowAvg()) {
-					createMovingAverage(average20Days, 20);
-					createMovingAverage(average100Days, 100);
-					dataset.addSeries(average20Days);
-					dataset.addSeries(average100Days);
-				} else {
-					dataset.removeSeries(average20Days);
-					dataset.removeSeries(average100Days);
-				}
-			}
-			if (evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_BUY_SELL) ||
-				evt.getPropertyName().equals(ChartPropertyPage.CONF_SHOW_DIVIDENDS)) {
-				timeChart.removeAnnotations(orderAnnotations);
-				orderAnnotations = addOrderAnnotations();
-				if (avgPriceAnnotation != null) {
-					pricePlot.removeRangeMarker(avgPriceAnnotation);
-				}
-				addAvgPriceAnnotation();
-			}
-			if (evt.getPropertyName().equals(FundamentalDatas.OVERRIDDEN_AVG_PE) ||
-				evt.getPropertyName().equals("fundamentalData")) {
-				calculateFixedPePrice();
 			}
 		}
 		@Override
@@ -191,7 +144,6 @@ public class ChartEditorPart extends EditorPart {
 	private final TimeSeriesCollection dataset = new TimeSeriesCollection();
 	// Lower chart
 	private final TimeSeriesCollection dataset2 = new TimeSeriesCollection();
-	private ImmutableList<XYAnnotation> orderAnnotations = ImmutableList.of();
 	private TimeChart timeChart;
 	private TimeSeries stopLoss;
 	private TimeSeries compareToPriceTimeSeries;
@@ -199,7 +151,6 @@ public class ChartEditorPart extends EditorPart {
 	private XYPlot pricePlot;
 	private ValueMarker avgPriceAnnotation;
 	private TimeSeries peDeltaTimeSeries;
-
 
 	private Currency alternativeCurrency;
 	private Button convertToAlternativeCurrency;
@@ -233,7 +184,7 @@ public class ChartEditorPart extends EditorPart {
 		chartComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		timeChart = new TimeChart(chart, dataset);
 
-		orderAnnotations = addOrderAnnotations();
+		addOrderAnnotations();
 
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 
@@ -283,15 +234,7 @@ public class ChartEditorPart extends EditorPart {
 		convertToAlternativeCurrency.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				createDataset();
-				pricePlot.clearAnnotations();
-				addOrderAnnotations();
-				if (avgPriceAnnotation != null) {
-					pricePlot.removeRangeMarker(avgPriceAnnotation);
-				}
-				addAvgPriceAnnotation();
-				pricePlot.getRangeAxis().setLabel("Price "+getInventoryCurrencyConverter().getToCurrency().getSymbol());
-				timeChart.setChartType(displayType.getItem(displayType.getSelectionIndex()), de.tomsplayground.peanuts.util.Day.today());
+				fullChartUpdate();
 			}
 		});
 
@@ -300,6 +243,19 @@ public class ChartEditorPart extends EditorPart {
 		security.addPropertyChangeListener(securityPropertyChangeListener);
 
 		Activator.getDefault().getAccountManager().addPropertyChangeListener(accountManagerChangeListener);
+	}
+	
+	private void fullChartUpdate() {
+		createDataset();
+		pricePlot.clearAnnotations();
+		addOrderAnnotations();
+		if (avgPriceAnnotation != null) {
+			pricePlot.removeRangeMarker(avgPriceAnnotation);
+		}
+		addAvgPriceAnnotation();
+		calculateCompareToValues();
+		pricePlot.getRangeAxis().setLabel("Price "+getInventoryCurrencyConverter().getToCurrency().getSymbol());
+		timeChart.setChartType(displayType.getItem(displayType.getSelectionIndex()), de.tomsplayground.peanuts.util.Day.today());
 	}
 
 	private void addAvgPriceAnnotation() {
@@ -515,7 +471,7 @@ public class ChartEditorPart extends EditorPart {
 		pricePlot.setRangeGridlinePaint(PeanutsDrawingSupplier.GRIDLINE_PAINT);
 		pricePlot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
 		pricePlot.setDomainCrosshairVisible(true);
-		pricePlot.setRangeCrosshairVisible(true);
+		pricePlot.setRangeCrosshairVisible(true);		
 
 		if (showPeDeltaChart) {
 			XYAreaRenderer xyAreaRenderer = new XYAreaRenderer();
@@ -610,6 +566,9 @@ public class ChartEditorPart extends EditorPart {
 
 	private void calculateCompareToValues() {
 		Security compareTo = getCompareTo();
+		if (compareToPriceTimeSeries != null) {
+			compareToPriceTimeSeries.clear();
+		}
 		if (compareTo != null && timeChart.getFromDate() != null) {
 			de.tomsplayground.peanuts.util.Day fromDate = timeChart.getFromDate();
 			ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(compareTo);
@@ -623,7 +582,7 @@ public class ChartEditorPart extends EditorPart {
 			for (IPrice price : compareToPriceProvider.getPrices()) {
 				de.tomsplayground.peanuts.util.Day day = price.getDay();
 				BigDecimal value = price.getValue().multiply(adjust);
-				compareToPriceTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), value);
+				compareToPriceTimeSeries.add(new Day(day.day, day.month+1, day.year), value);
 			}
 		}
 	}
