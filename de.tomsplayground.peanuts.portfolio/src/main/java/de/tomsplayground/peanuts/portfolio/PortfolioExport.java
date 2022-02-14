@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 
 import de.tomsplayground.peanuts.domain.base.Account;
@@ -107,8 +108,9 @@ public class PortfolioExport {
 
 	private void convertSecurityPrices(AccountManager accountManager) {
 		for (Security security : accountManager.getSecurities()) {
+			ImmutableList<StockSplit> stockSplits = accountManager.getStockSplits(security);
 			name.abuchen.portfolio.model.Security s = securityMap.get(security);
-			for (IPrice price : priceProviderFactory.getPriceProvider(security).getPrices()) {
+			for (IPrice price : priceProviderFactory.getSplitAdjustedPriceProvider(security, stockSplits).getPrices()) {
 				s.addPrice(new SecurityPrice(price.getDay().toLocalDate(), toPpPrice(price.getValue())));
 			}
 			for (StockSplit stockSplit : accountManager.getStockSplits(security)) {
@@ -222,16 +224,21 @@ public class PortfolioExport {
 						AccountTransaction t = new AccountTransaction(date, currencyCode, amount, security, type);
 						
 						inventory.setDate(tx.getDay());
-						BigDecimal shares = inventory.getInventoryEntry(peanutsSecurity).getQuantity();
-						t.setShares(toPpQuantity(shares));
-						
+
+						BigDecimal shares = null;
 						Dividend dividendDetails = findDividend(peanutsSecurity.getDividends(), tx.getDay());
 						if (dividendDetails != null) {
 							BigDecimal tax = dividendDetails.getTaxInDefaultCurrency();
 							if (tax != null) {
 								t.addUnit(new Unit(Unit.Type.TAX, Money.of(currencyCode, toPpAmount(tax))));
 							}
+							shares = dividendDetails.getQuantity();
 						}
+						if (shares == null) {
+							shares = inventory.getInventoryEntry(peanutsSecurity).getQuantity();							
+						}
+						t.setShares(toPpQuantity(shares));
+
 						a.addTransaction(t);
 					}
 				}

@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.client.editors.account;
 
-import static de.tomsplayground.peanuts.client.util.MinQuantity.*;
+import static de.tomsplayground.peanuts.client.util.MinQuantity.isNotZero;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -73,6 +73,8 @@ import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
+import de.tomsplayground.peanuts.domain.dividend.DividendStats;
+import de.tomsplayground.peanuts.domain.dividend.SecurityDividendStats;
 import de.tomsplayground.peanuts.domain.process.CurrencyAdjustedPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
@@ -89,7 +91,7 @@ public class InventoryEditorPart extends EditorPart {
 
 	private static final String SHOW_ALL_SECURITIES = "inventoryShowAllSecurities";
 
-	private final int colWidth[] = new int[11];
+	private final int colWidth[] = new int[14];
 	private TreeViewer treeViewer;
 	private Label gainingLabel;
 	private Label realizedLabel;
@@ -197,6 +199,8 @@ public class InventoryEditorPart extends EditorPart {
 		}
 	};
 
+	private DividendStats dividendStats;
+
 	private static class InventoryContentProvider implements ITreeContentProvider {
 		@Override
 		public Object[] getChildren(Object parentElement) {
@@ -258,6 +262,9 @@ public class InventoryEditorPart extends EditorPart {
 		private static final int INVENTORY_POS_GAIN_PERCENT = 8;
 		private static final int INVENTORY_POS_RATE = 9;
 		private static final int INVENTORY_POS_DAY_CHANGE = 10;
+		private static final int INVENTORY_POS_YOC = 11;
+		private static final int INVENTORY_POS_PAYED_DIVIDEND = 12;
+		private static final int INVENTORY_POS_DIVIDEND_YIELD = 13;
 
 		private final Currency currency;
 		private final Color red;
@@ -313,6 +320,25 @@ public class InventoryEditorPart extends EditorPart {
 				if (columnIndex == INVENTORY_POS_RATE) {
 					return PeanutsUtil.formatPercent(entry.getXIRR(date));
 				}
+				if (columnIndex == INVENTORY_POS_YOC) {
+					BigDecimal dividendSum = new SecurityDividendStats(entry.getSecurity()).getYoC(entry.getAvgPrice(), dividendStats);
+					if (dividendSum.compareTo(BigDecimal.ZERO) != 0) {
+						return PeanutsUtil.formatPercent(dividendSum);
+					}
+				}
+				if (columnIndex == INVENTORY_POS_PAYED_DIVIDEND) {
+					BigDecimal dividendSum = new SecurityDividendStats(entry.getSecurity()).getLatestPayedDividendSum();
+					if (dividendSum.compareTo(BigDecimal.ZERO) != 0) {
+						return PeanutsUtil.formatCurrency(dividendSum, currency);
+					}
+				}
+				if (columnIndex == INVENTORY_POS_DIVIDEND_YIELD) {
+					BigDecimal dividendSum = new SecurityDividendStats(entry.getSecurity()).getYoC(entry.getPrice(date).getValue(), dividendStats);
+					if (dividendSum.compareTo(BigDecimal.ZERO) != 0) {
+						return PeanutsUtil.formatPercent(dividendSum);
+					}
+				}
+				
 			} else if (element instanceof AnalyzedInvestmentTransaction) {
 				AnalyzedInvestmentTransaction t = (AnalyzedInvestmentTransaction) element;
 				if (columnIndex == TRANSACTION_POS_QUANTITY) {
@@ -717,6 +743,45 @@ public class InventoryEditorPart extends EditorPart {
 		});
 		col.addControlListener(saveSizeOnResize);
 
+		col = new TreeColumn(tree, SWT.RIGHT);
+		col.setText("YoC");
+		col.setResizable(true);
+		col.setWidth((colWidth[11] > 0) ? colWidth[11] : 100);
+// TODO:
+//		col.addSelectionListener(new SelectionAdapter() {
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				setSorting((TreeColumn)e.widget, yocComparator);
+//			}
+//		});
+		col.addControlListener(saveSizeOnResize);
+
+		col = new TreeColumn(tree, SWT.RIGHT);
+		col.setText("Dividend");
+		col.setResizable(true);
+		col.setWidth((colWidth[12] > 0) ? colWidth[12] : 100);
+// TODO:
+//		col.addSelectionListener(new SelectionAdapter() {
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				setSorting((TreeColumn)e.widget, yocComparator);
+//			}
+//		});
+		col.addControlListener(saveSizeOnResize);
+
+		col = new TreeColumn(tree, SWT.RIGHT);
+		col.setText("Div%");
+		col.setResizable(true);
+		col.setWidth((colWidth[13] > 0) ? colWidth[13] : 100);
+// TODO:
+//		col.addSelectionListener(new SelectionAdapter() {
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				setSorting((TreeColumn)e.widget, yocComparator);
+//			}
+//		});
+		col.addControlListener(saveSizeOnResize);
+
 		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
@@ -740,6 +805,8 @@ public class InventoryEditorPart extends EditorPart {
 		inventory = new Inventory(account, priceProviderFactory, new AnalyzerFactory());
 		inventory.setDate(date);
 		inventory.addPropertyChangeListener(inventoryChangeListener);
+		dividendStats = new DividendStats(Activator.getDefault().getAccountManager(), priceProviderFactory);
+		
 		treeViewer.setInput(inventory);
 
 		dateChooser.addModifyListener(new ModifyListener() {
@@ -781,7 +848,7 @@ public class InventoryEditorPart extends EditorPart {
 		getSite().registerContextMenu(menuMgr, getSite().getSelectionProvider());
 		updateAll();
 	}
-
+	
 	protected void updateAll() {
 		ITransactionProvider account = getTransactions();
 		treeViewer.refresh(true);
