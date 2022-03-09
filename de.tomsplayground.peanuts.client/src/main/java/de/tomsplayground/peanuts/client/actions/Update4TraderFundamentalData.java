@@ -5,6 +5,7 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -14,8 +15,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.joda.time.DateTime;
-
-import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.app.marketscreener.MarketScreener;
 import de.tomsplayground.peanuts.client.app.Activator;
@@ -36,31 +35,21 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					ImmutableList<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
+					List<Security> securities = securitiesToUpdate();
+					MarketScreener fourTraders = new MarketScreener();
 					monitor.beginTask("Refresh fundamental data", securities.size());
-					int updateCount = 0;
 					for (Security security : securities) {
-						if (isUpdateRequired(security)) {
-							monitor.subTask("Refreshing " + security.getName());
-							MarketScreener fourTraders = new MarketScreener();
-							String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.FOUR_TRADERS_URL);
-							if (StringUtils.equals(financialsUrl, "-")) {
-								continue;
-							}
-							if (StringUtils.isNotBlank(financialsUrl)) {
-								updateFundamentaData(security, fourTraders.scrapFinancials(financialsUrl));
-								try {
-									Thread.sleep(1000*10);
-								} catch (InterruptedException e) {
-									return Status.CANCEL_STATUS;
-								}
-								updateCount++;
-								if (updateCount >= MAX_SECURITY_UPDATED_PER_RUN) {
-									return Status.OK_STATUS;
-								}
-							}
-						}
+						
+						monitor.subTask("Refreshing " + security.getName());
+						String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.FOUR_TRADERS_URL);
+						updateFundamentaData(security, fourTraders.scrapFinancials(financialsUrl));
 						monitor.worked(1);
+
+						try {
+							Thread.sleep(1000*10);
+						} catch (InterruptedException e) {
+							return Status.CANCEL_STATUS;
+						}						
 						if (monitor.isCanceled()) {
 							return Status.CANCEL_STATUS;
 						}
@@ -78,6 +67,24 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 		return null;
 	}
 
+	private List<Security> securitiesToUpdate() {
+		List<Security> securitiesToUpdate = new ArrayList<>();
+		for (Security security : Activator.getDefault().getAccountManager().getSecurities()) {
+			if (isUpdateRequired(security)) {
+				String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.FOUR_TRADERS_URL);
+				if (StringUtils.isNotBlank(financialsUrl) && !StringUtils.equals(financialsUrl, "-")) {
+					securitiesToUpdate.add(security);
+				}
+			}
+		}
+		
+		while (securitiesToUpdate.size() >= MAX_SECURITY_UPDATED_PER_RUN) {
+			securitiesToUpdate.remove(RandomUtils.nextInt(0, securitiesToUpdate.size()));
+		}
+		
+		return securitiesToUpdate;
+	}
+	
 	private boolean isUpdateRequired(Security security) {
 		if (security.isDeleted()) {
 			return false;
