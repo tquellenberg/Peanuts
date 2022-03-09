@@ -171,6 +171,7 @@ public class DevelopmentEditorPart extends EditorPart {
 		development(result, prices, ChronoUnit.MONTHS, -1, "One month");
 		development(result, prices, ChronoUnit.MONTHS, -3, "Three months");
 		development(result, prices, ChronoUnit.MONTHS, -6, "Six months");
+		development(result, prices, ChronoUnit.DAYS, -LocalDate.now().getDayOfYear(), "This year");
 		development(result, prices, ChronoUnit.YEARS, -1, "One year");
 		development(result, prices, ChronoUnit.YEARS, -3, "Three years");
 		development(result, prices, ChronoUnit.YEARS, -5, "Five years");
