@@ -474,14 +474,14 @@ public class FundamentalDataEditorPart extends EditorPart {
 		});
 
 		fourTradersGo = new Button(metaComposite, SWT.PUSH);
-		fourTradersGo.setText("Load data from 4-Traders");
+		fourTradersGo.setText(is4Traders(security)?"Load data from 4-Traders":"Load data from MarketScreener");
 		fourTradersGo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				update4TradersData(security);
+				updateMarketScreenerData(security);
 			}
 		});
-		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.FOUR_TRADERS_URL)));
+		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.MARKET_SCREENER_URL)));
 
 		deYahooGo = new Button(metaComposite, SWT.PUSH);
 		deYahooGo.setText("Load D/E from Yahoo");
@@ -757,7 +757,9 @@ public class FundamentalDataEditorPart extends EditorPart {
 			}
 			if (evt.getPropertyName().equals(FundamentalDatas.OVERRIDDEN_AVG_PE) ||
 				evt.getPropertyName().equals("fundamentalData")) {
-				tableViewer.refresh(true);
+				if (! tableViewer.getTable().isDisposed()) {
+					tableViewer.refresh(true);
+				}
 			}
 		}
 		@Override
@@ -778,7 +780,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 	private void updateButtonState() {
 		Security security = getSecurity();
 		deYahooGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.YAHOO_SYMBOL)));
-		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.FOUR_TRADERS_URL)));
+		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.MARKET_SCREENER_URL)));
 	}
 
 	private void updateMarketCapLable() {
@@ -840,12 +842,17 @@ public class FundamentalDataEditorPart extends EditorPart {
 		}
 	}
 
-	private void update4TradersData(final Security security) {
+	private boolean is4Traders(Security security) {
+		String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.MARKET_SCREENER_URL);
+		return StringUtils.isNotBlank(financialsUrl) && financialsUrl.contains("4-traders.com");
+	}
+	
+	private void updateMarketScreenerData(final Security security) {
 		try {
-			String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.FOUR_TRADERS_URL);
+			String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.MARKET_SCREENER_URL);
 			if (StringUtils.isNotBlank(financialsUrl)) {
-				MarketScreener fourTraders = new MarketScreener();
-				updateFundamentaData(fourTraders.scrapFinancials(financialsUrl));
+				MarketScreener marketScreener = new MarketScreener();
+				updateFundamentaData(marketScreener.scrapFinancials(financialsUrl));
 			} else {
 				String errorText = "No unique result could be found for "+security.getISIN();
 				IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, errorText);

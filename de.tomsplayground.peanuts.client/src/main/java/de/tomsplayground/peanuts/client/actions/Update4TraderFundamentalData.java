@@ -41,7 +41,7 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 					for (Security security : securities) {
 						
 						monitor.subTask("Refreshing " + security.getName());
-						String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.FOUR_TRADERS_URL);
+						String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.MARKET_SCREENER_URL);
 						updateFundamentaData(security, fourTraders.scrapFinancials(financialsUrl));
 						monitor.worked(1);
 
@@ -71,7 +71,7 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 		List<Security> securitiesToUpdate = new ArrayList<>();
 		for (Security security : Activator.getDefault().getAccountManager().getSecurities()) {
 			if (isUpdateRequired(security)) {
-				String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.FOUR_TRADERS_URL);
+				String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.MARKET_SCREENER_URL);
 				if (StringUtils.isNotBlank(financialsUrl) && !StringUtils.equals(financialsUrl, "-")) {
 					securitiesToUpdate.add(security);
 				}

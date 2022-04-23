@@ -17,7 +17,7 @@ import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
 
 public class SecurityPropertyPage extends PropertyPage {
 
-	public static final String FOUR_TRADERS_URL = "fourTrasdersUrl";
+	public static final String MARKET_SCREENER_URL = "fourTrasdersUrl";
 
 	public static final String YAHOO_SYMBOL = "yahooSymbol";
 
@@ -65,7 +65,7 @@ public class SecurityPropertyPage extends PropertyPage {
 		morningstarSymbol.setText(StringUtils.defaultString(security.getMorningstarSymbol()));
 
 		fourTradersUrl = createTextWithLabel(composite, "4-Traders Url");
-		fourTradersUrl.setText(StringUtils.defaultString(security.getConfigurationValue(FOUR_TRADERS_URL)));
+		fourTradersUrl.setText(StringUtils.defaultString(security.getConfigurationValue(MARKET_SCREENER_URL)));
 
 		overriddenAvgPE = createTextWithLabel(composite, "Overridden avg PE");
 		overriddenAvgPE.setText(StringUtils.defaultString(security.getConfigurationValue(FundamentalDatas.OVERRIDDEN_AVG_PE)));
@@ -98,7 +98,7 @@ public class SecurityPropertyPage extends PropertyPage {
 		security.setISIN(isin.getText());
 		security.setTicker(ticker.getText());
 		security.setMorningstarSymbol(morningstarSymbol.getText());
-		security.putConfigurationValue(FOUR_TRADERS_URL, fourTradersUrl.getText());
+		security.putConfigurationValue(MARKET_SCREENER_URL, fourTradersUrl.getText());
 		security.putConfigurationValue(YAHOO_SYMBOL, yahooSymbol.getText());
 		security.putConfigurationValue(OVERRIDE_EXISTING_PRICE_DATA, Boolean.toString(overridePriceDate.getSelection()));
 		security.putConfigurationValue(FundamentalDatas.OVERRIDDEN_AVG_PE, overriddenAvgPE.getText());
