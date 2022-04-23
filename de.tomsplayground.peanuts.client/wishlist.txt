@@ -43,4 +43,3 @@ Tasks
 
 - automatic client build
 - License
-
