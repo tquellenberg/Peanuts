@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.persistence.xstream;
 
-import java.io.StringWriter;
+import java.io.Writer;
 
 import com.google.common.collect.ImmutableList;
 import com.thoughtworks.xstream.XStream;
@@ -88,10 +88,8 @@ public class PersistenceService implements IPersistenceService {
 	}
 
 	@Override
-	public String write(AccountManager accountManager) {
-		StringWriter stringWriter = new StringWriter();
-		xstream.marshal(accountManager, new CompactWriter(stringWriter));
-		return stringWriter.toString();
+	public void write(AccountManager accountManager, Writer writer) {
+		xstream.marshal(accountManager, new CompactWriter(writer));
 	}
 
 	@Override

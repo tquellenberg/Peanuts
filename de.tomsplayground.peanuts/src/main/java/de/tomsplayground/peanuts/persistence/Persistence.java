@@ -30,7 +30,7 @@ public class Persistence {
 
 	private static final int ITERATIONS = 20;
 	private static final String ALGORITHM = "PBEWithMD5AndDES";
-	private static final byte[] SALT = new byte[]{0x3f, 0x5e, 0x7a, 0x56, 0x35, 0x57, 0x71, 0x59};
+	private static final byte[] SALT = new byte[] { 0x3f, 0x5e, 0x7a, 0x56, 0x35, 0x57, 0x71, 0x59 };
 
 	IPersistenceService persistenceService;
 
@@ -39,11 +39,7 @@ public class Persistence {
 	}
 
 	public void write(Writer writer, AccountManager accountManager) {
-		try {
-			writer.write(persistenceService.write(accountManager));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		persistenceService.write(accountManager, writer);
 	}
 
 	public static Reader secureReader(File file, String passphrase) {
@@ -56,7 +52,8 @@ public class Persistence {
 			Cipher cipher = Cipher.getInstance(ALGORITHM);
 			cipher.init(Cipher.DECRYPT_MODE, secret, pbeParameterSpec);
 
-			return new InputStreamReader(new CipherInputStream(new FileInputStream(file), cipher), StandardCharsets.UTF_8);
+			return new InputStreamReader(new CipherInputStream(new FileInputStream(file), cipher),
+					StandardCharsets.UTF_8);
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		} catch (FileNotFoundException e) {
@@ -74,7 +71,8 @@ public class Persistence {
 			Cipher cipher = Cipher.getInstance(ALGORITHM);
 			cipher.init(Cipher.ENCRYPT_MODE, secret, pbeParameterSpec);
 
-			return new OutputStreamWriter(new CipherOutputStream(new FileOutputStream(file), cipher), StandardCharsets.UTF_8);
+			return new OutputStreamWriter(new CipherOutputStream(new FileOutputStream(file), cipher),
+					StandardCharsets.UTF_8);
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		} catch (FileNotFoundException e) {
@@ -83,7 +81,9 @@ public class Persistence {
 	}
 
 	public static String updateConcurrentHashMap(String xml) {
-		Matcher matcher = Pattern.compile("<displayConfiguration class=\"java.util.concurrent.ConcurrentHashMap\" id=\"([0-9]*)\" [^>]*>(.*?)</displayConfiguration>").matcher(xml);
+		Matcher matcher = Pattern.compile(
+				"<displayConfiguration class=\"java.util.concurrent.ConcurrentHashMap\" id=\"([0-9]*)\" [^>]*>(.*?)</displayConfiguration>")
+				.matcher(xml);
 		StringBuffer result = new StringBuffer();
 		while (matcher.find()) {
 			String id = matcher.group(1);
@@ -92,7 +92,8 @@ public class Persistence {
 			String newMap = "";
 			Matcher matcher2 = Pattern.compile("<string>([^>]*)</string><string>([^>]*)</string>").matcher(mapContent);
 			while (matcher2.find()) {
-				newMap += "<entry><string>"+matcher2.group(1)+"</string><string>"+matcher2.group(2)+"</string></entry>";
+				newMap += "<entry><string>" + matcher2.group(1) + "</string><string>" + matcher2.group(2)
+						+ "</string></entry>";
 			}
 			newMap = "<displayConfiguration id=\"" + id + "\">" + newMap + "</displayConfiguration>";
 			matcher.appendReplacement(result, newMap);

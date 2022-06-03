@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.persistence;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -38,10 +38,16 @@ public class PersistenceTest {
 		account2 = accountManager.getOrCreateAccount("Test2", Account.Type.BANK);
 	}
 
+	private String write(IPersistenceService persistence, AccountManager accountManager) {
+		StringWriter stringWriter = new StringWriter();
+		persistence.write(accountManager, stringWriter);
+		return stringWriter.toString();
+	}
+	
 	@Test
 	public void testEmptyAccountManager() throws Exception {
 		IPersistenceService persistence = new PersistenceService();
-		String xml = persistence.write(accountManager);
+		String xml = write(persistence, accountManager);
 		System.out.println(xml);
 		AccountManager accountManager2 = persistence.readAccountManager(xml);
 
@@ -54,7 +60,7 @@ public class PersistenceTest {
 		account2 = accountManager.getOrCreateAccount("Test2", Account.Type.BANK);
 
 		IPersistenceService persistence = new PersistenceService();
-		String xml = persistence.write(accountManager);
+		String xml = write(persistence, accountManager);
 		System.out.println(xml);
 		AccountManager accountManager2 = persistence.readAccountManager(xml);
 
@@ -71,7 +77,7 @@ public class PersistenceTest {
 		account2.addTransaction(transfer.getTransferTo());
 
 		IPersistenceService persistence = new PersistenceService();
-		String xml = persistence.write(accountManager);
+		String xml = write(persistence, accountManager);
 		System.out.println(xml);
 		AccountManager accountManager2 = persistence.readAccountManager(xml);
 
