@@ -1,5 +1,8 @@
 package de.tomsplayground.peanuts.client.editors.security.properties;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.swt.SWT;
@@ -11,10 +14,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.dialogs.PropertyPage;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
 import de.tomsplayground.peanuts.client.app.Activator;
@@ -52,13 +52,12 @@ public class ChartPropertyPage extends PropertyPage {
 		label = new Label(composite, SWT.NONE);
 		label.setText("Compare with");
 		compareWithList = new Combo(composite, SWT.READ_ONLY);
-		ImmutableList<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
-		String[] securityNames = Collections2.transform(securities, new Function<Security, String>() {
-			@Override
-			public String apply(Security input) {
-				return input.getName();
-			}
-		}).toArray(new String[securities.size()]);
+		List<Security> securities = Activator.getDefault().getAccountManager().getSecurities().stream()
+				.filter(s -> ! s.isDeleted())
+				.collect(Collectors.toList());
+		String[] securityNames = securities.stream()
+				.map(s -> s.getName())
+				.toArray(String[]::new);
 		compareWithList.setItems(securityNames);
 		compareWithList.add("", 0);
 
@@ -81,13 +80,10 @@ public class ChartPropertyPage extends PropertyPage {
 
 		final String compareWithIsin = security.getConfigurationValue(CONF_COMPARE_WITH);
 		if (StringUtils.isNotBlank(compareWithIsin)) {
-			int index = Iterables.indexOf(securities, new Predicate<Security>() {
-				@Override
-				public boolean apply(Security input) {
-					return compareWithIsin.equals(input.getISIN());
-				}
-			});
-			compareWithList.select(index+1);
+			int index = Iterables.indexOf(securities, s -> compareWithIsin.equals(s.getISIN()));
+			if (index >= 0) {
+				compareWithList.select(index+1);
+			}
 		}
 
 		return composite;

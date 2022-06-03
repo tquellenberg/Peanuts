@@ -576,6 +576,9 @@ public class ChartEditorPart extends EditorPart {
 			if (compareToPriceProvider.getMinDate().after(fromDate)) {
 				fromDate = compareToPriceProvider.getMinDate();
 			}
+			if (priceProvider.getMinDate().after(fromDate)) {
+				fromDate = priceProvider.getMinDate();
+			}
 			IPrice p1 = priceProvider.getPrice(fromDate);
 			IPrice p2 = compareToPriceProvider.getPrice(fromDate);
 			BigDecimal adjust = p1.getValue().divide(p2.getValue(), PeanutsUtil.MC);
