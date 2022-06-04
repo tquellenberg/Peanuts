@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.client.widgets;
 
-import java.util.List;
+import java.text.Collator;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
@@ -10,8 +10,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-
-import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.Account;
@@ -36,11 +34,12 @@ public class AccountComposite extends Composite {
 
 		accountCombo = new Combo(this, SWT.READ_ONLY);
 		accountCombo.add("");
-		List<Account> accounts = Activator.getDefault().getAccountManager().getAccounts();
-		for (Account acc : accounts) {
-			if (acc != disabledAccount)
-				accountCombo.add(acc.getName());
-		}
+		Collator collator = Collator.getInstance();
+		collator.setStrength(Collator.PRIMARY);
+		Activator.getDefault().getAccountManager().getAccounts().stream()
+			.map(a -> a.getName())
+			.sorted(collator)
+			.forEachOrdered(n -> accountCombo.add(n));
 		accountCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 	}
 
@@ -53,9 +52,8 @@ public class AccountComposite extends Composite {
 	}
 
 	public Account getAccount() {
-		ImmutableList<Account> accounts = Activator.getDefault().getAccountManager().getAccounts();
 		String accountName = accountCombo.getText();
-		for (Account acc : accounts) {
+		for (Account acc : Activator.getDefault().getAccountManager().getAccounts()) {
 			if (acc.getName().equals(accountName))
 				return acc;
 		}

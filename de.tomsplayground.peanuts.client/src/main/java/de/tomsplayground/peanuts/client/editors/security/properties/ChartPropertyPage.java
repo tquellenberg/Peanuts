@@ -1,5 +1,7 @@
 package de.tomsplayground.peanuts.client.editors.security.properties;
 
+import java.text.Collator;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,10 +54,13 @@ public class ChartPropertyPage extends PropertyPage {
 		label = new Label(composite, SWT.NONE);
 		label.setText("Compare with");
 		compareWithList = new Combo(composite, SWT.READ_ONLY);
-		List<Security> securities = Activator.getDefault().getAccountManager().getSecurities().stream()
+		Collator collator = Collator.getInstance();
+		collator.setStrength(Collator.PRIMARY);
+		List<Security> sortedSecurities = Activator.getDefault().getAccountManager().getSecurities().stream()
 				.filter(s -> ! s.isDeleted())
+				.sorted(Comparator.comparing(Security::getName, collator))
 				.collect(Collectors.toList());
-		String[] securityNames = securities.stream()
+		String[] securityNames = sortedSecurities.stream()
 				.map(s -> s.getName())
 				.toArray(String[]::new);
 		compareWithList.setItems(securityNames);
@@ -80,7 +85,7 @@ public class ChartPropertyPage extends PropertyPage {
 
 		final String compareWithIsin = security.getConfigurationValue(CONF_COMPARE_WITH);
 		if (StringUtils.isNotBlank(compareWithIsin)) {
-			int index = Iterables.indexOf(securities, s -> compareWithIsin.equals(s.getISIN()));
+			int index = Iterables.indexOf(sortedSecurities, s -> compareWithIsin.equals(s.getISIN()));
 			if (index >= 0) {
 				compareWithList.select(index+1);
 			}

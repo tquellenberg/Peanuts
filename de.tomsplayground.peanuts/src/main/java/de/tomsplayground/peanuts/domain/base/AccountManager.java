@@ -70,13 +70,6 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 
 	private transient Inventory fullInventory;
 
-	private static final Comparator<INamedElement> NAMED_COMPARATOR = new Comparator<INamedElement>() {
-		@Override
-		public int compare(INamedElement o1, INamedElement o2) {
-			return o1.getName().compareToIgnoreCase(o2.getName());
-		}
-	};
-
 	public static final Comparator<ITimedElement> DAY_COMPARATOR = new Comparator<ITimedElement>() {
 		@Override
 		public int compare(ITimedElement o1, ITimedElement o2) {
@@ -102,10 +95,7 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 			}
 		}
 		Account account = new Account(name, Currencies.getInstance().getDefaultCurrency(), BigDecimal.ZERO, type, "");
-		List<Account> l = new ArrayList<Account>(accounts);
-		l.add(account);
-		Collections.sort(l, NAMED_COMPARATOR);
-		accounts = ImmutableList.copyOf(l);
+		accounts = new ImmutableList.Builder<Account>().addAll(accounts).add(account).build();
 		firePropertyChange("account", null, account);
 		return account;
 	}
@@ -147,10 +137,7 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 			}
 		}
 		Security security = new Security(name);
-		List<Security> l = new ArrayList<Security>(securities);
-		l.add(security);
-		Collections.sort(l, NAMED_COMPARATOR);
-		securities = ImmutableList.copyOf(l);
+		securities = new ImmutableList.Builder<Security>().addAll(securities).add(security).build();
 		firePropertyChange("security", null, security);
 		return security;
 	}
@@ -198,7 +185,6 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 
 	public void addReport(Report report) {
 		reports.add(report);
-		Collections.sort(reports, NAMED_COMPARATOR);
 		firePropertyChange("report", null, report);
 	}
 
@@ -223,10 +209,7 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	}
 
 	public void addSavedTransaction(SavedTransaction savedTransaction) {
-		List<SavedTransaction> list = new ArrayList<SavedTransaction>(savedTransactions);
-		list.add(savedTransaction);
-		Collections.sort(list, NAMED_COMPARATOR);
-		savedTransactions = ImmutableList.copyOf(list);
+		savedTransactions = new ImmutableList.Builder<SavedTransaction>().addAll(savedTransactions).add(savedTransaction).build();
 		firePropertyChange("savedTransaction", null, savedTransaction);
 	}
 
@@ -240,7 +223,6 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 
 	public void addSecurityCategoryMapping(SecurityCategoryMapping securityCategoryMapping) {
 		securityCategoryMappings.add(securityCategoryMapping);
-		Collections.sort(securityCategoryMappings, NAMED_COMPARATOR);
 		firePropertyChange("securityCategoryMapping", null, securityCategoryMapping);
 	}
 
@@ -254,7 +236,6 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 
 	public void addForecast(Forecast forecast) {
 		forecasts.add(forecast);
-		Collections.sort(forecasts, NAMED_COMPARATOR);
 		firePropertyChange("forecast", null, forecast);
 	}
 
@@ -268,7 +249,6 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 
 	public void addCredit(ICredit credit) {
 		credits.add(credit);
-		Collections.sort(credits, NAMED_COMPARATOR);
 		firePropertyChange("credit", null, credit);
 	}
 
