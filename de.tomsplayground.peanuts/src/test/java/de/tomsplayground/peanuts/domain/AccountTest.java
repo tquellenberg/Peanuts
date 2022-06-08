@@ -192,5 +192,37 @@ public class AccountTest extends TestCase {
 		assertEquals(1, account1.getTransactions().size());
 		assertEquals(BigDecimal.TEN, account1.getBalance());
 	}
+	
+	public void testRemoveTransferTransaction() {
+		Transfer t = new Transfer(account1, account2, new BigDecimal("75.00"), Day.today());
+		t.setMemo("Memo");
+		t.setLabel("Payee");
+		t.setCategory(new Category("c1", Category.Type.EXPENSE));
+		account1.addTransaction(t.getTransferFrom());
+		account2.addTransaction(t.getTransferTo());
+
+		account1.removeTransaction(t.getTransferFrom());
+		
+		assertEquals(0, account2.getTransactions().size());
+	}
+	
+	public void testChangeTransferTarget() {
+		Transfer t = new Transfer(account1, account2, new BigDecimal("75.00"), Day.today());
+		t.setMemo("Memo");
+		t.setLabel("Payee");
+		t.setCategory(new Category("c1", Category.Type.EXPENSE));
+		account1.addTransaction(t.getTransferFrom());
+		account2.addTransaction(t.getTransferTo());
+
+		((TransferTransaction)t.getTransferFrom()).changeTarget(unknownAccount);
+		
+		assertEquals(0, account2.getTransactions().size());
+		TransferTransaction tt1 = (TransferTransaction) account1.getTransactions().get(0);
+		TransferTransaction tt2 = (TransferTransaction) unknownAccount.getTransactions().get(0);
+		assertEquals(tt2, tt1.getComplement());
+		assertEquals(tt1, tt2.getComplement());
+		assertEquals(account1, tt2.getTarget());
+		assertEquals(unknownAccount, tt1.getTarget());
+	}
 
 }

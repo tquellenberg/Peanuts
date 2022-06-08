@@ -70,7 +70,9 @@ public class TransferTransaction extends LabeledTransaction {
 	}
 
 	public void changeTarget(ITransferLocation newTarget) {
+		complement.setComplement(null);
 		target.removeTransaction(complement);
+		complement.setComplement(this);
 		newTarget.addTransaction(complement);
 		target = newTarget;
 	}

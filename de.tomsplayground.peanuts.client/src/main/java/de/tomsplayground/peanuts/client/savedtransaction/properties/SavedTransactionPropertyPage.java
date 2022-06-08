@@ -6,6 +6,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -18,12 +19,14 @@ import org.slf4j.LoggerFactory;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.savedtransaction.SavedTransactionManager;
+import de.tomsplayground.peanuts.client.widgets.AccountComposite;
 import de.tomsplayground.peanuts.client.widgets.DateComposite;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.process.SavedTransaction;
 import de.tomsplayground.peanuts.domain.process.SavedTransaction.Interval;
 import de.tomsplayground.peanuts.domain.process.Transaction;
+import de.tomsplayground.peanuts.domain.process.TransferTransaction;
 import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
@@ -34,6 +37,8 @@ public class SavedTransactionPropertyPage extends PropertyPage {
 	private Button automaticExecution;
 	private DateComposite startDate;
 	private Combo intervalCombo;
+
+	private AccountComposite accountComposite;
 
 	@Override
 	protected Control createContents(Composite parent) {
@@ -59,10 +64,9 @@ public class SavedTransactionPropertyPage extends PropertyPage {
 
 		label = new Label(composite, SWT.NONE);
 		label.setText("Account");
-		label = new Label(composite, SWT.NONE);
-		if (account !=  null) {
-			label.setText(account.getName());
-		}
+		accountComposite = new AccountComposite(composite, SWT.NONE, null);
+		accountComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		accountComposite.setAccount(account);
 
 		label = new Label(composite, SWT.NONE);
 		label.setText("Automatic execution");
@@ -102,21 +106,37 @@ public class SavedTransactionPropertyPage extends PropertyPage {
 	public boolean performOk() {
 		IAdaptable adapter = getElement();
 		SavedTransaction savedTransaction = adapter.getAdapter(SavedTransaction.class);
-		SavedTransaction savedTransaction2;
-		
+		SavedTransaction updatedSavedTransaction;
+				
 		if (automaticExecution.getSelection()) {
 			Day date = startDate.getDay();
 			Interval interval = SavedTransaction.Interval.values()[intervalCombo.getSelectionIndex()];
-			savedTransaction2 = new SavedTransaction(savedTransaction.getName(), savedTransaction.getTransaction(), date, interval);
+			updatedSavedTransaction = new SavedTransaction(savedTransaction.getName(), savedTransaction.getTransaction(), date, interval);
 		} else {
-			savedTransaction2 = new SavedTransaction(savedTransaction.getName(), savedTransaction.getTransaction());
+			updatedSavedTransaction = new SavedTransaction(savedTransaction.getName(), savedTransaction.getTransaction());
 		}
+		
+		Account currentAccount = SavedTransactionManager.getAccountForTransaction(savedTransaction.getTransaction());
+		Account newAccount = accountComposite.getAccount();
+		if (currentAccount != newAccount) {
+			Transaction newTransaction = (Transaction) savedTransaction.getTransaction().clone();
+			newTransaction.setDay(startDate.getDay());
+			if (newTransaction instanceof TransferTransaction) {
+				currentAccount.addTransaction(newTransaction);
+				TransferTransaction tt = (TransferTransaction) newTransaction;
+				tt.getComplement().changeTarget(newAccount);
+			} else {
+				newAccount.addTransaction(newTransaction);
+			}
+			updatedSavedTransaction.setTransaction(newTransaction);
+		}
+		
 		AccountManager accountManager = Activator.getDefault().getAccountManager();
 		accountManager.removeSavedTransaction(accountManager.getSavedTransaction(savedTransaction.getName()));
-		accountManager.addSavedTransaction(savedTransaction2);
+		accountManager.addSavedTransaction(updatedSavedTransaction);
 
-		if (savedTransaction2.isAutomaticExecution()) {
-			SavedTransactionManager.createFuturTransaction(savedTransaction2, 90);
+		if (updatedSavedTransaction.isAutomaticExecution()) {
+			SavedTransactionManager.createFuturTransaction(updatedSavedTransaction, 90);
 		}
 
 		return super.performOk();

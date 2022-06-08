@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Iterables;
@@ -22,11 +25,14 @@ import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.ITransferLocation;
 import de.tomsplayground.peanuts.domain.process.Transaction;
+import de.tomsplayground.peanuts.domain.process.TransferTransaction;
 import de.tomsplayground.peanuts.util.Day;
 
 @XStreamAlias("account")
 public class Account extends ObservableModelObject implements ITransferLocation, ITransactionProvider,
 	INamedElement, IConfigurable, IDeletable {
+
+	private final static Logger log = LoggerFactory.getLogger(Account.class);
 
 	public enum Type {
 		UNKNOWN,
@@ -188,18 +194,32 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 
 	@Override
 	public void removeTransaction(Transaction transaction) {
+		boolean removed = false;
 		for (int i = 0; i < transactions.size(); i++) {
 			Transaction t = transactions.get(i);
-			if (t.equals(transaction)) {
-				t.removePropertyChangeListener(transactionChangeListener);
+			if (t == transaction) {
+				transaction.removePropertyChangeListener(transactionChangeListener);
 				transactions.remove(i);
 				firePropertyChange("transactions", transaction, null);
-				return;
+				removed = true;
+				break;
 			} else if (t.hasSplits() && t.getSplits().contains(transaction)) {
 				transaction.removePropertyChangeListener(transactionChangeListener);
 				t.removeSplit(transaction);
-				return;
+				removed = true;
+				break;
 			}
+		}
+		if (removed) {
+			if (transaction instanceof TransferTransaction) {
+				TransferTransaction tt = (TransferTransaction) transaction;
+				TransferTransaction complement = tt.getComplement();
+				if (complement != null) {
+					complement.setComplement(null);
+					tt.getTarget().removeTransaction(complement);
+				}
+			}
+			return;
 		}
 		throw new IllegalArgumentException("Transaction does not belong to account:" + transaction);
 	}
@@ -304,6 +324,15 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 				return o1.getDay().compareTo(o2.getDay());
 			}
 		});
+		for (Transaction transaction : transactions) {
+			if (transaction instanceof TransferTransaction) {
+				TransferTransaction tt = (TransferTransaction) transaction;
+				ITransferLocation target = tt.getComplement().getTarget();
+				if (target != this || tt.getComplement().getComplement() != tt) {
+					log.error("Inconsistent transfer transaction {} <=> {}", tt, tt.getComplement());
+				}
+			}
+		}
 	}
 
 	public boolean isSplitTransaction(Transaction split) {
