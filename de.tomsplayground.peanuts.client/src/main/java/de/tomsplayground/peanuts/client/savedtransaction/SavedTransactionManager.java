@@ -45,7 +45,7 @@ public class SavedTransactionManager {
 				st.setStart(st.nextExecution());
 			}
 		} else {
-			log.info("Saved transaction not found in any active account");
+			log.info("Saved transaction {} not found in any active account", st.getName());
 		}
 	}
 

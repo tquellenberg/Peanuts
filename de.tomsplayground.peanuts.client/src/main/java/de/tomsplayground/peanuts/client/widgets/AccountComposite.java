@@ -37,6 +37,7 @@ public class AccountComposite extends Composite {
 		Collator collator = Collator.getInstance();
 		collator.setStrength(Collator.PRIMARY);
 		Activator.getDefault().getAccountManager().getAccounts().stream()
+			.filter(a -> a != disabledAccount)
 			.map(a -> a.getName())
 			.sorted(collator)
 			.forEachOrdered(n -> accountCombo.add(n));

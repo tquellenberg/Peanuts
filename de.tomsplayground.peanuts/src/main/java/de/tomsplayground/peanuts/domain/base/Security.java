@@ -12,6 +12,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -27,6 +29,8 @@ import de.tomsplayground.peanuts.domain.note.Note;
 
 @XStreamAlias("security")
 public class Security extends ObservableModelObject implements INamedElement, IConfigurable, IDeletable {
+
+	private final static Logger log = LoggerFactory.getLogger(Security.class);
 
 	// Core
 	private String name;
