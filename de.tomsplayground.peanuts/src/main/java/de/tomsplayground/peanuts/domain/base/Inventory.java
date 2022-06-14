@@ -59,6 +59,13 @@ public class Inventory extends ObservableModelObject {
 			getPropertyChangeSupport().firePropertyChange("entries", 0, 1);
 		}
 	};
+	
+	private PropertyChangeListener securityChangeListener = new PropertyChangeListener() {
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			getPropertyChangeSupport().firePropertyChange(evt);
+		}
+	};
 
 	public Inventory(Account account) {
 		this(account, null, null);
@@ -87,6 +94,9 @@ public class Inventory extends ObservableModelObject {
 		}
 		for (ObservableModelObject observableModelObject : registeredPriceProvider) {
 			observableModelObject.removePropertyChangeListener(priceProviderChangeListener);
+		}
+		for (Security security : entryMap.keySet()) {
+			security.removePropertyChangeListener(securityChangeListener);
 		}
 	}
 
@@ -176,6 +186,7 @@ public class Inventory extends ObservableModelObject {
 
 	public InventoryEntry getInventoryEntry(Security security) {
 		if ( ! entryMap.containsKey(security)) {
+			// New security
 			IPriceProvider priceprovider = null;
 			if (priceProviderFactory != null) {
 				priceprovider = priceProviderFactory.getPriceProvider(security);
@@ -185,6 +196,7 @@ public class Inventory extends ObservableModelObject {
 					registeredPriceProvider.add(ob);
 				}
 			}
+			security.addPropertyChangeListener(securityChangeListener);
 			entryMap.putIfAbsent(security, new InventoryEntry(security, priceprovider));
 		}
 		return entryMap.get(security);
