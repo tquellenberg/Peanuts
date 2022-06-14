@@ -452,7 +452,6 @@ public class DividendEditorPart extends EditorPart {
 		return items.toArray(new String[items.size()]);
 	}
 
-
 	private void fillContextMenu(IMenuManager manager) {
 		manager.add(new Action("New") {
 			@Override
@@ -462,23 +461,6 @@ public class DividendEditorPart extends EditorPart {
 				tableViewer.refresh();
 			}
 		});
-
-		final Action deleteAction = new Action("Delete") {
-			@SuppressWarnings("unchecked")
-			@Override
-			public void run() {
-				IStructuredSelection sel = (IStructuredSelection)tableViewer.getSelection();
-				if (! sel.isEmpty()) {
-					for (Iterator<Dividend> iter = sel.iterator(); iter.hasNext(); ) {
-						Dividend entry = iter.next();
-						dividends.remove(entry);
-					}
-					tableViewer.refresh();
-				}
-			}
-		};
-		deleteAction.setEnabled(! ((IStructuredSelection)tableViewer.getSelection()).isEmpty());
-		manager.add(deleteAction);
 
 		final Action importAction = new Action("Import") {
 			@Override
@@ -672,6 +654,13 @@ public class DividendEditorPart extends EditorPart {
 				.multiply(new BigDecimal(dividendsPerYear()));
 		}
 		return BigDecimal.ZERO;
+	}
+
+	public void deleteDividendEntries(List<Dividend> data) {
+		if (dividends.removeAll(data)) {
+			tableViewer.refresh();
+			markDirty();
+		}
 	}
 
 }
