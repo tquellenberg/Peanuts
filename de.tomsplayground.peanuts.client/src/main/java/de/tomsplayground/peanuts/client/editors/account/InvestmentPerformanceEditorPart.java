@@ -85,12 +85,17 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 				if (columnIndex == 6) {
 					return PeanutsUtil.formatCurrency(sum[3], currency);
 				}
-				if (columnIndex == 9) {
-					return PeanutsUtil.formatPercent(sum[4]);
+			} else if (element instanceof GainAvg) {
+				GainAvg gainAvg = (GainAvg) element;
+				if (columnIndex == 0) {
+					if (gainAvg.lastYears == -1) {
+						return "Full";
+					} else {
+						return gainAvg.lastYears+" years";
+					}
 				}
-			} else if (element instanceof BigDecimal) {
-				if (columnIndex == 9) {
-					return PeanutsUtil.formatPercent((BigDecimal)element);
+				if (columnIndex == 1) {
+					return PeanutsUtil.formatPercent(gainAvg.gainingPercent);
 				}
 			}
 			return null;
@@ -146,13 +151,24 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 						return red;
 					}
 				}
-				if (columnIndex == 9) {
-					if (sum[4].signum() == -1) {
+			} else if (element instanceof GainAvg) {
+				GainAvg gainAvg = (GainAvg) element;
+				if (columnIndex == 1) {
+					if (gainAvg.gainingPercent.signum() == -1) {
 						return red;
 					}
 				}
 			}
 			return null;
+		}
+	}
+	
+	private static class GainAvg {
+		int lastYears;
+		BigDecimal gainingPercent;
+		public GainAvg(int lastYears, BigDecimal gainingPercent) {
+			this.lastYears = lastYears;
+			this.gainingPercent = gainingPercent;
 		}
 	}
 
@@ -161,20 +177,22 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 		public Object[] getElements(Object inputElement) {
 			PerformanceAnalyzer analizer = (PerformanceAnalyzer) inputElement;
 			List<Value> value =analizer.getValues();
-			BigDecimal sum[] = new BigDecimal[]{BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO};
-			Object[] array = new Object[value.size() + 3];
+			BigDecimal sum[] = new BigDecimal[]{BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO};
+			Object[] array = new Object[value.size() + 4];
 			int i = 0;
 			for (Value v : value) {
 				array[i++] = v;
+				
 				sum[0] = sum[0].add(v.getAdditions());
 				sum[1] = sum[1].add(v.getLeavings());
 				sum[2] = sum[2].add(v.getAdditions().add(v.getLeavings()));
 				sum[3] = sum[3].add(v.getGainings());
 			}
-			sum[4] = analizer.getFullGainingPercent();
-			array[i] = sum;
-			array[i+1] = analizer.get10YearGainingPercent();
-			array[i+2] = analizer.get5YearGainingPercent();
+			array[i++] = sum;
+
+			array[i++] = new GainAvg(-1, analizer.getFullGainingPercent());
+			array[i++] = new GainAvg(10, analizer.get10YearGainingPercent());
+			array[i++] = new GainAvg(5, analizer.get5YearGainingPercent());
 			return array;
 		}
 	}
