@@ -186,13 +186,12 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>2.13.2.1</version>
 		</dependency>
-
 		<dependency>
 		    <groupId>com.ib</groupId>
 		    <artifactId>interactive-brokers-api</artifactId>
 		    <version>9.76-01</version>
 		    <scope>system</scope>
-		    <systemPath>${project.basedir}/lib/TwsApi.jar</systemPath>
+		    <systemPath>/Users/quelle/git/Peanuts/de.tomsplayground.peanuts/lib/TwsApi.jar</systemPath>
 		</dependency>
 	</dependencies>
 	<properties>

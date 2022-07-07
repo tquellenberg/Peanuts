@@ -759,7 +759,9 @@
          <activeWhen>
             <with
                   variable="selection">
-               <iterate>
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
                   <instanceof
                         value="de.tomsplayground.peanuts.domain.dividend.Dividend">
                   </instanceof>

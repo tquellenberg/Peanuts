@@ -3,7 +3,9 @@ package de.tomsplayground.peanuts.client.editors.account;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -76,6 +78,8 @@ public class TransactionListEditorPart extends EditorPart {
 	private Composite top;
 
 	private final int colWidth[] = new int[5];
+	
+	private Set<ITransaction> lastDayOfMonthTransactions = new HashSet<>();
 
 	protected PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
 		@Override
@@ -136,14 +140,16 @@ public class TransactionListEditorPart extends EditorPart {
 
 	private Label saldo;
 
-	private static class AccountLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider, ITableFontProvider {
+	private class AccountLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider, ITableFontProvider {
 
 		private Color red;
 		private Account account;
+		private Font boldFont;
 
 		public AccountLabelProvider(Color red, Account account) {
 			this.red = red;
 			this.account = account;
+			this.boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT);
 		}
 
 		@Override
@@ -227,6 +233,13 @@ public class TransactionListEditorPart extends EditorPart {
 
 		@Override
 		public Font getFont(Object element, int columnIndex) {
+			if (element instanceof TransactionListContentProvider.TimeTreeNode) {
+				return null;
+			}
+			Transaction trans = (Transaction) element;
+			if (lastDayOfMonthTransactions.contains(trans)) {
+				return boldFont;
+			}
 			return null;
 		}
 	}
@@ -520,8 +533,9 @@ public class TransactionListEditorPart extends EditorPart {
 		getSite().setSelectionProvider(transactionTree);
 		account.addPropertyChangeListener(propertyChangeListener);
 
-		transactionTree.setInput(account);
 		List<ITransaction> transactions = account.getTransactions();
+		updateLastDayOfMonth(transactions);
+		transactionTree.setInput(account);
 		if (! transactions.isEmpty()) {
 			Day today = Day.today();
 			ITransaction t = Lists.reverse(transactions).stream()
@@ -535,6 +549,21 @@ public class TransactionListEditorPart extends EditorPart {
 				}
 			}
 			select(t);
+		}
+	}
+
+	private void updateLastDayOfMonth(List<ITransaction> transactions) {
+		lastDayOfMonthTransactions.clear();
+		if (transactions.isEmpty()) {
+			return;
+		}
+		
+		ITransaction lastTransaction = transactions.get(0);
+		for (ITransaction iTransaction : transactions) {
+			if (iTransaction.getDay().month != lastTransaction.getDay().month) {
+				lastDayOfMonthTransactions.add(lastTransaction);
+			}
+			lastTransaction = iTransaction;
 		}
 	}
 
