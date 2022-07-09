@@ -32,6 +32,8 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 
 	private final static Logger log = LoggerFactory.getLogger(Security.class);
 
+	public static final String CONFIG_KEY_YAHOO_SYMBOL = "yahooSymbol";
+
 	// Core
 	private String name;
 

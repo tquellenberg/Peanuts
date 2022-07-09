@@ -752,7 +752,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 	private final PropertyChangeListener securityPropertyChangeListener = new UniqueAsyncExecution() {
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
-			if (evt.getPropertyName().equals(SecurityPropertyPage.YAHOO_SYMBOL)) {
+			if (evt.getPropertyName().equals(Security.CONFIG_KEY_YAHOO_SYMBOL)) {
 				updateButtonState();
 			}
 			if (evt.getPropertyName().equals(FundamentalDatas.OVERRIDDEN_AVG_PE) ||
@@ -779,7 +779,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 	private void updateButtonState() {
 		Security security = getSecurity();
-		deYahooGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.YAHOO_SYMBOL)));
+		deYahooGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(Security.CONFIG_KEY_YAHOO_SYMBOL)));
 		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.MARKET_SCREENER_URL)));
 	}
 
@@ -808,7 +808,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 	}
 
 	private void updateDeYahooData(final Security security) {
-		String symbol = security.getConfigurationValue(SecurityPropertyPage.YAHOO_SYMBOL);
+		String symbol = security.getConfigurationValue(Security.CONFIG_KEY_YAHOO_SYMBOL);
 		try {
 			String apiKey = Activator.getDefault().getPreferenceStore().getString(Activator.RAPIDAPIKEY_PROPERTY);
 			YahooData yahooData = new YahooAPI(apiKey).getYahooData(symbol);

@@ -5,6 +5,9 @@ import java.beans.PropertyChangeListener;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -20,13 +23,17 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.editors.security.SecurityEditor;
+import de.tomsplayground.peanuts.client.editors.security.SecurityEditorInput;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
+import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.calendar.CalendarEntry;
 import de.tomsplayground.peanuts.domain.calendar.SecurityCalendarEntry;
 import de.tomsplayground.peanuts.util.Day;
@@ -172,6 +179,21 @@ public class CalendarView extends ViewPart {
 					return (ce.getDay().delta(now) < 14);
 				}
 				return true;
+			}
+		});
+		calendarListViewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
+				if (sel.getFirstElement() instanceof SecurityCalendarEntry) {
+					Security security = ((SecurityCalendarEntry) sel.getFirstElement()).getSecurity();
+					IEditorInput input = new SecurityEditorInput(security);
+					try {
+						getSite().getWorkbenchWindow().getActivePage().openEditor(input, SecurityEditor.ID);
+					} catch (PartInitException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		});
 		calendarListViewer.setInput(Activator.getDefault().getAccountManager().getCalendarEntries());

@@ -19,8 +19,6 @@ public class SecurityPropertyPage extends PropertyPage {
 
 	public static final String MARKET_SCREENER_URL = "fourTrasdersUrl";
 
-	public static final String YAHOO_SYMBOL = "yahooSymbol";
-
 	public static final String OVERRIDE_EXISTING_PRICE_DATA = "OVERRIDE_EXISTING_PRICE_DATA";
 
 	private Text name;
@@ -59,7 +57,7 @@ public class SecurityPropertyPage extends PropertyPage {
 		ticker.setText(StringUtils.defaultString(security.getTicker()));
 
 		yahooSymbol = createTextWithLabel(composite, "Yahoo-Symbol");
-		yahooSymbol.setText(StringUtils.defaultString(security.getConfigurationValue(YAHOO_SYMBOL)));
+		yahooSymbol.setText(StringUtils.defaultString(security.getConfigurationValue(Security.CONFIG_KEY_YAHOO_SYMBOL)));
 
 		morningstarSymbol = createTextWithLabel(composite, "Morningstar");
 		morningstarSymbol.setText(StringUtils.defaultString(security.getMorningstarSymbol()));
@@ -99,7 +97,7 @@ public class SecurityPropertyPage extends PropertyPage {
 		security.setTicker(ticker.getText());
 		security.setMorningstarSymbol(morningstarSymbol.getText());
 		security.putConfigurationValue(MARKET_SCREENER_URL, fourTradersUrl.getText());
-		security.putConfigurationValue(YAHOO_SYMBOL, yahooSymbol.getText());
+		security.putConfigurationValue(Security.CONFIG_KEY_YAHOO_SYMBOL, yahooSymbol.getText());
 		security.putConfigurationValue(OVERRIDE_EXISTING_PRICE_DATA, Boolean.toString(overridePriceDate.getSelection()));
 		security.putConfigurationValue(FundamentalDatas.OVERRIDDEN_AVG_PE, overriddenAvgPE.getText());
 		return super.performOk();

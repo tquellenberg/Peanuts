@@ -36,12 +36,11 @@ import org.eclipse.ui.dialogs.PropertyPage;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
-import de.tomsplayground.peanuts.app.yahoo.YahooCalendarEntry;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.widgets.DateCellEditor;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Security;
-import de.tomsplayground.peanuts.domain.calendar.CalendarEntry;
+import de.tomsplayground.peanuts.domain.calendar.CalendarUpdateJob;
 import de.tomsplayground.peanuts.domain.calendar.SecurityCalendarEntry;
 import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
@@ -51,6 +50,7 @@ public class CalendarPropertyPage extends PropertyPage {
 	private List<SecurityCalendarEntry> securityCalendarEntry;
 	private TableViewer tableViewer;
 	private Security security;
+	private CalendarUpdateJob calendarUpdateJob;
 
 	private static class SecurityCalendarEntryTableLabelProvider extends LabelProvider implements ITableLabelProvider {
 		@Override
@@ -87,6 +87,8 @@ public class CalendarPropertyPage extends PropertyPage {
 
 	public CalendarPropertyPage() {
 		noDefaultAndApplyButton();
+		calendarUpdateJob = new CalendarUpdateJob();
+		calendarUpdateJob.setApiKey(Activator.getDefault().getPreferenceStore().getString(Activator.RAPIDAPIKEY_PROPERTY));
 	}
 
 	@Override
@@ -176,17 +178,15 @@ public class CalendarPropertyPage extends PropertyPage {
 
 		Button button = new Button(composite, SWT.None);
 		button.setText("Get earnings date from Yahoo");
-		String symbol = security.getConfigurationValue(SecurityPropertyPage.YAHOO_SYMBOL);
-		button.setEnabled(StringUtils.isNotBlank(symbol));
+		button.setEnabled(calendarUpdateJob.isEnabled(security));
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String apiKey = Activator.getDefault().getPreferenceStore().getString(Activator.RAPIDAPIKEY_PROPERTY);
-				List<CalendarEntry> entries = new YahooCalendarEntry(apiKey).readUrl(symbol);
-				for (CalendarEntry calendarEntry : entries) {
-					securityCalendarEntry.add(new SecurityCalendarEntry(security, calendarEntry.getDay(), calendarEntry.getName()));
-				}
-				tableViewer.refresh();
+				calendarUpdateJob.findNewCalendarEntry(security, securityCalendarEntry).ifPresent(
+						entry -> {
+							securityCalendarEntry.add(entry);
+							tableViewer.refresh();
+						});
 			}
 		});
 

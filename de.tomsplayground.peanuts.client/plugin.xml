@@ -183,6 +183,11 @@
             name="Update fundamental data">
       </command>
       <command
+            defaultHandler="de.tomsplayground.peanuts.client.actions.UpdateCalendarEntries"
+            id="de.tomsplayground.peanuts.client.updateCalendarEntries.cmd"
+            name="Update calendar entries">
+      </command>
+      <command
             categoryId="de.tomsplayground.peanuts.client.category"
             defaultHandler="de.tomsplayground.peanuts.client.watchlist.DeleteWatchlistHandler"
             id="de.tomsplayground.peanuts.client.removeWatchlistConfiguration"
@@ -447,6 +452,10 @@
             </command>
             <command
                   commandId="de.tomsplayground.peanuts.client.updateAllFundamentalData.cmd"
+                  style="push">
+            </command>
+            <command
+                  commandId="de.tomsplayground.peanuts.client.updateCalendarEntries.cmd"
                   style="push">
             </command>
             <command

@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -48,6 +50,9 @@ public class YahooCalendarEntry {
 	}
 
 	public List<CalendarEntry> readUrl(String symbol) {
+		if (StringUtils.isBlank(symbol)) {
+			return Collections.emptyList();
+		}
 		String url = MessageFormat.format(API_URL, symbol);
 		HttpGet httpGet = new HttpGet(url);
 		httpGet.addHeader("x-rapidapi-host", API_HOST);
@@ -63,7 +68,7 @@ public class YahooCalendarEntry {
 			}
 		} catch (IOException e) {
 			log.error("URL "+url + " - " + e.getMessage());
-			return new ArrayList<>();
+			return Collections.emptyList();
 		} finally {
 			if (response1 != null) {
 				try {
@@ -73,7 +78,7 @@ public class YahooCalendarEntry {
 			}
 			httpGet.releaseConnection();
 		}
-		return new ArrayList<>();
+		return Collections.emptyList();
 	}
 
 	private List<CalendarEntry> parseJsonData(String json) throws JsonParseException, JsonMappingException, IOException {
@@ -83,11 +88,14 @@ public class YahooCalendarEntry {
 		Map<String,Object> jsonMap = mapper.readValue(json, typeRef);
 		Map<String,Object> calendarEvents = (Map<String, Object>) jsonMap.get("calendarEvents");
 		Map<String,Object> earnings = (Map<String, Object>) calendarEvents.get("earnings");
+
 		List<Map<String,Object>> earningsDate = (List<Map<String, Object>>) earnings.get("earningsDate");
-		Map<String,Object> date = earningsDate.get(0);
-		Day day = Day.from(LocalDate.ofEpochDay(((Number)date.get("raw")).longValue() / Day.SECONDS_PER_DAY));
-		String name = "Earnings";
-		result.add(new CalendarEntry(day, name));
+		if (! earningsDate.isEmpty()) {
+			Map<String,Object> date = earningsDate.get(0);
+			Day day = Day.from(LocalDate.ofEpochDay(((Number)date.get("raw")).longValue() / Day.SECONDS_PER_DAY));
+			String name = "Earnings";
+			result.add(new CalendarEntry(day, name));
+		}
 		return result;
 	}
 

@@ -366,11 +366,15 @@ public class NavigationView extends ViewPart {
 		});
 		updateModel();
 		viewer.setInput(root);
-		propertyChangeListener = new PropertyChangeListener() {
+		propertyChangeListener = new UniqueAsyncExecution() {
 			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
+			public void doit(PropertyChangeEvent evt, Display display) {
 				updateModel();
 				viewer.refresh();
+			}
+			@Override
+			public Display getDisplay() {
+				return getSite().getShell().getDisplay();
 			}
 		};
 		Activator.getDefault().getAccountManager().addPropertyChangeListener(propertyChangeListener);
