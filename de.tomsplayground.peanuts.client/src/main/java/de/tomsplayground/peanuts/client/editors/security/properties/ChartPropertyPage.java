@@ -1,7 +1,5 @@
 package de.tomsplayground.peanuts.client.editors.security.properties;
 
-import java.text.Collator;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +18,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.domain.base.INamedElement;
 import de.tomsplayground.peanuts.domain.base.Security;
 
 public class ChartPropertyPage extends PropertyPage {
@@ -54,11 +53,9 @@ public class ChartPropertyPage extends PropertyPage {
 		label = new Label(composite, SWT.NONE);
 		label.setText("Compare with");
 		compareWithList = new Combo(composite, SWT.READ_ONLY);
-		Collator collator = Collator.getInstance();
-		collator.setStrength(Collator.PRIMARY);
 		List<Security> sortedSecurities = Activator.getDefault().getAccountManager().getSecurities().stream()
 				.filter(s -> ! s.isDeleted())
-				.sorted(Comparator.comparing(Security::getName, collator))
+				.sorted(INamedElement.NAMED_ELEMENT_ORDER)
 				.collect(Collectors.toList());
 		String[] securityNames = sortedSecurities.stream()
 				.map(s -> s.getName())

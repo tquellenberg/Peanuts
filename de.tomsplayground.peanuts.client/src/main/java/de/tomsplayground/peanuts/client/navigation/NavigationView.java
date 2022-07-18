@@ -2,7 +2,6 @@ package de.tomsplayground.peanuts.client.navigation;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -353,13 +352,14 @@ public class NavigationView extends ViewPart {
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider());
 		viewer.getTree().setFont(Activator.getDefault().getNormalFont());
-		Collator collator = Collator.getInstance();
-		collator.setStrength(Collator.PRIMARY);
-		viewer.setComparator(new ViewerComparator(collator) {
+		viewer.setComparator(new ViewerComparator() {
 			@Override
 			public int compare(Viewer viewer, Object e1, Object e2) {
 				if (e1 instanceof TreeParent && e1 instanceof TreeParent) {
 					return 0;
+				}
+				if (e1 instanceof INamedElement && e2 instanceof INamedElement) {
+					return INamedElement.NAMED_ELEMENT_ORDER.compare((INamedElement)e1, (INamedElement)e2);
 				}
 				return super.compare(viewer, e1, e2);
 			}

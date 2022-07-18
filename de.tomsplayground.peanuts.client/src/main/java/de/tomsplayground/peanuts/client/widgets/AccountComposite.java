@@ -1,7 +1,5 @@
 package de.tomsplayground.peanuts.client.widgets;
 
-import java.text.Collator;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
@@ -13,6 +11,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.Account;
+import de.tomsplayground.peanuts.domain.base.INamedElement;
 
 public class AccountComposite extends Composite {
 
@@ -34,13 +33,10 @@ public class AccountComposite extends Composite {
 
 		accountCombo = new Combo(this, SWT.READ_ONLY);
 		accountCombo.add("");
-		Collator collator = Collator.getInstance();
-		collator.setStrength(Collator.PRIMARY);
 		Activator.getDefault().getAccountManager().getAccounts().stream()
 			.filter(a -> a != disabledAccount)
-			.map(a -> a.getName())
-			.sorted(collator)
-			.forEachOrdered(n -> accountCombo.add(n));
+			.sorted(INamedElement.NAMED_ELEMENT_ORDER)
+			.forEachOrdered(a -> accountCombo.add(a.getName()));
 		accountCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 	}
 
