@@ -94,7 +94,7 @@ public class MarketScreener {
 				}
 			}
 
-			for (int i = 6; i <= 10; i++) {
+			for (int i = 2; i <= 15; i++) {
 				FundamentalData fundamentalData = new FundamentalData();
 
 				// Year
@@ -107,6 +107,10 @@ public class MarketScreener {
 				String yearStr = result[0].toString().strip();
 				try {
 					int year = Integer.parseInt(yearStr);
+					if (year <= 2000) {
+						log.info("Wrong value for year {}", yearStr);
+						continue;
+					}
 					fundamentalData.setYear(year);
 				} catch (NumberFormatException e) {
 					// Okay

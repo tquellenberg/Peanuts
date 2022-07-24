@@ -2,6 +2,8 @@ package de.tomsplayground.peanuts.client.calendar;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
@@ -60,12 +62,14 @@ public class CalendarView extends ViewPart {
 		}
 	};
 
+	DateTimeFormatter weekDayFormatter = DateTimeFormatter.ofPattern("E");
+	
 	private class CalendarListLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
 			CalendarEntry e = (CalendarEntry)element;
 			if (columnIndex == 0) {
-				return PeanutsUtil.formatDate(e.getDay());
+				return e.getDay().toLocalDate().format(weekDayFormatter) + " " + PeanutsUtil.formatDate(e.getDay());
 			} else if (columnIndex == 1) {
 				return e.getName();
 			} else if (columnIndex == 2) {

@@ -870,9 +870,12 @@ public class FundamentalDataEditorPart extends EditorPart {
 				continue;
 			}
 			boolean dataExists = false;
-			for (FundamentalData oldData : fundamentalDataList) {
-				if (newData.getYear() == oldData.getYear()) {
-					oldData.update(newData);
+			for (FundamentalData existingData : fundamentalDataList) {
+				if (newData.getYear() == existingData.getYear()) {
+					// Not older than 6 months
+					if (existingData.getFiscalEndDay().delta(Day.today()) <= 180) {
+						existingData.update(newData);
+					}
 					dataExists = true;
 					break;
 				}

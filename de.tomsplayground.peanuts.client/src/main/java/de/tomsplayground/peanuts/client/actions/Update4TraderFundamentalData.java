@@ -22,6 +22,7 @@ import de.tomsplayground.peanuts.client.editors.security.properties.SecurityProp
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
+import de.tomsplayground.peanuts.util.Day;
 
 public class Update4TraderFundamentalData extends AbstractHandler {
 
@@ -113,7 +114,10 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 			boolean dataExists = false;
 			for (FundamentalData existingData : existingDatas) {
 				if (newData.getYear() == existingData.getYear()) {
-					existingData.update(newData);
+					// Not older than 6 months
+					if (existingData.getFiscalEndDay().delta(Day.today()) <= 180) {
+						existingData.update(newData);
+					}
 					dataExists = true;
 					break;
 				}
