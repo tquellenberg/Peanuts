@@ -51,7 +51,7 @@ public class AlarmView extends ViewPart {
 
 	private TableViewer alarmListViewer;
 
-	private final int colWidth[] = new int[3];
+	private final int colWidth[] = new int[4];
 
 	private final AlarmManager alarmManager = new AlarmManager();
 
@@ -81,6 +81,8 @@ public class AlarmView extends ViewPart {
 				return e.getMode().name();
 			} else if (columnIndex == 2) {
 				return PeanutsUtil.formatCurrency(e.getValue(), e.getSecurity().getCurrency());
+			} else if (columnIndex == 3) {
+				return PeanutsUtil.formatDate(e.getTriggerDay());
 			}
 			return null;
 		}
@@ -117,6 +119,9 @@ public class AlarmView extends ViewPart {
 				}
 				if (! w1.isTriggered() && w2.isTriggered()) {
 					return 1;
+				}
+				if (w1.isTriggered() && w2.isTriggered() && ! w1.getTriggerDay().equals(w2.getTriggerDay())) {
+					return w2.getTriggerDay().compareTo(w1.getTriggerDay());
 				}
 				return w1.getSecurity().getName().compareTo(w2.getSecurity().getName());
 			}
@@ -185,6 +190,12 @@ public class AlarmView extends ViewPart {
 
 		col = new TableColumn(table, SWT.LEFT);
 		col.setText("Value");
+		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 400);
+		col.setResizable(true);
+		colNum++;
+
+		col = new TableColumn(table, SWT.LEFT);
+		col.setText("Trigger");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 400);
 		col.setResizable(true);
 		colNum++;
