@@ -10,12 +10,16 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.process.SavedTransaction;
 import de.tomsplayground.peanuts.domain.process.Transaction;
 
 public class SaveTransactionHandler extends AbstractHandler {
+
+	private final static Logger log = LoggerFactory.getLogger(SaveTransactionHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -28,9 +32,11 @@ public class SaveTransactionHandler extends AbstractHandler {
 			SavedTransaction savedTransaction = Activator.getDefault().getAccountManager().getSavedTransaction(name);
 			if (savedTransaction != null) {
 				// Update
+				log.info("Update {}", transaction);
 				savedTransaction.setTransaction(transaction);
 			} else {
 				// New
+				log.info("New {}", transaction);
 				SavedTransaction newSavedTransaction = new SavedTransaction(name, transaction);
 				Activator.getDefault().getAccountManager().addSavedTransaction(newSavedTransaction);
 			}

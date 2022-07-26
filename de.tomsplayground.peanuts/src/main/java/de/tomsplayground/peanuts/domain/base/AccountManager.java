@@ -158,7 +158,7 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	}
 
 	public Category getCategory(String name) {
-		return getByName(categories, name);
+		return getByNameNonDeleted(categories, name);
 	}
 
 	public Set<Category> getCategories() {
@@ -193,7 +193,7 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	}
 
 	public Report getReport(String name) {
-		return getByName(reports, name);
+		return getByNameNonDeleted(reports, name);
 	}
 
 	public boolean removeSavedTransaction(SavedTransaction toDelete) {
@@ -218,7 +218,7 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	}
 
 	public SavedTransaction getSavedTransaction(String name) {
-		return getByName(savedTransactions, name);
+		return getByNameNonDeleted(savedTransactions, name);
 	}
 
 	public void addSecurityCategoryMapping(SecurityCategoryMapping securityCategoryMapping) {
@@ -231,7 +231,7 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	}
 
 	public SecurityCategoryMapping getSecurityCategoryMapping(String name) {
-		return getByName(securityCategoryMappings, name);
+		return getByNameNonDeleted(securityCategoryMappings, name);
 	}
 
 	public void addForecast(Forecast forecast) {
@@ -244,7 +244,7 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	}
 
 	public Forecast getForecast(String name) {
-		return getByName(forecasts, name);
+		return getByNameNonDeleted(forecasts, name);
 	}
 
 	public void addCredit(ICredit credit) {
@@ -257,14 +257,20 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	}
 
 	public ICredit getCredit(String name) {
-		return getByName(credits, name);
+		return getByNameNonDeleted(credits, name);
 	}
 
-	private <T extends INamedElement> T getByName(Iterable<T> elements, final String name) {
+	private <T extends INamedElement> T getByNameNonDeleted(Iterable<T> elements, final String name) {
 		return Iterables.find(elements, new Predicate<T>() {
 			@Override
 			public boolean apply(T element) {
-				return element.getName().equals(name);
+				if (! element.getName().equals(name)) {
+					return false;
+				}
+				if (element instanceof IDeletable deletable) {
+					return ! deletable.isDeleted();
+				}
+				return true;
 			}
 		}, null);
 	}
