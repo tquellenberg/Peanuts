@@ -43,6 +43,7 @@ import de.tomsplayground.peanuts.domain.alarm.AlarmManager;
 import de.tomsplayground.peanuts.domain.alarm.SecurityAlarm;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
+import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class AlarmView extends ViewPart {
@@ -120,8 +121,10 @@ public class AlarmView extends ViewPart {
 				if (! w1.isTriggered() && w2.isTriggered()) {
 					return 1;
 				}
-				if (w1.isTriggered() && w2.isTriggered() && ! w1.getTriggerDay().equals(w2.getTriggerDay())) {
-					return w2.getTriggerDay().compareTo(w1.getTriggerDay());
+				Day t1 = w1.getTriggerDay();
+				Day t2 = w2.getTriggerDay();
+				if (t1 != null && t2 != null && ! t1.equals(t2)) {
+					return t2.compareTo(t1);
 				}
 				return w1.getSecurity().getName().compareTo(w2.getSecurity().getName());
 			}

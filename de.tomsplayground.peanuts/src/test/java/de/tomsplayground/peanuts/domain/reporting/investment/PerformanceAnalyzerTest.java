@@ -21,7 +21,7 @@ import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProvider;
 import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.domain.process.Transfer;
-import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer.Value;
+import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer.YearValue;
 import de.tomsplayground.peanuts.util.Day;
 
 public class PerformanceAnalyzerTest {
@@ -58,7 +58,7 @@ public class PerformanceAnalyzerTest {
 	public void testEmptyAccount() throws Exception {
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
 
-		List<Value> values = analizer.getValues();
+		List<YearValue> values = analizer.getValues();
 		Assert.assertEquals(0, values.size());
 	}
 
@@ -70,9 +70,9 @@ public class PerformanceAnalyzerTest {
 		account.addTransaction(transaction);
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
 
-		List<Value> values = analizer.getValues();
+		List<YearValue> values = analizer.getValues();
 		Assert.assertEquals(1, values.size());
-		Value value = values.get(0);
+		YearValue value = values.get(0);
 		Helper.assertEquals(BigDecimal.ZERO, value.getMarketValueStart());
 		Assert.assertEquals(Day.today().year, value.getYear());
 		// 100 - (10 * 1) + (10 * 9)
@@ -86,7 +86,7 @@ public class PerformanceAnalyzerTest {
 		account.addTransaction(new BankTransaction(d, new BigDecimal("100.00"), "l"));
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
 
-		List<Value> values = analizer.getValues();
+		List<YearValue> values = analizer.getValues();
 		Assert.assertEquals(2, values.size());
 
 		assertEquals(Day.today().year - 1, values.get(0).getYear());
@@ -110,9 +110,9 @@ public class PerformanceAnalyzerTest {
 		account.addTransaction(new BankTransaction(Day.today(), new BigDecimal("3.00"), ""));
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
 
-		List<Value> values = analizer.getValues();
+		List<YearValue> values = analizer.getValues();
 		Assert.assertEquals(1, values.size());
-		Value value = values.get(0);
+		YearValue value = values.get(0);
 		Helper.assertEquals(new BigDecimal("100.00"), value.getAdditions());
 		Helper.assertEquals(new BigDecimal("-10.00"), value.getLeavings());
 	}
@@ -140,9 +140,9 @@ public class PerformanceAnalyzerTest {
 		account.addTransaction(split);
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
 
-		List<Value> values = analizer.getValues();
+		List<YearValue> values = analizer.getValues();
 		Assert.assertEquals(1, values.size());
-		Value value = values.get(0);
+		YearValue value = values.get(0);
 		Helper.assertEquals(new BigDecimal("100.00"), value.getAdditions());
 		Helper.assertEquals(new BigDecimal("-10.00"), value.getLeavings());
 	}
@@ -157,7 +157,7 @@ public class PerformanceAnalyzerTest {
 		account.addTransaction(transfer.getTransferTo());
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
 
-		Value value = analizer.getValues().get(0);
+		YearValue value = analizer.getValues().get(0);
 		Helper.assertEquals(new BigDecimal("50.00"), value.getInvestedAvg());
 	}
 
@@ -170,14 +170,30 @@ public class PerformanceAnalyzerTest {
 		account2.addTransaction(transfer.getTransferFrom());
 		account.addTransaction(transfer.getTransferTo());
 
-		// 2. Leaving on 1.7.2010 (1100)
+		// 2. Leaving on 1.7.2010 (-100)
 		transfer = new Transfer(account2, account, new BigDecimal("-100.00"), Day.of(2010, 6, 1));
 		account2.addTransaction(transfer.getTransferFrom());
 		account.addTransaction(transfer.getTransferTo());
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
 
-		Value value = analizer.getValues().get(0);
+		YearValue value = analizer.getValues().get(0);
 		Helper.assertEquals(new BigDecimal("25.00"), value.getInvestedAvg());
 	}
 
+	@Test
+	public void testInvestedAvgPartialYear() {
+		Day now = Day.today();
+		
+		Account account2 = accountManager.getOrCreateAccount("X2", Account.Type.BANK);
+
+		// 1. Addition on 1.1. this year (+100)
+		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), Day.of(now.year, 0, 1));
+		account2.addTransaction(transfer.getTransferFrom());
+		account.addTransaction(transfer.getTransferTo());
+		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
+
+		YearValue value = analizer.getValues().get(0);
+		Helper.assertEquals(new BigDecimal("100.00"), value.getInvestedAvg());
+	}
+	
 }

@@ -19,14 +19,14 @@ public class PerformanceAnalyzer {
 
 	private final static BigDecimal YEAR_DAYS = new BigDecimal(360);
 
-	private ImmutableList<Value> values = ImmutableList.of();
+	private ImmutableList<YearValue> values = ImmutableList.of();
 	private final IPriceProviderFactory priceProviderFactory;
 	private final ITransactionProvider account;
 	private final XIRR xirrFull;
 	private final XIRR xirr10Year;
 	private final XIRR xirr5Year;
 
-	public static class Value {
+	public static class YearValue {
 		private final int year;
 		private final BigDecimal marketValueStart;
 		private final BigDecimal marketValueEnd;
@@ -36,7 +36,8 @@ public class PerformanceAnalyzer {
 		private BigDecimal investedAvg;
 		private final XIRR xirr = new XIRR();
 		private BigDecimal rate;
-		public Value(int year, BigDecimal marketValueStart, BigDecimal marketValueEnd) {
+		
+		public YearValue(int year, BigDecimal marketValueStart, BigDecimal marketValueEnd) {
 			this.year = year;
 			this.marketValueStart = marketValueStart;
 			this.marketValueEnd = marketValueEnd;
@@ -52,10 +53,17 @@ public class PerformanceAnalyzer {
 			updateAdditionLeavings(amount);
 			updateXIRR(date, amount);
 		}
+		private BigDecimal daysPerYear() {
+			if (year == Day.today().year) {
+				return new BigDecimal(Day.today().dayOfYear());
+			}
+			return YEAR_DAYS;
+		}
+		
 		private void updateInvestedAvg(Day date) {
 			int dayDelta = avgDate.delta(date);
 			if (dayDelta > 0) {
-				BigDecimal investDelta = invested().multiply(new BigDecimal(dayDelta)).divide(YEAR_DAYS, PeanutsUtil.MC);
+				BigDecimal investDelta = invested().multiply(new BigDecimal(dayDelta)).divide(daysPerYear(), PeanutsUtil.MC);
 				investedAvg = investedAvg.add(investDelta);
 				avgDate = date;
 			}
@@ -130,15 +138,18 @@ public class PerformanceAnalyzer {
 			endYear = now.year;
 		}
 		Inventory inventory = new Inventory(account, priceProviderFactory);
-		List<Value> elements = new ArrayList<>();
+		List<YearValue> elements = new ArrayList<>();
 		for (; year <= endYear; year++) {
 			Day r1 = Day.of(year-1, 11, 31);
 			Day r2 = Day.of(year,   11, 31);
+			if (r2.after(now)) {
+				r2 = now;
+			}
 			inventory.setDate(r1);
 			BigDecimal marketValueStart = inventory.getMarketValue().add(account.getBalance(r1));
 			inventory.setDate(r2);
 			BigDecimal marketValueEnd = inventory.getMarketValue().add(account.getBalance(r2));
-			Value value = new Value(year, marketValueStart, marketValueEnd);
+			YearValue value = new YearValue(year, marketValueStart, marketValueEnd);
 			calculateAdditionLeaving(r1, r2,  value);
 			calculateAdditionLeaving(r1, r2, xirrFull);
 			if (endYear - year <= 9) {
@@ -162,7 +173,7 @@ public class PerformanceAnalyzer {
 		values = ImmutableList.copyOf(elements);
 	}
 
-	private void calculateAdditionLeaving(Day from, Day to, Value value) {
+	private void calculateAdditionLeaving(Day from, Day to, YearValue value) {
 		for (ITransaction transaction : account.getTransactionsByDate(from, to)) {
 			ImmutableList<ITransaction> splits = transaction.getSplits();
 			if (! splits.isEmpty()) {
@@ -195,7 +206,7 @@ public class PerformanceAnalyzer {
 	}
 
 
-	public ImmutableList<Value> getValues() {
+	public ImmutableList<YearValue> getValues() {
 		return values;
 	}
 

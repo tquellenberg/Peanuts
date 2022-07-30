@@ -28,7 +28,7 @@ import de.tomsplayground.peanuts.client.editors.ITransactionProviderInput;
 import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer;
-import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer.Value;
+import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer.YearValue;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class InvestmentPerformanceEditorPart extends EditorPart {
@@ -47,8 +47,8 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
-			if (element instanceof Value) {
-				Value value = (Value) element;
+			if (element instanceof YearValue) {
+				YearValue value = (YearValue) element;
 				switch (columnIndex) {
 					case 0:
 						return String.valueOf(value.getYear());
@@ -113,8 +113,8 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 
 		@Override
 		public Color getForeground(Object element, int columnIndex) {
-			if (element instanceof Value) {
-				Value value = (Value) element;
+			if (element instanceof YearValue) {
+				YearValue value = (YearValue) element;
 				if (columnIndex == 5) {
 					BigDecimal v = value.getAdditions().add(value.getLeavings());
 					if (v.signum() == -1) {
@@ -176,11 +176,11 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 		@Override
 		public Object[] getElements(Object inputElement) {
 			PerformanceAnalyzer analizer = (PerformanceAnalyzer) inputElement;
-			List<Value> value =analizer.getValues();
+			List<YearValue> value =analizer.getValues();
 			BigDecimal sum[] = new BigDecimal[]{BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO};
 			Object[] array = new Object[value.size() + 4];
 			int i = 0;
-			for (Value v : value) {
+			for (YearValue v : value) {
 				array[i++] = v;
 				
 				sum[0] = sum[0].add(v.getAdditions());

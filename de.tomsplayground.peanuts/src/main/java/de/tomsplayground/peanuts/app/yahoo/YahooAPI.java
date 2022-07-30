@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -113,6 +114,10 @@ public class YahooAPI {
 			HttpEntity entity1 = response1.getEntity();
 			if (response1.getStatusLine().getStatusCode() != 200) {
 				log.error(response1.getStatusLine().toString() + " "+url);
+				for (Header h : response1.getAllHeaders()) {
+					log.info(""+h);
+				}
+				log.info(EntityUtils.toString(entity1));
 			} else {
 				return jsonToMap(EntityUtils.toString(entity1));
 			}
@@ -188,6 +193,9 @@ public class YahooAPI {
 	
 	public YahooData getYahooData(String symbol) {
 		Map<String, Object> jsonMap = readUrl(symbol, GET_FINANCIALS_URL);
+		if (jsonMap == null) {
+			return null;
+		}
 		
 		List<DebtEquityValue> debtEquity = parseJsonDataForDebtEquity(jsonMap);
 		MarketCap marketCap = parseJsonDataForMarketCap(jsonMap);

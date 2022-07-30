@@ -95,6 +95,8 @@ public class YahooCalendarEntry {
 			Day day = Day.from(LocalDate.ofEpochDay(((Number)date.get("raw")).longValue() / Day.SECONDS_PER_DAY));
 			String name = "Earnings";
 			result.add(new CalendarEntry(day, name));
+		} else {
+			log.info("No earning date in JSON");
 		}
 		return result;
 	}

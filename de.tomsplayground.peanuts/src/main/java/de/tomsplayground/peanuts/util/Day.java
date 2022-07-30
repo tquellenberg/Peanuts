@@ -143,6 +143,13 @@ public class Day implements Serializable, Cloneable, Comparable<Day> {
 		delta = delta + (d2.day - day);
 		return delta;
 	}
+	
+	/**
+	 * Day of year on a base of 360 days per year (0..360)
+	 */
+	public int dayOfYear() {
+		return (month*30)+day-1;
+	}
 
 	public LocalDateTime toLocalDateTime() {
 		return LocalDateTime.of(year, Month.of(month+1), day, 0, 0);

@@ -25,7 +25,7 @@ import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer;
-import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer.Value;
+import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer.YearValue;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 import de.tomsplayground.peanuts.util.Day;
 
@@ -40,7 +40,7 @@ public class DividendStats extends ObservableModelObject {
 	// Month => Dividends
 	private final Map<YearMonth, List<Dividend>> groupedDividends = new HashMap<>();
 
-	private final ImmutableList<Value> performanceValues;
+	private final ImmutableList<YearValue> performanceValues;
 
 	private final PropertyChangeListener inventoriyListener = new PropertyChangeListener() {
 		@Override

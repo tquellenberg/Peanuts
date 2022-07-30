@@ -20,6 +20,7 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ICellModifier;
@@ -812,6 +813,10 @@ public class FundamentalDataEditorPart extends EditorPart {
 		try {
 			String apiKey = Activator.getDefault().getPreferenceStore().getString(Activator.RAPIDAPIKEY_PROPERTY);
 			YahooData yahooData = new YahooAPI(apiKey).getYahooData(symbol);
+			if (yahooData == null) {
+				MessageDialog.openError(getSite().getShell(), "Error", "Error loading data from Yahoo API");
+				return;
+			}
 			MarketCap marketCap = yahooData.getMarketCap();
 			if (marketCap != null) {
 				security.putConfigurationValue(SECURITY_MARKET_CAP_CURRENCY, Objects.toString(marketCap.getCurrency(), ""));
