@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
@@ -69,6 +70,8 @@ import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class DividendEditorPart extends EditorPart {
+	
+	private static final Range<Integer> TWELVE_MONTH_RANGE = Range.between(0, 365-20);
 
 	private boolean dirty;
 
@@ -151,7 +154,7 @@ public class DividendEditorPart extends EditorPart {
 				case 8:
 					return PeanutsUtil.formatCurrency(entry.getNettoAmountInDefaultCurrency(), Currencies.getInstance().getDefaultCurrency());
 				case 9:
-					return PeanutsUtil.formatPercent(getDividendYoc(entry));
+					return PeanutsUtil.formatPercent(getDividendYoc(twelveMonthTrailingDividends(entry)));
 				case 10:
 					InvestmentTransaction booked = isBooked(entry);
 					if (booked != null) {
@@ -603,20 +606,13 @@ public class DividendEditorPart extends EditorPart {
 		return currency;
 	}
 
-	private int dividendsPerYear() {
-		if (dividends.isEmpty()) {
-			return 1;
-		}
-		int lastYear = dividends.get(dividends.size()-1).getPayDate().year;
-		int dividendsPerYear1 = (int)dividends.stream()
-			.filter(d -> d.getPayDate().year == lastYear)
-			.count();
-		int dividendsPerYear2 = (int)dividends.stream()
-			.filter(d -> d.getPayDate().year == (lastYear-1))
-			.count();
-		return Math.max(dividendsPerYear1, dividendsPerYear2);
+	private List<Dividend> twelveMonthTrailingDividends(Dividend startDiv) {
+		Day startDate = startDiv.getPayDate();
+		return dividends.stream()
+			.filter(d -> TWELVE_MONTH_RANGE.contains(d.getPayDate().delta(startDate)))
+			.collect(Collectors.toList());
 	}
-
+	
 	private BigDecimal getQuantity(Dividend entry) {
 		if (entry.getQuantity() != null) {
 			return entry.getQuantity();
@@ -627,33 +623,36 @@ public class DividendEditorPart extends EditorPart {
 		return inventoryEntry.getQuantity();
 	}
 
-	private BigDecimal getDividendYoc(Dividend entry) {
-		securityInventory.setDate(entry.getPayDate());
-		InventoryEntry inventoryEntry = securityInventory.getInventoryEntry(getSecurity());
-		BigDecimal quantity = entry.getQuantity();
-		if (quantity == null) {
-			quantity = inventoryEntry.getQuantity();
-		}
-		if (quantity.compareTo(BigDecimal.ZERO) > 0
-			&& inventoryEntry.getAvgPrice() != null
-			&& inventoryEntry.getAvgPrice().compareTo(BigDecimal.ZERO) > 0) {
-
-			BigDecimal amount = entry.getAmountInDefaultCurrency();
-			if (amount == null) {
-				amount = entry.getAmount();
-				if (amount == null) {
-					amount = getQuantity(entry).multiply(entry.getAmountPerShare());
-				}
-				CurrencyConverter converter = Activator.getDefault().getExchangeRates()
-					.createCurrencyConverter(entry.getCurrency(), Currencies.getInstance().getDefaultCurrency());
-				amount = converter.convert(amount, entry.getPayDate());
+	private BigDecimal getDividendYoc(List<Dividend> entries) {
+		BigDecimal yoc = BigDecimal.ZERO;
+		
+		for (Dividend entry : entries) {
+			securityInventory.setDate(entry.getPayDate());
+			InventoryEntry inventoryEntry = securityInventory.getInventoryEntry(getSecurity());
+			BigDecimal quantity = entry.getQuantity();
+			if (quantity == null) {
+				quantity = inventoryEntry.getQuantity();
 			}
-			return amount
-				.divide(quantity, PeanutsUtil.MC)
-				.divide(inventoryEntry.getAvgPrice(), PeanutsUtil.MC)
-				.multiply(new BigDecimal(dividendsPerYear()));
+			if (quantity.compareTo(BigDecimal.ZERO) > 0
+				&& inventoryEntry.getAvgPrice() != null
+				&& inventoryEntry.getAvgPrice().compareTo(BigDecimal.ZERO) > 0) {
+
+				BigDecimal amount = entry.getAmountInDefaultCurrency();
+				if (amount == null) {
+					amount = entry.getAmount();
+					if (amount == null) {
+						amount = getQuantity(entry).multiply(entry.getAmountPerShare());
+					}
+					CurrencyConverter converter = Activator.getDefault().getExchangeRates()
+						.createCurrencyConverter(entry.getCurrency(), Currencies.getInstance().getDefaultCurrency());
+					amount = converter.convert(amount, entry.getPayDate());
+				}
+				yoc = yoc.add(amount
+					.divide(quantity, PeanutsUtil.MC)
+					.divide(inventoryEntry.getAvgPrice(), PeanutsUtil.MC));
+			}
 		}
-		return BigDecimal.ZERO;
+		return yoc;
 	}
 
 	public void deleteDividendEntries(List<Dividend> data) {

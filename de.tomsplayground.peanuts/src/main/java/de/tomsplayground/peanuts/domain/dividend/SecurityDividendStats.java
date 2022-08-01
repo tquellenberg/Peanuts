@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.currenncy.Currencies;
+import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
+import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
@@ -24,6 +27,25 @@ public class SecurityDividendStats {
 			.map(d -> d.getAmountPerShare())
 			.reduce(BigDecimal.ZERO, BigDecimal::add);
 		return dividendSum;
+	}
+	
+	public BigDecimal getFutureDividendSum(BigDecimal quantity, ExchangeRates exchangeRates) {
+		Day from = Day.today();
+		Day to = from.addYear(1);
+		return dividends.stream()
+			.filter(d-> d.getPayDate().after(from) && d.getPayDate().beforeOrEquals(to))
+			.map(d -> sumInDefaultCurrency(d, quantity, exchangeRates))
+			.reduce(BigDecimal.ZERO, BigDecimal::add);
+	}
+	
+	public BigDecimal sumInDefaultCurrency(Dividend d, BigDecimal quantity, ExchangeRates exchangeRates) {
+		BigDecimal amount = quantity.multiply(d.getAmountPerShare());
+
+		CurrencyConverter converter = exchangeRates
+				.createCurrencyConverter(d.getCurrency(), Currencies.getInstance().getDefaultCurrency());
+		amount = converter.convert(amount, d.getPayDate());
+
+		return amount;
 	}
 	
 	public BigDecimal getLatestPayedDividendSum() {

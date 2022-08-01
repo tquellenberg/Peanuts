@@ -327,7 +327,8 @@ public class InventoryEditorPart extends EditorPart {
 					}
 				}
 				if (columnIndex == INVENTORY_POS_PAYED_DIVIDEND) {
-					BigDecimal dividendSum = new SecurityDividendStats(entry.getSecurity()).getLatestPayedDividendSum();
+					BigDecimal dividendSum = new SecurityDividendStats(entry.getSecurity())
+							.getFutureDividendSum(entry.getQuantity(), Activator.getDefault().getExchangeRates());
 					if (dividendSum.compareTo(BigDecimal.ZERO) != 0) {
 						return PeanutsUtil.formatCurrency(dividendSum, currency);
 					}
@@ -757,7 +758,7 @@ public class InventoryEditorPart extends EditorPart {
 		col.addControlListener(saveSizeOnResize);
 
 		col = new TreeColumn(tree, SWT.RIGHT);
-		col.setText("Dividend");
+		col.setText("Future Div");
 		col.setResizable(true);
 		col.setWidth((colWidth[12] > 0) ? colWidth[12] : 100);
 // TODO:
