@@ -7,12 +7,12 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 
 import de.tomsplayground.peanuts.client.app.Activator;
-import de.tomsplayground.peanuts.client.comparison.Comparison;
 import de.tomsplayground.peanuts.client.watchlist.WatchEntry;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.comparision.Comparison;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.process.ICredit;
 import de.tomsplayground.peanuts.domain.process.SavedTransaction;

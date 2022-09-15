@@ -49,10 +49,7 @@ import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.ViewPart;
 
-import com.google.common.collect.Lists;
-
 import de.tomsplayground.peanuts.client.app.Activator;
-import de.tomsplayground.peanuts.client.comparison.Comparison;
 import de.tomsplayground.peanuts.client.comparison.ComparisonEditor;
 import de.tomsplayground.peanuts.client.comparison.ComparisonInput;
 import de.tomsplayground.peanuts.client.dnd.PeanutsTransfer;
@@ -76,6 +73,7 @@ import de.tomsplayground.peanuts.domain.base.IDeletable;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
+import de.tomsplayground.peanuts.domain.comparision.Comparison;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.reporting.forecast.Forecast;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
@@ -320,7 +318,7 @@ public class NavigationView extends ViewPart {
 		updateElements(root, "Credits", accountManager.getCredits());
 		updateElements(root, "Security Categories", accountManager.getSecurityCategoryMappings());
 		updateElements(root, "Saved Transactions", accountManager.getSavedTransactions());
-		updateElements(root, "Comparisons", Lists.newArrayList(new Comparison()));
+		updateElements(root, "Comparisons", accountManager.getComparisons());
 	}
 
 	private void updateElements(TreeParent parent, String groupName, List<? extends INamedElement> elements) {
@@ -453,7 +451,7 @@ public class NavigationView extends ViewPart {
 						e.printStackTrace();
 					}
 				} else if (baseObject instanceof Comparison) {
-					IEditorInput input = new ComparisonInput();
+					IEditorInput input = new ComparisonInput((Comparison)baseObject);
 					try {
 						getSite().getWorkbenchWindow().getActivePage().openEditor(input, ComparisonEditor.ID);
 					} catch (PartInitException e) {

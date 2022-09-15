@@ -21,6 +21,8 @@ import de.tomsplayground.peanuts.domain.base.Category.Type;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.calendar.CalendarEntry;
 import de.tomsplayground.peanuts.domain.calendar.SecurityCalendarEntry;
+import de.tomsplayground.peanuts.domain.comparision.Comparison;
+import de.tomsplayground.peanuts.domain.comparision.SectorInput;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.process.EuroTransactionWrapper;
@@ -67,6 +69,8 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	private List<SecurityAlarm> securityAlarms = new ArrayList<>();
 
 	private List<WatchlistConfiguration> watchlistConfigurations = new ArrayList<WatchlistConfiguration>();
+	
+	private List<Comparison> comparisons = new ArrayList<>();
 
 	private transient Inventory fullInventory;
 
@@ -313,6 +317,10 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 		if (savedTransactions == null) {
 			savedTransactions = ImmutableList.of();
 		}
+		if (comparisons == null) {
+			comparisons = new ArrayList<>();
+			comparisons.add(SectorInput.init(this));
+		}
 		for (Account account : accounts) {
 			account.reconfigureAfterDeserialization(this);
 		}
@@ -404,6 +412,10 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 		}
 	}
 
+	public List<Comparison> getComparisons() {
+		return comparisons;
+	}
+	
 	/**
 	 * Returns all splits for the given security.
 	 * The splits are ordered by date.

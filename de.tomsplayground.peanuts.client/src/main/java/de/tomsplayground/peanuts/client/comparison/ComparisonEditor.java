@@ -4,15 +4,23 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -20,11 +28,13 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
@@ -38,8 +48,11 @@ import org.jfree.chart.swt.ChartComposite;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
+import com.google.common.collect.Lists;
+
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.JFreeChartFonts;
+import de.tomsplayground.peanuts.client.widgets.SecurityProposalText;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
@@ -57,11 +70,28 @@ public class ComparisonEditor extends EditorPart {
 	private static final BasicStroke BASIC_STROKE = new BasicStroke(BASIC_WIDTH);
 	private static final BasicStroke BOLD_STROKE = new BasicStroke(BOLD_WIDTH);
 
+	public final static List<Day> START_DAYS = Lists.newArrayList(Day.of(2020, 1, 1), Day.of(2020, 2, 23),
+			Day.of(2020, 8, 2), Day.of(2020, 9, 30), Day.of(2021, 0, 1), Day.today().addMonth(-1), Day.today().addDays(-14));
+
+	private boolean dirty;
+
 	private ChartComposite chartFrame;
 
 	private TableViewer tableViewer;
 
 	private final int colWidth[] = new int[2];
+
+	private SecurityProposalText securityProposalText;
+
+	private Security selectedSecurity = null;
+
+	private StandardXYItemRenderer renderer;
+
+	private TimeSeriesCollection dataset;
+
+	private List<Security> securities;
+
+	private Combo startDateCombo;
 
 	private static class SecurityTableLabelProvider extends LabelProvider implements ITableLabelProvider {
 
@@ -140,32 +170,80 @@ public class ComparisonEditor extends EditorPart {
 			}
 		});
 
-		tableViewer.setInput(getComparisonInput().getSecurities());
+		securities = getComparisonInput().getComparison().getSecurities();
+		if (securities == null) {
+			securities = new ArrayList<>();
+		}
+		tableViewer.setInput(securities);
+		MenuManager menuManager = new MenuManager();
+		menuManager.setRemoveAllWhenShown(true);
+		menuManager.addMenuListener(new IMenuListener() {
+			@Override
+			public void menuAboutToShow(IMenuManager manager) {
+				fillContextMenu(manager);
+			}
 
-		Combo startDateCombo = new Combo(cntrlComposite, SWT.READ_ONLY);
-		for (Day d : ComparisonInput.START_DAYS) {
+		});
+		tableViewer.getTable().setMenu(menuManager.createContextMenu(table));
+
+		startDateCombo = new Combo(cntrlComposite, SWT.READ_ONLY);
+		for (Day d : START_DAYS) {
 			startDateCombo.add(d.toString());
 		}
+		startDateCombo.select(0);
 		startDateCombo.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Combo c = (Combo)e.getSource();
-				Day newStartDate = ComparisonInput.START_DAYS.get(c.getSelectionIndex());
-				getComparisonInput().setStartDate(newStartDate);
 				redrawChart();
+			}
+		});
+
+		securityProposalText = new SecurityProposalText(cntrlComposite);
+		securityProposalText.getText().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		
+		Button button = new Button(cntrlComposite, SWT.PUSH);
+		button.setText("Add");
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String securiytName = securityProposalText.getText().getText();
+				Optional<Security> findAny = Activator.getDefault().getAccountManager().getSecurities().stream()
+					.filter(s -> s.getName().equals(securiytName))
+					.findAny();
+				if (findAny.isPresent()) {
+					Security securityToAdd = findAny.get();
+					securities.add(securityToAdd);
+					tableViewer.refresh();
+					redrawChart();
+					markDirty();
+				}
+			}
+		});
+		
+		createTotalDataset(dataset);
+	}
+
+	private void fillContextMenu(IMenuManager manager) {
+		manager.add(new Action("Remove") {
+			@Override
+			public void run() {
+				ISelection selection = tableViewer.getSelection();
+				if (! selection.isEmpty() && selection instanceof StructuredSelection) {
+					StructuredSelection ssel = (StructuredSelection) selection;
+					Security security = (Security) ssel.getFirstElement();
+					securities.remove(security);
+					selectedSecurity = null;
+					tableViewer.refresh();
+					redrawChart();
+					markDirty();
+				}
 			}
 		});
 	}
 
-	private Security selectedSecurity = null;
-
-	private StandardXYItemRenderer renderer;
-
-	private TimeSeriesCollection dataset;
-
 	protected void selectChart(Security newSelectedSecurity) {
 		deselectChart();
-		int index = getComparisonInput().getSecurities().indexOf(newSelectedSecurity);
+		int index = securities.indexOf(newSelectedSecurity);
 		if (index >= 0) {
 			renderer.setSeriesStroke(index, BOLD_STROKE);
 			selectedSecurity = newSelectedSecurity;
@@ -174,7 +252,7 @@ public class ComparisonEditor extends EditorPart {
 
 	protected void deselectChart() {
 		if (selectedSecurity != null) {
-			int index = getComparisonInput().getSecurities().indexOf(selectedSecurity);
+			int index = securities.indexOf(selectedSecurity);
 			if (index >= 0) {
 				renderer.setSeriesStroke(index, BASIC_STROKE);
 			}
@@ -184,7 +262,7 @@ public class ComparisonEditor extends EditorPart {
 
 	private JFreeChart createChart() {
 		dataset = new TimeSeriesCollection();
-		createTotalDataset(dataset);
+//		createTotalDataset(dataset);
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 			getEditorInput().getName(), // title
@@ -226,9 +304,13 @@ public class ComparisonEditor extends EditorPart {
 		return (ComparisonInput) getEditorInput();
 	}
 
+	private Day getSelectedStartDate() {
+		return START_DAYS.get(startDateCombo.getSelectionIndex());
+	}
+	
 	private TimeSeriesCollection createTotalDataset(TimeSeriesCollection dataset) {
-		for (Security security : getComparisonInput().getSecurities()) {
-			Day start = getComparisonInput().getStartDate();
+		for (Security security : securities) {
+			Day start = getSelectedStartDate();
 			Day end = Day.today();
 			TimeSeries series = new TimeSeries(StringUtils.abbreviate(security.getName(), 18));
 			IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
@@ -236,10 +318,9 @@ public class ComparisonEditor extends EditorPart {
 
 			IPriceProvider basePriceProvider = null;
 			BigDecimal startBaseValue = null;
-			Optional<Security> baseSecurity = getComparisonInput().getBaseSecurity();
-			if (baseSecurity.isPresent()) {
-				Security s = baseSecurity.get();
-				basePriceProvider = PriceProviderFactory.getInstance().getPriceProvider(s);
+			Security baseSecurity = getComparisonInput().getComparison().getBaseSecurity();
+			if (baseSecurity != null) {
+				basePriceProvider = PriceProviderFactory.getInstance().getPriceProvider(baseSecurity);
 				startBaseValue = basePriceProvider.getPrice(start).getValue();
 			}
 
@@ -264,7 +345,12 @@ public class ComparisonEditor extends EditorPart {
 
 	@Override
 	public boolean isDirty() {
-		return false;
+		return dirty;
+	}
+
+	public void markDirty() {
+		dirty = true;
+		firePropertyChange(IEditorPart.PROP_DIRTY);
 	}
 
 	@Override

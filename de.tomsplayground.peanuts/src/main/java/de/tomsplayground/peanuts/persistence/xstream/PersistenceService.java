@@ -13,6 +13,7 @@ import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Category;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.calendar.SecurityCalendarEntry;
+import de.tomsplayground.peanuts.domain.comparision.Comparison;
 import de.tomsplayground.peanuts.domain.dividend.Dividend;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.note.Note;
@@ -63,7 +64,8 @@ public class PersistenceService implements IPersistenceService {
 		SecurityAlarm.class,
 		SavedTransaction.class,
 		NoTrailingStrategy.class,
-		PercentTrailingStrategy.class
+		PercentTrailingStrategy.class,
+		Comparison.class
 	};
 
 	private final XStream xstream;

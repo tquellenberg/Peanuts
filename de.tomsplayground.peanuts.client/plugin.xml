@@ -301,12 +301,12 @@
    <extension
          point="org.eclipse.ui.elementFactories">
       <factory
-            class="de.tomsplayground.peanuts.client.editors.security.SecurityEditorFactory"
-            id="de.tomsplayground.peanuts.client.securityEditorFactoryId"/>
-      <factory
             class="de.tomsplayground.peanuts.client.editors.account.AccountEditorFactory"
             id="de.tomsplayground.peanuts.client.accountEditorFactoryId">
       </factory>
+      <factory
+            class="de.tomsplayground.peanuts.client.editors.security.SecurityEditorFactory"
+            id="de.tomsplayground.peanuts.client.securityEditorFactoryId"/>
       <factory
             class="de.tomsplayground.peanuts.client.editors.report.ReportEditorFactory"
             id="de.tomsplayground.peanuts.client.reportEditorFactoryId">
@@ -322,6 +322,10 @@
       <factory
             class="de.tomsplayground.peanuts.client.editors.securitycategory.SecurityCategoryEditorFactory"
             id="de.tomsplayground.peanuts.client.securityCategoryEditorFactoryId">
+      </factory>
+      <factory
+            class="de.tomsplayground.peanuts.client.comparison.ComparisonEditorFactory"
+            id="de.tomsplayground.peanuts.client.comparisionEditorFactoryId">
       </factory>
    </extension>
    <extension
