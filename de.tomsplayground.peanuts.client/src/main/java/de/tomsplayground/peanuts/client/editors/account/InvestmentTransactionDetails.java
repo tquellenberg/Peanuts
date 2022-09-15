@@ -1,7 +1,5 @@
 package de.tomsplayground.peanuts.client.editors.account;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Currency;
@@ -9,9 +7,6 @@ import java.util.Currency;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.fieldassist.ContentProposalAdapter;
-import org.eclipse.jface.fieldassist.SimpleContentProposalProvider;
-import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -28,15 +23,12 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
-
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.widgets.CalculatorText;
 import de.tomsplayground.peanuts.client.widgets.CategoryComposite;
 import de.tomsplayground.peanuts.client.widgets.CurrencyComboViewer;
 import de.tomsplayground.peanuts.client.widgets.DateComposite;
+import de.tomsplayground.peanuts.client.widgets.SecurityProposalText;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.Category;
 import de.tomsplayground.peanuts.domain.base.Security;
@@ -53,7 +45,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 	InvestmentTransaction transaction;
 	Transaction parentTransaction;
 
-	private Text security;
+	private SecurityProposalText securityProposalText;
 	private DateComposite date;
 	private Text memo;
 	private CategoryComposite categoryComposite;
@@ -96,9 +88,6 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 			}
 		}
 	};
-	private ContentProposalAdapter autoCompleteSecurityAdapter;
-	private SimpleContentProposalProvider securityProposalProvider;
-	private PropertyChangeListener propertyChangeListener;
 	private CurrencyComboViewer currencyCombo;
 
 	public InvestmentTransactionDetails(Account account) {
@@ -115,13 +104,8 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		group.setLayout(new GridLayout(2, false));
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
-		security = new Text(group, SWT.SINGLE | SWT.BORDER);
-		initSecurityProposalProvider();
-		autoCompleteSecurityAdapter = new ContentProposalAdapter(security, new TextContentAdapter(),
-			securityProposalProvider, null, null);
-		autoCompleteSecurityAdapter.setPropagateKeys(true);
-		autoCompleteSecurityAdapter.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
-		security.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		securityProposalText = new SecurityProposalText(group);
+		securityProposalText.getText().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 		date = new DateComposite(group, SWT.NONE);
 
@@ -208,7 +192,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		categoryComposite.addModifyListener(modifyListener);
 		memo.addModifyListener(modifyListener);
 		date.addModifyListener(modifyListener);
-		security.addModifyListener(modifyListener);
+		securityProposalText.getText().addModifyListener(modifyListener);
 
 		return detailComposit;
 	}
@@ -251,36 +235,14 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 		label.setFont(Activator.getDefault().getSmallFont());
 	}
 
-	private void initSecurityProposalProvider() {
-		securityProposalProvider = new SimpleContentProposalProvider(new String[0]);
-		securityProposalProvider.setFiltering(true);
-		propertyChangeListener = new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				setSecurities(Activator.getDefault().getAccountManager().getSecurities());
-			}
-		};
-		Activator.getDefault().getAccountManager().addPropertyChangeListener("security", propertyChangeListener);
-		setSecurities(Activator.getDefault().getAccountManager().getSecurities());
-	}
-
-	private void setSecurities(ImmutableList<Security> securities) {
-		securityProposalProvider.setProposals(Collections2.transform(securities, new Function<Security, String>() {
-			@Override
-			public String apply(Security input) {
-				return input.getName();
-			}
-		}).toArray(new String[securities.size()]));
-	}
-
 	@Override
 	public void dispose() {
-		Activator.getDefault().getAccountManager().removePropertyChangeListener("security", propertyChangeListener);
+		securityProposalText.dispose();
 	}
 
 	protected void readForm() {
 		try {
-			String securityName = security.getText();
+			String securityName = securityProposalText.getText().getText();
 			Security newSecurity = Activator.getDefault().getAccountManager().getOrCreateSecurity(
 				securityName);
 			Category newCategory = categoryComposite.getCategory();
@@ -338,7 +300,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 			date.setDay(Day.today());
 			memo.setText("");
 			categoryComposite.setCategory(null);
-			security.setText("");
+			securityProposalText.getText().setText("");
 			quantity.setText("");
 			price.setText("");
 			commission.setText("");
@@ -349,10 +311,10 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 			memo.setText(transaction.getMemo() != null ? transaction.getMemo() : "");
 			categoryComposite.setCategory(transaction.getCategory());
 			if (this.transaction.getSecurity() != null) {
-				security.setText("");
-				security.setText(this.transaction.getSecurity().getName());
+				securityProposalText.getText().setText("");
+				securityProposalText.getText().setText(this.transaction.getSecurity().getName());
 			} else {
-				security.setText("");
+				securityProposalText.getText().setText("");
 			}
 			if (this.transaction.getQuantity() != null) {
 				quantity.setText(PeanutsUtil.formatQuantity(this.transaction.getQuantity()));
@@ -399,7 +361,7 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 
 	@Override
 	public void setFocus() {
-		security.setFocus();
+		securityProposalText.getText().setFocus();
 	}
 
 }

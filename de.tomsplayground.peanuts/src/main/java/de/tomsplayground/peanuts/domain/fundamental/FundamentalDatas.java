@@ -59,7 +59,7 @@ public class FundamentalDatas {
 		try {
 			return new BigDecimal(overriddenAvgPE);
 		} catch (NumberFormatException e) {
-			log.error("OVERRIDDEN_AVG_PE for "+security.getName(), e);
+			log.error("OVERRIDDEN_AVG_PE for "+security.getName()+ " '"+overriddenAvgPE+"'", e);
 			return null;
 		}
 	}

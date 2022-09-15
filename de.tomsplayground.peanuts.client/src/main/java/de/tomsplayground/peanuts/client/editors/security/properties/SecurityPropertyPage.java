@@ -99,7 +99,11 @@ public class SecurityPropertyPage extends PropertyPage {
 		security.putConfigurationValue(MARKET_SCREENER_URL, fourTradersUrl.getText());
 		security.putConfigurationValue(Security.CONFIG_KEY_YAHOO_SYMBOL, yahooSymbol.getText());
 		security.putConfigurationValue(OVERRIDE_EXISTING_PRICE_DATA, Boolean.toString(overridePriceDate.getSelection()));
-		security.putConfigurationValue(FundamentalDatas.OVERRIDDEN_AVG_PE, overriddenAvgPE.getText());
+		String value = overriddenAvgPE.getText();
+		if (StringUtils.isNotBlank(value)) {
+			value = value.replace(',', '.');
+		}
+		security.putConfigurationValue(FundamentalDatas.OVERRIDDEN_AVG_PE, value);
 		return super.performOk();
 	}
 
