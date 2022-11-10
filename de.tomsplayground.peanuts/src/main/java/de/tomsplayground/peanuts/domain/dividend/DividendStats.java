@@ -46,6 +46,9 @@ public class DividendStats extends ObservableModelObject {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			// TODO:
+			System.out.println("inventoriyListener:"+evt);
+			updatedCachedData();
+			firePropertyChange("transactions", null, null);
 		}
 	};
 
