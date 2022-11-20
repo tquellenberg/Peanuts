@@ -62,7 +62,7 @@ public class CreateDividendTransaction extends AbstractHandler {
 	}
 
 	private InventoryEntry getInventoryEntry(Account invAccount, Dividend dividend) {
-		Inventory inventory = new Inventory(invAccount);
+		Inventory inventory = new Inventory(invAccount, null, null, Activator.getDefault().getAccountManager());
 		inventory.setDate(dividend.getPayDate());
 		InventoryEntry entry = inventory.getEntry(dividend.getSecurity());
 		inventory.dispose();

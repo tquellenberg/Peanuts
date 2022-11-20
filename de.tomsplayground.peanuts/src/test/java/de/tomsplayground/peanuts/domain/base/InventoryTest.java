@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.domain.base;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -12,10 +13,13 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableList;
+
 import de.tomsplayground.peanuts.Helper;
 import de.tomsplayground.peanuts.domain.process.BankTransaction;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
+import de.tomsplayground.peanuts.domain.process.IStockSplitProvider;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProvider;
@@ -38,14 +42,14 @@ public class InventoryTest {
 			Account.Type.INVESTMENT, "");
 		apple = new Security(SECURITY_NAME);
 		InvestmentTransaction investmentTransaction1 = new InvestmentTransaction(
-			Day.today(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
+			Day.today().addDays(-30), apple, PRICE, QUANTITY, BigDecimal.ZERO,
 			InvestmentTransaction.Type.BUY);
 		investmmentAccount.addTransaction(investmentTransaction1);
 	}
 
 	@Test
 	public void testInventory() throws Exception {
-		Inventory inventory = new Inventory(investmmentAccount);
+		Inventory inventory = new Inventory(investmmentAccount, null, null, null);
 
 		assertEquals(1, inventory.getSecurities().size());
 	}
@@ -56,7 +60,7 @@ public class InventoryTest {
 			Day.today(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
 			InvestmentTransaction.Type.BUY);
 		investmmentAccount.addTransaction(investmentTransaction2);
-		Inventory inventory = new Inventory(investmmentAccount);
+		Inventory inventory = new Inventory(investmmentAccount, null, null, null);
 
 		assertEquals(1, inventory.getSecurities().size());
 	}
@@ -67,7 +71,7 @@ public class InventoryTest {
 			Day.today(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
 			InvestmentTransaction.Type.SELL);
 		investmmentAccount.addTransaction(investmentTransaction2);
-		Inventory inventory = new Inventory(investmmentAccount);
+		Inventory inventory = new Inventory(investmmentAccount, null, null, null);
 
 		assertEquals(1, inventory.getSecurities().size());
 	}
@@ -78,14 +82,36 @@ public class InventoryTest {
 			new BigDecimal("-5.00"), BigDecimal.ONE, BigDecimal.ZERO,
 			InvestmentTransaction.Type.EXPENSE);
 		investmmentAccount.addTransaction(expense);
-		Inventory inventory = new Inventory(investmmentAccount);
+		Inventory inventory = new Inventory(investmmentAccount, null, null, null);
 
 		assertEquals(1, inventory.getSecurities().size());
+	}
+	
+	@Test
+	public void testStockSplit() {
+		Inventory inventory = new Inventory(investmmentAccount, null, null, new IStockSplitProvider() {
+			@Override
+			public ImmutableList<StockSplit> getStockSplits(Security security) {
+				return ImmutableList.of(
+						new StockSplit(apple, Day.today().addDays(-10), 1 , 10),
+						new StockSplit(apple, Day.today().addDays(-5), 1 , 2));
+			}
+		});
+		InventoryEntry entry = inventory.getEntry(apple);
+		assertEquals(QUANTITY.multiply(BigDecimal.TEN).multiply(new BigDecimal(2)), entry.getQuantity());
+
+		inventory.setDate(Day.today().addDays(-7));
+		entry = inventory.getEntry(apple);
+		assertEquals(QUANTITY.multiply(BigDecimal.TEN), entry.getQuantity());
+
+		inventory.setDate(Day.today().addDays(-14));
+		entry = inventory.getEntry(apple);
+		assertEquals(QUANTITY, entry.getQuantity());
 	}
 
 	@Test
 	public void testInventoryEntry() throws Exception {
-		Inventory inventory = new Inventory(investmmentAccount);
+		Inventory inventory = new Inventory(investmmentAccount, null, null, null);
 
 		Collection<InventoryEntry> quantityMap = inventory.getEntries();
 		assertEquals(1, quantityMap.size());
@@ -96,9 +122,9 @@ public class InventoryTest {
 	}
 
 	@Test
-	public void testIntventorySetDate() {
-		Inventory inventory = new Inventory(investmmentAccount);
-		inventory.setDate(Day.today().addDays(-1));
+	public void testInventorySetDate() {
+		Inventory inventory = new Inventory(investmmentAccount, null, null, null);
+		inventory.setDate(Day.today().addDays(-31));
 
 		assertEquals(0, inventory.getSecurities().size());
 		assertEquals(0, inventory.getEntries().size());
@@ -110,7 +136,7 @@ public class InventoryTest {
 			Day.today(), apple, PRICE, QUANTITY, BigDecimal.ZERO,
 			InvestmentTransaction.Type.SELL);
 		investmmentAccount.addTransaction(investmentTransaction2);
-		Inventory inventory = new Inventory(investmmentAccount);
+		Inventory inventory = new Inventory(investmmentAccount, null, null, null);
 
 		Collection<InventoryEntry> quantityMap = inventory.getEntries();
 		assertEquals(1, quantityMap.size());
@@ -128,7 +154,7 @@ public class InventoryTest {
 		transaction.addSplit(new InvestmentTransaction(now, apple, PRICE, QUANTITY, BigDecimal.ZERO,
 			InvestmentTransaction.Type.SELL));
 		investmmentAccount.addTransaction(transaction);
-		Inventory inventory = new Inventory(investmmentAccount);
+		Inventory inventory = new Inventory(investmmentAccount, null, null, null);
 
 		Collection<InventoryEntry> quantityMap = inventory.getEntries();
 		assertEquals(1, quantityMap.size());
@@ -169,7 +195,7 @@ public class InventoryTest {
 			public IPriceProvider getSplitAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
 				return getPriceProvider(security);
 			}
-		});
+		}, null, null);
 
 		inventory.setDate(now);
 		Helper.assertEquals(new BigDecimal("132.00"), inventory.getMarketValue());
@@ -202,13 +228,13 @@ public class InventoryTest {
 			public IPriceProvider getSplitAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
 				return getPriceProvider(security);
 			}
-		}, new AnalyzerFactory());
+		}, new AnalyzerFactory(), null);
 
 		Collection<InventoryEntry> entries = inventory.getEntries();
 		assertEquals(1, entries.size());
 		InventoryEntry entry = entries.iterator().next();
 		assertEquals(0, entry.getGaining().compareTo(BigDecimal.ZERO));
-		Helper.assertEquals(new BigDecimal("12"), entry.getMarketValue(now));
+		Helper.assertEquals(new BigDecimal("12"), entry.getMarketValue());
 		Helper.assertEquals(BigDecimal.ONE, entry.getQuantity());
 		Helper.assertEquals(BigDecimal.TEN, entry.getInvestedAmount());
 	}
@@ -234,7 +260,7 @@ public class InventoryTest {
 			public IPriceProvider getSplitAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
 				return getPriceProvider(security);
 			}
-		});
+		}, null, null);
 
 		Helper.assertEquals(new BigDecimal("12.00") ,inventory.getMarketValue());
 		InventoryEntry inventoryEntry = inventory.getEntries().iterator().next();

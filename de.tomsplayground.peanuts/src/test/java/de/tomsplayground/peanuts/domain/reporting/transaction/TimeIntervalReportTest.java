@@ -38,7 +38,7 @@ public class TimeIntervalReportTest {
 		Day date = Day.today().addDays(-3);
 		investmmentAccount.addTransaction(new Transaction(date, BigDecimal.TEN));
 		TimeIntervalReport timeIntervalReport = new TimeIntervalReport(investmmentAccount,
-			TimeIntervalReport.Interval.DAY);
+			TimeIntervalReport.Interval.DAY, null, null);
 
 		List<BigDecimal> values = timeIntervalReport.getValues();
 		assertEquals(4, values.size());
@@ -51,7 +51,7 @@ public class TimeIntervalReportTest {
 		date = Day.today().addMonth(-1);
 		investmmentAccount.addTransaction(new Transaction(date, BigDecimal.ONE));
 		TimeIntervalReport timeIntervalReport = new TimeIntervalReport(investmmentAccount,
-			TimeIntervalReport.Interval.MONTH);
+			TimeIntervalReport.Interval.MONTH, null, null);
 
 		List<BigDecimal> values = timeIntervalReport.getValues();
 		DateIterator dateIterator = timeIntervalReport.dateIterator();
@@ -81,7 +81,7 @@ public class TimeIntervalReportTest {
 		date = Day.today().addDays(+3);
 		investmmentAccount.addTransaction(new Transaction(date, BigDecimal.TEN));
 		TimeIntervalReport timeIntervalReport = new TimeIntervalReport(investmmentAccount,
-			TimeIntervalReport.Interval.DAY);
+			TimeIntervalReport.Interval.DAY, null, null);
 
 		List<BigDecimal> values = timeIntervalReport.getValues();
 		assertEquals(7, values.size());
@@ -90,7 +90,7 @@ public class TimeIntervalReportTest {
 	@Test
 	public void testEmpty() throws Exception {
 		TimeIntervalReport timeIntervalReport = new TimeIntervalReport(investmmentAccount,
-			TimeIntervalReport.Interval.MONTH);
+			TimeIntervalReport.Interval.MONTH, null, null);
 		List<BigDecimal> values = timeIntervalReport.getValues();
 		assertEquals(0, values.size());
 	}
@@ -117,7 +117,7 @@ public class TimeIntervalReportTest {
 			public IPriceProvider getSplitAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
 				return getPriceProvider(security);
 			}
-		});
+		}, null);
 
 		List<BigDecimal> inventoryValues = timeIntervalReport.getInventoryValues();
 		assertEquals(1, inventoryValues.size());
@@ -151,7 +151,7 @@ public class TimeIntervalReportTest {
 			public IPriceProvider getSplitAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
 				return getPriceProvider(security);
 			}
-		});
+		}, null);
 
 		List<BigDecimal> inventoryValues = timeIntervalReport.getInventoryValues();
 		assertEquals(2, inventoryValues.size());
@@ -175,7 +175,7 @@ public class TimeIntervalReportTest {
 			public IPriceProvider getSplitAdjustedPriceProvider(Security security, List<StockSplit> stockSplits) {
 				return getPriceProvider(security);
 			}
-		});
+		}, null);
 		final PropertyChangeEvent lastEvent[] = new PropertyChangeEvent[1];
 		timeIntervalReport.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override

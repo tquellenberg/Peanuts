@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
+import de.tomsplayground.peanuts.domain.process.IStockSplitProvider;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.TransferTransaction;
 import de.tomsplayground.peanuts.domain.statistics.XIRR;
@@ -25,6 +26,8 @@ public class PerformanceAnalyzer {
 	private final XIRR xirrFull;
 	private final XIRR xirr10Year;
 	private final XIRR xirr5Year;
+
+	private IStockSplitProvider stockSplitProvider;
 
 	public static class YearValue {
 		private final int year;
@@ -118,9 +121,11 @@ public class PerformanceAnalyzer {
 		}
 	}
 
-	public PerformanceAnalyzer(ITransactionProvider account, IPriceProviderFactory priceProviderFactory) {
+	public PerformanceAnalyzer(ITransactionProvider account, IPriceProviderFactory priceProviderFactory,
+			IStockSplitProvider stockSplitProvider) {
 		this.account = account;
 		this.priceProviderFactory = priceProviderFactory;
+		this.stockSplitProvider = stockSplitProvider;
 		this.xirrFull = new XIRR();
 		this.xirr10Year = new XIRR();
 		this.xirr5Year = new XIRR();
@@ -137,7 +142,7 @@ public class PerformanceAnalyzer {
 		if (endYear < now.year) {
 			endYear = now.year;
 		}
-		Inventory inventory = new Inventory(account, priceProviderFactory);
+		Inventory inventory = new Inventory(account, priceProviderFactory, null, stockSplitProvider);
 		List<YearValue> elements = new ArrayList<>();
 		for (; year <= endYear; year++) {
 			Day r1 = Day.of(year-1, 11, 31);
@@ -174,15 +179,8 @@ public class PerformanceAnalyzer {
 	}
 
 	private void calculateAdditionLeaving(Day from, Day to, YearValue value) {
-		for (ITransaction transaction : account.getTransactionsByDate(from, to)) {
-			ImmutableList<ITransaction> splits = transaction.getSplits();
-			if (! splits.isEmpty()) {
-				for (ITransaction transaction2 : splits) {
-					if (transaction2 instanceof TransferTransaction) {
-						value.add(transaction2.getDay(), transaction2.getAmount());
-					}
-				}
-			} else if (transaction instanceof TransferTransaction) {
+		for (ITransaction transaction : account.getFlatTransactionsByDate(from, to)) {
+			if (transaction instanceof TransferTransaction) {
 				value.add(transaction.getDay(), transaction.getAmount());
 			}
 		}
@@ -190,16 +188,9 @@ public class PerformanceAnalyzer {
 	}
 
 	private void calculateAdditionLeaving(Day from, Day to, XIRR xirr) {
-		ImmutableList<ITransaction> list = account.getTransactionsByDate(from, to);
+		ImmutableList<ITransaction> list = account.getFlatTransactionsByDate(from, to);
 		for (ITransaction transaction : list) {
-			ImmutableList<ITransaction> splits = transaction.getSplits();
-			if (! splits.isEmpty()) {
-				for (ITransaction transaction2 : splits) {
-					if (transaction2 instanceof TransferTransaction) {
-						xirr.add(transaction2.getDay(), transaction2.getAmount());
-					}
-				}
-			} else if (transaction instanceof TransferTransaction) {
+			if (transaction instanceof TransferTransaction) {
 				xirr.add(transaction.getDay(), transaction.getAmount());
 			}
 		}

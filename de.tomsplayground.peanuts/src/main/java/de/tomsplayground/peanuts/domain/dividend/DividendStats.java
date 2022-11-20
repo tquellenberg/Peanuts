@@ -22,8 +22,8 @@ import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
+import de.tomsplayground.peanuts.domain.process.IStockSplitProvider;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
-import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer;
 import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer.YearValue;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
@@ -46,7 +46,7 @@ public class DividendStats extends ObservableModelObject {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			// TODO:
-			System.out.println("inventoriyListener:"+evt);
+			System.out.println("DividendStats.inventoriyListener:"+evt);
 			updatedCachedData();
 			firePropertyChange("transactions", null, null);
 		}
@@ -60,17 +60,18 @@ public class DividendStats extends ObservableModelObject {
 		}
 	};
 
-	public DividendStats(AccountManager accountManager, IPriceProviderFactory priceProviderFactory) {
+	public DividendStats(AccountManager accountManager, IPriceProviderFactory priceProviderFactory,
+			IStockSplitProvider stockSplitProvider) {
 		this.accountManager = accountManager;
 		Report report = new Report("temp");
 		report.setAccounts(accountManager.getAccounts().stream()
 			.filter(acc -> acc.getType() == Account.Type.INVESTMENT)
 			.collect(Collectors.toList()));
-		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new AnalyzerFactory());
+		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), null, accountManager);
 		fullInventory.addPropertyChangeListener(inventoriyListener);
 		exchangeRates = new ExchangeRates(priceProviderFactory, accountManager);
 
-		PerformanceAnalyzer analizer = new PerformanceAnalyzer(report, PriceProviderFactory.getInstance());
+		PerformanceAnalyzer analizer = new PerformanceAnalyzer(report, PriceProviderFactory.getInstance(), stockSplitProvider);
 		performanceValues = analizer.getValues();
 
 		updatedCachedData();
@@ -82,6 +83,7 @@ public class DividendStats extends ObservableModelObject {
 	public void dispose() {
 		accountManager.getSecurities().stream()
  			.forEach(s -> s.removePropertyChangeListener("dividends", securityChangeListener));
+		fullInventory.removePropertyChangeListener(inventoriyListener);
 		fullInventory.dispose();
 	}
 

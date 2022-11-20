@@ -14,12 +14,17 @@ public interface ITransactionProvider {
 
 	/**
 	 * Return all transactions in this time range. Including from-date and to-date. Both date can be null.
-	 *
+	 * @deprecated
 	 */
 	ImmutableList<ITransaction> getTransactionsByDate(Day from, Day to);
 
 	/**
-	 * For split transactions, the splits are returned, not the grouping transaction.
+	 * Return all transactions in this time range. Including from-date and to-date. Both date can be null.
+	 */
+	ImmutableList<ITransaction> getFlatTransactionsByDate(Day from, Day to);
+
+	/**
+	 * For split transactions, the splits are returned without the grouping transaction.
 	 *
 	 */
 	ImmutableList<ITransaction> getFlatTransactions();

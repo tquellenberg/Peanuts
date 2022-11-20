@@ -15,7 +15,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
-import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class CopyInventoryEntries extends AbstractHandler {
@@ -33,7 +32,7 @@ public class CopyInventoryEntries extends AbstractHandler {
 				content += entry.getSecurity().getName()
 					+ "\t" + entry.getSecurity().getISIN()
 					+ "\t" + PeanutsUtil.formatCurrency(entry.getInvestedAmount(), null)
-					+ "\t" + PeanutsUtil.formatCurrency(entry.getMarketValue(Day.today()), null)
+					+ "\t" + PeanutsUtil.formatCurrency(entry.getMarketValue(), null)
 					+ System.lineSeparator();
 			}
 		}

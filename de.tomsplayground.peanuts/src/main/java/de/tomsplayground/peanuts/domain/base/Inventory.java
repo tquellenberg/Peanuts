@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.domain.base;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.groupingBy;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -13,16 +13,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
+import de.tomsplayground.peanuts.domain.process.IStockSplitProvider;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
-import de.tomsplayground.peanuts.domain.process.InvestmentTransaction.Type;
+import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
-import de.tomsplayground.peanuts.domain.reporting.investment.IAnalyzer;
 import de.tomsplayground.peanuts.util.Day;
 
 public class Inventory extends ObservableModelObject {
@@ -31,8 +30,10 @@ public class Inventory extends ObservableModelObject {
 	private final AnalyzerFactory analizerFactory;
 	private final IPriceProviderFactory priceProviderFactory;
 	private final ITransactionProvider account;
+	private ImmutableList<ITransaction> allFlatTransactions;
+	
 	private Day day;
-
+	
 	private final Set<ObservableModelObject> registeredPriceProvider = new CopyOnWriteArraySet<>();
 
 	private final PropertyChangeListener priceProviderChangeListener = new PropertyChangeListener() {
@@ -52,11 +53,16 @@ public class Inventory extends ObservableModelObject {
 	private final PropertyChangeListener transactionChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
-			synchronized (entryMap) {
-				entryMap.clear();
-				setTransactions(account.getTransactionsByDate(null, day));
+			if (evt.getSource() instanceof Account) {
+				System.out.println("Inventory.transactionChangeListener" + Inventory.this + " " + evt);
+				Inventory.this.allFlatTransactions = account.getFlatTransactions();
+				synchronized (entryMap) {
+					fullRebuild();
+				}
+				getPropertyChangeSupport().firePropertyChange("entries", 0, 1);
+			} else {
+				// Ignore detailed transaction events
 			}
-			getPropertyChangeSupport().firePropertyChange("entries", 0, 1);
 		}
 	};
 	
@@ -66,21 +72,17 @@ public class Inventory extends ObservableModelObject {
 			getPropertyChangeSupport().firePropertyChange(evt);
 		}
 	};
+	private IStockSplitProvider stockSplitProvider;
 
-	public Inventory(Account account) {
-		this(account, null, null);
-	}
-
-	public Inventory(ITransactionProvider account, IPriceProviderFactory priceProviderFactory) {
-		this(account, priceProviderFactory, null);
-	}
-
-	public Inventory(ITransactionProvider account, IPriceProviderFactory priceProviderFactory, AnalyzerFactory analizerFactory) {
+	public Inventory(ITransactionProvider account, IPriceProviderFactory priceProviderFactory, AnalyzerFactory analizerFactory,
+			IStockSplitProvider stockSplitProvider) {
 		this.account = account;
 		this.priceProviderFactory = priceProviderFactory;
+		this.stockSplitProvider = stockSplitProvider;
 		this.day = Day.today();
 		this.analizerFactory = analizerFactory;
-		setTransactions(account.getTransactionsByDate(null, day));
+		this.allFlatTransactions = account.getFlatTransactions();
+		buildInventoryEntries();
 		if (account instanceof ObservableModelObject) {
 			ObservableModelObject a = (ObservableModelObject) account;
 			a.addPropertyChangeListener(transactionChangeListener);
@@ -100,23 +102,34 @@ public class Inventory extends ObservableModelObject {
 		}
 	}
 
+	private void fullRebuild() {
+		for (Security security : entryMap.keySet()) {
+			security.removePropertyChangeListener(securityChangeListener);
+		}
+		entryMap.clear();
+		buildInventoryEntries();
+	}
+	
 	public void setDate(Day day) {
 		if (day.equals(this.day)) {
 			return;
 		}
-		if (day.after(this.day)) {
-			Day startDay = this.day.addDays(1);
+//		if (day.after(this.day)) {
+//			Day startDay = this.day.addDays(1);
+//			synchronized (entryMap) {
+//				this.day = day;
+//				ImmutableList<ITransaction> transactionsByDate = account.getFlatTransactionsByDate(startDay, day);
+//				if (transactionsByDate.isEmpty()) {
+//					return;
+//				}
+//				setTransactions(transactionsByDate);
+//			}
+//		} else {
 			synchronized (entryMap) {
 				this.day = day;
-				setTransactions(account.getTransactionsByDate(startDay, day));
+				fullRebuild();
 			}
-		} else {
-			synchronized (entryMap) {
-				this.day = day;
-				entryMap.clear();
-				setTransactions(account.getTransactionsByDate(null, day));
-			}
-		}
+//		}
 	}
 
 	public Day getDay() {
@@ -140,8 +153,9 @@ public class Inventory extends ObservableModelObject {
 			return entryMap.get(security);
 		}
 	}
-
-	private void setTransactions(ImmutableList<? extends ITransaction> transactions) {
+	
+	private void buildInventoryEntries() {
+		ImmutableList<ITransaction> transactions = TransactionProviderUtil.getTransactionsByDate(allFlatTransactions, null, day);
 		if (transactions.isEmpty()) {
 			return;
 		}
@@ -149,38 +163,19 @@ public class Inventory extends ObservableModelObject {
 		for (ITransaction transaction : transactions) {
 			if (transaction instanceof InvestmentTransaction) {
 				invests.add((InvestmentTransaction) transaction);
-			} else {
-				for (ITransaction t2 : transaction.getSplits()) {
-					if (t2 instanceof InvestmentTransaction) {
-						invests.add((InvestmentTransaction) t2);
-					}
-				}
 			}
 		}
 		invests.stream()
 			.collect(groupingBy(InvestmentTransaction::getSecurity))
 			.entrySet()
 			.parallelStream()
-			.forEach(e -> addTransactions(e.getKey(), e.getValue()));
+			.forEach(e -> buildInventoryEntriesForSecurity(e.getKey(), e.getValue()));
 	}
 
-	private void addTransactions(Security security, List<InvestmentTransaction> invTrans) {
+	private void buildInventoryEntriesForSecurity(Security security, List<InvestmentTransaction> invTrans) {
 		InventoryEntry inventoryEntry = getInventoryEntry(security);
 		for (InvestmentTransaction t : invTrans) {
-			Type type = t.getType();
-			if (type == InvestmentTransaction.Type.BUY ||
-				type == InvestmentTransaction.Type.SELL) {
-				if (analizerFactory != null) {
-					Iterable<InvestmentTransaction> transations = Iterables.concat(
-							inventoryEntry.getTransactions(),
-							ImmutableList.of(t));
-					IAnalyzer analizer = analizerFactory.getAnalizer();
-					t = Iterables.getLast(analizer.getAnalyzedTransactions(transations));
-				}
-				inventoryEntry.add(t);
-			} else {
-				inventoryEntry.add(t);
-			}
+			inventoryEntry.add(t, analizerFactory);
 		}
 	}
 
@@ -197,7 +192,11 @@ public class Inventory extends ObservableModelObject {
 				}
 			}
 			security.addPropertyChangeListener(securityChangeListener);
-			entryMap.putIfAbsent(security, new InventoryEntry(security, priceprovider));
+			ImmutableList<StockSplit> stockSplits = ImmutableList.of();
+			if (stockSplitProvider != null) {
+				stockSplits = stockSplitProvider.getStockSplits(security);
+			}
+			entryMap.putIfAbsent(security, new InventoryEntry(security, day, priceprovider, stockSplits));
 		}
 		return entryMap.get(security);
 	}
@@ -205,7 +204,7 @@ public class Inventory extends ObservableModelObject {
 	public BigDecimal getUnrealizedGainings() {
 		synchronized (entryMap) {
 			return entryMap.values().parallelStream()
-					.map(e -> e.getMarketValue(day).subtract(e.getInvestedAmount()))
+					.map(e -> e.getMarketValue().subtract(e.getInvestedAmount()))
 					.reduce(BigDecimal.ZERO, BigDecimal::add);
 		}
 	}
@@ -213,16 +212,15 @@ public class Inventory extends ObservableModelObject {
 	public BigDecimal getMarketValue() {
 		synchronized (entryMap) {
 			return entryMap.values().parallelStream()
-				.map(e -> e.getMarketValue(day))
+				.map(e -> e.getMarketValue())
 				.reduce(BigDecimal.ZERO, BigDecimal::add);
 		}
 	}
 
 	public BigDecimal getDayChange() {
-		Day fromDay = day.addDays(-1);
 		synchronized (entryMap) {
 			return entryMap.values().parallelStream()
-					.map(e -> e.getChange(fromDay, day))
+					.map(e -> e.getDayChange())
 					.reduce(BigDecimal.ZERO, BigDecimal::add);
 		}
 	}

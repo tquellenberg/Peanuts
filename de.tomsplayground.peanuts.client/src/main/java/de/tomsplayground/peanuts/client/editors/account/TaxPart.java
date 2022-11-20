@@ -124,6 +124,10 @@ public class TaxPart extends EditorPart {
 
 	private Map<AnalyzedInvestmentTransaction, BigDecimal> sumOtherValues;
 
+	private RealizedGain realizedGain;
+
+	private Inventory inventory;
+
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		if ( !(input instanceof ITransactionProviderInput)) {
@@ -273,16 +277,23 @@ public class TaxPart extends EditorPart {
 		tableViewer.setLabelProvider(new RealizedEarningsTableLabelProvider());
 		tableViewer.setContentProvider(new ArrayContentProvider());
 
-		setData();
-	}
-
-	private void setData() {
 		IPriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
 		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
 		priceProviderFactory = new CurrencyAdjustedPriceProviderFactory(account.getCurrency(), priceProviderFactory, exchangeRates);
-		Inventory inventory = new Inventory(account, priceProviderFactory, new AnalyzerFactory());
+		inventory = new Inventory(account, priceProviderFactory, new AnalyzerFactory(), Activator.getDefault().getAccountManager());
 
-		RealizedGain realizedGain = new RealizedGain(inventory);
+		realizedGain = new RealizedGain(inventory);
+
+		setData();
+	}
+	
+	@Override
+	public void dispose() {
+		inventory.dispose();
+		super.dispose();
+	}
+
+	private void setData() {
 		ImmutableList<AnalyzedInvestmentTransaction> realizedTransaction = realizedGain.getRealizedTransaction(selectedYear);
 		realizedTransaction = ImmutableList.sortedCopyOf((a,b) -> a.getDay().compareTo(b.getDay()), realizedTransaction);
 

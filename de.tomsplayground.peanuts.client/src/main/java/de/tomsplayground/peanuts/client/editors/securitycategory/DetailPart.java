@@ -1,7 +1,8 @@
 package de.tomsplayground.peanuts.client.editors.securitycategory;
 
-import static com.google.common.collect.Collections2.*;
-import static de.tomsplayground.peanuts.client.util.MinQuantity.*;
+import static com.google.common.collect.Collections2.filter;
+import static com.google.common.collect.Collections2.transform;
+import static de.tomsplayground.peanuts.client.util.MinQuantity.isNotZero;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -49,7 +50,6 @@ import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
-import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class DetailPart extends EditorPart {
@@ -70,7 +70,7 @@ public class DetailPart extends EditorPart {
 					return ((Security)element).getName();
 				}
 				if (columnIndex == 1) {
-					// FIXME: Reports und Inventories brauchen eine W�hrung
+					// FIXME: Reports und Inventories brauchen eine Währung
 					return PeanutsUtil.formatCurrency(calc((Security)element), Currency.getInstance("EUR"));
 				}
 			}
@@ -86,7 +86,7 @@ public class DetailPart extends EditorPart {
 	private BigDecimal calc(Security sec) {
 		for (InventoryEntry inventoryEntry : inventory.getEntries()) {
 			if (inventoryEntry.getSecurity().equals(sec)) {
-				return inventoryEntry.getMarketValue(Day.today());
+				return inventoryEntry.getMarketValue();
 			}
 		}
 		return BigDecimal.ZERO;

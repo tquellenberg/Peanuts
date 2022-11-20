@@ -7,7 +7,9 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -27,6 +29,7 @@ import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.process.EuroTransactionWrapper;
 import de.tomsplayground.peanuts.domain.process.ICredit;
+import de.tomsplayground.peanuts.domain.process.IStockSplitProvider;
 import de.tomsplayground.peanuts.domain.process.ITimedElement;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
@@ -41,7 +44,7 @@ import de.tomsplayground.peanuts.domain.watchlist.WatchlistConfiguration;
 import de.tomsplayground.peanuts.util.Day;
 
 @XStreamAlias("accountmanager")
-public class AccountManager extends ObservableModelObject implements ISecurityProvider {
+public class AccountManager extends ObservableModelObject implements ISecurityProvider, IStockSplitProvider {
 
 	private ImmutableList<Account> accounts = ImmutableList.of();
 
@@ -341,6 +344,9 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 		for (ICredit credit: credits) {
 			((Credit)credit).reconfigureAfterDeserialization();
 		}
+		if (stockSplitsPerSecurity == null) {
+			stockSplitsPerSecurity = new ConcurrentHashMap<>();
+		}
 	}
 
 	public Category getCategoryByPath(String path) {
@@ -383,14 +389,9 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 
 	private boolean isCategoryUsed(Category category) {
 		for (Account account : accounts) {
-			for (ITransaction transaction : account.getTransactions()) {
+			for (ITransaction transaction : account.getFlatTransactions()) {
 				if (category.equals(transaction.getCategory())) {
 					return true;
-				}
-				for (ITransaction transaction2 : transaction.getSplits()) {
-					if (category.equals(transaction2.getCategory())) {
-						return true;
-					}
 				}
 			}
 		}
@@ -399,14 +400,9 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 
 	private void replaceAllCategories(Category categoryFrom, Category categoryTo) {
 		for (Account account : accounts) {
-			for (ITransaction transaction : account.getTransactions()) {
+			for (ITransaction transaction : account.getFlatTransactions()) {
 				if (categoryFrom.equals(transaction.getCategory())) {
 					transaction.setCategory(categoryTo);
-				}
-				for (ITransaction transaction2 : transaction.getSplits()) {
-					if (categoryFrom.equals(transaction2.getCategory())) {
-						transaction2.setCategory(categoryTo);
-					}
 				}
 			}
 		}
@@ -416,28 +412,38 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 		return comparisons;
 	}
 	
+	transient private Map<Security, ImmutableList<StockSplit>> stockSplitsPerSecurity = new ConcurrentHashMap<>();
+	
 	/**
 	 * Returns all splits for the given security.
 	 * The splits are ordered by date.
 	 *
 	 */
-	public ImmutableList<StockSplit> getStockSplits(final Security security) {
-		return ImmutableSortedSet.copyOf(DAY_COMPARATOR,
-			Iterables.filter(stockSplits, new Predicate<StockSplit>() {
-				@Override
-				public boolean apply(StockSplit stockSplit) {
-					return stockSplit.getSecurity().equals(security);
-				}
-			}
+	public ImmutableList<StockSplit> getStockSplits(Security security) {
+		ImmutableList<StockSplit> result = stockSplitsPerSecurity.get(security);
+		if (result == null) {
+			result = ImmutableSortedSet.copyOf(DAY_COMPARATOR,
+					Iterables.filter(stockSplits, new Predicate<StockSplit>() {
+						@Override
+						public boolean apply(StockSplit stockSplit) {
+							return stockSplit.getSecurity().equals(security);
+						}
+					}
 				)).asList();
+			stockSplitsPerSecurity.put(security, result);
+		}
+		return result;
 	}
 
 	public void addStockSplit(StockSplit stockSplit) {
 		stockSplits.add(stockSplit);
+		stockSplitsPerSecurity.remove(stockSplit.getSecurity());
 	}
 
 	public boolean removeStockSplit(StockSplit stockSplit) {
-		return stockSplits.remove(stockSplit);
+		boolean changed = stockSplits.remove(stockSplit);
+		stockSplitsPerSecurity.remove(stockSplit.getSecurity());
+		return changed;
 	}
 
 	public void setStockSplits(Security security, Set<StockSplit> splits) {
@@ -448,6 +454,7 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 			}
 		}
 		stockSplits.addAll(splits);
+		stockSplitsPerSecurity.clear();
 	}
 
 	/**
@@ -563,7 +570,7 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 				Report report = new Report("temp");
 				report.setAccounts(getAccounts());
 
-				fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new AnalyzerFactory());
+				fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new AnalyzerFactory(), this);
 			} else {
 				// Day may have changed
 				fullInventory.setDate(Day.today());

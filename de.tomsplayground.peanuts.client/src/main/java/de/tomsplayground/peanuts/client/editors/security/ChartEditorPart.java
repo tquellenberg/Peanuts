@@ -342,15 +342,6 @@ public class ChartEditorPart extends EditorPart {
 		}
 	}
 
-	private BigDecimal getSplitRatio(de.tomsplayground.peanuts.util.Day day) {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
-		return stockSplits.stream()
-			.filter(sp -> day.before(sp.getDay()))
-			.map(sp -> sp.getRatio())
-			.reduce(BigDecimal.ONE, BigDecimal::multiply);
-	}
-
 	protected ImmutableList<XYAnnotation> addOrderAnnotations() {
 		List<XYAnnotation> annotations = new ArrayList<>();
 		IPriceProvider pp = getChartPriceProvider();
@@ -368,8 +359,8 @@ public class ChartEditorPart extends EditorPart {
 					if (!isShowBuyAndSell()) {
 						break;
 					}
-					t = "+"+investmentTransaction.getQuantity();
-					BigDecimal adjustedPrice = investmentTransaction.getPrice().multiply(getSplitRatio(day));
+					t = "+"+PeanutsUtil.formatQuantity(investmentTransaction.getQuantity());
+					BigDecimal adjustedPrice = investmentTransaction.getPrice();
 					adjustedPrice = getInventoryCurrencyConverter().convert(adjustedPrice, day);
 					pointerAnnotation = new XYPointerAnnotation(t, x, adjustedPrice.doubleValue(), Math.PI / 2);
 					swtColor = Activator.getDefault().getColorProvider().get(Activator.GREEN);
@@ -379,8 +370,8 @@ public class ChartEditorPart extends EditorPart {
 					if (!isShowBuyAndSell()) {
 						break;
 					}
-					t = "-"+investmentTransaction.getQuantity();
-					adjustedPrice = investmentTransaction.getPrice().multiply(getSplitRatio(day));
+					t = "-"+PeanutsUtil.formatQuantity(investmentTransaction.getQuantity());
+					adjustedPrice = investmentTransaction.getPrice();
 					adjustedPrice = getInventoryCurrencyConverter().convert(adjustedPrice, day);
 					pointerAnnotation = new XYPointerAnnotation(t, x, adjustedPrice.doubleValue(), 3* Math.PI / 2);
 					swtColor = Activator.getDefault().getColorProvider().get(Activator.RED);

@@ -13,6 +13,7 @@ import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
+import de.tomsplayground.peanuts.domain.process.IStockSplitProvider;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.TransferTransaction;
 import de.tomsplayground.peanuts.util.Day;
@@ -37,24 +38,22 @@ public class TimeIntervalReport extends ObservableModelObject {
 	PropertyChangeListener inventoriyListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
+			System.out.println("TimeIntervalReport.inventoriyListener(): " + TimeIntervalReport.this + " " +evt);
 			calculateValues();
 			firePropertyChange("values", null, null);
 		}
 	};
-
-	public TimeIntervalReport(ITransactionProvider account, Interval interval) {
-		this(account, interval, null);
-	}
 
 	public void dispose() {
 		inventory.removePropertyChangeListener(inventoriyListener);
 		inventory.dispose();
 	}
 
-	public TimeIntervalReport(ITransactionProvider account, Interval interval, IPriceProviderFactory priceProviderFactory) {
+	public TimeIntervalReport(ITransactionProvider account, Interval interval, IPriceProviderFactory priceProviderFactory,
+			IStockSplitProvider stockSplitProvider) {
 		this.interval = interval;
 		this.transactions = account.getTransactions();
-		this.inventory = new Inventory(account, priceProviderFactory);
+		this.inventory = new Inventory(account, priceProviderFactory, null, stockSplitProvider);
 		inventory.addPropertyChangeListener(inventoriyListener);
 
 		if (transactions.isEmpty()) {
@@ -110,14 +109,7 @@ public class TimeIntervalReport extends ObservableModelObject {
 					// total amount
 					sum = sum.add(transaction.getAmount());
 					// investment account: adding and leaving
-					if (! transaction.getSplits().isEmpty()) {
-						List<ITransaction> splits = transaction.getSplits();
-						for (ITransaction iTransaction : splits) {
-							if (iTransaction instanceof TransferTransaction) {
-								investedSum = investedSum.add(iTransaction.getAmount());
-							}
-						}
-					} else if (transaction instanceof TransferTransaction) {
+					if (transaction instanceof TransferTransaction) {
 						investedSum = investedSum.add(transaction.getAmount());
 					}
 					// next

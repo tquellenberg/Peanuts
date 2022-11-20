@@ -40,6 +40,7 @@ import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
+import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.JFreeChartFonts;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.chart.TimeChart;
@@ -95,7 +96,8 @@ public class ValueChartEditorPart extends EditorPart {
 		body.setLayout(new GridLayout());
 
 		Account account = getAccount();
-		intervalReport = new TimeIntervalReport(account, TimeIntervalReport.Interval.DAY, PriceProviderFactory.getInstance());
+		intervalReport = new TimeIntervalReport(account, TimeIntervalReport.Interval.DAY, PriceProviderFactory.getInstance(), 
+				Activator.getDefault().getAccountManager());
 		intervalReport.addPropertyChangeListener(changeListener);
 
 		String chartType = StringUtils.defaultString(account.getConfigurationValue(CHART_TYPE), "all");

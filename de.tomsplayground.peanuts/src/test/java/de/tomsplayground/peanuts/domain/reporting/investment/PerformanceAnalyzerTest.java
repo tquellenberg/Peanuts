@@ -9,6 +9,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableList;
+
 import de.tomsplayground.peanuts.Helper;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
@@ -16,6 +18,7 @@ import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.BankTransaction;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
+import de.tomsplayground.peanuts.domain.process.IStockSplitProvider;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProvider;
@@ -29,6 +32,7 @@ public class PerformanceAnalyzerTest {
 	private AccountManager accountManager;
 	private Account account;
 	private IPriceProviderFactory priceProviderFactory;
+	private IStockSplitProvider stockSplitProvider;
 
 	private static class SimplePriceProvider extends PriceProvider {
 		SimplePriceProvider() {
@@ -52,11 +56,17 @@ public class PerformanceAnalyzerTest {
 				return getPriceProvider(security);
 			}
 		};
+		stockSplitProvider = new IStockSplitProvider() {
+			@Override
+			public ImmutableList<StockSplit> getStockSplits(Security security) {
+				return ImmutableList.of();
+			}
+		};
 	}
 
 	@Test
 	public void testEmptyAccount() throws Exception {
-		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
+		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory, stockSplitProvider);
 
 		List<YearValue> values = analizer.getValues();
 		Assert.assertEquals(0, values.size());
@@ -68,7 +78,7 @@ public class PerformanceAnalyzerTest {
 		InvestmentTransaction transaction = new InvestmentTransaction(Day.today(),
 			new Security("AAPL"), BigDecimal.ONE, BigDecimal.TEN, BigDecimal.ZERO, InvestmentTransaction.Type.BUY);
 		account.addTransaction(transaction);
-		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
+		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory, stockSplitProvider);
 
 		List<YearValue> values = analizer.getValues();
 		Assert.assertEquals(1, values.size());
@@ -84,7 +94,7 @@ public class PerformanceAnalyzerTest {
 		Day d = Day.today();
 		d = d.addYear(-1);
 		account.addTransaction(new BankTransaction(d, new BigDecimal("100.00"), "l"));
-		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
+		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory, stockSplitProvider);
 
 		List<YearValue> values = analizer.getValues();
 		Assert.assertEquals(2, values.size());
@@ -108,7 +118,7 @@ public class PerformanceAnalyzerTest {
 		account.addTransaction(transfer.getTransferFrom());
 		// 4. Bank transaction (+3)
 		account.addTransaction(new BankTransaction(Day.today(), new BigDecimal("3.00"), ""));
-		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
+		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory, stockSplitProvider);
 
 		List<YearValue> values = analizer.getValues();
 		Assert.assertEquals(1, values.size());
@@ -138,7 +148,7 @@ public class PerformanceAnalyzerTest {
 		// 2.2 Split: Bank transaction (+3)
 		split.addSplit(new BankTransaction(Day.today(), new BigDecimal("3.00"), ""));
 		account.addTransaction(split);
-		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
+		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory, stockSplitProvider);
 
 		List<YearValue> values = analizer.getValues();
 		Assert.assertEquals(1, values.size());
@@ -155,7 +165,7 @@ public class PerformanceAnalyzerTest {
 		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), Day.of(2010, 6, 1));
 		account2.addTransaction(transfer.getTransferFrom());
 		account.addTransaction(transfer.getTransferTo());
-		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
+		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory, stockSplitProvider);
 
 		YearValue value = analizer.getValues().get(0);
 		Helper.assertEquals(new BigDecimal("50.00"), value.getInvestedAvg());
@@ -174,7 +184,7 @@ public class PerformanceAnalyzerTest {
 		transfer = new Transfer(account2, account, new BigDecimal("-100.00"), Day.of(2010, 6, 1));
 		account2.addTransaction(transfer.getTransferFrom());
 		account.addTransaction(transfer.getTransferTo());
-		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
+		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory, stockSplitProvider);
 
 		YearValue value = analizer.getValues().get(0);
 		Helper.assertEquals(new BigDecimal("25.00"), value.getInvestedAvg());
@@ -190,7 +200,7 @@ public class PerformanceAnalyzerTest {
 		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), Day.of(now.year, 0, 1));
 		account2.addTransaction(transfer.getTransferFrom());
 		account.addTransaction(transfer.getTransferTo());
-		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory);
+		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory, stockSplitProvider);
 
 		YearValue value = analizer.getValues().get(0);
 		Helper.assertEquals(new BigDecimal("100.00"), value.getInvestedAvg());

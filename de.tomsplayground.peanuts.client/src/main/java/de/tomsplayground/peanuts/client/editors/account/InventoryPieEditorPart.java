@@ -30,6 +30,7 @@ import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.swt.ChartComposite;
 import org.jfree.data.general.DefaultPieDataset;
 
+import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.editors.ITransactionProviderInput;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
@@ -112,7 +113,7 @@ public class InventoryPieEditorPart extends EditorPart {
 		marketValueLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 
 		ITransactionProvider transactions = ((ITransactionProviderInput) getEditorInput()).getTransactionProvider();
-		inventory = new Inventory(transactions, PriceProviderFactory.getInstance(), new AnalyzerFactory());
+		inventory = new Inventory(transactions, PriceProviderFactory.getInstance(), new AnalyzerFactory(), Activator.getDefault().getAccountManager());
 		inventory.setDate(date);
 		inventory.addPropertyChangeListener(inventoryChangeListener);
 
@@ -139,12 +140,12 @@ public class InventoryPieEditorPart extends EditorPart {
 		Collections.sort(entries, new Comparator<InventoryEntry>() {
 			@Override
 			public int compare(InventoryEntry o1, InventoryEntry o2) {
-				return o2.getMarketValue(date).compareTo(o1.getMarketValue(date));
+				return o2.getMarketValue().compareTo(o1.getMarketValue());
 			}
 		});
 		for (InventoryEntry entry : entries) {
 			if (isNotZero(entry.getQuantity())) {
-				dataset.setValue(entry.getSecurity().getName(), entry.getMarketValue(date));
+				dataset.setValue(entry.getSecurity().getName(), entry.getMarketValue());
 			}
 		}
 	}

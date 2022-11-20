@@ -276,7 +276,8 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 		tableViewer.setLabelProvider(new PerformanceTableLabelProvider(red, transactions.getCurrency()));
 		tableViewer.setContentProvider(new MyArrayContentProvider());
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		PerformanceAnalyzer analizer = new PerformanceAnalyzer(transactions, PriceProviderFactory.getInstance());
+		PerformanceAnalyzer analizer = new PerformanceAnalyzer(transactions, PriceProviderFactory.getInstance(),
+				Activator.getDefault().getAccountManager());
 		tableViewer.setInput(analizer);
 	}
 

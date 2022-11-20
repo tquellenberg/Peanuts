@@ -133,7 +133,7 @@ public class InventoryEditorPart extends EditorPart {
 	private final InventoryComparator marketValueComparator = new InventoryComparator() {
 		@Override
 		public int compareInventoryEntry(Viewer viewer, InventoryEntry i1, InventoryEntry i2) {
-			return i1.getMarketValue(date).compareTo(i2.getMarketValue(date));
+			return i1.getMarketValue().compareTo(i2.getMarketValue());
 		}
 	};
 
@@ -146,7 +146,7 @@ public class InventoryEditorPart extends EditorPart {
 
 	private final InventoryComparator gainingComparator = new InventoryComparator() {
 		private BigDecimal gaining(InventoryEntry entry) {
-			return entry.getMarketValue(date).subtract(entry.getInvestedAmount());
+			return entry.getMarketValue().subtract(entry.getInvestedAmount());
 		}
 		@Override
 		public int compareInventoryEntry(Viewer viewer, InventoryEntry i1, InventoryEntry i2) {
@@ -157,7 +157,7 @@ public class InventoryEditorPart extends EditorPart {
 	private final InventoryComparator gainingPercentComparator = new InventoryComparator() {
 		private BigDecimal gainingPercent(InventoryEntry entry) {
 			if (entry.getInvestedAmount().compareTo(BigDecimal.ZERO) != 0) {
-				BigDecimal gain = entry.getMarketValue(date).subtract(entry.getInvestedAmount());
+				BigDecimal gain = entry.getMarketValue().subtract(entry.getInvestedAmount());
 				return gain.divide(entry.getInvestedAmount(), PeanutsUtil.MC);
 			}
 			return BigDecimal.ZERO;
@@ -172,15 +172,14 @@ public class InventoryEditorPart extends EditorPart {
 	private final InventoryComparator ratePerYearComparator = new InventoryComparator() {
 		@Override
 		public int compareInventoryEntry(Viewer viewer, InventoryEntry i1, InventoryEntry i2) {
-			return i1.getXIRR(date).compareTo(i2.getXIRR(date));
+			return i1.getXIRR().compareTo(i2.getXIRR());
 		}
 	};
 
 	private final InventoryComparator dailyChangeComparator = new InventoryComparator() {
 		@Override
 		public int compareInventoryEntry(Viewer viewer, InventoryEntry i1, InventoryEntry i2) {
-			Day dayBefore = date.addDays(-1);
-			return i1.getChange(dayBefore, date).compareTo(i2.getChange(dayBefore, date));
+			return i1.getDayChange().compareTo(i2.getDayChange());
 		}
 	};
 
@@ -285,28 +284,28 @@ public class InventoryEditorPart extends EditorPart {
 				InventoryEntry entry = (InventoryEntry) element;
 				if (columnIndex == INVENTORY_FRACTION) {
 					if (inventory.getMarketValue().compareTo(BigDecimal.ZERO) != 0) {
-						BigDecimal fraction = entry.getMarketValue(date).divide(inventory.getMarketValue(), PeanutsUtil.MC);
+						BigDecimal fraction = entry.getMarketValue().divide(inventory.getMarketValue(), PeanutsUtil.MC);
 						return PeanutsUtil.formatPercent(fraction);
 					}
 				}
 				if (columnIndex == INVENTORY_POS_PRICE) {
-					return PeanutsUtil.formatCurrency(entry.getPrice(date).getValue(), currency);
+					return PeanutsUtil.formatCurrency(entry.getPrice().getValue(), currency);
 				}
 				if (columnIndex == INVENTORY_POS_MARKETVALUE) {
-					return PeanutsUtil.formatCurrency(entry.getMarketValue(date), currency);
+					return PeanutsUtil.formatCurrency(entry.getMarketValue(), currency);
 				}
 				if (columnIndex == INVENTORY_POS_GAIN) {
-					return PeanutsUtil.formatCurrency(entry.getMarketValue(date).subtract(entry.getInvestedAmount()), currency);
+					return PeanutsUtil.formatCurrency(entry.getMarketValue().subtract(entry.getInvestedAmount()), currency);
 				}
 				if (columnIndex == INVENTORY_POS_GAIN_PERCENT) {
 					if (entry.getInvestedAmount().compareTo(BigDecimal.ZERO) != 0) {
-						BigDecimal gain = entry.getMarketValue(date).subtract(entry.getInvestedAmount());
+						BigDecimal gain = entry.getMarketValue().subtract(entry.getInvestedAmount());
 						BigDecimal gainPercent = gain.divide(entry.getInvestedAmount(), PeanutsUtil.MC);
 						return PeanutsUtil.formatPercent(gainPercent);
 					}
 				}
 				if (columnIndex == INVENTORY_POS_DAY_CHANGE) {
-					return PeanutsUtil.formatCurrency(entry.getChange(date.addDays(-1), date), currency);
+					return PeanutsUtil.formatCurrency(entry.getDayChange(), currency);
 				}
 				if (columnIndex == INVENTORY_POS_QUANTITY) {
 					return PeanutsUtil.formatQuantity(entry.getQuantity());
@@ -318,7 +317,7 @@ public class InventoryEditorPart extends EditorPart {
 					return PeanutsUtil.formatCurrency(entry.getInvestedAmount(), currency);
 				}
 				if (columnIndex == INVENTORY_POS_RATE) {
-					return PeanutsUtil.formatPercent(entry.getXIRR(date));
+					return PeanutsUtil.formatPercent(entry.getXIRR());
 				}
 				if (columnIndex == INVENTORY_POS_YOC) {
 					BigDecimal dividendSum = new SecurityDividendStats(entry.getSecurity()).getYoC(entry.getAvgPrice(), dividendStats);
@@ -334,7 +333,7 @@ public class InventoryEditorPart extends EditorPart {
 					}
 				}
 				if (columnIndex == INVENTORY_POS_DIVIDEND_YIELD) {
-					BigDecimal dividendSum = new SecurityDividendStats(entry.getSecurity()).getYoC(entry.getPrice(date).getValue(), dividendStats);
+					BigDecimal dividendSum = new SecurityDividendStats(entry.getSecurity()).getYoC(entry.getPrice().getValue(), dividendStats);
 					if (dividendSum.compareTo(BigDecimal.ZERO) != 0) {
 						return PeanutsUtil.formatPercent(dividendSum);
 					}
@@ -417,17 +416,17 @@ public class InventoryEditorPart extends EditorPart {
 			if (element instanceof InventoryEntry) {
 				InventoryEntry entry = (InventoryEntry) element;
 				if (columnIndex == INVENTORY_POS_GAIN || columnIndex == INVENTORY_POS_GAIN_PERCENT) {
-					if (entry.getMarketValue(date).subtract(entry.getInvestedAmount()).signum() == -1) {
+					if (entry.getMarketValue().subtract(entry.getInvestedAmount()).signum() == -1) {
 						return red;
 					}
 				}
 				if (columnIndex == INVENTORY_POS_DAY_CHANGE) {
-					if (entry.getChange(date.addDays(-1), date).signum() == -1) {
+					if (entry.getDayChange().signum() == -1) {
 						return red;
 					}
 				}
 				if (columnIndex == INVENTORY_POS_RATE) {
-					if (entry.getXIRR(date).signum() == -1) {
+					if (entry.getXIRR().signum() == -1) {
 						return red;
 					}
 				}
@@ -803,10 +802,11 @@ public class InventoryEditorPart extends EditorPart {
 		IPriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
 		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
 		priceProviderFactory = new CurrencyAdjustedPriceProviderFactory(account.getCurrency(), priceProviderFactory, exchangeRates);
-		inventory = new Inventory(account, priceProviderFactory, new AnalyzerFactory());
+		inventory = new Inventory(account, priceProviderFactory, new AnalyzerFactory(), Activator.getDefault().getAccountManager());
 		inventory.setDate(date);
 		inventory.addPropertyChangeListener(inventoryChangeListener);
-		dividendStats = new DividendStats(Activator.getDefault().getAccountManager(), priceProviderFactory);
+		dividendStats = new DividendStats(Activator.getDefault().getAccountManager(), priceProviderFactory,
+				Activator.getDefault().getAccountManager());
 		
 		treeViewer.setInput(inventory);
 
@@ -870,6 +870,7 @@ public class InventoryEditorPart extends EditorPart {
 	public void dispose() {
 		inventory.removePropertyChangeListener(inventoryChangeListener);
 		inventory.dispose();
+		dividendStats.dispose();
 		super.dispose();
 	}
 

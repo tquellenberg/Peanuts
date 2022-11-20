@@ -200,6 +200,11 @@ public class Report extends ObservableModelObject implements ITransactionProvide
 	public ImmutableList<ITransaction> getTransactionsByDate(Day from, Day to) {
 		return TransactionProviderUtil.getTransactionsByDate(getTransactions(), from, to);
 	}
+	
+	@Override
+	public ImmutableList<ITransaction> getFlatTransactionsByDate(Day from, Day to) {
+		return getTransactionsByDate(from, to);
+	}
 
 	public void reconfigureAfterDeserialization() {
 		addListener();

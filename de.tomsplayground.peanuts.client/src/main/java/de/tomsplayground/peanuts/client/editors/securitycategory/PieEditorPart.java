@@ -32,7 +32,6 @@ import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.client.widgets.DateComposite;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
-import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
 import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 import de.tomsplayground.peanuts.util.Day;
@@ -93,7 +92,8 @@ public class PieEditorPart extends EditorPart {
 
 		Report report = new Report("temp");
 		report.setAccounts(Activator.getDefault().getAccountManager().getAccounts());
-		inventory = new Inventory(report, PriceProviderFactory.getInstance(), new AnalyzerFactory());
+		inventory = new Inventory(report, PriceProviderFactory.getInstance(), null,
+				 Activator.getDefault().getAccountManager());
 		inventory.addPropertyChangeListener(inventoryChangeListener);
 
 		dataset = new DefaultPieDataset<String>();

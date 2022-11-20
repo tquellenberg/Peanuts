@@ -132,7 +132,7 @@ public class SecurityCategoryMapping extends ObservableModelObject implements IN
 		for (Security security : securities) {
 			for (InventoryEntry inventoryEntry : entries) {
 				if (inventoryEntry.getSecurity().equals(security)) {
-					result = result.add(inventoryEntry.getMarketValue(inventory.getDay()));
+					result = result.add(inventoryEntry.getMarketValue());
 				}
 			}
 		}

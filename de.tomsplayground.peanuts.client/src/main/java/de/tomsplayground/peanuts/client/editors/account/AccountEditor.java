@@ -34,6 +34,7 @@ public class AccountEditor extends MultiPageEditorPart {
 
 	@Override
 	protected void createPages() {
+		long currentTimeMillis = System.currentTimeMillis();
 		accountEditorPart = new TransactionListEditorPart();
 		createEditorPage(accountEditorPart, "Transactions");
 		createEditorPage(new ValueChartEditorPart(), "Chart");
@@ -49,6 +50,7 @@ public class AccountEditor extends MultiPageEditorPart {
 		MetaEditorPart metaEditorPart = new MetaEditorPart();
 		metaEditorPart.initialize(this);
 		createEditorPage(metaEditorPart, "Meta Data");
+		System.out.println("=>> AccountEditor.createPages() "+ (System.currentTimeMillis()-currentTimeMillis));
 	}
 
 	private void createEditorPage(IEditorPart editor, String name) {
