@@ -209,7 +209,7 @@ public class DevelopmentEditorPart extends EditorPart {
 		IPrice price1 = prices.getPrice(from);
 		IPrice price2 = prices.getPrice(to);
 		BigDecimal diff = price2.getValue().subtract(price1.getValue());
-		if (price1.getValue().compareTo(BigDecimal.ZERO) != 0) {
+		if (price1.getValue().compareTo(BigDecimal.ZERO) != 0 && from.delta(to) > 0) {
 			BigDecimal anualDiff = price2.getValue().divide(price1.getValue(), PeanutsUtil.MC);
 			anualDiff = new BigDecimal(Math.pow(anualDiff.doubleValue(), 360.0 / from.delta(to))).subtract(BigDecimal.ONE);
 			anualDiff = anualDiff.movePointRight(2).setScale(2, RoundingMode.HALF_UP);
