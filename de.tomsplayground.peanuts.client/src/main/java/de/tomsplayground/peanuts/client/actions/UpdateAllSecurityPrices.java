@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import de.tomsplayground.peanuts.client.alarm.AlarmView;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
+import de.tomsplayground.peanuts.domain.base.INamedElement;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.Price;
@@ -62,7 +63,7 @@ public class UpdateAllSecurityPrices extends AbstractHandler {
 			PriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
 			ImmutableList<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
 			monitor.beginTask("Refresh investment prices", securities.size());
-			for (Security security : securities) {
+			for (Security security : securities.stream().sorted(INamedElement.NAMED_ELEMENT_ORDER).toList()) {
 				if (! security.isDeleted()) {
 					monitor.subTask("Refreshing " + security.getName());
 					priceProviderFactory.refresh(security, Boolean.valueOf(

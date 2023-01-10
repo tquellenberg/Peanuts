@@ -29,7 +29,7 @@ import de.tomsplayground.peanuts.util.Day;
 
 public class YahooCalendarEntry {
 
-	private final static Logger log = LoggerFactory.getLogger(YahooAPI.class);
+	private final static Logger log = LoggerFactory.getLogger(YahooCalendarEntry.class);
 
 	private final static CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -64,7 +64,7 @@ public class YahooCalendarEntry {
 			if (response1.getStatusLine().getStatusCode() != 200) {
 				log.error(response1.getStatusLine().toString() + " "+url);
 			} else {
-				return parseJsonData(EntityUtils.toString(entity1));
+				return parseJsonData(EntityUtils.toString(entity1), symbol);
 			}
 		} catch (IOException e) {
 			log.error("URL "+url + " - " + e.getMessage());
@@ -81,7 +81,8 @@ public class YahooCalendarEntry {
 		return Collections.emptyList();
 	}
 
-	private List<CalendarEntry> parseJsonData(String json) throws JsonParseException, JsonMappingException, IOException {
+	@SuppressWarnings("unchecked")
+	private List<CalendarEntry> parseJsonData(String json, String symbol) throws JsonParseException, JsonMappingException, IOException {
 		List<CalendarEntry> result = new ArrayList<>();
 		ObjectMapper mapper = new ObjectMapper();
 		TypeReference<HashMap<String,Object>> typeRef = new TypeReference<HashMap<String,Object>>() {};
@@ -96,7 +97,7 @@ public class YahooCalendarEntry {
 			String name = "Earnings";
 			result.add(new CalendarEntry(day, name));
 		} else {
-			log.info("No earning date in JSON");
+			log.info("No earning date in JSON for {}", symbol);
 		}
 		return result;
 	}

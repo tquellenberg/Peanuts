@@ -84,7 +84,7 @@ public class PersistenceTest {
 		assertEquals(accountManager.getAccounts().size(), accountManager2.getAccounts().size());
 		Account accountToCheck = accountManager2.getAccounts().get(0);
 		assertEquals(account.getName(), accountToCheck.getName());
-		assertEquals(account.getBalance(), accountToCheck.getBalance());
+		assertEquals(account.getBalance(Day.today()), accountToCheck.getBalance(Day.today()));
 		assertEquals(account.getTransactions().size(), accountToCheck.getTransactions().size());
 	}
 
@@ -109,7 +109,7 @@ public class PersistenceTest {
 		assertEquals(accountManager.getAccounts().size(), accountManager2.getAccounts().size());
 		Account accountToCheck = accountManager2.getAccounts().get(0);
 		assertEquals(account.getName(), accountToCheck.getName());
-		assertEquals(account.getBalance(), accountToCheck.getBalance());
+		assertEquals(account.getBalance(Day.today()), accountToCheck.getBalance(Day.today()));
 		assertEquals(account.getTransactions().size(), accountToCheck.getTransactions().size());
 	}
 

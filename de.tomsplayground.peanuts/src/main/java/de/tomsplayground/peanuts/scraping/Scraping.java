@@ -23,6 +23,7 @@ import org.htmlcleaner.XPatherException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.tomsplayground.peanuts.app.marketscreener.MarketScreener;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceBuilder;
@@ -50,6 +51,12 @@ public class Scraping {
 
 	private String result = "";
 
+	public static void main(String[] args) {
+		Scraping scraping = new Scraping("Silber", "https://www.finanzen.net/rohstoffe/silberpreis", "//div[@class='snapshot__values-second']/div[1]/span[1]/text()");
+		Price price = scraping.execute();
+		System.out.println(price);
+	}
+	
 	private static void init() {
 		if (! isInitialized) {
 			RequestConfig globalConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build();
@@ -60,9 +67,15 @@ public class Scraping {
 	}
 
 	public Scraping(Security security) {
-		securityName = security.getName();
-		xpath = security.getConfigurationValue(SCRAPING_XPATH);
-		scrapingUrl = security.getConfigurationValue(SCRAPING_URL);
+		this.securityName = security.getName();
+		this.scrapingUrl = security.getConfigurationValue(SCRAPING_URL);
+		this.xpath = security.getConfigurationValue(SCRAPING_XPATH);
+	}
+	
+	public Scraping(String securityName, String scrapingUrl, String xpath) {
+		this.securityName = securityName;
+		this.scrapingUrl = scrapingUrl;
+		this.xpath = xpath;
 	}
 
 	public String getResult() {
@@ -75,6 +88,8 @@ public class Scraping {
 			.setSocketTimeout(1000*20)
 			.setConnectTimeout(1000*10)
 			.setConnectionRequestTimeout(1000*10).build());
+		httpGet.addHeader("User-Agent", MarketScreener.USER_AGENT);
+		httpGet.addHeader("Accept", "*/*");
 		CloseableHttpResponse response1 = null;
 		try {
 			response1 = httpClient.execute(httpGet, context);

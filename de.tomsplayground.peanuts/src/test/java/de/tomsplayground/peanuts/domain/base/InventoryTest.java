@@ -98,15 +98,15 @@ public class InventoryTest {
 			}
 		});
 		InventoryEntry entry = inventory.getEntry(apple);
-		assertEquals(QUANTITY.multiply(BigDecimal.TEN).multiply(new BigDecimal(2)), entry.getQuantity());
+		Helper.assertEquals(QUANTITY.multiply(BigDecimal.TEN).multiply(new BigDecimal(2)), entry.getQuantity());
 
 		inventory.setDate(Day.today().addDays(-7));
 		entry = inventory.getEntry(apple);
-		assertEquals(QUANTITY.multiply(BigDecimal.TEN), entry.getQuantity());
+		Helper.assertEquals(QUANTITY.multiply(BigDecimal.TEN), entry.getQuantity());
 
 		inventory.setDate(Day.today().addDays(-14));
 		entry = inventory.getEntry(apple);
-		assertEquals(QUANTITY, entry.getQuantity());
+		Helper.assertEquals(QUANTITY, entry.getQuantity());
 	}
 
 	@Test

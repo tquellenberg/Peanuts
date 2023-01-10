@@ -18,6 +18,7 @@ import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
+import de.tomsplayground.peanuts.domain.base.INamedElement;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.calendar.CalendarUpdateJob;
@@ -80,7 +81,7 @@ public class UpdateCalendarEntries extends AbstractHandler {
 		List<Security> securities = fullInventory.getEntries().stream()
 				.filter(e -> e.getQuantity().signum() > 0)
 				.map(e -> e.getSecurity()).collect(Collectors.toList());
-		securities.sort(Comparator.comparing(Security::getName));
+		securities.sort(INamedElement.NAMED_ELEMENT_ORDER);
 		return securities;
 	}
 }

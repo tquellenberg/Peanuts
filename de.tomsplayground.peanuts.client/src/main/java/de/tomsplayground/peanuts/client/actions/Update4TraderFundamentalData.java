@@ -19,6 +19,7 @@ import org.joda.time.DateTime;
 import de.tomsplayground.peanuts.app.marketscreener.MarketScreener;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
+import de.tomsplayground.peanuts.domain.base.INamedElement;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
@@ -82,6 +83,8 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 		while (securitiesToUpdate.size() >= MAX_SECURITY_UPDATED_PER_RUN) {
 			securitiesToUpdate.remove(RandomUtils.nextInt(0, securitiesToUpdate.size()));
 		}
+		
+		securitiesToUpdate.sort(INamedElement.NAMED_ELEMENT_ORDER);
 		
 		return securitiesToUpdate;
 	}

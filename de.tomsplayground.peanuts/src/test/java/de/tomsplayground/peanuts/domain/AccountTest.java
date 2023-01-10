@@ -38,13 +38,13 @@ public class AccountTest extends TestCase {
 		account1.addTransaction(debit);
 
 		assertEquals(2, account1.getTransactions().size());
-		assertEquals(new BigDecimal("25.00"), account1.getBalance());
+		assertEquals(new BigDecimal("25.00"), account1.getBalance(Day.today()));
 		assertEquals(new BigDecimal("100.00"), account1.getBalance(deposit));
 		assertEquals(new BigDecimal("25.00"), account1.getBalance(debit));
 
 		account1.reset();
 		assertEquals(0, account1.getTransactions().size());
-		assertEquals(BigDecimal.ZERO, account1.getBalance());
+		assertEquals(BigDecimal.ZERO, account1.getBalance(Day.today()));
 	}
 
 	public void testSplitTransaction() {
@@ -72,8 +72,8 @@ public class AccountTest extends TestCase {
 
 		assertTrue(((TransferTransaction) t.getTransferFrom()).isSource());
 		assertFalse(((TransferTransaction) t.getTransferTo()).isSource());
-		assertEquals(new BigDecimal("-75.00"), account1.getBalance());
-		assertEquals(new BigDecimal("75.00"), account2.getBalance());
+		assertEquals(new BigDecimal("-75.00"), account1.getBalance(Day.today()));
+		assertEquals(new BigDecimal("75.00"), account2.getBalance(Day.today()));
 	}
 
 	public void testTransactionOrder() {
@@ -120,8 +120,8 @@ public class AccountTest extends TestCase {
 		Category c2 = new Category("c2", Category.Type.EXPENSE);
 		t1.setCategory(c2);
 
-		assertEquals(new BigDecimal("-80.00"), account1.getBalance());
-		assertEquals(new BigDecimal("80.00"), account2.getBalance());
+		assertEquals(new BigDecimal("-80.00"), account1.getBalance(Day.today()));
+		assertEquals(new BigDecimal("80.00"), account2.getBalance(Day.today()));
 		assertEquals("memo2", t2.getMemo());
 		assertEquals(c2, t2.getCategory());
 	}
@@ -190,7 +190,7 @@ public class AccountTest extends TestCase {
 		account1.removeTransaction(transaction1);
 
 		assertEquals(1, account1.getTransactions().size());
-		assertEquals(BigDecimal.TEN, account1.getBalance());
+		assertEquals(BigDecimal.TEN, account1.getBalance(Day.today()));
 	}
 	
 	public void testRemoveTransferTransaction() {

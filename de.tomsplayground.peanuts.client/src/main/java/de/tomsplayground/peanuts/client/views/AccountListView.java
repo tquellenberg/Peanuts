@@ -78,13 +78,9 @@ public class AccountListView extends ViewPart {
 
 		private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 		private final Color red;
-		private final Color l1;
-		private final Color l2;
 
-		public AccountListLabelProvider(Color red, Color l1, Color l2) {
+		public AccountListLabelProvider(Color red) {
 			this.red = red;
-			this.l1 = l1;
-			this.l2 = l2;
 		}
 
 		@Override
@@ -114,13 +110,13 @@ public class AccountListView extends ViewPart {
 
 		@Override
 		public Color getBackground(Object element, int columnIndex) {
-			return (accounts.indexOf(element) % 2 == 0) ? l1 : l2;
+			return null;
 		}
 
 		@Override
 		public Color getForeground(Object element, int columnIndex) {
 			Account account = (Account) element;
-			if (columnIndex == 1 && account.getBalance().signum() == -1) {
+			if (columnIndex == 1 && account.getBalance(date).signum() == -1) {
 				return red;
 			}
 			return null;
@@ -239,8 +235,7 @@ public class AccountListView extends ViewPart {
 		accountListViewer.setContentProvider(new ArrayContentProvider());
 		ColorRegistry colorProvider = Activator.getDefault().getColorProvider();
 		Color red = colorProvider.get(Activator.RED);
-		accountListViewer.setLabelProvider(new AccountListLabelProvider(red,
-			colorProvider.get(Activator.LIST_EVEN), colorProvider.get(Activator.LIST_ODD)));
+		accountListViewer.setLabelProvider(new AccountListLabelProvider(red));
 		accounts = Activator.getDefault().getAccountManager().getAccounts();
 		for (Account account : accounts) {
 			account.addPropertyChangeListener(propertyChangeListener);

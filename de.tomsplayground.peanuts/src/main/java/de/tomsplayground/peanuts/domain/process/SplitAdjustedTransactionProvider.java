@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.domain.process;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction.Type;
@@ -27,8 +28,8 @@ public class SplitAdjustedTransactionProvider {
 		BigDecimal splitRatio = getSplitRatio(invT.getDay());
 		if (splitRatio.compareTo(BigDecimal.ONE) != 0 && (invT.getType() == Type.BUY || invT.getType() == Type.SELL)) {
 			InvestmentTransaction adjustedTransaction = new InvestmentTransaction(invT);
-			BigDecimal quantity = invT.getQuantity().divide(splitRatio, PeanutsUtil.MC);
-			BigDecimal price = invT.getPrice().multiply(splitRatio, PeanutsUtil.MC);
+			BigDecimal quantity = invT.getQuantity().divide(splitRatio, PeanutsUtil.MC).setScale(8, RoundingMode.HALF_UP);
+			BigDecimal price = invT.getPrice().multiply(splitRatio, PeanutsUtil.MC).setScale(4, RoundingMode.HALF_UP);
 			adjustedTransaction.setInvestmentDetails(invT.getType(), price, quantity, invT.getCommission());
 			return adjustedTransaction;
 		}

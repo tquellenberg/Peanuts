@@ -24,7 +24,6 @@ import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.ITransferLocation;
-import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.Transaction;
 import de.tomsplayground.peanuts.domain.process.TransferTransaction;
 import de.tomsplayground.peanuts.util.Day;
@@ -102,13 +101,6 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 		}
 		transactions.clear();
 		firePropertyChange("transactions", null, null);
-	}
-
-	public BigDecimal getBalance() {
-		BigDecimal balance = transactions.parallelStream()
-				.map(Transaction::getAmount)
-				.reduce(startBalance, BigDecimal::add);
-		return balance;
 	}
 
 	@Override

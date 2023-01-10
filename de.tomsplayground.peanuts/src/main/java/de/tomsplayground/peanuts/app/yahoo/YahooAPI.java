@@ -166,6 +166,7 @@ public class YahooAPI {
 		return jsonMap;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<DebtEquityValue> getDebtEquityData(Map<String,Object> jsonMap, String type) {
 		List<DebtEquityValue> result = new ArrayList<>();
 		Map data = (Map) jsonMap.get(type);
@@ -202,6 +203,7 @@ public class YahooAPI {
 		return new YahooData(debtEquity, marketCap);		
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<YahooSecurity> search(String query) {
 		List<YahooSecurity> result = Lists.newArrayList();
 		String queryEnc = "";

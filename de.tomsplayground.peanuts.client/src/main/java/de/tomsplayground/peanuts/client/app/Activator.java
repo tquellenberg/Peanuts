@@ -50,8 +50,6 @@ public class Activator extends AbstractUIPlugin {
 	private static final String EXAMPLE_FILENAME = "example.bpx";
 	private static final String EXAMPLE = "<EXAMPLE>";
 
-	public static final String LIST_EVEN = "LIST_EVEN";
-	public static final String LIST_ODD = "LIST_ODD";
 	public static final String RED = "RED";
 	public static final String GREEN = "GREEN";
 	public static final String RED_BG = "RED_BG";
@@ -226,8 +224,6 @@ public class Activator extends AbstractUIPlugin {
 	public synchronized ColorRegistry getColorProvider() {
 		if (colorProvider == null) {
 			colorProvider = new ColorRegistry(PlatformUI.getWorkbench().getDisplay());
-			colorProvider.put(LIST_EVEN, new RGB(0xBF, 0xE4, 0xFF));
-			colorProvider.put(LIST_ODD, new RGB(0xFF, 0xF2, 0xBF));
 			colorProvider.put(RED, new RGB(0xFF, 0x0D, 0x00));
 			colorProvider.put(GREEN, new RGB(0x00, 0xC6, 0x18));
 			colorProvider.put(RED_BG, new RGB(0xFF, 0x7A, 0x73));

@@ -281,8 +281,12 @@ public class ChartEditorPart extends EditorPart {
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
 		if (inventory.getSecurities().contains(security)) {
-			BigDecimal avgPrice = inventory.getEntry(security).getAvgPrice();
-			return getInventoryCurrencyConverter().convert(avgPrice, de.tomsplayground.peanuts.util.Day.today());
+			InventoryEntry inventoryEntry = inventory.getEntry(security);
+			if (inventoryEntry.getQuantity().signum() == 1) {
+				System.out.println(inventoryEntry.getQuantity() + " "+ inventory.getDay());
+				BigDecimal avgPrice = inventoryEntry.getAvgPrice();
+				return getInventoryCurrencyConverter().convert(avgPrice, de.tomsplayground.peanuts.util.Day.today());
+			}
 		}
 		return null;
 	}

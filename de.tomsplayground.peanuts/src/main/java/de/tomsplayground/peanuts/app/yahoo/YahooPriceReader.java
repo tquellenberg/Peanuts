@@ -42,7 +42,7 @@ public class YahooPriceReader extends PriceProvider {
 
 	private final static Logger log = LoggerFactory.getLogger(YahooPriceReader.class);
 
-	private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0) Gecko/20100101 Firefox/52.0";
+	private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
 
 	private static final BigDecimal MAX_VALIDE_PRICE = new BigDecimal("100000");
 

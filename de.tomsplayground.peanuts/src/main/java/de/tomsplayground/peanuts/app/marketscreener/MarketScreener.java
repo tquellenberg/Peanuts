@@ -29,7 +29,7 @@ public class MarketScreener {
 
 	private final static Logger log = LoggerFactory.getLogger(MarketScreener.class);
 
-	private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0) Gecko/20100101 Firefox/52.0";
+	public static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
 
 	private final RequestConfig defaultRequestConfig = RequestConfig.custom()
         .setConnectTimeout(1000 * 60)
@@ -41,7 +41,7 @@ public class MarketScreener {
 		.setDefaultRequestConfig(defaultRequestConfig).build();
 
 	public static void main(String[] args) {
-		List<FundamentalData> scrapFinancials = new MarketScreener().scrapFinancials("https://www.marketscreener.com/quote/stock/KELLOGG-COMPANY-13226/financials/");
+		List<FundamentalData> scrapFinancials = new MarketScreener().scrapFinancials("https://www.marketscreener.com/quote/stock/APPLE-INC-4849/financials/");
 		for (FundamentalData fundamentalData : scrapFinancials) {
 			System.out.println(fundamentalData);
 		}
@@ -84,16 +84,25 @@ public class MarketScreener {
 				incomeTable = (TagNode) result[1];
 			}
 
-			boolean isPence = false;
-			xPather = new XPather("tbody/tr[12]/td[1]/div[2]/text()");
-			result = xPather.evaluateAgainstNode(incomeTable);
-			if (result.length > 0) {
-				String currency = result[0].toString();
-				if (StringUtils.contains(currency, "XXX")) {
-					isPence = true;
+			// Find rows
+			int epsRow = -1;
+			int dividendRow = -1;
+			for (int j = 1; j <= 20; j++) {
+				xPather = new XPather("tbody/tr["+j+"]/td[1]/text()");
+				result = xPather.evaluateAgainstNode(incomeTable);
+				if (result.length == 0) {
+					// Okay
+					continue;
+				}
+				String rowText = result[0].toString().strip();
+				if (StringUtils.indexOf(rowText, "EPS") >= 0) {
+					epsRow = j;
+				}
+				if (StringUtils.indexOf(rowText, "Dividend") >= 0) {
+					dividendRow = j;
 				}
 			}
-
+			
 			for (int i = 2; i <= 15; i++) {
 				FundamentalData fundamentalData = new FundamentalData();
 
@@ -119,14 +128,11 @@ public class MarketScreener {
 				}
 
 				// EPS
-				xPather = new XPather("tbody/tr[9]/td[" + i + "]/text()");
+				xPather = new XPather("tbody/tr[" + epsRow + "]/td[" + i + "]/text()");
 				result = xPather.evaluateAgainstNode(incomeTable);
 				String cellText = result[0].toString();
 				try {
 					BigDecimal eps = parseNumber(cellText);
-					if (isPence) {
-						eps = eps.divide(new BigDecimal(100));
-					}
 					fundamentalData.setEarningsPerShare(eps);
 				} catch (NumberFormatException e) {
 					log.info("NumberFormatException: "+e.getMessage() + " '"+cellText+"' "+financialsUrl);
@@ -135,14 +141,11 @@ public class MarketScreener {
 				}
 
 				// Dividend
-				xPather = new XPather("tbody/tr[10]/td[" + i + "]/text()");
+				xPather = new XPather("tbody/tr[" + dividendRow + "]/td[" + i + "]/text()");
 				result = xPather.evaluateAgainstNode(incomeTable);
 				cellText = result[0].toString();
 				try {
 					BigDecimal dividend = parseNumber(cellText);
-					if (isPence) {
-						dividend = dividend.divide(new BigDecimal(100));
-					}
 					fundamentalData.setDividende(dividend);
 				} catch (NumberFormatException e) {
 					log.info("NumberFormatException: "+e.getMessage() + " '"+cellText+"' "+financialsUrl);

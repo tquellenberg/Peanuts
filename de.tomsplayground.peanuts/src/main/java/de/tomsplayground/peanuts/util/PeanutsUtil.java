@@ -38,7 +38,6 @@ public class PeanutsUtil {
 		((DecimalFormat) currencyValueFormat).setMinimumFractionDigits(2);
 		((DecimalFormat) currencyValueFormat).setMaximumFractionDigits(4);
 		((DecimalFormat) currencyValueFormat).setParseBigDecimal(true);
-//		((DecimalFormat) quantityFormat).setMinimumFractionDigits(2);
 		((DecimalFormat) quantityFormat).setMaximumFractionDigits(8);
 		((DecimalFormat) quantityFormat).setParseBigDecimal(true);
 		((DecimalFormat) percentValueFormat).setParseBigDecimal(true);
