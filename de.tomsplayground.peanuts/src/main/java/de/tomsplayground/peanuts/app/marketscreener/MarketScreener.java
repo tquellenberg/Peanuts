@@ -9,13 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.util.Timeout;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XPather;
@@ -32,11 +31,9 @@ public class MarketScreener {
 	public static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
 
 	private final RequestConfig defaultRequestConfig = RequestConfig.custom()
-        .setConnectTimeout(1000 * 60)
-        .setSocketTimeout(1000 * 60)
-        .setConnectionRequestTimeout(1000 * 60)
+		.setConnectionRequestTimeout(Timeout.ofSeconds(30))
         .build();
-
+	
 	private final CloseableHttpClient httpclient = HttpClientBuilder.create()
 		.setDefaultRequestConfig(defaultRequestConfig).build();
 
@@ -50,19 +47,13 @@ public class MarketScreener {
 	private String getPage(URI url) throws IOException {
 		HttpGet httpGet = new HttpGet(url);
 		httpGet.addHeader("User-Agent", USER_AGENT);
-		CloseableHttpResponse response1 = null;
 		try {
-			response1 = httpclient.execute(httpGet);
-			HttpEntity entity1 = response1.getEntity();
-			return EntityUtils.toString(entity1);
+			return httpclient.execute(httpGet, response -> {
+				return EntityUtils.toString(response.getEntity());
+			});
 		} catch (IOException e) {
 			log.error("URL"+url, e);
 			throw e;
-		} finally {
-			if (response1 != null) {
-				response1.close();
-			}
-			httpGet.releaseConnection();
 		}
 	}
 

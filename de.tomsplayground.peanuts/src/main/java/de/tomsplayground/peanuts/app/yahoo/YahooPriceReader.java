@@ -13,17 +13,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.cookie.BasicCookieStore;
+import org.apache.hc.client5.http.cookie.CookieStore;
+import org.apache.hc.client5.http.cookie.StandardCookieSpec;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +59,7 @@ public class YahooPriceReader extends PriceProvider {
 
 	private static void init() {
 		if (! isInitialized) {
-			RequestConfig globalConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build();
+			RequestConfig globalConfig = RequestConfig.custom().setCookieSpec(StandardCookieSpec.RELAXED).build();
 			CookieStore cookieStore = new BasicCookieStore();
 			context = HttpClientContext.create();
 			context.setCookieStore(cookieStore);
@@ -92,29 +91,17 @@ public class YahooPriceReader extends PriceProvider {
 		HttpGet httpGet = new HttpGet(url);
 		httpGet.addHeader("User-Agent", USER_AGENT);
 		httpGet.setConfig(RequestConfig.custom()
-			.setCookieSpec(CookieSpecs.STANDARD)
-			.setSocketTimeout(1000*20)
-			.setConnectTimeout(1000*10)
-			.setConnectionRequestTimeout(1000*10).build());
-		CloseableHttpResponse response1 = null;
+			.setCookieSpec(StandardCookieSpec.RELAXED)
+			.setConnectionRequestTimeout(Timeout.ofSeconds(20))
+			.build());
 		try {
-			response1 = httpClient.execute(httpGet, context);
-			HttpEntity entity1 = response1.getEntity();
-			if (response1.getStatusLine().getStatusCode() != 200) {
-				log.error(response1.getStatusLine().toString() + " "+security.getName());
-				return new YahooPriceReader(security, null, type);
-			} else {
-				String str = EntityUtils.toString(entity1);
+			return httpClient.execute(httpGet, context, response -> {
+				String str = EntityUtils.toString(response.getEntity());
 				return new YahooPriceReader(security, new StringReader(str), type);
-			}
+			});
 		} catch (IOException e) {
 			log.error("URL "+url + " - " + e.getMessage());
 			return null;
-		} finally {
-			if (response1 != null) {
-				response1.close();
-			}
-			httpGet.releaseConnection();
 		}
 	}
 

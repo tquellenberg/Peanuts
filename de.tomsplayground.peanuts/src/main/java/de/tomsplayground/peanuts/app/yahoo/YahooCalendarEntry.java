@@ -10,12 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,26 +55,12 @@ public class YahooCalendarEntry {
 		HttpGet httpGet = new HttpGet(url);
 		httpGet.addHeader("x-rapidapi-host", API_HOST);
 		httpGet.addHeader("x-rapidapi-key", apiKey);
-		CloseableHttpResponse response1 = null;
 		try {
-			response1 = httpClient.execute(httpGet);
-			HttpEntity entity1 = response1.getEntity();
-			if (response1.getStatusLine().getStatusCode() != 200) {
-				log.error(response1.getStatusLine().toString() + " "+url);
-			} else {
-				return parseJsonData(EntityUtils.toString(entity1), symbol);
-			}
+			return httpClient.execute(httpGet, response -> {
+				return parseJsonData(EntityUtils.toString(response.getEntity()), symbol);				
+			});
 		} catch (IOException e) {
 			log.error("URL "+url + " - " + e.getMessage());
-			return Collections.emptyList();
-		} finally {
-			if (response1 != null) {
-				try {
-					response1.close();
-				} catch (IOException e) {
-				}
-			}
-			httpGet.releaseConnection();
 		}
 		return Collections.emptyList();
 	}

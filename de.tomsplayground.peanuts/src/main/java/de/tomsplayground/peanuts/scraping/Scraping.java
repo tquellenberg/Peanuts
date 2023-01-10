@@ -6,15 +6,15 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.cookie.StandardCookieSpec;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.util.Timeout;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.PrettyXmlSerializer;
 import org.htmlcleaner.TagNode;
@@ -59,7 +59,7 @@ public class Scraping {
 	
 	private static void init() {
 		if (! isInitialized) {
-			RequestConfig globalConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build();
+			RequestConfig globalConfig = RequestConfig.custom().setCookieSpec(StandardCookieSpec.RELAXED).build();
 			context = HttpClientContext.create();
 			httpClient = HttpClients.custom().setDefaultRequestConfig(globalConfig).build();
 			isInitialized = true;
@@ -85,29 +85,16 @@ public class Scraping {
 	private String get(String url) throws IOException {
 		HttpGet httpGet = new HttpGet(url);
 		httpGet.setConfig(RequestConfig.custom()
-			.setSocketTimeout(1000*20)
-			.setConnectTimeout(1000*10)
-			.setConnectionRequestTimeout(1000*10).build());
-		httpGet.addHeader("User-Agent", MarketScreener.USER_AGENT);
-		httpGet.addHeader("Accept", "*/*");
-		CloseableHttpResponse response1 = null;
+			.setConnectionRequestTimeout(Timeout.ofSeconds(20)).build());
+		httpGet.addHeader(HttpHeaders.USER_AGENT, MarketScreener.USER_AGENT);
+		httpGet.addHeader(HttpHeaders.ACCEPT, "*/*");
 		try {
-			response1 = httpClient.execute(httpGet, context);
-			HttpEntity entity1 = response1.getEntity();
-			if (response1.getStatusLine().getStatusCode() != 200) {
-				log.error(response1.getStatusLine().toString() + " " + securityName);
-				return "";
-			} else {
-				return EntityUtils.toString(entity1);
-			}
+			return httpClient.execute(httpGet, context, response -> {
+				return EntityUtils.toString(response.getEntity());
+			});
 		} catch (IOException e) {
 			log.error(e.getMessage()+ " " + securityName);
 			return "";
-		} finally {
-			if (response1 != null) {
-				response1.close();
-			}
-			httpGet.releaseConnection();
 		}
 	}
 
