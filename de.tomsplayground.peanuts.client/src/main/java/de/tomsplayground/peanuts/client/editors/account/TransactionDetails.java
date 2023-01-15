@@ -190,11 +190,10 @@ public class TransactionDetails implements ITransactionDetail {
 				transaction.setMemo(newMemo);
 				transaction.setCategory(newCategory);
 				transaction.setDay(newDate);
-				if (transaction instanceof LabeledTransaction) {
-					((LabeledTransaction) transaction).setLabel(newLabel);
+				if (transaction instanceof LabeledTransaction labledT) {
+					labledT.setLabel(newLabel);
 				}
-				if (transaction instanceof TransferTransaction) {
-					TransferTransaction tt = (TransferTransaction)transaction;
+				if (transaction instanceof TransferTransaction tt) {
 					if (accountComposite.getAccount() == null || accountComposite.getAccount() == account) {
 						// From transfer to normal transaction
 						TransferTransaction complement = tt.getComplement();
@@ -269,16 +268,15 @@ public class TransactionDetails implements ITransactionDetail {
 			memo.setText(transaction.getMemo() != null ? transaction.getMemo() : "");
 			categoryComposite.setCategory(transaction.getCategory());
 
-			if (transaction instanceof LabeledTransaction) {
-				LabeledTransaction bankTransaction = (LabeledTransaction) transaction;
+			if (transaction instanceof LabeledTransaction bankTransaction) {
 				label.setText(bankTransaction.getLabel() != null ? bankTransaction.getLabel() : "");
 				label.setEnabled(true);
 			} else {
 				label.setText("");
 				label.setEnabled(false);
 			}
-			if (transaction instanceof TransferTransaction) {
-				accountComposite.setAccount((Account)((TransferTransaction)transaction).getTarget());
+			if (transaction instanceof TransferTransaction transferT) {
+				accountComposite.setAccount((Account)transferT.getTarget());
 			} else {
 				accountComposite.setAccount(null);
 			}

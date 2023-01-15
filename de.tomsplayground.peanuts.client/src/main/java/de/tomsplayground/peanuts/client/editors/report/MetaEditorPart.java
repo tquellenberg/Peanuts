@@ -189,7 +189,7 @@ public class MetaEditorPart extends EditorPart {
 		selectAll.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				// FIXME: sollte ähnlich wie bei Categories sein
+				// FIXME: sollte ï¿½hnlich wie bei Categories sein
 				TableItem[] items = accountListViewer.getTable().getItems();
 				for (TableItem tableItem : items) {
 					tableItem.setChecked(true);
@@ -357,13 +357,10 @@ public class MetaEditorPart extends EditorPart {
 		Set<IQuery> queries = report.getQueries();
 		boolean hasCategoryQuery = false;
 		for (IQuery query : queries) {
-			if (query instanceof CategoryQuery) {
-				CategoryQuery cat = (CategoryQuery) query;
-				Set<Category> categories = cat.getCategories();
-				checkTreeItems(items2, categories);
+			if (query instanceof CategoryQuery cat) {
+				checkTreeItems(items2, cat.getCategories());
 				hasCategoryQuery = true;
-			} else if (query instanceof DateQuery) {
-				DateQuery dateQuery = (DateQuery) query;
+			} else if (query instanceof DateQuery dateQuery) {
 				setDateQuery(dateQuery);
 			}
 		}
@@ -388,11 +385,10 @@ public class MetaEditorPart extends EditorPart {
 		for (TreeItem treeItem : items) {
 			if (treeItem.getChecked()) {
 				if ( !treeItem.getGrayed()) {
-					if (treeItem.getData() instanceof Type) {
-						result.addAll(Activator.getDefault().getAccountManager().getCategories(
-							(Type) treeItem.getData()));
-					} else if (treeItem.getData() instanceof Category) {
-						result.add((Category) treeItem.getData());
+					if (treeItem.getData() instanceof Type t) {
+						result.addAll(Activator.getDefault().getAccountManager().getCategories(t));
+					} else if (treeItem.getData() instanceof Category cat) {
+						result.add(cat);
 					}
 				} else {
 					traverseTree(result, treeItem.getItems());
@@ -403,8 +399,7 @@ public class MetaEditorPart extends EditorPart {
 
 	private void checkTreeItems(TreeItem[] items2, Set<Category> categories) {
 		for (TreeItem treeItem : items2) {
-			if (treeItem.getData() instanceof Category) {
-				Category cat = (Category) treeItem.getData();
+			if (treeItem.getData() instanceof Category cat) {
 				boolean checked = categories.contains(cat);
 				if (checked) {
 					checkItems(new TreeItem[]{treeItem}, true);

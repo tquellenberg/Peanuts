@@ -204,8 +204,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 			}
 		}
 		if (removed) {
-			if (transaction instanceof TransferTransaction) {
-				TransferTransaction tt = (TransferTransaction) transaction;
+			if (transaction instanceof TransferTransaction tt) {
 				TransferTransaction complement = tt.getComplement();
 				if (complement != null) {
 					complement.setComplement(null);
@@ -323,8 +322,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 			}
 		});
 		for (Transaction transaction : transactions) {
-			if (transaction instanceof TransferTransaction) {
-				TransferTransaction tt = (TransferTransaction) transaction;
+			if (transaction instanceof TransferTransaction tt) {
 				ITransferLocation target = tt.getComplement().getTarget();
 				if (target != this || tt.getComplement().getComplement() != tt) {
 					log.error("Inconsistent transfer transaction {} <=> {}", tt, tt.getComplement());

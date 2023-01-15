@@ -48,14 +48,12 @@ public class NavigationLabelDecorator implements ILightweightLabelDecorator {
 
 	@Override
 	public void decorate(Object element, IDecoration decoration) {
-		if (element instanceof IDeletable) {
-			IDeletable deletable = (IDeletable)element;
+		if (element instanceof IDeletable deletable) {
 			if (deletable.isDeleted()) {
 				decoration.addOverlay(DELETED_OVR, IDecoration.BOTTOM_RIGHT);
 			}
 		}
-		if (element instanceof Security) {
-			Security security = (Security) element;
+		if (element instanceof Security security) {
 			if (emptyCategoryMapping(security)) {
 				decoration.addOverlay(WARNING_OVR, IDecoration.TOP_RIGHT);
 			}

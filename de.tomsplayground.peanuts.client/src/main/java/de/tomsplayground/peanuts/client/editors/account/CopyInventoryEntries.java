@@ -24,9 +24,9 @@ public class CopyInventoryEntries extends AbstractHandler {
 		ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
 		Clipboard cb = new Clipboard(Display.getDefault());
 		String content = "";
-		if (currentSelection instanceof IStructuredSelection) {
+		if (currentSelection instanceof IStructuredSelection structuredSelection) {
 			@SuppressWarnings("rawtypes")
-			Iterator iterator = ((IStructuredSelection) currentSelection).iterator();
+			Iterator iterator = structuredSelection.iterator();
 			while (iterator.hasNext()) {
 				InventoryEntry entry = (InventoryEntry) iterator.next();
 				content += entry.getSecurity().getName()

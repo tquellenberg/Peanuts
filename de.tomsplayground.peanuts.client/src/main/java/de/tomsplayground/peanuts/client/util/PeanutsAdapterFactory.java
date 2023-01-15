@@ -69,12 +69,12 @@ public class PeanutsAdapterFactory implements IAdapterFactory {
 				return adapterType.cast(securityWorkbenchAdapter);
 			}
 		} else if ((adapterType == Security.class || adapterType == Credit.class)
-			&& adaptableObject instanceof IAdaptable) {
-			return ((IAdaptable) adaptableObject).getAdapter(adapterType);
-		} else if ((adapterType == Security.class) && adaptableObject instanceof InventoryEntry) {
-			return adapterType.cast(((InventoryEntry)adaptableObject).getSecurity());
-		} else if ((adapterType == Security.class) && adaptableObject instanceof WatchEntry) {
-			return adapterType.cast(((WatchEntry)adaptableObject).getSecurity());
+			&& adaptableObject instanceof IAdaptable adaptableO) {
+			return adaptableO.getAdapter(adapterType);
+		} else if ((adapterType == Security.class) && adaptableObject instanceof InventoryEntry inventoryEntry) {
+			return adapterType.cast(inventoryEntry.getSecurity());
+		} else if ((adapterType == Security.class) && adaptableObject instanceof WatchEntry watchEntry) {
+			return adapterType.cast(watchEntry.getSecurity());
 		}
 		return null;
 	}

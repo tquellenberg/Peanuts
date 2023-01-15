@@ -187,9 +187,8 @@ public class SecurityNewWizardPage extends WizardPage {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				Object firstElement = ((IStructuredSelection)event.getSelection()).getFirstElement();
-				if (firstElement instanceof YahooSecurity) {
-					YahooSecurity securoty = (YahooSecurity) firstElement;
-					ticker.setText(securoty.getSymbol());
+				if (firstElement instanceof YahooSecurity sec) {
+					ticker.setText(sec.getSymbol());
 				}
 			}
 		});

@@ -134,8 +134,7 @@ public class AccountListView extends ViewPart {
 		@Override
 		public void doit(final PropertyChangeEvent evt, Display display) {
 			if (! accountListViewer.getControl().isDisposed()) {
-				if (evt.getSource() instanceof Account) {
-					Account a = (Account) evt.getSource();
+				if (evt.getSource() instanceof Account a) {
 					accountListViewer.update(a, null);
 					updateSaldo();
 				} else if (evt.getSource() instanceof Inventory) {

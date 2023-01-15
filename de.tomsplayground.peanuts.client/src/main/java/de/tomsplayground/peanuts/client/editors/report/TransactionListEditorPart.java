@@ -53,13 +53,11 @@ public class TransactionListEditorPart extends EditorPart {
 					return PeanutsUtil.formatDate(trans.getDay());
 				case 1:
 					String t;
-					if (trans instanceof InvestmentTransaction) {
-						InvestmentTransaction investTrans = (InvestmentTransaction) trans;
+					if (trans instanceof InvestmentTransaction investTrans) {
 						t = investTrans.getSecurity().getName();
 					} else {
 						t = trans.getMemo();
-						if (trans instanceof LabeledTransaction) {
-							LabeledTransaction bankTrans = (LabeledTransaction) trans;
+						if (trans instanceof LabeledTransaction bankTrans) {
 							if (StringUtils.isNotEmpty(bankTrans.getLabel())) {
 								t = bankTrans.getLabel() + ": " + t;
 							}

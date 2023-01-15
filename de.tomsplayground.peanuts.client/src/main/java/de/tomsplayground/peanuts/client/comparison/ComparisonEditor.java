@@ -228,8 +228,7 @@ public class ComparisonEditor extends EditorPart {
 			@Override
 			public void run() {
 				ISelection selection = tableViewer.getSelection();
-				if (! selection.isEmpty() && selection instanceof StructuredSelection) {
-					StructuredSelection ssel = (StructuredSelection) selection;
+				if (! selection.isEmpty() && selection instanceof StructuredSelection ssel) {
 					Security security = (Security) ssel.getFirstElement();
 					securities.remove(security);
 					selectedSecurity = null;

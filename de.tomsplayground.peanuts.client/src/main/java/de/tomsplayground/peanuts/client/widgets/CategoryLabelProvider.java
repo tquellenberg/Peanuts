@@ -10,8 +10,7 @@ import de.tomsplayground.peanuts.domain.base.Category.Type;
 public class CategoryLabelProvider extends LabelProvider {
 	@Override
 	public String getText(Object element) {
-		if (element instanceof Category) {
-			Category cat = (Category) element;
+		if (element instanceof Category cat) {
 			return cat.getName();
 		}
 		return super.getText(element);
@@ -20,8 +19,7 @@ public class CategoryLabelProvider extends LabelProvider {
 	@Override
 	public Image getImage(Object element) {
 		Type type = null;
-		if (element instanceof Category) {
-			Category cat = (Category) element;
+		if (element instanceof Category cat) {
 			type = cat.getType();
 		} else if (element instanceof Category.Type) {
 			type = (Category.Type) element;

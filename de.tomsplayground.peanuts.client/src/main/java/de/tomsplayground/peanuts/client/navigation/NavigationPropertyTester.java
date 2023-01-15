@@ -8,12 +8,12 @@ public class NavigationPropertyTester extends PropertyTester {
 
 	@Override
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
-		if (property.equals("deleted") && receiver instanceof IDeletable) {
+		if (property.equals("deleted") && receiver instanceof IDeletable deletable) {
 			boolean expected = false;
-			if (expectedValue instanceof Boolean) {
-				expected = ((Boolean)expectedValue).booleanValue();
+			if (expectedValue instanceof Boolean bValue) {
+				expected = bValue.booleanValue();
 			}
-			return (((IDeletable)receiver).isDeleted() == expected);
+			return (deletable.isDeleted() == expected);
 		}
 		return false;
 	}

@@ -20,18 +20,15 @@ public class DeleteDividendEntryHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
 		IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
-		if (currentSelection instanceof IStructuredSelection) {
+		if (currentSelection instanceof IStructuredSelection sel) {
 			List<Dividend> data = new ArrayList<Dividend>();
-			IStructuredSelection sel = (IStructuredSelection) currentSelection;
 			if (! sel.isEmpty()) {
 				for (@SuppressWarnings("unchecked")
 				Iterator<Dividend> iter = sel.iterator(); iter.hasNext();) {
 					data.add(iter.next());
 				}
-				if (activeEditor instanceof SecurityEditor) {
-					SecurityEditor se = (SecurityEditor) activeEditor;
-					if (se.getSelectedPage() instanceof DividendEditorPart) {
-						DividendEditorPart pep = (DividendEditorPart) se.getSelectedPage();
+				if (activeEditor instanceof SecurityEditor se) {
+					if (se.getSelectedPage() instanceof DividendEditorPart pep) {
 						pep.deleteDividendEntries(data);
 					}
 				}

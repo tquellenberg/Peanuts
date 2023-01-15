@@ -17,11 +17,10 @@ public class AccountValueExport extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
-		if (activeEditor instanceof AccountEditor) {
-			IEditorPart[] findEditors = ((AccountEditor)activeEditor).findEditors(activeEditor.getEditorInput());
+		if (activeEditor instanceof AccountEditor accountEditor) {
+			IEditorPart[] findEditors = accountEditor.findEditors(activeEditor.getEditorInput());
 			for (IEditorPart iEditorPart : findEditors) {
-				if (iEditorPart instanceof ValueChartEditorPart) {
-					ValueChartEditorPart valueChartEditorPart = (ValueChartEditorPart)iEditorPart;
+				if (iEditorPart instanceof ValueChartEditorPart valueChartEditorPart) {
 					AccountValueData accountValueData = valueChartEditorPart.getAccountValueData();
 					try (FileWriter fileWriter = new FileWriter("/Users/quelle/values.csv")) {
 						AccountValueCsvWriter.write(accountValueData.stream(), fileWriter);

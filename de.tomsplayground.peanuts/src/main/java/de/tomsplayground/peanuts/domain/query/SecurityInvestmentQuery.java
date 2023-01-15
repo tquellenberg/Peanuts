@@ -17,8 +17,8 @@ public class SecurityInvestmentQuery implements IQuery {
 	}
 
 	private boolean isOkay(ITransaction input) {
-		if (input instanceof InvestmentTransaction) {
-			Security transSecurity = ((InvestmentTransaction) input).getSecurity();
+		if (input instanceof InvestmentTransaction invT) {
+			Security transSecurity = invT.getSecurity();
 			return transSecurity != null && StringUtils.equals(transSecurity.getISIN(), security.getISIN());
 		}
 		return false;

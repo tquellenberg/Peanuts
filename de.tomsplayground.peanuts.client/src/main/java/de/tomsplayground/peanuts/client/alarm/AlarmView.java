@@ -112,9 +112,7 @@ public class AlarmView extends ViewPart {
 	private class AlarmListViewerComparator extends ViewerComparator {
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
-			if (e1 instanceof SecurityAlarm && e2 instanceof SecurityAlarm) {
-				SecurityAlarm w1 = (SecurityAlarm) e1;
-				SecurityAlarm w2 = (SecurityAlarm) e2;
+			if (e1 instanceof SecurityAlarm w1 && e2 instanceof SecurityAlarm w2) {
 				if (w1.isTriggered() && !w2.isTriggered()) {
 					return -1;
 				}
@@ -213,8 +211,8 @@ public class AlarmView extends ViewPart {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
-				if (sel.getFirstElement() instanceof SecurityAlarm) {
-					Security security = ((SecurityAlarm) sel.getFirstElement()).getSecurity();
+				if (sel.getFirstElement() instanceof SecurityAlarm secAlarm) {
+					Security security = secAlarm.getSecurity();
 					IEditorInput input = new SecurityEditorInput(security);
 					try {
 						getSite().getWorkbenchWindow().getActivePage().openEditor(input, SecurityEditor.ID);

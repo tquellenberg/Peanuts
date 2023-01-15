@@ -16,8 +16,8 @@ public class AnalyzedInvestmentTransaction extends InvestmentTransaction {
 	}
 
 	public static AnalyzedInvestmentTransaction createAnalyzedInvestmentTransaction(InvestmentTransaction t) {
-		if (t instanceof AnalyzedInvestmentTransaction) {
-			return (AnalyzedInvestmentTransaction)t;
+		if (t instanceof AnalyzedInvestmentTransaction analyzedT) {
+			return analyzedT;
 		}
 		return new AnalyzedInvestmentTransaction(t);
 	}

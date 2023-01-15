@@ -182,8 +182,7 @@ public class CategoryTreeView extends ViewPart {
 				IStructuredSelection sel = (IStructuredSelection) getSite().getWorkbenchWindow().getSelectionService().getSelection();
 				Object[] objects = sel.toArray();
 				for (Object o : objects) {
-					if (o instanceof Category) {
-						Category cat = (Category) o;
+					if (o instanceof Category cat) {
 						try {
 							Activator.getDefault().getAccountManager().removeCategory(cat);
 						} catch (IllegalStateException e) {
@@ -202,8 +201,8 @@ public class CategoryTreeView extends ViewPart {
 				Object[] objects = sel.toArray();
 				Type type;
 				Category parentCategory = null;
-				if (objects[0] instanceof Category) {
-					parentCategory = (Category) objects[0];
+				if (objects[0] instanceof Category cat) {
+					parentCategory = cat;
 					type = parentCategory.getType();
 				} else {
 					type = (Type) objects[0];

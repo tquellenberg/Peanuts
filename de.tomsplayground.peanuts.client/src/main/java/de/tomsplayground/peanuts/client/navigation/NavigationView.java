@@ -109,8 +109,8 @@ public class NavigationView extends ViewPart {
 	private final ViewerFilter deletedFilter = new ViewerFilter() {
 		@Override
 		public boolean select(Viewer viewer, Object parentElement, Object element) {
-			if (element instanceof IDeletable) {
-				return ! ((IDeletable)element).isDeleted();
+			if (element instanceof IDeletable deletable) {
+				return ! deletable.isDeleted();
 			}
 			return true;
 		}
@@ -187,24 +187,24 @@ public class NavigationView extends ViewPart {
 		public void addChild(TreeObject child) {
 			children.add(child);
 			child.setParent(this);
-			if (child.baseObject instanceof ObservableModelObject) {
-				((ObservableModelObject) child.baseObject).addPropertyChangeListener("name", elementChangedListener);
-				((ObservableModelObject) child.baseObject).addPropertyChangeListener("deleted", allElementsChangedListener);
+			if (child.baseObject instanceof ObservableModelObject model) {
+				model.addPropertyChangeListener("name", elementChangedListener);
+				model.addPropertyChangeListener("deleted", allElementsChangedListener);
 			}
-			if (child.baseObject instanceof Security) {
-				((Security) child.baseObject).addPropertyChangeListener(elementChangedListener);
+			if (child.baseObject instanceof Security security) {
+				security.addPropertyChangeListener(elementChangedListener);
 			}
 		}
 
 		public void removeChild(TreeObject child) {
 			children.remove(child);
 			child.setParent(null);
-			if (child.baseObject instanceof ObservableModelObject) {
-				((ObservableModelObject) child.baseObject).removePropertyChangeListener(elementChangedListener);
-				((ObservableModelObject) child.baseObject).removePropertyChangeListener(allElementsChangedListener);
+			if (child.baseObject instanceof ObservableModelObject model) {
+				model.removePropertyChangeListener(elementChangedListener);
+				model.removePropertyChangeListener(allElementsChangedListener);
 			}
-			if (child.baseObject instanceof Security) {
-				((Security) child.baseObject).removePropertyChangeListener(elementChangedListener);
+			if (child.baseObject instanceof Security security) {
+				security.removePropertyChangeListener(elementChangedListener);
 			}
 		}
 
@@ -265,16 +265,16 @@ public class NavigationView extends ViewPart {
 
 		@Override
 		public Object getParent(Object child) {
-			if (child instanceof TreeObject) {
-				return ((TreeObject) child).getParent();
+			if (child instanceof TreeObject treeObject) {
+				return treeObject.getParent();
 			}
 			return null;
 		}
 
 		@Override
 		public Object[] getChildren(Object parent) {
-			if (parent instanceof TreeParent) {
-				TreeObject[] children = ((TreeParent) parent).getChildren();
+			if (parent instanceof TreeParent treeParent) {
+				TreeObject[] children = treeParent.getChildren();
 				Object result[] = new Object[children.length];
 				for (int i = 0; i < children.length; i++ ) {
 					TreeObject treeObject = children[i];
@@ -291,20 +291,19 @@ public class NavigationView extends ViewPart {
 
 		@Override
 		public boolean hasChildren(Object parent) {
-			if (parent instanceof TreeParent) {
-				return ((TreeParent) parent).hasChildren();
+			if (parent instanceof TreeParent treeParant) {
+				return treeParant.hasChildren();
 			}
 			return false;
 		}
 	}
 
 	private void destroyModel(TreeObject element) {
-		if (element instanceof TreeParent) {
-			TreeParent parent = (TreeParent)element;
-			TreeObject[] children = parent.getChildren();
+		if (element instanceof TreeParent treeParant) {
+			TreeObject[] children = treeParant.getChildren();
 			for (TreeObject treeObject : children) {
 				destroyModel(treeObject);
-				parent.removeChild(treeObject);
+				treeParant.removeChild(treeObject);
 			}
 		}
 	}
@@ -356,8 +355,8 @@ public class NavigationView extends ViewPart {
 				if (e1 instanceof TreeParent && e1 instanceof TreeParent) {
 					return 0;
 				}
-				if (e1 instanceof INamedElement && e2 instanceof INamedElement) {
-					return INamedElement.NAMED_ELEMENT_ORDER.compare((INamedElement)e1, (INamedElement)e2);
+				if (e1 instanceof INamedElement n1 && e2 instanceof INamedElement n2) {
+					return INamedElement.NAMED_ELEMENT_ORDER.compare(n1, n2);
 				}
 				return super.compare(viewer, e1, e2);
 			}
@@ -396,8 +395,7 @@ public class NavigationView extends ViewPart {
 			public void doubleClick(DoubleClickEvent event) {
 				ITreeSelection selection = (ITreeSelection) event.getViewer().getSelection();
 				Object baseObject = selection.getFirstElement();
-				if (baseObject instanceof Account) {
-					Account account = (Account) baseObject;
+				if (baseObject instanceof Account account) {
 					IEditorInput input = new AccountEditorInput(account);
 					try {
 						getSite().getWorkbenchWindow().getActivePage().openEditor(input,
@@ -405,8 +403,7 @@ public class NavigationView extends ViewPart {
 					} catch (PartInitException e) {
 						e.printStackTrace();
 					}
-				} else if (baseObject instanceof Security) {
-					Security security = (Security) baseObject;
+				} else if (baseObject instanceof Security security) {
 					IEditorInput input = new SecurityEditorInput(security);
 					try {
 						getSite().getWorkbenchWindow().getActivePage().openEditor(input,
@@ -414,8 +411,7 @@ public class NavigationView extends ViewPart {
 					} catch (PartInitException e) {
 						e.printStackTrace();
 					}
-				} else if (baseObject instanceof Report) {
-					Report report = (Report) baseObject;
+				} else if (baseObject instanceof Report report) {
 					IEditorInput input = new ReportEditorInput(report);
 					try {
 						getSite().getWorkbenchWindow().getActivePage().openEditor(input,
@@ -423,8 +419,7 @@ public class NavigationView extends ViewPart {
 					} catch (PartInitException e) {
 						e.printStackTrace();
 					}
-				} else if (baseObject instanceof Forecast) {
-					Forecast forecast = (Forecast) baseObject;
+				} else if (baseObject instanceof Forecast forecast) {
 					IEditorInput input = new ForecastEditorInput(forecast);
 					try {
 						getSite().getWorkbenchWindow().getActivePage().openEditor(input,
@@ -432,8 +427,7 @@ public class NavigationView extends ViewPart {
 					} catch (PartInitException e) {
 						e.printStackTrace();
 					}
-				} else if (baseObject instanceof Credit) {
-					Credit credit = (Credit) baseObject;
+				} else if (baseObject instanceof Credit credit) {
 					IEditorInput input = new CreditEditorInput(credit);
 					try {
 						getSite().getWorkbenchWindow().getActivePage().openEditor(input,
@@ -441,17 +435,16 @@ public class NavigationView extends ViewPart {
 					} catch (PartInitException e) {
 						e.printStackTrace();
 					}
-				} else if (baseObject instanceof SecurityCategoryMapping) {
-					SecurityCategoryMapping credit = (SecurityCategoryMapping) baseObject;
-					IEditorInput input = new SecurityCategoryEditorInput(credit);
+				} else if (baseObject instanceof SecurityCategoryMapping scm) {
+					IEditorInput input = new SecurityCategoryEditorInput(scm);
 					try {
 						getSite().getWorkbenchWindow().getActivePage().openEditor(input,
 							SecurityCategoryEditor.ID);
 					} catch (PartInitException e) {
 						e.printStackTrace();
 					}
-				} else if (baseObject instanceof Comparison) {
-					IEditorInput input = new ComparisonInput((Comparison)baseObject);
+				} else if (baseObject instanceof Comparison comparison) {
+					IEditorInput input = new ComparisonInput(comparison);
 					try {
 						getSite().getWorkbenchWindow().getActivePage().openEditor(input, ComparisonEditor.ID);
 					} catch (PartInitException e) {

@@ -50,7 +50,7 @@ public class AccountEditor extends MultiPageEditorPart {
 		MetaEditorPart metaEditorPart = new MetaEditorPart();
 		metaEditorPart.initialize(this);
 		createEditorPage(metaEditorPart, "Meta Data");
-		System.out.println("=>> AccountEditor.createPages() "+ (System.currentTimeMillis()-currentTimeMillis));
+		System.out.println("=>> AccountEditor.createPages() " + getPartName() + " " + (System.currentTimeMillis()-currentTimeMillis));
 	}
 
 	private void createEditorPage(IEditorPart editor, String name) {

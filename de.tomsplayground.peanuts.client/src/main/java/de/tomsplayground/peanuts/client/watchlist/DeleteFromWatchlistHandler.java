@@ -20,9 +20,9 @@ public class DeleteFromWatchlistHandler extends AbstractHandler {
 		log.info("DeleteFromWatchlistHandler: {}", event);
 		SecurityWatchlistView activePart = (SecurityWatchlistView) HandlerUtil.getActivePart(event);
 		ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
-		if (currentSelection instanceof IStructuredSelection) {
+		if (currentSelection instanceof IStructuredSelection structuredSel) {
 			@SuppressWarnings("rawtypes")
-			Iterator iterator = ((IStructuredSelection) currentSelection).iterator();
+			Iterator iterator = structuredSel.iterator();
 			while (iterator.hasNext()) {
 				WatchEntry entry = (WatchEntry)iterator.next();
 				activePart.removeSecurityFromCurrentWatchlist(entry.getSecurity());

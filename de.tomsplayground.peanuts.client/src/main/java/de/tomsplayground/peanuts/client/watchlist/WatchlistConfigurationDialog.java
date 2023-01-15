@@ -116,8 +116,7 @@ public class WatchlistConfigurationDialog extends Dialog {
 		name.setText(watchlistConfiguration.getName());
 		typeCombo.select(watchlistConfiguration.getType().ordinal());
 		ImmutableList<ISecuriityFilter> filters = watchlistConfiguration.getFilters();
-		if (! filters.isEmpty() && filters.get(0) instanceof CategoryFilter) {
-			CategoryFilter filter = (CategoryFilter) filters.get(0);
+		if (! filters.isEmpty() && filters.get(0) instanceof CategoryFilter filter) {
 			filterCombo1.select(ArrayUtils.indexOf(filterCombo1.getItems(), filter.getCategoryName()));
 
 			int selection[] = new int[filter.getCategoryValues().size()];

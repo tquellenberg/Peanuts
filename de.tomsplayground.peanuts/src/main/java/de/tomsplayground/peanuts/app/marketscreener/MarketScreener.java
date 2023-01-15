@@ -38,7 +38,7 @@ public class MarketScreener {
 		.setDefaultRequestConfig(defaultRequestConfig).build();
 
 	public static void main(String[] args) {
-		List<FundamentalData> scrapFinancials = new MarketScreener().scrapFinancials("https://www.marketscreener.com/quote/stock/APPLE-INC-4849/financials/");
+		List<FundamentalData> scrapFinancials = new MarketScreener().scrapFinancials("https://www.marketscreener.com/quote/stock/PAN-AMERICAN-SILVER-CORP-1411165/financials/");
 		for (FundamentalData fundamentalData : scrapFinancials) {
 			System.out.println(fundamentalData);
 		}
@@ -71,8 +71,8 @@ public class MarketScreener {
 			XPather xPather = new XPather("//table[@class='BordCollapseYear2']");
 			Object[] result = xPather.evaluateAgainstNode(tagNode);
 			TagNode incomeTable = null;
-			if (result.length > 1 && result[1] instanceof TagNode) {
-				incomeTable = (TagNode) result[1];
+			if (result.length > 1 && result[1] instanceof TagNode resultNode) {
+				incomeTable = resultNode;
 			}
 
 			// Find rows
@@ -126,7 +126,7 @@ public class MarketScreener {
 					BigDecimal eps = parseNumber(cellText);
 					fundamentalData.setEarningsPerShare(eps);
 				} catch (NumberFormatException e) {
-					log.info("NumberFormatException: "+e.getMessage() + " '"+cellText+"' "+financialsUrl);
+					log.info("EPS NumberFormatException: "+e.getMessage() + " '"+cellText+"' "+financialsUrl);
 					// Okay
 					continue;
 				}
@@ -136,10 +136,13 @@ public class MarketScreener {
 				result = xPather.evaluateAgainstNode(incomeTable);
 				cellText = result[0].toString();
 				try {
-					BigDecimal dividend = parseNumber(cellText);
-					fundamentalData.setDividende(dividend);
+					if (StringUtils.equals("-", cellText)) {
+						fundamentalData.setDividende(BigDecimal.ZERO);
+					} else {
+						fundamentalData.setDividende(parseNumber(cellText));
+					}
 				} catch (NumberFormatException e) {
-					log.info("NumberFormatException: "+e.getMessage() + " '"+cellText+"' "+financialsUrl);
+					log.info("Dividend NumberFormatException: "+e.getMessage() + " '"+cellText+"' "+financialsUrl);
 					// Okay
 				}
 

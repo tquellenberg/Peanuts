@@ -73,8 +73,8 @@ public class CalendarView extends ViewPart {
 			} else if (columnIndex == 1) {
 				return e.getName();
 			} else if (columnIndex == 2) {
-				if (e instanceof SecurityCalendarEntry) {
-					return ((SecurityCalendarEntry)e).getSecurity().getName();
+				if (e instanceof SecurityCalendarEntry secCalEntry) {
+					return secCalEntry.getSecurity().getName();
 				}
 			}
 			return null;
@@ -106,9 +106,7 @@ public class CalendarView extends ViewPart {
 	private class CalendarListViewerComparator extends ViewerComparator {
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
-			if (e1 instanceof CalendarEntry && e2 instanceof CalendarEntry) {
-				CalendarEntry w1 = (CalendarEntry) e1;
-				CalendarEntry w2 = (CalendarEntry) e2;
+			if (e1 instanceof CalendarEntry w1 && e2 instanceof CalendarEntry w2) {
 				int compare = w1.getDay().compareTo(w2.getDay());
 				return compare;
 			}
@@ -178,8 +176,7 @@ public class CalendarView extends ViewPart {
 			@Override
 			public boolean select(Viewer viewer, Object parentElement, Object element) {
 				Day now = Day.today();
-				if (element instanceof CalendarEntry) {
-					CalendarEntry ce = (CalendarEntry)element;
+				if (element instanceof CalendarEntry ce) {
 					return (ce.getDay().delta(now) < 14);
 				}
 				return true;
@@ -189,8 +186,8 @@ public class CalendarView extends ViewPart {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
-				if (sel.getFirstElement() instanceof SecurityCalendarEntry) {
-					Security security = ((SecurityCalendarEntry) sel.getFirstElement()).getSecurity();
+				if (sel.getFirstElement() instanceof SecurityCalendarEntry secCalEntry) {
+					Security security = secCalEntry.getSecurity();
 					IEditorInput input = new SecurityEditorInput(security);
 					try {
 						getSite().getWorkbenchWindow().getActivePage().openEditor(input, SecurityEditor.ID);

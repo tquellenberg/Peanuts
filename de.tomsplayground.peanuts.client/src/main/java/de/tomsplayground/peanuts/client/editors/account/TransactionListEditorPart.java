@@ -84,11 +84,10 @@ public class TransactionListEditorPart extends EditorPart {
 	protected PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
-			if (evt.getSource() instanceof Transaction) {
+			if (evt.getSource() instanceof Transaction transaction) {
 				if (evt.getOldValue() == null || evt.getNewValue() == null ||
 					!evt.getOldValue().equals(evt.getNewValue())) {
 					if (evt.getPropertyName().equals("amount") || evt.getPropertyName().equals("date")) {
-						Transaction transaction = (Transaction)evt.getSource();
 						if (evt.getPropertyName().equals("date")) {
 							Day oldDay = (Day) evt.getOldValue();
 							if (transaction.getDay().year != oldDay.year) {
@@ -106,11 +105,11 @@ public class TransactionListEditorPart extends EditorPart {
 					}
 				}
 			} else  if (evt.getSource() instanceof Account) {
-				if (evt.getOldValue() instanceof Transaction) {
-					update((Transaction)evt.getOldValue());
+				if (evt.getOldValue() instanceof Transaction transaction) {
+					update(transaction);
 				}
-				if (evt.getNewValue() instanceof Transaction) {
-					update((Transaction)evt.getNewValue());
+				if (evt.getNewValue() instanceof Transaction transaction) {
+					update(transaction);
 				}
 				updateSaldoLabel();
 			}
@@ -166,8 +165,7 @@ public class TransactionListEditorPart extends EditorPart {
 
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
-			if (element instanceof TransactionListContentProvider.TimeTreeNode) {
-				TransactionListContentProvider.TimeTreeNode node = (TransactionListContentProvider.TimeTreeNode) element;
+			if (element instanceof TransactionListContentProvider.TimeTreeNode node) {
 				if (columnIndex == 0) {
 					return String.valueOf(node.getDate().year);
 				}
@@ -179,13 +177,11 @@ public class TransactionListEditorPart extends EditorPart {
 					return PeanutsUtil.formatDate(trans.getDay());
 				case 1:
 					String t;
-					if (trans instanceof InvestmentTransaction) {
-						InvestmentTransaction investTrans = (InvestmentTransaction) trans;
+					if (trans instanceof InvestmentTransaction investTrans) {
 						t = investTrans.getSecurity().getName();
 					} else {
 						t = trans.getMemo();
-						if (trans instanceof LabeledTransaction) {
-							LabeledTransaction bankTrans = (LabeledTransaction) trans;
+						if (trans instanceof LabeledTransaction bankTrans) {
 							if (StringUtils.isNotEmpty(bankTrans.getLabel())) {
 								t = bankTrans.getLabel() + ": " + t;
 							}
@@ -198,8 +194,7 @@ public class TransactionListEditorPart extends EditorPart {
 					return PeanutsUtil.formatCurrency(account.getBalance(trans),
 						account.getCurrency());
 				case 4:
-					if (trans instanceof TransferTransaction) {
-						TransferTransaction transfer = (TransferTransaction) trans;
+					if (trans instanceof TransferTransaction transfer) {
 						return Activator.TRANSFER_PREFIX + transfer.getTarget().getName();
 					}
 					return trans.getCategory() != null ? trans.getCategory().getPath() : "";
@@ -273,19 +268,16 @@ public class TransactionListEditorPart extends EditorPart {
 		PatternFilter filter = new PatternFilter() {
 			@Override
 			protected boolean isLeafMatch(Viewer viewer, Object element) {
-				if (element instanceof Transaction) {
-					Transaction t = (Transaction) element;
+				if (element instanceof Transaction t) {
 					StringBuilder text = new StringBuilder();
 					if (t.getCategory() != null) {
 						text.append(t.getCategory().getName()).append(' ');
 					}
 					text.append(t.getMemo()).append(' ');
-					if (element instanceof LabeledTransaction) {
-						LabeledTransaction t2 = (LabeledTransaction) element;
+					if (element instanceof LabeledTransaction t2) {
 						text.append(t2.getLabel()).append(' ');
 					}
-					if (element instanceof InvestmentTransaction) {
-						InvestmentTransaction t2 = (InvestmentTransaction) element;
+					if (element instanceof InvestmentTransaction t2) {
 						if (t2.getSecurity() != null) {
 							text.append(t2.getSecurity().getName());
 						}
@@ -303,8 +295,7 @@ public class TransactionListEditorPart extends EditorPart {
 			public void open(OpenEvent event) {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				Object firstElement = selection.getFirstElement();
-				if (firstElement instanceof TransferTransaction) {
-					TransferTransaction trans = (TransferTransaction) firstElement;
+				if (firstElement instanceof TransferTransaction trans) {
 					Account account = (Account) trans.getTarget();
 					IEditorInput input = new AccountEditorInput(account);
 					try {
@@ -326,11 +317,10 @@ public class TransactionListEditorPart extends EditorPart {
 					TreePath[] treePaths = selection.getPathsFor(firstElement);
 					Transaction parentTransaction = null;
 					if (treePaths.length >= 1 && treePaths[0].getSegmentCount() > 1 &&
-						treePaths[0].getSegment(treePaths[0].getSegmentCount() - 2) instanceof Transaction) {
-						parentTransaction = (Transaction) treePaths[0].getSegment(treePaths[0].getSegmentCount() - 2);
+						treePaths[0].getSegment(treePaths[0].getSegmentCount() - 2) instanceof Transaction t) {
+						parentTransaction = t;
 					}
-					ITransaction transaction = (ITransaction) firstElement;
-					updateTransactionDetail(transaction, parentTransaction);
+					updateTransactionDetail((ITransaction) firstElement, parentTransaction);
 				}
 			}
 		});

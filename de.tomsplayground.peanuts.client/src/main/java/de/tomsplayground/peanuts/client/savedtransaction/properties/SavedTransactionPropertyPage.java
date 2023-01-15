@@ -121,9 +121,8 @@ public class SavedTransactionPropertyPage extends PropertyPage {
 		if (currentAccount != newAccount) {
 			Transaction newTransaction = (Transaction) savedTransaction.getTransaction().clone();
 			newTransaction.setDay(startDate.getDay());
-			if (newTransaction instanceof TransferTransaction) {
+			if (newTransaction instanceof TransferTransaction tt) {
 				currentAccount.addTransaction(newTransaction);
-				TransferTransaction tt = (TransferTransaction) newTransaction;
 				tt.getComplement().changeTarget(newAccount);
 			} else {
 				newAccount.addTransaction(newTransaction);

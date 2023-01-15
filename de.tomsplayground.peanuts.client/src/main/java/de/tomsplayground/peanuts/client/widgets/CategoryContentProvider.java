@@ -24,8 +24,7 @@ public class CategoryContentProvider implements ITreeContentProvider {
 
 	@Override
 	public Object[] getChildren(Object parentElement) {
-		if (parentElement instanceof Category.Type) {
-			Category.Type type = (Category.Type) parentElement;
+		if (parentElement instanceof Category.Type type) {
 			List<Category> catList = new ArrayList<Category>();
 			for (Category category : categories) {
 				if (category.getType() == type) {
@@ -40,8 +39,7 @@ public class CategoryContentProvider implements ITreeContentProvider {
 			});
 			return catList.toArray();
 		}
-		if (parentElement instanceof Category) {
-			Category category = (Category) parentElement;
+		if (parentElement instanceof Category category) {
 			return category.getChildCategories().toArray();
 		}
 		return null;
@@ -52,8 +50,8 @@ public class CategoryContentProvider implements ITreeContentProvider {
 		if (element instanceof Category.Type) {
 			return true;
 		}
-		if (element instanceof Category) {
-			return !((Category) element).getChildCategories().isEmpty();
+		if (element instanceof Category cat) {
+			return ! cat.getChildCategories().isEmpty();
 		}
 		return false;
 	}

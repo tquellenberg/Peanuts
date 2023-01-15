@@ -283,7 +283,6 @@ public class ChartEditorPart extends EditorPart {
 		if (inventory.getSecurities().contains(security)) {
 			InventoryEntry inventoryEntry = inventory.getEntry(security);
 			if (inventoryEntry.getQuantity().signum() == 1) {
-				System.out.println(inventoryEntry.getQuantity() + " "+ inventory.getDay());
 				BigDecimal avgPrice = inventoryEntry.getAvgPrice();
 				return getInventoryCurrencyConverter().convert(avgPrice, de.tomsplayground.peanuts.util.Day.today());
 			}
@@ -554,8 +553,8 @@ public class ChartEditorPart extends EditorPart {
 			dataset2.addSeries(peDeltaTimeSeries);
 		}
 
-		if (priceProvider instanceof ObservableModelObject) {
-			((ObservableModelObject) priceProvider).addPropertyChangeListener(priceProviderChangeListener);
+		if (priceProvider instanceof ObservableModelObject o) {
+			o.addPropertyChangeListener(priceProviderChangeListener);
 		}
 	}
 
@@ -625,8 +624,8 @@ public class ChartEditorPart extends EditorPart {
 
 	@Override
 	public void dispose() {
-		if (priceProvider instanceof ObservableModelObject) {
-			((ObservableModelObject) priceProvider).removePropertyChangeListener(priceProviderChangeListener);
+		if (priceProvider instanceof ObservableModelObject o) {
+			o.removePropertyChangeListener(priceProviderChangeListener);
 		}
 		((SecurityEditorInput)getEditorInput()).getSecurity().removePropertyChangeListener(securityPropertyChangeListener);
 		Activator.getDefault().getAccountManager().removePropertyChangeListener(accountManagerChangeListener);

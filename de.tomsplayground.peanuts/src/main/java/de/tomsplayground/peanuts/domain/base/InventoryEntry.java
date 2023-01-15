@@ -85,8 +85,7 @@ public class InventoryEntry {
 	public BigDecimal getGaining() {
 		BigDecimal gaining = BigDecimal.ZERO;
 		for (InvestmentTransaction t : transactions) {
-			if (t instanceof AnalyzedInvestmentTransaction) {
-				AnalyzedInvestmentTransaction at = (AnalyzedInvestmentTransaction) t;
+			if (t instanceof AnalyzedInvestmentTransaction at) {
 				gaining = gaining.add(at.getGain());
 			}
 		}
@@ -119,8 +118,8 @@ public class InventoryEntry {
 
 	private AnalyzedInvestmentTransaction getLastAnalyzedInvestmentTransaction() {
 		for (InvestmentTransaction t : Lists.reverse(transactions)) {
-			if (t instanceof AnalyzedInvestmentTransaction) {
-				return (AnalyzedInvestmentTransaction) t;
+			if (t instanceof AnalyzedInvestmentTransaction analyzedT) {
+				return analyzedT;
 			}
 		}
 		return null;
@@ -152,8 +151,7 @@ public class InventoryEntry {
 			}
 			if (transaction.getType() == Type.BUY || transaction.getType() == Type.SELL) {
 				xirr.add(transaction.getDay(), transaction.getAmount());
-				if (transaction instanceof AnalyzedInvestmentTransaction) {
-					AnalyzedInvestmentTransaction at = (AnalyzedInvestmentTransaction)transaction;
+				if (transaction instanceof AnalyzedInvestmentTransaction at) {
 					if (at.getQuantitySum().signum() == 0) {
 						// reset
 						xirr = new XIRR();

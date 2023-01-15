@@ -78,8 +78,7 @@ public class TaxPart extends EditorPart {
 
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
-			if (element instanceof AnalyzedInvestmentTransaction) {
-				AnalyzedInvestmentTransaction t = (AnalyzedInvestmentTransaction)element;
+			if (element instanceof AnalyzedInvestmentTransaction t) {
 				if (columnIndex == 0) {
 					return PeanutsUtil.formatDate(t.getDay());
 				}

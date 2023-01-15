@@ -177,8 +177,8 @@ public class TimeChart {
 	}
 
 	public XYPlot getPlot() {
-		if (chart.getPlot() instanceof CombinedDomainXYPlot) {
-			return (XYPlot) ((CombinedDomainXYPlot)chart.getPlot()).getSubplots().get(0);
+		if (chart.getPlot() instanceof CombinedDomainXYPlot combinedPlot) {
+			return (XYPlot) combinedPlot.getSubplots().get(0);
 		} else {
 			return chart.getXYPlot();
 		}

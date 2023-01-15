@@ -47,8 +47,7 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
-			if (element instanceof YearValue) {
-				YearValue value = (YearValue) element;
+			if (element instanceof YearValue value) {
 				switch (columnIndex) {
 					case 0:
 						return String.valueOf(value.getYear());
@@ -71,8 +70,7 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 					case 9:
 						return PeanutsUtil.formatPercent(value.getIRR());
 				}
-			} else if (element instanceof BigDecimal[]) {
-				BigDecimal[] sum = (BigDecimal[]) element;
+			} else if (element instanceof BigDecimal[] sum) {
 				if (columnIndex == 3) {
 					return PeanutsUtil.formatCurrency(sum[0], currency);
 				}
@@ -85,8 +83,7 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 				if (columnIndex == 6) {
 					return PeanutsUtil.formatCurrency(sum[3], currency);
 				}
-			} else if (element instanceof GainAvg) {
-				GainAvg gainAvg = (GainAvg) element;
+			} else if (element instanceof GainAvg gainAvg) {
 				if (columnIndex == 0) {
 					if (gainAvg.lastYears == -1) {
 						return "Full";
@@ -113,8 +110,7 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 
 		@Override
 		public Color getForeground(Object element, int columnIndex) {
-			if (element instanceof YearValue) {
-				YearValue value = (YearValue) element;
+			if (element instanceof YearValue value) {
 				if (columnIndex == 5) {
 					BigDecimal v = value.getAdditions().add(value.getLeavings());
 					if (v.signum() == -1) {
@@ -129,8 +125,7 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 						return red;
 					}
 				}
-			} else if (element instanceof BigDecimal[]) {
-				BigDecimal[] sum = (BigDecimal[]) element;
+			} else if (element instanceof BigDecimal[] sum) {
 				if (columnIndex == 3) {
 					if (sum[0].signum() == -1) {
 						return red;
@@ -151,8 +146,7 @@ public class InvestmentPerformanceEditorPart extends EditorPart {
 						return red;
 					}
 				}
-			} else if (element instanceof GainAvg) {
-				GainAvg gainAvg = (GainAvg) element;
+			} else if (element instanceof GainAvg gainAvg) {
 				if (columnIndex == 1) {
 					if (gainAvg.gainingPercent.signum() == -1) {
 						return red;

@@ -107,9 +107,7 @@ public class SecurityWatchlistView extends ViewPart {
 
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
-			if (e1 instanceof WatchEntry && e2 instanceof WatchEntry) {
-				WatchEntry w1 = (WatchEntry) e1;
-				WatchEntry w2 = (WatchEntry) e2;
+			if (e1 instanceof WatchEntry w1 && e2 instanceof WatchEntry w2) {
 				int compare = compare(w1, w2);
 				return (sort == SORT.DOWN) ? compare : -compare;
 			}
@@ -552,8 +550,7 @@ public class SecurityWatchlistView extends ViewPart {
 			@Override
 			public void update(ViewerCell cell) {
 				Object element = cell.getElement();
-				if (element instanceof WatchEntry) {
-					WatchEntry watchEntry = (WatchEntry) element;
+				if (element instanceof WatchEntry watchEntry) {
 					Security security = watchEntry.getSecurity();
 					cell.setText(security.getName());
 					String icon = security.getConfigurationValue("icon");
@@ -565,8 +562,7 @@ public class SecurityWatchlistView extends ViewPart {
 			}
 			@Override
 			public String getToolTipText(Object element) {
-				if (element instanceof WatchEntry) {
-					WatchEntry entry = (WatchEntry) element;
+				if (element instanceof WatchEntry entry) {
 					return StringUtils.defaultString(entry.getSecurity().getConfigurationValue("iconText"));
 				}
 				return super.getToolTipText(element);
@@ -819,9 +815,8 @@ public class SecurityWatchlistView extends ViewPart {
 					event.detail = DND.DROP_NONE;
 					return;
 				}
-				if (event.data instanceof SecurityTransferData) {
-					Security security = ((SecurityTransferData) event.data).getSecurity();
-					addSecurityToCurrentWatchlist(security);
+				if (event.data instanceof SecurityTransferData secTransferData) {
+					addSecurityToCurrentWatchlist(secTransferData.getSecurity());
 				}
 			}
 
@@ -846,8 +841,8 @@ public class SecurityWatchlistView extends ViewPart {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
-				if (sel.getFirstElement() instanceof WatchEntry) {
-					Security security = ((WatchEntry) sel.getFirstElement()).getSecurity();
+				if (sel.getFirstElement() instanceof WatchEntry watchEntry) {
+					Security security =watchEntry.getSecurity();
 					IEditorInput input = new SecurityEditorInput(security);
 					try {
 						getSite().getWorkbenchWindow().getActivePage().openEditor(input,

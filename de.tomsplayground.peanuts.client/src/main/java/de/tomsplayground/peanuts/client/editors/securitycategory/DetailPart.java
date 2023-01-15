@@ -58,20 +58,20 @@ public class DetailPart extends EditorPart {
 
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
-			if (element instanceof String) {
+			if (element instanceof String s) {
 				if (columnIndex == 0) {
-					return (String) element;
+					return s;
 				}
 				if (columnIndex == 1) {
-					return PeanutsUtil.formatCurrency(mapping.calculateCategoryValues(inventory).get(element), Currency.getInstance("EUR"));
+					return PeanutsUtil.formatCurrency(mapping.calculateCategoryValues(inventory).get(s), Currency.getInstance("EUR"));
 				}
-			} else if (element instanceof Security) {
+			} else if (element instanceof Security security) {
 				if (columnIndex == 0) {
-					return ((Security)element).getName();
+					return security.getName();
 				}
 				if (columnIndex == 1) {
 					// FIXME: Reports und Inventories brauchen eine Währung
-					return PeanutsUtil.formatCurrency(calc((Security)element), Currency.getInstance("EUR"));
+					return PeanutsUtil.formatCurrency(calc(security), Currency.getInstance("EUR"));
 				}
 			}
 			return null;
@@ -133,8 +133,7 @@ public class DetailPart extends EditorPart {
 
 		@Override
 		public Object[] getChildren(Object parentElement) {
-			if (parentElement instanceof String) {
-				String category = (String) parentElement;
+			if (parentElement instanceof String category) {
 				List<Security> securities;
 				if (category.equals(WITHOUT_CATEGORY)) {
 					securities = new ArrayList<Security>(getSecuritiesInInventory());
@@ -222,8 +221,8 @@ public class DetailPart extends EditorPart {
 		treeViewer.addFilter(new ViewerFilter() {
 			@Override
 			public boolean select(Viewer viewer, Object parentElement, Object element) {
-				if (element instanceof Security) {
-					InventoryEntry entry = inventory.getEntry((Security)element);
+				if (element instanceof Security security) {
+					InventoryEntry entry = inventory.getEntry(security);
 					return (entry != null && MinQuantity.isNotZero(entry.getQuantity()));
 				}
 				return true;

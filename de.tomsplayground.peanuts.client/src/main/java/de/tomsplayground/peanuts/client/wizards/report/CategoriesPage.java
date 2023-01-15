@@ -171,11 +171,10 @@ public class CategoriesPage extends WizardPage {
 		for (TreeItem treeItem : items) {
 			if (treeItem.getChecked()) {
 				if ( !treeItem.getGrayed()) {
-					if (treeItem.getData() instanceof Type) {
-						result.addAll(Activator.getDefault().getAccountManager().getCategories(
-							(Type) treeItem.getData()));
-					} else if (treeItem.getData() instanceof Category) {
-						result.add((Category) treeItem.getData());
+					if (treeItem.getData() instanceof Type type) {
+						result.addAll(Activator.getDefault().getAccountManager().getCategories(type));
+					} else if (treeItem.getData() instanceof Category cat) {
+						result.add(cat);
 					}
 				} else {
 					traverseTree(result, treeItem.getItems());

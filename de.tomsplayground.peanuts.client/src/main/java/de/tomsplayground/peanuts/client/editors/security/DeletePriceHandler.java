@@ -23,18 +23,16 @@ public class DeletePriceHandler extends AbstractHandler {
 		IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
 		Security security = ((SecurityEditorInput) activeEditor.getEditorInput()).getSecurity();
 		IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
-		if (currentSelection instanceof IStructuredSelection) {
+		if (currentSelection instanceof IStructuredSelection structuredSel) {
 			@SuppressWarnings("rawtypes")
-			Iterator iterator = ((IStructuredSelection) currentSelection).iterator();
+			Iterator iterator = structuredSel.iterator();
 			while (iterator.hasNext()) {
 				Price p = (Price)iterator.next();
 				priceProvider.removePrice(p.getDay());
 			}
 
-			if (activeEditor instanceof SecurityEditor) {
-				SecurityEditor se = (SecurityEditor)activeEditor;
-				if (se.getSelectedPage() instanceof PriceEditorPart) {
-					PriceEditorPart pep = (PriceEditorPart)se.getSelectedPage();
+			if (activeEditor instanceof SecurityEditor se) {
+				if (se.getSelectedPage() instanceof PriceEditorPart pep) {
 					pep.markDirty();
 				}
 			}

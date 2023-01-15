@@ -39,8 +39,7 @@ public class Inventory extends ObservableModelObject {
 	private final PropertyChangeListener priceProviderChangeListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
-			if (evt.getSource() instanceof IPriceProvider) {
-				IPriceProvider p = (IPriceProvider) evt.getSource();
+			if (evt.getSource() instanceof IPriceProvider p) {
 				for (InventoryEntry entry : getEntries()) {
 					if (entry.getPriceprovider() == p) {
 						firePropertyChange("entry", null, entry);
@@ -83,15 +82,13 @@ public class Inventory extends ObservableModelObject {
 		this.analizerFactory = analizerFactory;
 		this.allFlatTransactions = account.getFlatTransactions();
 		buildInventoryEntries();
-		if (account instanceof ObservableModelObject) {
-			ObservableModelObject a = (ObservableModelObject) account;
+		if (account instanceof ObservableModelObject a) {
 			a.addPropertyChangeListener(transactionChangeListener);
 		}
 	}
 
 	public void dispose() {
-		if (account instanceof ObservableModelObject) {
-			ObservableModelObject a = (ObservableModelObject) account;
+		if (account instanceof ObservableModelObject a) {
 			a.removePropertyChangeListener(transactionChangeListener);
 		}
 		for (ObservableModelObject observableModelObject : registeredPriceProvider) {
@@ -161,8 +158,8 @@ public class Inventory extends ObservableModelObject {
 		}
 		List<InvestmentTransaction> invests = new ArrayList<>();
 		for (ITransaction transaction : transactions) {
-			if (transaction instanceof InvestmentTransaction) {
-				invests.add((InvestmentTransaction) transaction);
+			if (transaction instanceof InvestmentTransaction invT) {
+				invests.add(invT);
 			}
 		}
 		invests.stream()
@@ -185,8 +182,7 @@ public class Inventory extends ObservableModelObject {
 			IPriceProvider priceprovider = null;
 			if (priceProviderFactory != null) {
 				priceprovider = priceProviderFactory.getPriceProvider(security);
-				if (priceprovider instanceof ObservableModelObject) {
-					ObservableModelObject ob = (ObservableModelObject) priceprovider;
+				if (priceprovider instanceof ObservableModelObject ob) {
 					ob.addPropertyChangeListener(priceProviderChangeListener);
 					registeredPriceProvider.add(ob);
 				}

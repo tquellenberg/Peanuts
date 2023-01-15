@@ -25,8 +25,7 @@ public class SecurityCategoryEditor extends MultiPageEditorPart {
 		addPageChangedListener(new IPageChangedListener() {
 			@Override
 			public void pageChanged(PageChangedEvent event) {
-				if (event.getSelectedPage() instanceof PieEditorPart) {
-					PieEditorPart pieEditorPart = (PieEditorPart) event.getSelectedPage();
+				if (event.getSelectedPage() instanceof PieEditorPart pieEditorPart) {
 					pieEditorPart.updateDataset();
 				}
 			}

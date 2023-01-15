@@ -55,8 +55,7 @@ public class StopLossPropertyPage extends PropertyPage {
 			date.setDay(stopLoss.getStart());
 			stop.setText(PeanutsUtil.formatQuantity(stopLoss.getStartPrice()));
 			ITrailingStrategy strategy = stopLoss.getStrategy();
-			if (strategy instanceof PercentTrailingStrategy) {
-				PercentTrailingStrategy pts = (PercentTrailingStrategy)strategy;
+			if (strategy instanceof PercentTrailingStrategy pts) {
 				trailingDistancePercent.setText(PeanutsUtil.formatPercent(pts.getPercent()));
 			} else {
 				trailingDistancePercent.setText("");

@@ -117,8 +117,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 		@Override
 		public Image getColumnImage(Object element, int columnIndex) {
 			if (columnIndex == 0) {
-				if (element instanceof FundamentalData) {
-					FundamentalData data = (FundamentalData)element;
+				if (element instanceof FundamentalData data) {
 					if (data.isLocked()) {
 						return Activator.getDefault().getImage("icons/lock.png");
 					}
@@ -261,8 +260,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 					default:
 						return "";
 				}
-			} else {
-				FundamentalData data = (FundamentalData) element;
+			} else if (element instanceof FundamentalData data) {
 				switch (columnIndex) {
 					case 0:
 						return String.valueOf(data.getYear());
@@ -301,12 +299,13 @@ public class FundamentalDataEditorPart extends EditorPart {
 					default:
 						return "";
 				}
+			} else {
+				return "";
 			}
 		}
 		@Override
 		public String getText(Object element) {
-			if (element instanceof FundamentalData) {
-				FundamentalData data = (FundamentalData) element;
+			if (element instanceof FundamentalData data) {
 				return String.valueOf(data.getYear());
 			}
 			return "";
@@ -349,8 +348,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 						}
 					}
 				}
-			} else if (element instanceof FundamentalData) {
-				FundamentalData data = (FundamentalData) element;
+			} else if (element instanceof FundamentalData data) {
 				if (data.isIgnoreInAvgCalculation()) {
 					return Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW);
 				} else if (columnIndex == 2) {
@@ -388,8 +386,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 		@Override
 		public Color getForeground(Object element, int columnIndex) {
-			if (element instanceof FundamentalData) {
-				FundamentalData data = (FundamentalData) element;
+			if (element instanceof FundamentalData data) {
 				if (columnIndex == 3) {
 					if (divGrowth(data).signum() == -1) {
 						return Activator.getDefault().getColorProvider().get(Activator.RED);
@@ -618,7 +615,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 
 			@Override
 			public boolean canModify(Object element, String property) {
-				return (element instanceof FundamentalData) && !((FundamentalData)element).isLocked() &&
+				return (element instanceof FundamentalData fData) && (! fData.isLocked()) &&
 					Lists.newArrayList("year", "fiscalYear", "div", "EPS", "deRatio").contains(property);
 			}
 

@@ -20,18 +20,16 @@ public class LockFundamentalDataHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
 		IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
-		if (currentSelection instanceof IStructuredSelection) {
-			List<FundamentalData> data = new ArrayList<FundamentalData>();
+		if (currentSelection instanceof IStructuredSelection structuredSel) {
 			@SuppressWarnings("rawtypes")
-			Iterator iterator = ((IStructuredSelection) currentSelection).iterator();
+			Iterator iterator = structuredSel.iterator();
+			List<FundamentalData> data = new ArrayList<FundamentalData>();
 			while (iterator.hasNext()) {
 				FundamentalData p = (FundamentalData)iterator.next();
 				data.add(p);
 			}
-			if (activeEditor instanceof SecurityEditor) {
-				SecurityEditor se = (SecurityEditor)activeEditor;
-				if (se.getSelectedPage() instanceof FundamentalDataEditorPart) {
-					FundamentalDataEditorPart pep = (FundamentalDataEditorPart)se.getSelectedPage();
+			if (activeEditor instanceof SecurityEditor se) {
+				if (se.getSelectedPage() instanceof FundamentalDataEditorPart pep) {
 					pep.lockFundamentalData(data);
 				}
 			}

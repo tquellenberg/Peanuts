@@ -48,8 +48,7 @@ public class TransactionListContentProvider implements ITreeContentProvider {
 
 	@Override
 	public Object[] getChildren(Object parentElement) {
-		if (parentElement instanceof TimeTreeNode) {
-			TimeTreeNode node = (TimeTreeNode) parentElement;
+		if (parentElement instanceof TimeTreeNode node) {
 			return node.getTransactions().toArray();
 		}
 		Transaction t = (Transaction) parentElement;
@@ -58,8 +57,8 @@ public class TransactionListContentProvider implements ITreeContentProvider {
 
 	@Override
 	public boolean hasChildren(Object element) {
-		if (element instanceof TimeTreeNode) {
-			return ! ((TimeTreeNode) element).getTransactions().isEmpty();
+		if (element instanceof TimeTreeNode timeTreeNode) {
+			return ! timeTreeNode.getTransactions().isEmpty();
 		}
 		ITransaction t = (ITransaction) element;
 		return !t.getSplits().isEmpty();

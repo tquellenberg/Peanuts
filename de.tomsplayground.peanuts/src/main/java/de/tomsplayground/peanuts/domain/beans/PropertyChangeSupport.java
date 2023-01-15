@@ -41,8 +41,7 @@ public class PropertyChangeSupport {
 		if (listener == null) {
 			return;
 		}
-		if (listener instanceof PropertyChangeListenerProxy) {
-			PropertyChangeListenerProxy proxy = (PropertyChangeListenerProxy) listener;
+		if (listener instanceof PropertyChangeListenerProxy proxy) {
 			// Call two argument add method.
 			addPropertyChangeListener(proxy.getPropertyName(), proxy.getListener());
 		} else {
@@ -63,8 +62,7 @@ public class PropertyChangeSupport {
 		if (listener == null) {
 			return;
 		}
-		if (listener instanceof PropertyChangeListenerProxy) {
-			PropertyChangeListenerProxy proxy = (PropertyChangeListenerProxy) listener;
+		if (listener instanceof PropertyChangeListenerProxy proxy) {
 			// Call two argument remove method.
 			removePropertyChangeListener(proxy.getPropertyName(), proxy.getListener());
 		} else {

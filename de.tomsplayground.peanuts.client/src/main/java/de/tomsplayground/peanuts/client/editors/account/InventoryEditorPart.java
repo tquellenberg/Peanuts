@@ -109,13 +109,11 @@ public class InventoryEditorPart extends EditorPart {
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
 			int sort = ((TreeViewer)viewer).getTree().getSortDirection();
-			if (e1 instanceof InventoryEntry && e2 instanceof InventoryEntry) {
-				int compare = compareInventoryEntry(viewer, (InventoryEntry)e1, (InventoryEntry)e2);
+			if (e1 instanceof InventoryEntry  invE1 && e2 instanceof InventoryEntry invE2) {
+				int compare = compareInventoryEntry(viewer, invE1, invE2);
 				return (sort == SWT.DOWN) ? compare : -compare;
 			}
-			if (e1 instanceof InvestmentTransaction && e2 instanceof InvestmentTransaction) {
-				InvestmentTransaction i1 = (InvestmentTransaction)e1;
-				InvestmentTransaction i2 = (InvestmentTransaction)e2;
+			if (e1 instanceof InvestmentTransaction i1 && e2 instanceof InvestmentTransaction i2) {
 				ImmutableList<InvestmentTransaction> transactions = inventory.getEntry(i1.getSecurity()).getTransactions();
 				return Integer.compare(transactions.indexOf(i2), transactions.indexOf(i1));
 			}
@@ -203,8 +201,7 @@ public class InventoryEditorPart extends EditorPart {
 	private static class InventoryContentProvider implements ITreeContentProvider {
 		@Override
 		public Object[] getChildren(Object parentElement) {
-			if (parentElement instanceof InventoryEntry) {
-				InventoryEntry entry = (InventoryEntry) parentElement;
+			if (parentElement instanceof InventoryEntry entry) {
 				ImmutableList<InvestmentTransaction> transations = entry.getTransactions();
 				return transations.toArray();
 			}
@@ -280,8 +277,7 @@ public class InventoryEditorPart extends EditorPart {
 
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
-			if (element instanceof InventoryEntry) {
-				InventoryEntry entry = (InventoryEntry) element;
+			if (element instanceof InventoryEntry entry) {
 				if (columnIndex == INVENTORY_FRACTION) {
 					if (inventory.getMarketValue().compareTo(BigDecimal.ZERO) != 0) {
 						BigDecimal fraction = entry.getMarketValue().divide(inventory.getMarketValue(), PeanutsUtil.MC);
@@ -339,8 +335,7 @@ public class InventoryEditorPart extends EditorPart {
 					}
 				}
 				
-			} else if (element instanceof AnalyzedInvestmentTransaction) {
-				AnalyzedInvestmentTransaction t = (AnalyzedInvestmentTransaction) element;
+			} else if (element instanceof AnalyzedInvestmentTransaction t) {
 				if (columnIndex == TRANSACTION_POS_QUANTITY) {
 					if (t.getType() == InvestmentTransaction.Type.BUY) {
 						return PeanutsUtil.formatQuantity(t.getQuantity());
@@ -368,8 +363,7 @@ public class InventoryEditorPart extends EditorPart {
 				if (columnIndex == TRANSACTION_POS_INVESTED_SUM) {
 					return PeanutsUtil.formatCurrency(t.getInvestedAmount(), currency);
 				}
-			} else if (element instanceof InvestmentTransaction) {
-				InvestmentTransaction t = (InvestmentTransaction) element;
+			} else if (element instanceof InvestmentTransaction t) {
 				if (columnIndex == TRANSACTION_POS_DATE) {
 					return PeanutsUtil.formatDate(t.getDay());
 				}
@@ -413,8 +407,7 @@ public class InventoryEditorPart extends EditorPart {
 
 		@Override
 		public Color getForeground(Object element, int columnIndex) {
-			if (element instanceof InventoryEntry) {
-				InventoryEntry entry = (InventoryEntry) element;
+			if (element instanceof InventoryEntry entry) {
 				if (columnIndex == INVENTORY_POS_GAIN || columnIndex == INVENTORY_POS_GAIN_PERCENT) {
 					if (entry.getMarketValue().subtract(entry.getInvestedAmount()).signum() == -1) {
 						return red;
@@ -430,15 +423,13 @@ public class InventoryEditorPart extends EditorPart {
 						return red;
 					}
 				}
-			} else if (element instanceof AnalyzedInvestmentTransaction) {
-				AnalyzedInvestmentTransaction t = (AnalyzedInvestmentTransaction) element;
+			} else if (element instanceof AnalyzedInvestmentTransaction t) {
 				if (columnIndex == TRANSACTION_POS_GAIN && t.getType() == InvestmentTransaction.Type.SELL) {
 					if (t.getGain() != null && t.getGain().signum() == -1) {
 						return red;
 					}
 				}
-			} else if (element instanceof InvestmentTransaction) {
-				InvestmentTransaction t = (InvestmentTransaction) element;
+			} else if (element instanceof InvestmentTransaction t) {
 				if (columnIndex == TRANSACTION_POS_GAIN && t.getType() == Type.EXPENSE) {
 					return red;
 				}
@@ -539,8 +530,8 @@ public class InventoryEditorPart extends EditorPart {
 
 
 		ITransactionProvider account = getTransactions();
-		if (account instanceof IConfigurable) {
-			showAllSecurities = Boolean.parseBoolean(((IConfigurable)account).getConfigurationValue(SHOW_ALL_SECURITIES));
+		if (account instanceof IConfigurable configurable) {
+			showAllSecurities = Boolean.parseBoolean(configurable.getConfigurationValue(SHOW_ALL_SECURITIES));
 		} else {
 			showAllSecurities = false;
 		}
@@ -586,8 +577,7 @@ public class InventoryEditorPart extends EditorPart {
 				if (showAllSecurities) {
 					return true;
 				}
-				if (element instanceof InventoryEntry) {
-					InventoryEntry entry = (InventoryEntry) element;
+				if (element instanceof InventoryEntry entry) {
 					return isNotZero(entry.getQuantity());
 				}
 				return true;
@@ -622,23 +612,20 @@ public class InventoryEditorPart extends EditorPart {
 			@Override
 			public void update(ViewerCell cell) {
 				Object element = cell.getElement();
-				if (element instanceof InventoryEntry) {
-					InventoryEntry entry = (InventoryEntry) element;
+				if (element instanceof InventoryEntry entry) {
 					cell.setText(entry.getSecurity().getName());
 					String icon = entry.getSecurity().getConfigurationValue("icon");
 					if (StringUtils.isBlank(icon)) {
 						icon = "empty";
 					}
 					cell.setImage(Activator.getDefault().getImage("icons/"+icon+".png"));
-				} else if (element instanceof InvestmentTransaction) {
-					InvestmentTransaction t = (InvestmentTransaction) element;
+				} else if (element instanceof InvestmentTransaction t) {
 					cell.setText(" - "+PeanutsUtil.formatDate(t.getDay()) + " ("+t.getType()+")");
 				}
 			}
 			@Override
 			public String getToolTipText(Object element) {
-				if (element instanceof InventoryEntry) {
-					InventoryEntry entry = (InventoryEntry) element;
+				if (element instanceof InventoryEntry entry) {
 					return StringUtils.defaultString(entry.getSecurity().getConfigurationValue("iconText"));
 				}
 				return super.getToolTipText(element);
@@ -786,8 +773,8 @@ public class InventoryEditorPart extends EditorPart {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
-				if (sel.getFirstElement() instanceof InventoryEntry) {
-					Security security = ((InventoryEntry) sel.getFirstElement()).getSecurity();
+				if (sel.getFirstElement() instanceof InventoryEntry invEntry) {
+					Security security = invEntry.getSecurity();
 					IEditorInput input = new SecurityEditorInput(security);
 					try {
 						getSite().getWorkbenchWindow().getActivePage().openEditor(input,
@@ -832,8 +819,8 @@ public class InventoryEditorPart extends EditorPart {
 					public void run() {
 						showAllSecurities = ! showAllSecurities;
 						ITransactionProvider transactionProvider = getTransactions();
-						if (transactionProvider instanceof IConfigurable) {
-							((IConfigurable)transactionProvider).putConfigurationValue(SHOW_ALL_SECURITIES, Boolean.valueOf(showAllSecurities).toString());
+						if (transactionProvider instanceof IConfigurable configurable) {
+							configurable.putConfigurationValue(SHOW_ALL_SECURITIES, Boolean.valueOf(showAllSecurities).toString());
 						}
 						treeViewer.refresh();
 					}

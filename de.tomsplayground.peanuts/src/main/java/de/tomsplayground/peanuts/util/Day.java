@@ -77,8 +77,7 @@ public class Day implements Serializable, Cloneable, Comparable<Day> {
 		if (this == obj) {
 			return true;
 		}
-		if (obj instanceof Day) {
-			Day d = (Day) obj;
+		if (obj instanceof Day d) {
 			return day == d.day && month == d.month && year == d.year;
 		}
 		return false;

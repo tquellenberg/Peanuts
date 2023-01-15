@@ -75,9 +75,7 @@ public class CalendarPropertyPage extends PropertyPage {
 	private class CalendarListViewerComparator extends ViewerComparator {
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
-			if (e1 instanceof SecurityCalendarEntry && e2 instanceof SecurityCalendarEntry) {
-				SecurityCalendarEntry w1 = (SecurityCalendarEntry) e1;
-				SecurityCalendarEntry w2 = (SecurityCalendarEntry) e2;
+			if (e1 instanceof SecurityCalendarEntry w1 && e2 instanceof SecurityCalendarEntry w2) {
 				int compare = w1.getDay().compareTo(w2.getDay());
 				return compare;
 			}

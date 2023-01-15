@@ -87,7 +87,7 @@ public class YahooPriceReader extends PriceProvider {
 				URLEncoder.encode(security.getTicker(), StandardCharsets.UTF_8.name()),
 				range);
 		}
-		log.info("URL: "+url);
+		log.debug("URL: {}", url);
 		HttpGet httpGet = new HttpGet(url);
 		httpGet.addHeader("User-Agent", USER_AGENT);
 		httpGet.setConfig(RequestConfig.custom()
@@ -153,7 +153,7 @@ public class YahooPriceReader extends PriceProvider {
 						}
 					}
 				}
-				log.info("Loaded {} values for {}", prices.size(), getSecurity().getTicker());
+				log.info("Loaded {} values for {}", prices.size(), getSecurity().getName());
 			} else {
 				log.error("No values found for {}", getSecurity().getName());
 			}

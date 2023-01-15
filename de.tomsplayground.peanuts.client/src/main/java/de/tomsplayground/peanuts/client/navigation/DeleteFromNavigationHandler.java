@@ -16,9 +16,9 @@ public class DeleteFromNavigationHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
-		if (currentSelection instanceof IStructuredSelection) {
+		if (currentSelection instanceof IStructuredSelection struturedSel) {
 			@SuppressWarnings("rawtypes")
-			Iterator iterator = ((IStructuredSelection) currentSelection).iterator();
+			Iterator iterator = struturedSel.iterator();
 			while (iterator.hasNext()) {
 				IDeletable entry = (IDeletable)iterator.next();
 				entry.setDeleted(! entry.isDeleted());
