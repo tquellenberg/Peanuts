@@ -10,7 +10,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import de.tomsplayground.peanuts.util.Day;
 
-public class Price implements IPrice {
+public final class Price implements IPrice {
 
 	public final static Price ZERO = new Price(Day.ZERO, BigDecimal.ZERO);
 

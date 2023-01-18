@@ -103,14 +103,11 @@ public class ComparisonEditor extends EditorPart {
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
 			Security security = (Security) element;
-			switch (columnIndex) {
-				case 0:
-					return "";
-				case 1:
-					return security.getName();
-				default:
-					return "";
-			}
+			 return switch (columnIndex) {
+				case 0 -> "";
+				case 1 -> security.getName();
+				default -> "";
+			};
 		}
 	}
 

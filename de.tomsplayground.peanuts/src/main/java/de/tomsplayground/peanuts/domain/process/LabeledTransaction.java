@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import de.tomsplayground.peanuts.util.Day;
 
-public class LabeledTransaction extends Transaction {
+sealed public class LabeledTransaction extends Transaction permits BankTransaction, TransferTransaction {
 
 	private String label;
 

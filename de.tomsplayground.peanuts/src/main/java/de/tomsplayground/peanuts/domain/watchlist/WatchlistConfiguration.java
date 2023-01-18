@@ -72,20 +72,16 @@ public class WatchlistConfiguration {
 	}
 
 	public ImmutableList<Security> getSecuritiesByConfiguration(final AccountManager accountManager) {
-		Stream<Security> result = null;
-		switch (getType()) {
-			case ALL_SECURITIES:
-				result = accountManager.getSecurities().parallelStream().filter(s -> ! s.isDeleted());
-				break;
-			case ALL_SECURITIES_INCL_DELETED:
-				result = accountManager.getSecurities().parallelStream();
-				break;
-			case MY_SECURITIES:
-				result = accountManager.getFullInventory().getSecurities().parallelStream();
-				break;
-			default:
-				result = Stream.empty();
-		}
+		Stream<Security> result = switch (getType()) {
+			case ALL_SECURITIES ->
+				accountManager.getSecurities().parallelStream().filter(s -> ! s.isDeleted());
+			case ALL_SECURITIES_INCL_DELETED ->
+				accountManager.getSecurities().parallelStream();
+			case MY_SECURITIES ->
+				accountManager.getFullInventory().getSecurities().parallelStream();
+			default ->
+				Stream.empty();
+		};
 		return result.filter(s -> accept(s, accountManager))
 			.collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf));
 	}

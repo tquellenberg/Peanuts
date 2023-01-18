@@ -33,23 +33,13 @@ public class DateIterator implements Iterator<Day> {
 			throw new NoSuchElementException();
 		}
 		Day result = pointer;
-		switch (interval) {
-			case DAY:
-				pointer = pointer.addDays(1);
-				break;
-			case MONTH:
-				pointer = pointer.addMonth(1);
-				break;
-			case QUARTER:
-				pointer = pointer.addMonth(3);
-				break;
-			case YEAR:
-				pointer = pointer.addYear(1);
-				break;
-			case DECADE:
-				pointer = pointer.addYear(10);
-				break;
-		}
+		pointer = switch (interval) {
+			case DAY -> pointer.addDays(1);
+			case MONTH -> pointer.addMonth(1);
+			case QUARTER -> pointer = pointer.addMonth(3);
+			case YEAR -> pointer = pointer.addYear(1);
+			case DECADE -> pointer = pointer.addYear(10);
+		};
 		return result;
 	}
 

@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
-public class AdjustedPrice implements IPrice {
+public final class AdjustedPrice implements IPrice {
 
 	private final IPrice price;
 	private final BigDecimal ratio;

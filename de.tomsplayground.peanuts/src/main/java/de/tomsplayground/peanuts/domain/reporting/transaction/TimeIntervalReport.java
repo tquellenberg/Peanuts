@@ -61,27 +61,21 @@ public class TimeIntervalReport extends ObservableModelObject {
 			end = Day.today();
 		} else {
 			Day startDay = transactions.get(0).getDay();
-			switch (interval) {
-				case DAY:
-					break;
-				case MONTH:
-					startDay = Day.of(startDay.year, startDay.month, 1);
-					break;
-				case QUARTER:
+			start = switch (interval) {
+				case DAY -> startDay;
+				case MONTH -> Day.of(startDay.year, startDay.month, 1);
+				case QUARTER -> {
 					int month = startDay.month;
 					month = month - (month % 3);
-					startDay = Day.of(startDay.year, month, 1);
-					break;
-				case YEAR:
-					startDay = Day.of(startDay.year, 0, 1);
-					break;
-				case DECADE:
+					yield Day.of(startDay.year, month, 1);
+				}
+				case YEAR -> startDay = Day.of(startDay.year, 0, 1);
+				case DECADE -> {
 					int year = startDay.year;
 					year = year - (year % 10);
-					startDay = Day.of(year, 0, 1);
-					break;
-			}
-			start = startDay;
+					yield Day.of(year, 0, 1);
+				}
+			};
 
 			Day lastDay = transactions.get(transactions.size()-1).getDay();
 			if (lastDay.after(Day.today())) {

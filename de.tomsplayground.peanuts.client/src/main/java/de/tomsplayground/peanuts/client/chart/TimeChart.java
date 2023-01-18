@@ -100,28 +100,18 @@ public class TimeChart {
 	}
 
 	public Day getFromDate() {
-		Day from = Day.today();
-		switch(type) {
-			case TEN_YEARS: from = from.addYear(-10);
-						break;
-			case SEVEN_YEARS: from = from.addYear(-7);
-						break;
-			case FIVE_YEARS: from = from.addYear(-5);
-						break;
-			case THREE_YEARS: from = from.addYear(-3);
-						break;
-			case TWO_YEARS:  from = from.addYear(-2);
-						break;
-			case ONE_YEARS:  from = from.addYear(-1);
-						break;
-			case THIS_YEARS: from = Day.of(from.year, 0, 1);
-						break;
-			case SIX_MONTHS: from = from.addMonth(-6);
-						break;
-			case ONE_MONTHS: from = from.addMonth(-1);
-						break;
-			default: from = null;
-		}
+		Day from = switch(type) {
+			case TEN_YEARS -> Day.today().addYear(-10);
+			case SEVEN_YEARS -> Day.today().addYear(-7);
+			case FIVE_YEARS -> Day.today().addYear(-5);
+			case THREE_YEARS -> Day.today().addYear(-3);
+			case TWO_YEARS -> Day.today().addYear(-2);
+			case ONE_YEARS -> Day.today().addYear(-1);
+			case THIS_YEARS -> Day.of(Day.today().year, 0, 1);
+			case SIX_MONTHS -> Day.today().addMonth(-6);
+			case ONE_MONTHS -> Day.today().addMonth(-1);
+			case ALL -> null;
+		};
 		return from;
 	}
 

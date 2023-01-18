@@ -440,16 +440,12 @@ public class MetaEditorPart extends EditorPart {
 	}
 
 	private DateQuery getDateQuery() {
-		switch (rangeType.getSelectionIndex()) {
-			case 0:
-				return new DateQuery(DateQuery.TimeRange.ALL);
-			case 1:
-				return new DateQuery(DateQuery.TimeRange.THIS_YEAR);
-			case 2:
-				return new DateQuery(DateQuery.TimeRange.LAST_12_MONTH);
-			default:
-				return new DateQuery(fromDate.getDay(), toDate.getDay());
-		}
+		return switch (rangeType.getSelectionIndex()) {
+			case 0 -> new DateQuery(DateQuery.TimeRange.ALL);
+			case 1 -> new DateQuery(DateQuery.TimeRange.THIS_YEAR);
+			case 2 -> new DateQuery(DateQuery.TimeRange.LAST_12_MONTH);
+			default -> new DateQuery(fromDate.getDay(), toDate.getDay());
+		};
 	}
 
 	private void setDateQuery(DateQuery query) {

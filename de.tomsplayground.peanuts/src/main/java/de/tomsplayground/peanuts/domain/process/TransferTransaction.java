@@ -11,7 +11,7 @@ import de.tomsplayground.peanuts.domain.base.Category;
 import de.tomsplayground.peanuts.util.Day;
 
 @XStreamAlias("transfer-transaction")
-public class TransferTransaction extends LabeledTransaction {
+public final class TransferTransaction extends LabeledTransaction {
 
 	private final static Logger log = LoggerFactory.getLogger(TransferTransaction.class);
 

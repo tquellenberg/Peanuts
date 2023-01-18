@@ -333,21 +333,12 @@ public class InvestmentTransactionDetails implements ITransactionDetail {
 				commission.setText("");
 			}
 			amount.setText(PeanutsUtil.formatCurrency(transaction.getAmount(), currentSelectedCurrency));
-			switch (this.transaction.getType()) {
-				case SELL:
-					transactionType.select(0);
-					break;
-				case BUY:
-					transactionType.select(1);
-					break;
-				case EXPENSE:
-					transactionType.select(2);
-					break;
-				case INCOME:
-					transactionType.select(3);
-					break;
-			}
-
+			transactionType.select(switch (this.transaction.getType()) {
+				case SELL -> 0;
+				case BUY -> 1;
+				case EXPENSE -> 2;
+				case INCOME -> 3;
+			});
 			cancel.setEnabled(false);
 			okay.setEnabled(false);
 		}

@@ -39,14 +39,10 @@ public class AlarmManager {
 		while (day.beforeOrEquals(today) && !triggerd) {
 			IPrice price = priceProvider.getPrice(day);
 			if (price != null) {
-				switch (securityAlarm.getMode()) {
-					case PRICE_ABOVE:
-						triggerd = price.getValue().compareTo(securityAlarm.getValue()) > 0;
-						break;
-					case PRICE_BELOW:
-						triggerd = price.getValue().compareTo(securityAlarm.getValue()) < 1;
-						break;
-				}
+				triggerd = switch (securityAlarm.getMode()) {
+					case PRICE_ABOVE -> price.getValue().compareTo(securityAlarm.getValue()) > 0;
+					case PRICE_BELOW -> price.getValue().compareTo(securityAlarm.getValue()) < 1;
+				};
 				if (triggerd) {
 					securityAlarm.trigger(day);
 				}
