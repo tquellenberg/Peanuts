@@ -71,7 +71,13 @@ public class ComparisonEditor extends EditorPart {
 	private static final BasicStroke BOLD_STROKE = new BasicStroke(BOLD_WIDTH);
 
 	public final static List<Day> START_DAYS = Lists.newArrayList(Day.of(2020, 1, 1), Day.of(2020, 2, 23),
-			Day.of(2020, 8, 2), Day.of(2020, 9, 30), Day.of(2021, 0, 1), Day.today().addMonth(-1), Day.today().addDays(-14));
+			Day.of(2020, 8, 2), Day.of(2020, 9, 30),  Day.of(2022, 9, 1),
+			Day.of(Day.today().year-1, 0, 1), // Start of last year
+			Day.of(Day.today().year, 0, 1), // Start of current year
+			Day.today().addMonth(-6),  // 6 month 
+			Day.today().addMonth(-3),  // 3 month 
+			Day.today().addMonth(-1),  // 1 month
+			Day.today().addDays(-14));
 
 	private boolean dirty;
 

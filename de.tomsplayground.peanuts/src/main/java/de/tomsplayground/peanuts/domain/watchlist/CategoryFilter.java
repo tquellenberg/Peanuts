@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.domain.watchlist;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -16,11 +17,11 @@ public class CategoryFilter implements ISecuriityFilter {
 	public static final CategoryFilter NO_FILTER = new CategoryFilter("", Collections.<String>emptySet());
 
 	private final String categoryName;
-	private final Set<String> categoryValues;
+	private final Set<String> categoryValues = new HashSet<>();
 
 	public CategoryFilter(String categoryName, Set<String> categoryValues) {
 		this.categoryName = categoryName;
-		this.categoryValues = categoryValues;
+		this.categoryValues.addAll(categoryValues);
 	}
 
 	@Override

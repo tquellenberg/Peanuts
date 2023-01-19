@@ -1,12 +1,12 @@
 package de.tomsplayground.peanuts.domain.watchlist;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.base.AccountManager;
@@ -24,7 +24,7 @@ public class WatchlistConfiguration {
 
 	private String name;
 	private Type type;
-	private List<ISecuriityFilter> filters;
+	private final List<ISecuriityFilter> filters = new ArrayList<>();
 	private String sorting;
 
 	public WatchlistConfiguration(String name) {
@@ -38,7 +38,7 @@ public class WatchlistConfiguration {
 	public WatchlistConfiguration(String name, Type type, List<ISecuriityFilter> filters, String sorting) {
 		this.name = name;
 		this.type = type;
-		this.filters = Lists.newArrayList(filters);
+		this.filters.addAll(filters);
 		this.sorting = sorting;
 	}
 
@@ -58,7 +58,8 @@ public class WatchlistConfiguration {
 		return ImmutableList.copyOf(filters);
 	}
 	public void setFilters(List<ISecuriityFilter> filters) {
-		this.filters = filters;
+		this.filters.clear();
+		this.filters.addAll(filters);
 	}
 	public String getSorting() {
 		return sorting;

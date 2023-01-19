@@ -24,7 +24,7 @@ import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.calendar.CalendarEntry;
 import de.tomsplayground.peanuts.domain.calendar.SecurityCalendarEntry;
 import de.tomsplayground.peanuts.domain.comparision.Comparison;
-import de.tomsplayground.peanuts.domain.comparision.SectorInput;
+import de.tomsplayground.peanuts.domain.comparision.DefaultComparisonInput;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.process.EuroTransactionWrapper;
@@ -322,8 +322,13 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 		}
 		if (comparisons == null) {
 			comparisons = new ArrayList<>();
-			comparisons.add(SectorInput.init(this));
 		}
+		for (Comparison defaultComparison : DefaultComparisonInput.init(this)) {
+			if (! comparisons.stream().anyMatch(c -> c.getName().equals(defaultComparison.getName()))) {
+				comparisons.add(defaultComparison);
+			}
+		}
+		
 		for (Account account : accounts) {
 			account.reconfigureAfterDeserialization(this);
 		}
