@@ -57,15 +57,14 @@ public class InventoryEntry {
 		// Split adjustment
 		t = splitAdjustedTransactionProvider.adjust(t);
 		// Analyzing transaction
-		Type type = t.getType();
-		if (type == InvestmentTransaction.Type.BUY ||
-				type == InvestmentTransaction.Type.SELL) {
-			if (analizerFactory != null) {
-				Iterable<InvestmentTransaction> transations = Iterables.concat(
-						transactions,
-						ImmutableList.of(t));
+		if (analizerFactory != null) {
+			Type type = t.getType();
+			if (type == InvestmentTransaction.Type.BUY ||
+					type == InvestmentTransaction.Type.SELL) {
+				ArrayList<InvestmentTransaction> trans = new ArrayList<>(transactions);
+				trans.add(t);
 				IAnalyzer analizer = analizerFactory.getAnalizer();
-				t = Iterables.getLast(analizer.getAnalyzedTransactions(transations));
+				t = Iterables.getLast(analizer.getAnalyzedTransactions(trans));
 			}
 		}
 		// Add transaction

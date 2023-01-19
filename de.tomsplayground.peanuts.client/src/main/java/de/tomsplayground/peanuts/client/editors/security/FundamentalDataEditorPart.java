@@ -59,7 +59,6 @@ import org.joda.time.format.DateTimeFormat;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.app.marketscreener.MarketScreener;
 import de.tomsplayground.peanuts.app.morningstar.KeyRatios;
@@ -616,7 +615,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 			@Override
 			public boolean canModify(Object element, String property) {
 				return (element instanceof FundamentalData fData) && (! fData.isLocked()) &&
-					Lists.newArrayList("year", "fiscalYear", "div", "EPS", "deRatio").contains(property);
+					List.of("year", "fiscalYear", "div", "EPS", "deRatio").contains(property);
 			}
 
 			@Override

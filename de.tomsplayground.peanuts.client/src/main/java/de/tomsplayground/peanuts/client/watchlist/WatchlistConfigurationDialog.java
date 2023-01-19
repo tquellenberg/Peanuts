@@ -22,7 +22,6 @@ import org.eclipse.swt.widgets.Text;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import de.tomsplayground.peanuts.client.app.Activator;
@@ -145,14 +144,14 @@ public class WatchlistConfigurationDialog extends Dialog {
 		Type type = WatchlistConfiguration.Type.values()[typeCombo.getSelectionIndex()];
 		watchlistConfiguration.setType(type);
 		if (type == Type.MANUAL) {
-			watchlistConfiguration.setFilters(Collections.<ISecuriityFilter>emptyList());
+			watchlistConfiguration.setFilters(Collections.emptyList());
 		} else {
 			String filterName = filterCombo1.getText();
 			Set<String> filterValues = Sets.newHashSet(filterValueList.getSelection());
 			if (StringUtils.isNoneEmpty(filterName) && ! filterValues.isEmpty()) {
-				watchlistConfiguration.setFilters(Lists.<ISecuriityFilter>newArrayList(new CategoryFilter(filterName, filterValues)));
+				watchlistConfiguration.setFilters(List.of(new CategoryFilter(filterName, filterValues)));
 			} else {
-				watchlistConfiguration.setFilters(Collections.<ISecuriityFilter>emptyList());
+				watchlistConfiguration.setFilters(Collections.emptyList());
 			}
 		}
 		super.okPressed();

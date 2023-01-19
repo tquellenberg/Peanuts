@@ -25,7 +25,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.util.Day;
 
@@ -184,7 +183,7 @@ public class YahooAPI {
 	
 	@SuppressWarnings("unchecked")
 	public List<YahooSecurity> search(String query) {
-		List<YahooSecurity> result = Lists.newArrayList();
+		List<YahooSecurity> result = new ArrayList<>();
 		String queryEnc = "";
 		try {
 			queryEnc = URLEncoder.encode(query, StandardCharsets.UTF_8.name());

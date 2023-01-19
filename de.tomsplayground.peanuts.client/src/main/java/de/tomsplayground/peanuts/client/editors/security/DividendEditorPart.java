@@ -49,7 +49,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
@@ -319,7 +318,7 @@ public class DividendEditorPart extends EditorPart {
 
 			@Override
 			public boolean canModify(Object element, String property) {
-				return Lists.newArrayList("payDay", "dividend", "currency", "numberOfShares", "amount",
+				return List.of("payDay", "dividend", "currency", "numberOfShares", "amount",
 					"amountInDefaultCurrency", "tax").contains(property);
 			}
 

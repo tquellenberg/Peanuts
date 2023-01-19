@@ -7,6 +7,7 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 
@@ -42,7 +42,7 @@ public class KeyRatios {
 			log.error("Problem with '"+symbol+ "' " + url, e);
 			throw e;
 		}
-		return Lists.newArrayList();
+		return new ArrayList<>();
 	}
 
 	private List<FundamentalData> readFile(Reader reader) {
@@ -73,11 +73,11 @@ public class KeyRatios {
 		} catch (IOException | CsvException e) {
 			e.printStackTrace();
 		}
-		return Lists.newArrayList();
+		return new ArrayList<>();
 	}
 
 	private List<FundamentalData> parse(String[] years, String[] earnings, String[] dividende, String[] deptToEquity) {
-		List<FundamentalData> fundamentalDatas = Lists.newArrayList();
+		List<FundamentalData> fundamentalDatas = new ArrayList<>();;
 		for (int i = 1; i <= 10; i++) {
 			FundamentalData fundamentalData = new FundamentalData();
 			int year = Integer.parseInt(StringUtils.split(years[i], '-')[0]);

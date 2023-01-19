@@ -14,7 +14,7 @@ public class TransactionProviderUtil {
 	 * Both date can be null.
 	 *
 	 */
-	public static ImmutableList<ITransaction> getTransactionsByDate(ImmutableList<ITransaction> transactions, Day from, Day to) {
+	public static <T extends ITransaction> ImmutableList<T> getTransactionsByDate(ImmutableList<T> transactions, Day from, Day to) {
 		int fromIndex;
 		if (from != null) {
 			fromIndex = PeanutsUtil.binarySearch(transactions, from);

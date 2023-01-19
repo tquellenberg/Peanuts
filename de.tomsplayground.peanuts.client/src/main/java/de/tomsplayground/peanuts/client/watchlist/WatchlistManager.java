@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.client.watchlist;
 
-import static com.google.common.base.Predicates.*;
+import static com.google.common.base.Predicates.in;
+import static com.google.common.base.Predicates.not;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -14,7 +15,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import de.tomsplayground.peanuts.client.app.Activator;
@@ -227,7 +227,7 @@ public class WatchlistManager extends ObservableModelObject {
 		String watchListsStr = security.getConfigurationValue(SecurityWatchlistView.ID);
 		String[] watchLists = StringUtils.split(watchListsStr, ',');
 		if (watchLists != null) {
-			return Lists.newArrayList(watchLists);
+			return new ArrayList<>(List.of(watchLists));
 		}
 		return new ArrayList<>();
 	}

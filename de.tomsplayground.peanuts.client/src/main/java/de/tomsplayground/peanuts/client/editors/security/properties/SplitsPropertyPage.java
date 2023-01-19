@@ -1,5 +1,6 @@
 package de.tomsplayground.peanuts.client.editors.security.properties;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -27,8 +28,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.dialogs.PropertyPage;
-
-import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.widgets.DateCellEditor;
@@ -166,7 +165,7 @@ public class SplitsPropertyPage extends PropertyPage {
 		tableViewer.setContentProvider(new ArrayContentProvider());
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		stockSplits = Lists.newArrayList(Activator.getDefault().getAccountManager().getStockSplits(security));
+		stockSplits = new ArrayList<>(Activator.getDefault().getAccountManager().getStockSplits(security));
 		tableViewer.setInput(stockSplits);
 
 		MenuManager menu = new MenuManager();

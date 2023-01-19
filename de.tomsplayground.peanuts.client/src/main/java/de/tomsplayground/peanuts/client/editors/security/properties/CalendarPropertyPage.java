@@ -1,5 +1,6 @@
 package de.tomsplayground.peanuts.client.editors.security.properties;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -34,7 +35,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.widgets.DateCellEditor;
@@ -171,7 +171,7 @@ public class CalendarPropertyPage extends PropertyPage {
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tableViewer.setComparator(new CalendarListViewerComparator());
 
-		securityCalendarEntry = Lists.newArrayList(Activator.getDefault().getAccountManager().getCalendarEntries(security));
+		securityCalendarEntry = new ArrayList<>(Activator.getDefault().getAccountManager().getCalendarEntries(security));
 		tableViewer.setInput(securityCalendarEntry);
 
 		Button button = new Button(composite, SWT.None);

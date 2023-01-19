@@ -134,7 +134,7 @@ public class Day implements Serializable, Cloneable, Comparable<Day> {
 	}
 
 	public YearMonth toYearMonth() {
-		return YearMonth.of(year, month+1);
+		return YearMonth.of(year, getMonth());
 	}
 
 	/**
@@ -156,11 +156,11 @@ public class Day implements Serializable, Cloneable, Comparable<Day> {
 	}
 
 	public LocalDateTime toLocalDateTime() {
-		return LocalDateTime.of(year, Month.of(month+1), day, 0, 0);
+		return LocalDateTime.of(year, getMonth(), day, 0, 0);
 	}
 
 	public LocalDate toLocalDate() {
-		return LocalDate.of(year, Month.of(month+1), day);
+		return LocalDate.of(year, getMonth(), day);
 	}
 
 	public Date toDate() {

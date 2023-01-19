@@ -4,14 +4,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
-import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
@@ -49,7 +48,7 @@ public class XIRR {
 		}
 	}
 
-	private List<Entry> entries = Lists.newArrayList();
+	private List<Entry> entries = new ArrayList<>();
 
 	private BigDecimal cachedValue = null;
 

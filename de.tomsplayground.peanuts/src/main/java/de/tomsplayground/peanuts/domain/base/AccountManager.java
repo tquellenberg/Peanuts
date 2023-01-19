@@ -2,6 +2,7 @@ package de.tomsplayground.peanuts.domain.base;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -11,11 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Iterables;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.alarm.SecurityAlarm;
@@ -267,19 +265,11 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 		return getByNameNonDeleted(credits, name);
 	}
 
-	private <T extends INamedElement> T getByNameNonDeleted(Iterable<T> elements, final String name) {
-		return Iterables.find(elements, new Predicate<T>() {
-			@Override
-			public boolean apply(T element) {
-				if (! element.getName().equals(name)) {
-					return false;
-				}
-				if (element instanceof IDeletable deletable) {
-					return ! deletable.isDeleted();
-				}
-				return true;
-			}
-		}, null);
+	private <T extends INamedElement> T getByNameNonDeleted(Collection<T> elements, final String name) {
+		return elements.stream()
+			.filter(element -> element.getName().equals(name))
+			.filter(element -> ! (element instanceof IDeletable deletable) || ! deletable.isDeleted())
+			.findAny().orElse(null);
 	}
 
 	public void reset() {
@@ -364,12 +354,9 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	}
 
 	public ImmutableSet<Category> getCategories(final Type type) {
-		return ImmutableSet.copyOf(Iterables.filter(categories, new Predicate<Category>() {
-			@Override
-			public boolean apply(Category c) {
-				return (c.getType() == type);
-			}
-		}));
+		return ImmutableSet.copyOf(categories.stream()
+				.filter(c -> c.getType() == type)
+				.toList());
 	}
 
 	public void removeCategory(Category categoryToRemove) {
@@ -427,14 +414,10 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	public ImmutableList<StockSplit> getStockSplits(Security security) {
 		ImmutableList<StockSplit> result = stockSplitsPerSecurity.get(security);
 		if (result == null) {
-			result = ImmutableSortedSet.copyOf(DAY_COMPARATOR,
-					Iterables.filter(stockSplits, new Predicate<StockSplit>() {
-						@Override
-						public boolean apply(StockSplit stockSplit) {
-							return stockSplit.getSecurity().equals(security);
-						}
-					}
-				)).asList();
+			result = ImmutableList.copyOf(stockSplits.stream()
+						.filter(stockSplit -> stockSplit.getSecurity().equals(security))
+						.sorted(DAY_COMPARATOR)
+						.toList());
 			stockSplitsPerSecurity.put(security, result);
 		}
 		return result;
@@ -466,14 +449,9 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	 * Returns all stop loss objects for the given security.
 	 */
 	public ImmutableSet<StopLoss> getStopLosses(final Security security) {
-		return ImmutableSet.copyOf(
-			Iterables.filter(stopLosses, new Predicate<StopLoss>() {
-				@Override
-				public boolean apply(StopLoss stopLoss) {
-					return stopLoss.getSecurity().equals(security);
-				}
-			}
-				));
+		return ImmutableSet.copyOf(stopLosses.stream()
+				.filter(stopLoss -> stopLoss.getSecurity().equals(security))
+				.toList());
 	}
 
 	public void addStopLoss(StopLoss stopLoss) {
@@ -510,16 +488,11 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	 * Returns all calendar entry objects for the given security.
 	 */
 	public ImmutableSet<SecurityCalendarEntry> getCalendarEntries(final Security security) {
-		return ImmutableSet.copyOf(
-			Iterables.filter(Iterables.filter(calendarEntries, SecurityCalendarEntry.class), new Predicate<SecurityCalendarEntry>() {
-				@Override
-				public boolean apply(SecurityCalendarEntry calendarEntry) {
-					if (calendarEntry.getSecurity().equals(security)) {
-						return true;
-					}
-					return false;
-				}
-			}));
+		return ImmutableSet.copyOf(calendarEntries.stream()
+				.filter(SecurityCalendarEntry.class::isInstance)
+				.map(SecurityCalendarEntry.class::cast)
+				.filter(calendarEntry -> calendarEntry.getSecurity().equals(security))
+				.toList());
 	}
 
 	public ImmutableList<CalendarEntry> getCalendarEntries() {
@@ -540,16 +513,9 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	}
 
 	public ImmutableSet<SecurityAlarm> getSecurityAlarms(final Security security) {
-		return ImmutableSet.copyOf(
-			Iterables.filter(securityAlarms, new Predicate<SecurityAlarm>() {
-				@Override
-				public boolean apply(SecurityAlarm securityAlarm) {
-					if (securityAlarm.getSecurity().equals(security)) {
-						return true;
-					}
-					return false;
-				}
-			}));
+		return ImmutableSet.copyOf(securityAlarms.stream()
+				.filter(securityAlarm -> securityAlarm.getSecurity().equals(security))
+				.toList());
 	}
 
 	public ImmutableList<SecurityAlarm> getSecurityAlarms() {

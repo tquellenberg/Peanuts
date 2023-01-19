@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.groupingBy;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +29,7 @@ public class Inventory extends ObservableModelObject {
 	private final AnalyzerFactory analizerFactory;
 	private final IPriceProviderFactory priceProviderFactory;
 	private final ITransactionProvider account;
-	private ImmutableList<ITransaction> allFlatTransactions;
+	private ImmutableList<InvestmentTransaction> allInvestmentTransactions;
 	
 	private Day day;
 	
@@ -54,7 +53,7 @@ public class Inventory extends ObservableModelObject {
 		public void propertyChange(PropertyChangeEvent evt) {
 			if (evt.getSource() instanceof Account) {
 				System.out.println("Inventory.transactionChangeListener" + Inventory.this + " " + evt);
-				Inventory.this.allFlatTransactions = account.getFlatTransactions();
+				setInvestmentTransactions(account.getFlatTransactions());
 				synchronized (entryMap) {
 					fullRebuild();
 				}
@@ -64,6 +63,13 @@ public class Inventory extends ObservableModelObject {
 			}
 		}
 	};
+	
+	private void setInvestmentTransactions(List<ITransaction> allTransactions) {
+		this.allInvestmentTransactions = ImmutableList.copyOf(allTransactions.stream()
+				.filter(InvestmentTransaction.class::isInstance)
+				.map(InvestmentTransaction.class::cast)
+				.toList());
+	}
 	
 	private PropertyChangeListener securityChangeListener = new PropertyChangeListener() {
 		@Override
@@ -80,7 +86,7 @@ public class Inventory extends ObservableModelObject {
 		this.stockSplitProvider = stockSplitProvider;
 		this.day = Day.today();
 		this.analizerFactory = analizerFactory;
-		this.allFlatTransactions = account.getFlatTransactions();
+		setInvestmentTransactions(account.getFlatTransactions());
 		buildInventoryEntries();
 		if (account instanceof ObservableModelObject a) {
 			a.addPropertyChangeListener(transactionChangeListener);
@@ -152,17 +158,9 @@ public class Inventory extends ObservableModelObject {
 	}
 	
 	private void buildInventoryEntries() {
-		ImmutableList<ITransaction> transactions = TransactionProviderUtil.getTransactionsByDate(allFlatTransactions, null, day);
-		if (transactions.isEmpty()) {
-			return;
-		}
-		List<InvestmentTransaction> invests = new ArrayList<>();
-		for (ITransaction transaction : transactions) {
-			if (transaction instanceof InvestmentTransaction invT) {
-				invests.add(invT);
-			}
-		}
-		invests.stream()
+		ImmutableList<InvestmentTransaction> transactions = TransactionProviderUtil
+				.getTransactionsByDate(allInvestmentTransactions, null, day);
+		transactions.stream()
 			.collect(groupingBy(InvestmentTransaction::getSecurity))
 			.entrySet()
 			.parallelStream()

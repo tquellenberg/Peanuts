@@ -1,16 +1,13 @@
 package de.tomsplayground.peanuts.domain.fundamental;
 
-import static org.apache.commons.lang3.Validate.*;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
@@ -31,7 +28,7 @@ public class AvgFundamentalData {
 		notNull(currencyConverter);
 		this.priceProvider = priceProvider;
 		this.currencyConverter = currencyConverter;
-		this.datas = Lists.newArrayList(datas);
+		this.datas = new ArrayList<>(datas);
 		if (!this.datas.isEmpty() && !this.datas.get(0).getCurrency().equals(currencyConverter.getFromCurrency())) {
 			throw new IllegalArgumentException("Fundamental data and currency converter (from) must use same currency. ("
 				+this.datas.get(0).getCurrency()+", "+currencyConverter.getFromCurrency()+")");
@@ -44,7 +41,7 @@ public class AvgFundamentalData {
 	}
 
 	private List<CurrencyAjustedFundamentalData> getAdjustedData(List<FundamentalData> datas) {
-		List<CurrencyAjustedFundamentalData> adjustedData = Lists.newArrayList();
+		List<CurrencyAjustedFundamentalData> adjustedData = new ArrayList<>();
 		for (FundamentalData fundamentalData : datas) {
 			adjustedData.add(new CurrencyAjustedFundamentalData(fundamentalData, currencyConverter));
 		}
@@ -87,13 +84,11 @@ public class AvgFundamentalData {
 
 	public BigDecimal getRobustness() {
 		List<CurrencyAjustedFundamentalData> adjustedData = getAdjustedData(getHistoricAndCurrentData());
-		adjustedData = Lists.newArrayList(Iterables.filter(adjustedData, new Predicate<FundamentalData>() {
-			@Override
-			public boolean apply(FundamentalData input) {
-				return (input.getEarningsPerShare().signum() > 0) && input.getFiscalEndDay().year >= 2006
-					&& ! input.isIgnoreInAvgCalculation();
-			}
-		}));
+		adjustedData = adjustedData.stream().filter(input -> 
+				(input.getEarningsPerShare().signum() > 0) 
+				&& (input.getFiscalEndDay().year >= 2006)
+				&& ! input.isIgnoreInAvgCalculation()
+		).toList();
 		if (adjustedData.size() <= 1) {
 			return null;
 		}

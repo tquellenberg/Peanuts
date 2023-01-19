@@ -131,6 +131,29 @@ public class PriceProviderTest {
 		assertEquals(pp, lastEvent[0].getSource());
 		assertEquals("prices", lastEvent[0].getPropertyName());
 	}
+	
+	@Test
+	public void removePrice2() {
+		pp.setPrice(new Price(c1, BigDecimal.ZERO));
+		pp.setPrice(new Price(c1.addDays(1), BigDecimal.ONE));
+		pp.setPrice(new Price(c1.addDays(2), BigDecimal.ZERO));
+
+		pp.removePrice(c1.addDays(2));
+
+		assertEquals(2, pp.getPrices().size());
+		assertEquals(BigDecimal.ONE, pp.getPrices().get(1).getValue());
+	}
+
+	@Test
+	public void removePrice3() {
+		pp.setPrice(new Price(c1, BigDecimal.ZERO));
+		pp.setPrice(new Price(c1.addDays(1), BigDecimal.ZERO));
+		pp.setPrice(new Price(c1.addDays(2), BigDecimal.ZERO));
+
+		pp.removePrice(c1.addDays(100));
+
+		assertEquals(3, pp.getPrices().size());
+	}
 
 	@Test
 	public void changeExistingPrice() throws Exception {

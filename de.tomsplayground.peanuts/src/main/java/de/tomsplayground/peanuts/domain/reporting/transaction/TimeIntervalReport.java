@@ -53,7 +53,7 @@ public class TimeIntervalReport extends ObservableModelObject {
 	public TimeIntervalReport(ITransactionProvider account, Interval interval, IPriceProviderFactory priceProviderFactory,
 			IStockSplitProvider stockSplitProvider) {
 		this.interval = interval;
-		this.transactions = account.getTransactions();
+		this.transactions = account.getFlatTransactions();
 		this.inventory = new Inventory(account, priceProviderFactory, null, stockSplitProvider);
 		inventory.addPropertyChangeListener(inventoriyListener);
 

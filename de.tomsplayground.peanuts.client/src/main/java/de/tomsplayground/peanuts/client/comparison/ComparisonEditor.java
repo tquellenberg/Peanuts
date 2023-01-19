@@ -49,8 +49,6 @@ import org.jfree.chart.swt.ChartComposite;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
-import com.google.common.collect.Lists;
-
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.chart.JFreeChartFonts;
 import de.tomsplayground.peanuts.client.widgets.SecurityProposalText;
@@ -71,7 +69,7 @@ public class ComparisonEditor extends EditorPart {
 	private static final BasicStroke BASIC_STROKE = new BasicStroke(BASIC_WIDTH);
 	private static final BasicStroke BOLD_STROKE = new BasicStroke(BOLD_WIDTH);
 
-	public final static List<Day> START_DAYS = Lists.newArrayList(Day.of(2020, Month.FEBRUARY, 1), 
+	public final static List<Day> START_DAYS = List.of(Day.of(2020, Month.FEBRUARY, 1), 
 			Day.of(2020, Month.MARCH, 23),
 			Day.of(2020, Month.SEPTEMBER, 2), 
 			Day.of(2020, Month.OCTOBER, 30),  
