@@ -550,7 +550,7 @@ public class TransactionListEditorPart extends EditorPart {
 		
 		ITransaction lastTransaction = transactions.get(0);
 		for (ITransaction iTransaction : transactions) {
-			if (iTransaction.getDay().month != lastTransaction.getDay().month) {
+			if (iTransaction.getDay().getMonth() != lastTransaction.getDay().getMonth()) {
 				lastDayOfMonthTransactions.add(lastTransaction);
 			}
 			lastTransaction = iTransaction;

@@ -135,7 +135,7 @@ public class ValueChartEditorPart extends EditorPart {
 
 	private void todayMarker(XYPlot plot) {
 		de.tomsplayground.peanuts.util.Day day = de.tomsplayground.peanuts.util.Day.today();
-		long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
+		long x = new Day(day.day, day.getMonth().getValue(), day.year).getFirstMillisecond();
 		ValueMarker valueMarker = new ValueMarker(x);
 		valueMarker.setAlpha(0.50f);
 		valueMarker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
@@ -195,7 +195,7 @@ public class ValueChartEditorPart extends EditorPart {
 		for (BigDecimal v : values) {
 			sum = sum.add(v);
 			de.tomsplayground.peanuts.util.Day d = dateIterator.next();
-			Day day = new Day(d.day, d.month+1, d.year);
+			Day day = new Day(d.day, d.getMonth().getValue(), d.year);
 			BigDecimal v1 = sum.add(iterator1.next());
 			BigDecimal v2 = iterator2.next();
 			s3.add(day, v1.subtract(v2));
@@ -219,7 +219,7 @@ public class ValueChartEditorPart extends EditorPart {
 		for (BigDecimal v : values) {
 			sum = sum.add(v);
 			de.tomsplayground.peanuts.util.Day d = dateIterator.next();
-			Day day = new Day(d.day, d.month+1, d.year);
+			Day day = new Day(d.day, d.getMonth().getValue(), d.year);
 			BigDecimal v1 = sum.add(iterator1.next());
 			s1.add(day, v1);
 			BigDecimal v2 = iterator2.next();

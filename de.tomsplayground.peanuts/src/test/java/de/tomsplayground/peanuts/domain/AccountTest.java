@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.domain;
 
 import java.math.BigDecimal;
+import java.time.Month;
 import java.util.List;
 
 import de.tomsplayground.peanuts.domain.base.Account;
@@ -77,10 +78,10 @@ public class AccountTest extends TestCase {
 	}
 
 	public void testTransactionOrder() {
-		Day d1 = Day.of(1999, 0, 1);
+		Day d1 = Day.of(1999, Month.JANUARY, 1);
 		Transaction t1 = new Transaction(d1, new BigDecimal("100.00"));
 		account1.addTransaction(t1);
-		Day d2 = Day.of(2000, 0, 1);
+		Day d2 = Day.of(2000, Month.JANUARY, 1);
 		Transaction t2 = new Transaction(d2, new BigDecimal("100.00"));
 		account1.addTransaction(t2);
 
@@ -88,14 +89,14 @@ public class AccountTest extends TestCase {
 		assertEquals(t1, transactions.get(0));
 		assertEquals(t2, transactions.get(1));
 
-		t2.setDay(Day.of(1998, 0, 1));
+		t2.setDay(Day.of(1998, Month.JANUARY, 1));
 		transactions = account1.getTransactions();
 		assertEquals(t2, transactions.get(0));
 		assertEquals(t1, transactions.get(1));
 	}
 
 	public void testModifyDateForTransfer() {
-		Day notNow = Day.of(1999, 0, 1);
+		Day notNow = Day.of(1999, Month.JANUARY, 1);
 		Transfer t = new Transfer(account1, account2, new BigDecimal("75.00"),
 			Day.today());
 		account1.addTransaction(t.getTransferFrom());
@@ -163,7 +164,6 @@ public class AccountTest extends TestCase {
 		assertEquals(2, account2.getTransactions().size());
 	}
 
-	@SuppressWarnings("unused")
 	public void testTransferEqualAccounts() {
 		try {
 			new Transfer(account1, account1, new BigDecimal("75.00"), Day.today());

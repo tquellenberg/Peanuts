@@ -23,11 +23,11 @@ public class Day implements Serializable, Cloneable, Comparable<Day> {
 	private static final DayCache DAY_CACHE = new DayCache();
 
 	public final short day;	// 1..
-	public final short month; // 0..
+	private final short month; // 0..
 	public final short year;
 
 	public static Day from(LocalDate date) {
-		return of(date.getYear(), date.getMonthValue()-1, date.getDayOfMonth());
+		return of(date.getYear(), Month.of(date.getMonthValue()), date.getDayOfMonth());
 	}
 
 	/**
@@ -43,7 +43,7 @@ public class Day implements Serializable, Cloneable, Comparable<Day> {
 		int year = Integer.parseInt(split[0]);
 		int month = Integer.parseInt(split[1]);
 		int day = Integer.parseInt(split[2]);
-		return of(year, month-1, day);
+		return of(year, Month.of(month), day);
 	}
 
 	public static Day today() {
@@ -62,14 +62,19 @@ public class Day implements Serializable, Cloneable, Comparable<Day> {
 	 * @param month 0..11
 	 * @param day 1..31
 	 */
-	public static Day of(int year, int month, int day) {
+	public static Day of(int year, Month month, int day) {
 		if (! (day > 0 && day <= 31)) {
 			throw new IllegalArgumentException("day: 1-31");
 		}
-		if (! (month >= 0 && month <= 11)) {
-			throw new IllegalArgumentException("month: 0-11");
-		}
 		return DAY_CACHE.getDay(year, month, day);
+	}
+	
+	public static Day firstDayOfYear(int year) {
+		return DAY_CACHE.getDay(year, Month.JANUARY, 1);
+	}
+
+	public static Day lastDayOfYear(int year) {
+		return DAY_CACHE.getDay(year, Month.DECEMBER, 31);
 	}
 
 	@Override
@@ -160,6 +165,10 @@ public class Day implements Serializable, Cloneable, Comparable<Day> {
 
 	public Date toDate() {
 		return Date.from(toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+	}
+	
+	public Month getMonth() {
+		return Month.of(month+1);
 	}
 
 	public Day adjustWorkday() {

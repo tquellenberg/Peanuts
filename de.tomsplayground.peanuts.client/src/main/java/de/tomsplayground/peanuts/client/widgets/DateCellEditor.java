@@ -1,5 +1,7 @@
 package de.tomsplayground.peanuts.client.widgets;
 
+import java.time.Month;
+
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
@@ -67,7 +69,7 @@ public class DateCellEditor extends CellEditor {
 
 	@Override
 	protected Object doGetValue() {
-		Day date = Day.of(dateTime.getYear(), dateTime.getMonth(), dateTime.getDay());
+		Day date = Day.of(dateTime.getYear(), Month.of(dateTime.getMonth()+1), dateTime.getDay());
 		return date;
 	}
 
@@ -80,7 +82,7 @@ public class DateCellEditor extends CellEditor {
 	protected void doSetValue(Object value) {
 		Day cal = (Day)value;
 		dateTime.setYear(cal.year);
-		dateTime.setMonth(cal.month);
+		dateTime.setMonth(cal.getMonth().getValue()-1);
 		dateTime.setDay(cal.day);
 	}
 

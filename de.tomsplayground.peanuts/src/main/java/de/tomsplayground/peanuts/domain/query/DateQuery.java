@@ -51,7 +51,7 @@ public class DateQuery implements IQuery {
 	private void calculateDates() {
 		Day now = Day.today();
 		if (timeRange == TimeRange.THIS_YEAR) {
-			start = Day.of(now.year, 0, 1);
+			start = Day.firstDayOfYear(now.year);
 			end = start.addYear(1);
 		} else if (timeRange == TimeRange.LAST_12_MONTH) {
 			end = now.addDays(1);

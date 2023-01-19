@@ -123,12 +123,13 @@ public class CreditChartEditorPart extends EditorPart {
 	private TimeSeriesCollection createTotalDataset() {
 		TimeSeriesCollection dataset = new TimeSeriesCollection();
 		ICredit credit = getCredit();
-		Month month = new Month(credit.getStart().month + 1, credit.getStart().year);
-		Month endMonth = new Month(credit.getEnd().month + 1, credit.getEnd().year);
+		Month month = new Month(credit.getStart().getMonth().getValue(), credit.getStart().year);
+		Month endMonth = new Month(credit.getEnd().getMonth().getValue(), credit.getEnd().year);
 		TimeSeries s1 = new TimeSeries(getCredit().getName());
 		TimeSeries s2 = new TimeSeries(getCredit().getName());
 		for (; month.compareTo(endMonth) <= 0; month = (Month)month.next()) {
-			de.tomsplayground.peanuts.util.Day day = de.tomsplayground.peanuts.util.Day.of(month.getYearValue(), month.getMonth() - 1, 1);
+			de.tomsplayground.peanuts.util.Day day = de.tomsplayground.peanuts.util.Day.of(month.getYearValue(), 
+					java.time.Month.of(month.getMonth()), 1);
 			s1.add(month, credit.amount(day));
 			s2.add(month, credit.getInterest(day));
 		}

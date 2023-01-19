@@ -15,7 +15,7 @@ public class DefaultComparisonInput {
 	private static final List<String> S_AND_P_ISIN = List.of("XLC", "XLY", "XLP", "XLE", "XLF", "XLV", "XLI", "XLB", "XLRE", "XLK", "XLU");
 	private static final List<String> CURRENCY_ISIN = List.of("EURUSD", "EURGBP", "EURCHF", "EURJPY", "EURAUD", "EURZAR", "EURSGD");
 
-	private static Day startDate = Day.of(2020, 1, 1);
+	private static Day startDate = Day.firstDayOfYear(2020);
 
 	public static List<Comparison> init(AccountManager accountManager) {
 		List<Comparison> defaultComparisons = new ArrayList<>();

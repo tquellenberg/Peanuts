@@ -3,6 +3,7 @@ package de.tomsplayground.peanuts.domain.process;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
+import java.time.Month;
 import java.util.Currency;
 
 import org.junit.Test;
@@ -15,7 +16,7 @@ public class EuroTransactionWrapperTest {
 
 	@Test
 	public void simple() throws Exception {
-		Day day = Day.of(2000, 5, 10);
+		Day day = Day.of(2000, Month.JUNE, 10);
 		Category cat = new Category("test", Category.Type.EXPENSE);
 		Transaction t = new Transaction(day, BigDecimal.TEN, cat, "memo");
 		EuroTransactionWrapper wrapper = new EuroTransactionWrapper(t, Currency.getInstance("DEM"));
@@ -27,7 +28,7 @@ public class EuroTransactionWrapperTest {
 
 	@Test
 	public void splitTransaction() throws Exception {
-		Day day = Day.of(2000, 5, 10);
+		Day day = Day.of(2000, Month.JUNE, 10);
 		Transaction t = new Transaction(day, BigDecimal.ZERO);
 		t.addSplit(new Transaction(day, BigDecimal.TEN));
 		t.addSplit(new Transaction(day, BigDecimal.TEN));

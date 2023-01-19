@@ -57,10 +57,10 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 		if (paymentInterval == PaymentInterval.MONTHLY) {
 			if (day.year == start.year) {
 				a = amount;
-				month = day.month - start.month + 1;
+				month = day.getMonth().getValue() - start.getMonth().getValue() + 1;
 			} else {
-				a  = amount(Day.of(day.year, 0, 1));
-				month = day.month + 1;
+				a  = amount(Day.firstDayOfYear(day.year));
+				month = day.getMonth().getValue();
 			}
 			BigDecimal p = BigDecimal.ZERO;
 			for (int i = 0; i < month-1; i++) {
@@ -70,11 +70,11 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 		} else {
 			if (day.year == start.year) {
 				a = amount;
-				month = day.month - start.month + 1;
+				month = day.getMonth().getValue() - start.getMonth().getValue() + 1;
 			} else {
-				a  = amount(Day.of(day.year, 0, 1));
-				month = day.month + 1;
-				int paymentMonth = month - start.month;
+				a  = amount(Day.firstDayOfYear(day.year));
+				month = day.getMonth().getValue();
+				int paymentMonth = month - (start.getMonth().getValue() - 1);
 				if (paymentMonth > 0) {
 					paymentInterest = paymentAmount.multiply(interestRate).multiply(new BigDecimal(paymentMonth)).divide(new BigDecimal(1200), PeanutsUtil.MC);
 				}
@@ -100,20 +100,21 @@ public class Credit extends ObservableModelObject implements ICredit, IConfigura
 			int month;
 			if (day.year == start.year) {
 				a = amount;
-				month = day.month - start.month;
+				month = day.getMonth().getValue() - start.getMonth().getValue();
 			} else {
-				Day endOfLastYear = Day.of(day.year - 1, 11, 31);
+				Day endOfLastYear = Day.lastDayOfYear(day.year - 1);
 				a = amount(endOfLastYear).add(getInterest(endOfLastYear));
-				month = day.month + 1;
+				month = day.getMonth().getValue();
 			}
 			a = a.subtract(paymentAmount.multiply(new BigDecimal(month)));
 		} else {
 			if (day.year == start.year) {
 				a = amount;
 			} else {
-				Day endOfLastYear = Day.of(day.year - 1, 11, 31);
+				Day endOfLastYear = Day.lastDayOfYear(day.year - 1);
 				a = amount(endOfLastYear).add(getInterest(endOfLastYear));
-				if (day.month > start.month || (day.month == start.month && day.day >= start.day)) {
+				if (day.getMonth().getValue() > start.getMonth().getValue() 
+						|| (day.getMonth() == start.getMonth() && day.day >= start.day)) {
 					a = a.subtract(paymentAmount);
 				}
 			}

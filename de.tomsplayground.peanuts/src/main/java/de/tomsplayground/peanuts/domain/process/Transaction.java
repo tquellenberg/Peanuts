@@ -199,7 +199,7 @@ public class Transaction extends ObservableModelObject implements ITransaction {
 			if (day.year < 100) {
 				year = day.year + 2000;
 			}
-			day = Day.of(year, day.month, day.day);
+			day = Day.of(year, day.getMonth(), day.day);
 		}
 		for (Transaction t : splits) {
 			if (t.getCategory() != null) {

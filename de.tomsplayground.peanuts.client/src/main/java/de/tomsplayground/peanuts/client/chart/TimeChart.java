@@ -107,7 +107,7 @@ public class TimeChart {
 			case THREE_YEARS -> Day.today().addYear(-3);
 			case TWO_YEARS -> Day.today().addYear(-2);
 			case ONE_YEARS -> Day.today().addYear(-1);
-			case THIS_YEARS -> Day.of(Day.today().year, 0, 1);
+			case THIS_YEARS -> Day.firstDayOfYear(Day.today().year);
 			case SIX_MONTHS -> Day.today().addMonth(-6);
 			case ONE_MONTHS -> Day.today().addMonth(-1);
 			case ALL -> null;

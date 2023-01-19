@@ -4,6 +4,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.time.Month;
 import java.util.Currency;
 import java.util.Iterator;
 import java.util.List;
@@ -591,7 +592,7 @@ public class DividendEditorPart extends EditorPart {
 		int day = Integer.parseInt(split[0]);
 		int month = Integer.parseInt(split[1]);
 		int year = Integer.parseInt(split[2]);
-		return Day.of(year, month-1, day);
+		return Day.of(year, Month.of(month), day);
 	}
 
 	private Security getSecurity() {

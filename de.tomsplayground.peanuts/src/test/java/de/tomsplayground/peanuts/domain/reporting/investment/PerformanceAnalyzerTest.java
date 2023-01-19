@@ -3,6 +3,7 @@ package de.tomsplayground.peanuts.domain.reporting.investment;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
+import java.time.Month;
 import java.util.List;
 
 import org.junit.Assert;
@@ -48,7 +49,7 @@ public class PerformanceAnalyzerTest {
 			@Override
 			public IPriceProvider getPriceProvider(Security security) {
 				SimplePriceProvider simplePriceProvider = new SimplePriceProvider();
-				simplePriceProvider.setPrice(new Price(Day.of(2008, 3, 13), new BigDecimal("9.00")));
+				simplePriceProvider.setPrice(new Price(Day.of(2008, Month.APRIL, 13), new BigDecimal("9.00")));
 				return simplePriceProvider;
 			}
 			@Override
@@ -162,7 +163,7 @@ public class PerformanceAnalyzerTest {
 		Account account2 = accountManager.getOrCreateAccount("X2", Account.Type.BANK);
 
 		// 1. Addition on 1.7.2010 (+100)
-		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), Day.of(2010, 6, 1));
+		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), Day.of(2010, Month.JULY, 1));
 		account2.addTransaction(transfer.getTransferFrom());
 		account.addTransaction(transfer.getTransferTo());
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory, stockSplitProvider);
@@ -176,12 +177,12 @@ public class PerformanceAnalyzerTest {
 		Account account2 = accountManager.getOrCreateAccount("X2", Account.Type.BANK);
 
 		// 1. Addition on 1.4.2010 (+100)
-		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), Day.of(2010, 3, 1));
+		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), Day.of(2010, Month.APRIL, 1));
 		account2.addTransaction(transfer.getTransferFrom());
 		account.addTransaction(transfer.getTransferTo());
 
 		// 2. Leaving on 1.7.2010 (-100)
-		transfer = new Transfer(account2, account, new BigDecimal("-100.00"), Day.of(2010, 6, 1));
+		transfer = new Transfer(account2, account, new BigDecimal("-100.00"), Day.of(2010, Month.JULY, 1));
 		account2.addTransaction(transfer.getTransferFrom());
 		account.addTransaction(transfer.getTransferTo());
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory, stockSplitProvider);
@@ -197,7 +198,7 @@ public class PerformanceAnalyzerTest {
 		Account account2 = accountManager.getOrCreateAccount("X2", Account.Type.BANK);
 
 		// 1. Addition on 1.1. this year (+100)
-		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), Day.of(now.year, 0, 1));
+		Transfer transfer = new Transfer(account2, account, new BigDecimal("100.00"), Day.firstDayOfYear(now.year));
 		account2.addTransaction(transfer.getTransferFrom());
 		account.addTransaction(transfer.getTransferTo());
 		PerformanceAnalyzer analizer = new PerformanceAnalyzer(account, priceProviderFactory, stockSplitProvider);

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.time.Month;
 import java.util.List;
 
 import org.junit.Test;
@@ -29,12 +30,12 @@ public class FileCvsReaderTest {
 		assertEquals(14, prices.size());
 		assertEquals(new BigDecimal("2.392"), prices.get(0).getValue());
 		Day date = prices.get(0).getDay();
-		assertEquals(Day.of(2007, 7, 1), date);
+		assertEquals(Day.of(2007, Month.AUGUST, 1), date);
 
 		Day day = reader.getMinDate();
-		assertEquals(Day.of(2007, 7, 1), day);
+		assertEquals(Day.of(2007, Month.AUGUST, 1), day);
 
 		day = reader.getMaxDate();
-		assertEquals(Day.of(2007, 7, 20), day);
+		assertEquals(Day.of(2007, Month.AUGUST, 20), day);
 	}
 }

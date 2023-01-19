@@ -1,6 +1,7 @@
 package de.tomsplayground.peanuts.domain.reporting.forecast;
 
 import java.math.BigDecimal;
+import java.time.Month;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,7 +16,7 @@ public class ForecastTest {
 	public void simple() throws Exception {
 		BigDecimal amount = BigDecimal.TEN;
 		BigDecimal increase = BigDecimal.TEN;
-		Day startDay = Day.of(2008, 7, 20);
+		Day startDay = Day.of(2008, Month.AUGUST, 20);
 		Forecast forecast = new Forecast(startDay, amount, increase);
 
 		// Now
@@ -32,7 +33,7 @@ public class ForecastTest {
 	public void beforeStart() {
 		BigDecimal amount = BigDecimal.TEN;
 		BigDecimal increase = BigDecimal.TEN;
-		Day startDay = Day.of(2008, 7, 20);
+		Day startDay = Day.of(2008, Month.AUGUST, 20);
 		Forecast forecast = new Forecast(startDay, amount, increase);
 
 		try {
@@ -48,7 +49,7 @@ public class ForecastTest {
 		BigDecimal amount = BigDecimal.TEN;
 		BigDecimal increase = BigDecimal.TEN;
 		BigDecimal percent = BigDecimal.TEN;
-		Day startDay = Day.of(2008, 7, 20);
+		Day startDay = Day.of(2008, Month.AUGUST, 20);
 		Forecast forecast = new Forecast(startDay, amount, increase, percent);
 
 		// Now

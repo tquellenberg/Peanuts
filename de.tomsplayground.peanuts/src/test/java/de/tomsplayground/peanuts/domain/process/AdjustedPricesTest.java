@@ -3,6 +3,7 @@ package de.tomsplayground.peanuts.domain.process;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,13 +22,13 @@ public class AdjustedPricesTest {
 	@Test
 	public void simpleTest() throws Exception {
 		List<Price> prices = new ArrayList<Price>();
-		prices.add(new Price(Day.of(2008, 10, 1), new BigDecimal("10")));
-		prices.add(new Price(Day.of(2008, 10, 2), new BigDecimal("5")));
-		prices.add(new Price(Day.of(2008, 10, 3), new BigDecimal("5")));
+		prices.add(new Price(Day.of(2008, Month.NOVEMBER, 1), new BigDecimal("10")));
+		prices.add(new Price(Day.of(2008, Month.NOVEMBER, 2), new BigDecimal("5")));
+		prices.add(new Price(Day.of(2008, Month.NOVEMBER, 3), new BigDecimal("5")));
 		PriceProvider priceProvider = new PriceProvider(null);
 		priceProvider.setPrices(prices, true);
 
-		List<StockSplit> splits = Collections.singletonList(new StockSplit(new Security("sec"), Day.of(2008, 10, 2), 1, 2));
+		List<StockSplit> splits = Collections.singletonList(new StockSplit(new Security("sec"), Day.of(2008, Month.NOVEMBER, 2), 1, 2));
 
 		SplitAdjustedPriceProvider splitAdjustedPrices = new SplitAdjustedPriceProvider(priceProvider, splits);
 		List<IPrice> adjustPrices = splitAdjustedPrices.getPrices();
@@ -41,15 +42,15 @@ public class AdjustedPricesTest {
 	@Test
 	public void multiSplitTest() throws Exception {
 		List<Price> prices = new ArrayList<Price>();
-		prices.add(new Price(Day.of(2008, 10, 1), new BigDecimal("10")));
-		prices.add(new Price(Day.of(2008, 10, 2), new BigDecimal("5")));
-		prices.add(new Price(Day.of(2008, 10, 3), new BigDecimal("5")));
+		prices.add(new Price(Day.of(2008, Month.NOVEMBER, 1), new BigDecimal("10")));
+		prices.add(new Price(Day.of(2008, Month.NOVEMBER, 2), new BigDecimal("5")));
+		prices.add(new Price(Day.of(2008, Month.NOVEMBER, 3), new BigDecimal("5")));
 		PriceProvider priceProvider = new PriceProvider(null);
 		priceProvider.setPrices(prices, true);
 
 		List<StockSplit> splits = Lists.newArrayList(
-				new StockSplit(new Security("sec"), Day.of(2008, 10, 2), 1, 2),
-				new StockSplit(new Security("sec"), Day.of(2008, 10, 3), 1, 2));
+				new StockSplit(new Security("sec"), Day.of(2008, Month.NOVEMBER, 2), 1, 2),
+				new StockSplit(new Security("sec"), Day.of(2008, Month.NOVEMBER, 3), 1, 2));
 
 		SplitAdjustedPriceProvider splitAdjustedPrices = new SplitAdjustedPriceProvider(priceProvider, splits);
 		List<IPrice> adjustPrices = splitAdjustedPrices.getPrices();

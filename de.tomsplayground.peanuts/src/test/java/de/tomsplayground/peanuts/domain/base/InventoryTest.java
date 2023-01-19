@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
+import java.time.Month;
 import java.util.Collection;
 import java.util.Currency;
 import java.util.List;
@@ -175,7 +176,7 @@ public class InventoryTest {
 		// remove investmentTransaction1
 		investmmentAccount.reset();
 
-		final Day now = Day.of(2008, 4, 3);
+		final Day now = Day.of(2008, Month.MAY, 3);
 		// one share
 		InvestmentTransaction buy = new InvestmentTransaction(now.addDays(-1), apple, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY);
 		investmmentAccount.addTransaction(buy);

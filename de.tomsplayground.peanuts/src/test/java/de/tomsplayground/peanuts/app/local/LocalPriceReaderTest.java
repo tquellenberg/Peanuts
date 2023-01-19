@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.time.Month;
 import java.util.List;
 
 import org.junit.Test;
@@ -28,7 +29,7 @@ public class LocalPriceReaderTest extends TestCase {
 		IPrice price = prices.get(0);
 		assertEquals(new BigDecimal("52.48"), price.getValue());
 		Day date = price.getDay();
-		assertEquals(Day.of(2007, 4, 23), date);
+		assertEquals(Day.of(2007, Month.MAY, 23), date);
 	}
 
 	@Test

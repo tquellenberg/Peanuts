@@ -1,5 +1,6 @@
 package de.tomsplayground.peanuts.client.widgets;
 
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,11 +95,11 @@ public class DateComposite extends Composite {
 	}
 
 	public Day getDay() {
-		return Day.of(date.getYear(), date.getMonth(), date.getDay());
+		return Day.of(date.getYear(), Month.of(date.getMonth()+1), date.getDay());
 	}
 
 	public void setDay(Day day) {
-		date.setDate(day.year, day.month, day.day);
+		date.setDate(day.year, day.getMonth().getValue()-1, day.day);
 	}
 
 	public void addModifyListener(final ModifyListener listener) {

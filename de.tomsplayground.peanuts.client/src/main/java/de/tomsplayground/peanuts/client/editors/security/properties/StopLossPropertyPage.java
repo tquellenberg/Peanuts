@@ -62,7 +62,7 @@ public class StopLossPropertyPage extends PropertyPage {
 			}
 		} else {
 			String stopLossValue = StringUtils.defaultString(security.getConfigurationValue("STOPLOSS"));
-			date.setDay(Day.of(1970, 0, 1));
+			date.setDay(Day.firstDayOfYear(1970));
 			stop.setText(stopLossValue);
 		}
 		return composite;

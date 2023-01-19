@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,34 +38,34 @@ public class FundamentalDatasTest {
 
 	@Test
 	public void testGetFundamentalData() {
-		assertNull(fundamentalDatas.getFundamentalData(Day.of(2015, 11, 31)));
-		assertEquals(datas.get(0), fundamentalDatas.getFundamentalData(Day.of(2016, 0 ,1)));
-		assertEquals(datas.get(2), fundamentalDatas.getFundamentalData(Day.of(2018, 11, 31)));
-		assertNull(fundamentalDatas.getFundamentalData(Day.of(2019, 11, 31)));
+		assertNull(fundamentalDatas.getFundamentalData(Day.lastDayOfYear(2015)));
+		assertEquals(datas.get(0), fundamentalDatas.getFundamentalData(Day.firstDayOfYear(2016)));
+		assertEquals(datas.get(2), fundamentalDatas.getFundamentalData(Day.lastDayOfYear(2018)));
+		assertNull(fundamentalDatas.getFundamentalData(Day.lastDayOfYear(2019)));
 	}
 
 	@Test
 	public void testContinuousPE() {
 		// 1.7.2017
-		assertEquals(new BigDecimal("3.0"), fundamentalDatas.getContinuousEarnings(Day.of(2017, 6, 1)).setScale(1, RoundingMode.HALF_UP));
+		assertEquals(new BigDecimal("3.0"), fundamentalDatas.getContinuousEarnings(Day.of(2017, Month.JULY, 1)).setScale(1, RoundingMode.HALF_UP));
 		// 1.1.2018
-		assertEquals(new BigDecimal("4.0"), fundamentalDatas.getContinuousEarnings(Day.of(2018, 0, 1)).setScale(1, RoundingMode.HALF_UP));
+		assertEquals(new BigDecimal("4.0"), fundamentalDatas.getContinuousEarnings(Day.firstDayOfYear(2018)).setScale(1, RoundingMode.HALF_UP));
 		// 1.7.2018
-		assertEquals(new BigDecimal("4.5"), fundamentalDatas.getContinuousEarnings(Day.of(2018, 6, 1)).setScale(1, RoundingMode.HALF_UP));
+		assertEquals(new BigDecimal("4.5"), fundamentalDatas.getContinuousEarnings(Day.of(2018, Month.JULY, 1)).setScale(1, RoundingMode.HALF_UP));
 	}
 
 	@Test
 	public void testContinuousPEBorder() {
 		// 31.12.2014
-		assertNull(fundamentalDatas.getContinuousEarnings(Day.of(2015, 11, 31)));
+		assertNull(fundamentalDatas.getContinuousEarnings(Day.lastDayOfYear(2015)));
 		// 1.1.2016
-		assertEquals(new BigDecimal("2.0"), fundamentalDatas.getContinuousEarnings(Day.of(2016, 0, 1)).setScale(1, RoundingMode.HALF_UP));
+		assertEquals(new BigDecimal("2.0"), fundamentalDatas.getContinuousEarnings(Day.firstDayOfYear(2016)).setScale(1, RoundingMode.HALF_UP));
 		// 1.7.2016
-		assertEquals(new BigDecimal("2.0"), fundamentalDatas.getContinuousEarnings(Day.of(2016, 6, 1)).setScale(1, RoundingMode.HALF_UP));
+		assertEquals(new BigDecimal("2.0"), fundamentalDatas.getContinuousEarnings(Day.of(2016, Month.JULY, 1)).setScale(1, RoundingMode.HALF_UP));
 		// 1.1.2019
-		assertEquals(new BigDecimal("5.0"), fundamentalDatas.getContinuousEarnings(Day.of(2019, 0, 1)).setScale(1, RoundingMode.HALF_UP));
+		assertEquals(new BigDecimal("5.0"), fundamentalDatas.getContinuousEarnings(Day.firstDayOfYear(2019)).setScale(1, RoundingMode.HALF_UP));
 		// 1.1.2020
-		assertNull(fundamentalDatas.getContinuousEarnings(Day.of(2020, 0, 1)));
+		assertNull(fundamentalDatas.getContinuousEarnings(Day.firstDayOfYear(2020)));
 	}
 
 }

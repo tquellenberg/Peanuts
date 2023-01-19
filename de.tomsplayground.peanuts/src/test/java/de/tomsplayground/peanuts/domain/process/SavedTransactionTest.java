@@ -3,6 +3,7 @@ package de.tomsplayground.peanuts.domain.process;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
+import java.time.Month;
 
 import org.junit.Test;
 
@@ -11,8 +12,8 @@ import de.tomsplayground.peanuts.util.Day;
 
 public class SavedTransactionTest {
 
-	private static final Transaction TRANSACTION = new Transaction(Day.of(2021, 9, 3), new BigDecimal("100.34"));
-	private static final Day START = Day.of(2021, 0, 1);
+	private static final Transaction TRANSACTION = new Transaction(Day.of(2021, Month.OCTOBER, 3), new BigDecimal("100.34"));
+	private static final Day START = Day.firstDayOfYear(2021);
 
 	@Test
 	public void testSimple() {

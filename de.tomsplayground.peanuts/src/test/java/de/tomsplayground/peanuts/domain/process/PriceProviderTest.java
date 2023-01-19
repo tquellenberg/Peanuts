@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +24,8 @@ public class PriceProviderTest {
 	@Before
 	public void setUp() {
 		pp = new PriceProvider(null);
-		c1 = Day.of(2008, 4, 1);
-		dateAfterC1 = Day.of(2008, 4, 2);
+		c1 = Day.of(2008, Month.MAY, 1);
+		dateAfterC1 = Day.of(2008, Month.MAY, 2);
 	}
 
 	@Test
@@ -41,10 +42,10 @@ public class PriceProviderTest {
 
 	@Test
 	public void testGetPrice2() {
-		pp.setPrice(new Price(Day.of(2008, 4, 2), BigDecimal.ONE));
-		pp.setPrice(new Price(Day.of(2008, 4, 5), BigDecimal.TEN));
+		pp.setPrice(new Price(Day.of(2008, Month.MAY, 2), BigDecimal.ONE));
+		pp.setPrice(new Price(Day.of(2008, Month.MAY, 5), BigDecimal.TEN));
 
-		IPrice price = pp.getPrice(Day.of(2008, 4, 3));
+		IPrice price = pp.getPrice(Day.of(2008, Month.MAY, 3));
 		assertEquals(BigDecimal.ONE, price.getValue());
 	}
 

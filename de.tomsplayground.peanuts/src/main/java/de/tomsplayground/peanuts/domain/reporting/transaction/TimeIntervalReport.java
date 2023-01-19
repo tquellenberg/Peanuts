@@ -3,6 +3,7 @@ package de.tomsplayground.peanuts.domain.reporting.transaction;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -63,17 +64,16 @@ public class TimeIntervalReport extends ObservableModelObject {
 			Day startDay = transactions.get(0).getDay();
 			start = switch (interval) {
 				case DAY -> startDay;
-				case MONTH -> Day.of(startDay.year, startDay.month, 1);
+				case MONTH -> Day.of(startDay.year, startDay.getMonth(), 1);
 				case QUARTER -> {
-					int month = startDay.month;
-					month = month - (month % 3);
-					yield Day.of(startDay.year, month, 1);
+					Month month = startDay.getMonth();
+					yield Day.of(startDay.year, month.firstMonthOfQuarter(), 1);
 				}
-				case YEAR -> startDay = Day.of(startDay.year, 0, 1);
+				case YEAR -> startDay = Day.firstDayOfYear(startDay.year);
 				case DECADE -> {
 					int year = startDay.year;
 					year = year - (year % 10);
-					yield Day.of(year, 0, 1);
+					yield Day.firstDayOfYear(year);
 				}
 			};
 

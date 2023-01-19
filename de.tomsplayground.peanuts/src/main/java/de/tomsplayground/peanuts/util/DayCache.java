@@ -2,6 +2,7 @@ package de.tomsplayground.peanuts.util;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -45,26 +46,26 @@ public class DayCache {
 	 * @param month 0..11
 	 * @param day   1..31
 	 */
-	private int indexOf(int year, int month, int day) {
+	private int indexOf(int year, Month month, int day) {
 		int yearIndex = (YEAR - year) + 1;
-		int index = (day - 1) + (month * MONTH_SLOTS) + (yearIndex * YEAR_SLOTS);
+		int index = (day - 1) + ((month.getValue()-1) * MONTH_SLOTS) + (yearIndex * YEAR_SLOTS);
 		if (index < 0 || index >= cache.length) {
 			return -1;
 		}
 		return index;
 	}
 
-	public Day getDay(int year, int month, int day) {
+	public Day getDay(int year, Month month, int day) {
 		int index = indexOf(year, month, day);
 		if (index >= 0) {
 			Day d = cache[index];
 			if (d == null) {
-				d = new Day(year, month, day);
+				d = new Day(year, month.getValue()-1, day);
 				cache[index] = d;
 			}
 			return d;
 		} else {
-			return new Day(year, month, day);
+			return new Day(year, month.getValue()-1, day);
 		}
 	}
 

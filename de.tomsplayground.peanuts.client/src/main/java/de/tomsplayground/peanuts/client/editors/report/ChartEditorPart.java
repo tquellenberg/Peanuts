@@ -150,7 +150,7 @@ public class ChartEditorPart extends EditorPart {
 
 	private void todayMarker(XYPlot plot) {
 		de.tomsplayground.peanuts.util.Day day = de.tomsplayground.peanuts.util.Day.today();
-		long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
+		long x = new Day(day.day, day.getMonth().getValue(), day.year).getFirstMillisecond();
 		ValueMarker valueMarker = new ValueMarker(x);
 		valueMarker.setAlpha(0.50f);
 		valueMarker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
@@ -266,7 +266,7 @@ public class ChartEditorPart extends EditorPart {
 			sum = sum.add(v);
 			BigDecimal inventoryValue = iterator.next();
 			de.tomsplayground.peanuts.util.Day d = dateIterator.next();
-			Day day = new Day(d.day, d.month+1, d.year);
+			Day day = new Day(d.day, d.getMonth().getValue(), d.year);
 			s1.add(day, sum.add(inventoryValue));
 			int j = 0;
 			for (Forecast forecast : forecasts) {

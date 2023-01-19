@@ -336,7 +336,7 @@ public class ChartEditorPart extends EditorPart {
 	protected void addSplitAnnotations(List<StockSplit> splits) {
 		for (StockSplit stockSplit : splits) {
 			de.tomsplayground.peanuts.util.Day day = stockSplit.getDay();
-			long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
+			long x = new Day(day.day, day.getMonth().getValue(), day.year).getFirstMillisecond();
 			ValueMarker valueMarker = new ValueMarker(x);
 			valueMarker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
 			valueMarker.setLabelAnchor(RectangleAnchor.BOTTOM_LEFT);
@@ -350,7 +350,7 @@ public class ChartEditorPart extends EditorPart {
 		IPriceProvider pp = getChartPriceProvider();
 		for (InvestmentTransaction investmentTransaction : getOrders()) {
 			de.tomsplayground.peanuts.util.Day day = investmentTransaction.getDay();
-			long x = new Day(day.day, day.month+1, day.year).getFirstMillisecond();
+			long x = new Day(day.day, day.getMonth().getValue(), day.year).getFirstMillisecond();
 			double y = pp.getPrice(day).getValue().doubleValue();
 
 			XYPointerAnnotation pointerAnnotation = null;
@@ -504,11 +504,11 @@ public class ChartEditorPart extends EditorPart {
 			if (pe != null && pe.signum() > 0) {
 				BigDecimal fairPrice = pe.multiply(avgPE, PeanutsUtil.MC);
 				// Main Chart
-				fixedPePrice.addOrUpdate(new Day(day.day, day.month+1, day.year), fairPrice);
+				fixedPePrice.addOrUpdate(new Day(day.day, day.getMonth().getValue(), day.year), fairPrice);
 				if (fairPrice.signum() == 1) {
 					// Delta Chart
 					BigDecimal deltaPercent = price.getValue().subtract(fairPrice).multiply(HUNDRED).divide(fairPrice, PeanutsUtil.MC);
-					peDeltaTimeSeries.addOrUpdate(new Day(day.day, day.month+1, day.year), deltaPercent.doubleValue());
+					peDeltaTimeSeries.addOrUpdate(new Day(day.day, day.getMonth().getValue(), day.year), deltaPercent.doubleValue());
 				}
 			}
 		}
@@ -521,7 +521,7 @@ public class ChartEditorPart extends EditorPart {
 		priceTimeSeries = new TimeSeries(getEditorInput().getName());
 		for (IPrice price : getChartPriceProvider().getPrices()) {
 			de.tomsplayground.peanuts.util.Day day = price.getDay();
-			priceTimeSeries.add(new Day(day.day, day.month+1, day.year), price.getValue());
+			priceTimeSeries.add(new Day(day.day, day.getMonth().getValue(), day.year), price.getValue());
 		}
 		dataset.addSeries(priceTimeSeries);
 
@@ -579,7 +579,7 @@ public class ChartEditorPart extends EditorPart {
 			for (IPrice price : compareToPriceProvider.getPrices()) {
 				de.tomsplayground.peanuts.util.Day day = price.getDay();
 				BigDecimal value = price.getValue().multiply(adjust);
-				compareToPriceTimeSeries.add(new Day(day.day, day.month+1, day.year), value);
+				compareToPriceTimeSeries.add(new Day(day.day, day.getMonth().getValue(), day.year), value);
 			}
 		}
 	}
@@ -637,14 +637,14 @@ public class ChartEditorPart extends EditorPart {
 		List<IPrice> sma = simpleMovingAverage.calculate(getChartPriceProvider().getPrices());
 		for (IPrice price : sma) {
 			de.tomsplayground.peanuts.util.Day day = price.getDay();
-			a1.addOrUpdate(new Day(day.day, day.month+1, day.year), price.getValue());
+			a1.addOrUpdate(new Day(day.day, day.getMonth().getValue(), day.year), price.getValue());
 		}
 	}
 
 	private void createStopLoss(TimeSeries a1, StopLoss stopLoss) {
 		for (Price price : stopLoss.getPrices(priceProvider)) {
 			de.tomsplayground.peanuts.util.Day day = price.getDay();
-			a1.addOrUpdate(new Day(day.day, day.month+1, day.year), price.getValue());
+			a1.addOrUpdate(new Day(day.day, day.getMonth().getValue(), day.year), price.getValue());
 		}
 	}
 

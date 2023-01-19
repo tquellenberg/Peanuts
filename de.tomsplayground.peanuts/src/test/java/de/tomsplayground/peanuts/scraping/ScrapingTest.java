@@ -3,6 +3,7 @@ package de.tomsplayground.peanuts.scraping;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
+import java.time.Month;
 
 import org.junit.Test;
 
@@ -14,7 +15,7 @@ public class ScrapingTest {
 	public void testDayWitText() {
 		Day day = Scraping.scrapDay("12.12.2005Test");
 
-		assertEquals(Day.of(2005, 11, 12), day);
+		assertEquals(Day.of(2005, Month.DECEMBER, 12), day);
 	}
 
 	@Test

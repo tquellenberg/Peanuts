@@ -46,10 +46,10 @@ public class PerformanceAnalyzer {
 			this.marketValueEnd = marketValueEnd;
 			this.additions = BigDecimal.ZERO;
 			this.leavings = BigDecimal.ZERO;
-			this.avgDate = Day.of(year, 0, 1);
+			this.avgDate = Day.firstDayOfYear(year);
 			this.investedAvg = BigDecimal.ZERO;
-			xirr.add(Day.of(year, 0, 1), marketValueStart);
-			xirr.add(Day.of(year, 11, 31), marketValueEnd.negate());
+			xirr.add(Day.firstDayOfYear(year), marketValueStart);
+			xirr.add(Day.lastDayOfYear(year), marketValueEnd.negate());
 		}
 		public void add(Day date, BigDecimal amount) {
 			updateInvestedAvg(date);
@@ -145,8 +145,8 @@ public class PerformanceAnalyzer {
 		Inventory inventory = new Inventory(account, priceProviderFactory, null, stockSplitProvider);
 		List<YearValue> elements = new ArrayList<>();
 		for (; year <= endYear; year++) {
-			Day r1 = Day.of(year-1, 11, 31);
-			Day r2 = Day.of(year,   11, 31);
+			Day r1 = Day.lastDayOfYear(year-1);
+			Day r2 = Day.lastDayOfYear(year);
 			if (r2.after(now)) {
 				r2 = now;
 			}
