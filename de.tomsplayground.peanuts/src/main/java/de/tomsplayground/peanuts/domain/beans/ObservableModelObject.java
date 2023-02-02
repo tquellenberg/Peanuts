@@ -5,7 +5,7 @@ import java.beans.PropertyChangeListener;
 public class ObservableModelObject implements Cloneable {
 	private transient PropertyChangeSupport propertyChangeSupport;
 
-	protected PropertyChangeSupport getPropertyChangeSupport() {
+	public PropertyChangeSupport getPropertyChangeSupport() {
 		if (propertyChangeSupport == null) {
 			propertyChangeSupport = new PropertyChangeSupport(this);
 		}

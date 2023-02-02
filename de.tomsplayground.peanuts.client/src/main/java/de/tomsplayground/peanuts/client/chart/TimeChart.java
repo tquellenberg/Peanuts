@@ -81,22 +81,12 @@ public class TimeChart {
 	}
 
 	private int rightOffset() {
-		switch(type) {
-			case ALL:
-			case TEN_YEARS:
-			case SEVEN_YEARS:
-				return 14;
-			case FIVE_YEARS:
-			case THREE_YEARS:
-			case TWO_YEARS:
-			case ONE_YEARS:
-				return 7;
-			case THIS_YEARS:
-			case SIX_MONTHS:
-			case ONE_MONTHS:
-			default:
-				return 2;
-		}
+		return switch(type) {
+			case ALL, TEN_YEARS, SEVEN_YEARS -> 14;
+			case FIVE_YEARS, THREE_YEARS, TWO_YEARS, ONE_YEARS -> 7;
+			case THIS_YEARS, SIX_MONTHS, ONE_MONTHS -> 2;
+			default -> 2;
+		};
 	}
 
 	public Day getFromDate() {

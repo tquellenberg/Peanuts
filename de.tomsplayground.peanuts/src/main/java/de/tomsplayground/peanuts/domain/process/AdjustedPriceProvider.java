@@ -9,12 +9,22 @@ import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
+import de.tomsplayground.peanuts.domain.beans.PropertyChangeSupport;
 import de.tomsplayground.peanuts.util.Day;
 
-public abstract class AdjustedPriceProvider extends ObservableModelObject implements IPriceProvider {
+sealed public abstract class AdjustedPriceProvider extends ObservableModelObject implements IPriceProvider 
+	permits CurrencyAdjustedPriceProvider, SplitAdjustedPriceProvider {
 
 	private final IPriceProvider rawPriceProvider;
 
+	abstract ImmutableList<IPrice> adjust(ImmutableList<IPrice> prices);
+	abstract IPrice adjust(IPrice price);
+
+	@Override
+	public PropertyChangeSupport getPropertyChangeSupport() {
+		return ((ObservableModelObject)rawPriceProvider).getPropertyChangeSupport();
+	}
+	
 	public AdjustedPriceProvider(IPriceProvider rawPriceProvider) {
 		this.rawPriceProvider = rawPriceProvider;
 	}
@@ -23,9 +33,6 @@ public abstract class AdjustedPriceProvider extends ObservableModelObject implem
 	public ImmutableList<IPrice> getPrices() {
 		return adjust(rawPriceProvider.getPrices());
 	}
-
-	abstract ImmutableList<IPrice> adjust(ImmutableList<IPrice> prices);
-	abstract IPrice adjust(IPrice price);
 
 	@Override
 	public ImmutableList<IPrice> getPrices(Day from, Day to) {
@@ -75,10 +82,6 @@ public abstract class AdjustedPriceProvider extends ObservableModelObject implem
 	@Override
 	public Currency getCurrency() {
 		return rawPriceProvider.getCurrency();
-	}
-
-	public IPriceProvider getRawPriceProvider() {
-		return rawPriceProvider;
 	}
 
 }

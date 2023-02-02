@@ -52,13 +52,13 @@ public class SavedTransaction extends ObservableModelObject implements INamedEle
 	public Day nextExecution() {
 		checkNotNull(start);
 		checkNotNull(interval);
-		switch (interval) {
-			case MONTHLY: return start.addMonth(1);
-			case QUARTERLY: return start.addMonth(3);
-			case HALF_YEARLY: return start.addMonth(6);
-			case YEARLY: return start.addYear(1);
-			default: return start.addMonth(1);
-		}
+		return switch (interval) {
+			case MONTHLY -> start.addMonth(1);
+			case QUARTERLY -> start.addMonth(3);
+			case HALF_YEARLY -> start.addMonth(6);
+			case YEARLY -> start.addYear(1);
+			default -> start.addMonth(1);
+		};
 	}
 
 	public Transaction getTransaction() {

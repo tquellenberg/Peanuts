@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 
-public class CurrencyAdjustedPriceProvider extends AdjustedPriceProvider {
+public final class CurrencyAdjustedPriceProvider extends AdjustedPriceProvider {
 
 	private final CurrencyConverter currencyConverter;
 

@@ -98,8 +98,10 @@ public class ChartEditorPart extends EditorPart {
 	private final PropertyChangeListener priceProviderChangeListener = new UniqueAsyncExecution() {
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
-			if (! chartComposite.isDisposed()) {
+			if (chartComposite != null && ! chartComposite.isDisposed()) {
 				fullChartUpdate();
+			} else {
+				System.err.println("ChartEditorPart.PropertyChangeListener() chartComposite unavailable");
 			}
 		}
 		@Override
@@ -166,6 +168,11 @@ public class ChartEditorPart extends EditorPart {
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
 		priceProvider = PriceProviderFactory.getInstance().getSplitAdjustedPriceProvider(security, stockSplits);
+		if (priceProvider instanceof ObservableModelObject o) {
+			o.addPropertyChangeListener(priceProviderChangeListener);
+		} else {
+			throw new IllegalArgumentException("priceProvider: "+priceProvider.getClass().getSimpleName());
+		}
 	}
 
 	@Override
@@ -246,6 +253,7 @@ public class ChartEditorPart extends EditorPart {
 	}
 	
 	private void fullChartUpdate() {
+		System.out.println("ChartEditorPart.fullChartUpdate()");
 		createDataset();
 		pricePlot.clearAnnotations();
 		addOrderAnnotations();
@@ -551,10 +559,6 @@ public class ChartEditorPart extends EditorPart {
 		if (! fixedPePrice.isEmpty()) {
 			dataset.addSeries(fixedPePrice);
 			dataset2.addSeries(peDeltaTimeSeries);
-		}
-
-		if (priceProvider instanceof ObservableModelObject o) {
-			o.addPropertyChangeListener(priceProviderChangeListener);
 		}
 	}
 

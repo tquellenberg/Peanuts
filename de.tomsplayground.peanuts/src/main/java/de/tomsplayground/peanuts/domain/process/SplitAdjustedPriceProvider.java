@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.util.Day;
 
-public class SplitAdjustedPriceProvider extends AdjustedPriceProvider {
+public final class SplitAdjustedPriceProvider extends AdjustedPriceProvider {
 
 	private final ImmutableList<StockSplit> stockSplits;
 
