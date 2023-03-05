@@ -3,7 +3,6 @@ package de.tomsplayground.peanuts.client.calendar;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;

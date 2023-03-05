@@ -135,7 +135,7 @@ public class SecurityCategoryPropertyPage extends PropertyPage {
 			label.setText(securityCategoryMapping.getName());
 
 			Combo combo = new Combo(composite, SWT.DROP_DOWN);
-			combo.setItems(securityCategoryMapping.getCategories().toArray(new String[0]));
+			combo.setItems((String[]) securityCategoryMapping.getCategories().stream().sorted().toArray(String[]::new));
 			combo.setData(securityCategoryMapping);
 			combo.setText(securityCategoryMapping.getCategory(security));
 			combos.add(combo);

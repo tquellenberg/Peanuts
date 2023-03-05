@@ -82,8 +82,9 @@ public class TimeChart {
 
 	private int rightOffset() {
 		return switch(type) {
-			case ALL, TEN_YEARS, SEVEN_YEARS -> 14;
-			case FIVE_YEARS, THREE_YEARS, TWO_YEARS, ONE_YEARS -> 7;
+			case ALL, TEN_YEARS, SEVEN_YEARS -> 30;
+			case FIVE_YEARS, THREE_YEARS -> 14;
+			case TWO_YEARS, ONE_YEARS -> 7;
 			case THIS_YEARS, SIX_MONTHS, ONE_MONTHS -> 2;
 			default -> 2;
 		};

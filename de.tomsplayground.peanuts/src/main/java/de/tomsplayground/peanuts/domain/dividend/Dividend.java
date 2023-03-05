@@ -19,6 +19,12 @@ import de.tomsplayground.peanuts.util.Day;
 
 @XStreamAlias("dividend")
 public class Dividend implements Comparable<Dividend> {
+	
+	public enum Change {
+		NONE,
+		INCREASE,
+		DECREASE
+	}
 
 	private Day payDate;
 
@@ -35,6 +41,8 @@ public class Dividend implements Comparable<Dividend> {
 	private BigDecimal taxInDefaultCurrency;
 
 	private boolean increase;
+	
+	private Change change;
 
 	transient private Security security;
 
@@ -48,6 +56,7 @@ public class Dividend implements Comparable<Dividend> {
 		this.taxInDefaultCurrency = d.taxInDefaultCurrency;
 		this.security = d.security;
 		this.increase = d.increase;
+		this.change = d.change;
 	}
 
 	public Dividend(Day payDate, BigDecimal amountPerShare, Currency curreny) {
@@ -118,11 +127,22 @@ public class Dividend implements Comparable<Dividend> {
 		return payDate.compareTo(o.payDate);
 	}
 
-	public boolean isIncrease() {
-		return increase;
+//	public boolean isIncrease() {
+//		return increase;
+//	}
+//	public void setIncrease(boolean increase) {
+//		this.increase = increase;
+//	}
+	
+	public Change getChange() {
+		if (change == null) {
+			return increase?Change.INCREASE:Change.NONE;
+		}
+		return change;
 	}
-	public void setIncrease(boolean increase) {
-		this.increase = increase;
+	
+	public void setChange(Change change) {
+		this.change = change;
 	}
 
 	@Override

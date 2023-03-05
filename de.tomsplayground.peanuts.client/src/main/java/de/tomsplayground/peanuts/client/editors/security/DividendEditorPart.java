@@ -60,6 +60,7 @@ import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.dividend.Dividend;
+import de.tomsplayground.peanuts.domain.dividend.Dividend.Change;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
@@ -189,10 +190,11 @@ public class DividendEditorPart extends EditorPart {
 			if (columnIndex == 0 && entry.getPayDate().delta(Day.today()) > 7) {
 				return Activator.getDefault().getColorProvider().get(Activator.GRAY_BG);
 			}
-			if (entry.isIncrease()) {
-				return Activator.getDefault().getColorProvider().get(Activator.GREEN_BG);
-			}
-			return null;
+			return switch (entry.getChange()) {
+				case INCREASE -> Activator.getDefault().getColorProvider().get(Activator.GREEN_BG);
+				case DECREASE -> Activator.getDefault().getColorProvider().get(Activator.RED_BG);
+				default -> null;
+			};
 		}
 
 		@Override
@@ -517,22 +519,33 @@ public class DividendEditorPart extends EditorPart {
 		duplicateAction.setEnabled(! ((IStructuredSelection)tableViewer.getSelection()).isEmpty());
 		manager.add(duplicateAction);
 
-		final Action toggleIncreaseAction = new Action("Toggle Increase") {
-			@SuppressWarnings("unchecked")
-			@Override
-			public void run() {
-				IStructuredSelection sel = (IStructuredSelection)tableViewer.getSelection();
-				if (! sel.isEmpty()) {
-					for (Iterator<Dividend> iter = sel.iterator(); iter.hasNext(); ) {
-						Dividend entry = iter.next();
-						entry.setIncrease(! entry.isIncrease());
-					}
-					tableViewer.refresh();
-					markDirty();
+		MenuManager subMenu = new MenuManager("Change", null);
+		subMenu.add(new ChangeAction("Increase", Change.INCREASE));
+		subMenu.add(new ChangeAction("Decrease", Change.DECREASE));
+		subMenu.add(new ChangeAction("None", Change.NONE));
+		
+		manager.add(subMenu);
+	}
+	
+	class ChangeAction extends Action {
+		private Change change;
+		
+		public ChangeAction(String text, Change change) {
+			super(text);
+			this.change = change;
+		}
+		@SuppressWarnings("unchecked")
+		@Override
+		public void run() {
+			IStructuredSelection sel = (IStructuredSelection)tableViewer.getSelection();
+			if (! sel.isEmpty()) {
+				for (Iterator<Dividend> iter = sel.iterator(); iter.hasNext(); ) {
+					iter.next().setChange(change);
 				}
+				tableViewer.refresh();
+				markDirty();
 			}
-		};
-		manager.add(toggleIncreaseAction);
+		}
 	}
 
 	private InvestmentTransaction isBooked(Dividend dividend) {
