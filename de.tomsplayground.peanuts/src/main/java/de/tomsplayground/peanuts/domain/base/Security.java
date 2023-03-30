@@ -24,6 +24,7 @@ import de.tomsplayground.peanuts.domain.dividend.Dividend;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
 import de.tomsplayground.peanuts.domain.note.Note;
+import de.tomsplayground.peanuts.domain.process.IStockSplitProvider;
 
 @XStreamAlias("security")
 public class Security extends ObservableModelObject implements INamedElement, IConfigurable, IDeletable {
@@ -103,7 +104,7 @@ public class Security extends ObservableModelObject implements INamedElement, IC
 		firePropertyChange("wkn", oldValue, wkn);
 	}
 
-	public void reconfigureAfterDeserialization(AccountManager accountManager) {
+	public void reconfigureAfterDeserialization(IStockSplitProvider accountManager) {
 		if (fundamentalDatas == null) {
 			fundamentalDatas = new ArrayList<FundamentalData>();
 		}

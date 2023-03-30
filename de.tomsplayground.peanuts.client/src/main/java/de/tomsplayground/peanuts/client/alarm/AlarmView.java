@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
@@ -41,6 +42,7 @@ import de.tomsplayground.peanuts.client.editors.security.SecurityEditorInput;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.domain.alarm.AlarmManager;
 import de.tomsplayground.peanuts.domain.alarm.SecurityAlarm;
+import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.util.Day;
@@ -54,14 +56,14 @@ public class AlarmView extends ViewPart {
 
 	private final int colWidth[] = new int[4];
 
-	private final AlarmManager alarmManager = new AlarmManager();
+	private final AlarmManager alarmManager = new AlarmManager(PriceProviderFactory.getInstance());
 
 	private ScheduledExecutorService executor;
 
 	private final PropertyChangeListener propertyChangeListener = new UniqueAsyncExecution() {
 		@Override
 		public void doit(PropertyChangeEvent evt, Display display) {
-			alarmListViewer.setInput(Activator.getDefault().getAccountManager().getSecurityAlarms());
+			alarmListViewer.setInput(getSecurityAlarms());
 			alarmListViewer.refresh();
 			executor.submit(AlarmView.this::checkAlarms);
 		}
@@ -145,12 +147,20 @@ public class AlarmView extends ViewPart {
 		executor.scheduleWithFixedDelay(this::checkAlarms, 0, 1, TimeUnit.MINUTES);
 	}
 
+	private AtomicLong alarmsTriggeredToday = new AtomicLong();
+	
 	private void checkAlarms() {
-		ImmutableList<SecurityAlarm> alarms = Activator.getDefault().getAccountManager().getSecurityAlarms();
-		PriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
-		List<SecurityAlarm> triggerdAlarms = alarmManager.checkAlarms(alarms, priceProviderFactory);
-		if (! triggerdAlarms.isEmpty()) {
-			getSite().getShell().getDisplay().asyncExec(() -> alarmListViewer.refresh());
+		alarmManager.checkAlarms(Activator.getDefault().getAccountManager().getSecurityAlarms());
+		List<SecurityAlarm> securityAlarms = getSecurityAlarms();
+		long count = securityAlarms.stream()
+				.filter(a -> a.isTriggered() && a.getTriggerDay().equals(Day.today()))
+				.count();
+		if (alarmsTriggeredToday.longValue() != count) {
+			getSite().getShell().getDisplay().asyncExec(() -> {
+				alarmListViewer.setInput(securityAlarms);
+				alarmListViewer.refresh();
+			});
+			alarmsTriggeredToday.set(count);
 		}
 	}
 
@@ -205,7 +215,7 @@ public class AlarmView extends ViewPart {
 
 		alarmListViewer.setComparator(new AlarmListViewerComparator());
 		alarmListViewer.setContentProvider(new ArrayContentProvider());
-		alarmListViewer.setInput(Activator.getDefault().getAccountManager().getSecurityAlarms());
+		alarmListViewer.setInput(getSecurityAlarms());
 
 		alarmListViewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
@@ -222,12 +232,24 @@ public class AlarmView extends ViewPart {
 				}
 			}
 		});
-
+	}
+	
+	private List<SecurityAlarm> getSecurityAlarms() {
+		AccountManager accountManager = Activator.getDefault().getAccountManager();
+		ImmutableList<SecurityAlarm> securityAlarms = Activator.getDefault().getAccountManager().getSecurityAlarms();
+		List<Security> securities = accountManager.getSecurities().stream()
+			.filter(s -> !s.isDeleted())
+			.toList();
+		List<SecurityAlarm> highLowAlarms = alarmManager.checkHighLow(securities, accountManager);
+		highLowAlarms.addAll(securityAlarms);
+		
+		return highLowAlarms;
 	}
 
 	@Override
 	public void dispose() {
 		Activator.getDefault().getAccountManager().removePropertyChangeListener("securityAlarm", propertyChangeListener);
+		executor.shutdown();
 	}
 
 	@Override

@@ -12,7 +12,9 @@ public class SecurityAlarm {
 
 	public enum Mode {
 		PRICE_BELOW,
-		PRICE_ABOVE
+		PRICE_ABOVE,
+		YEAR_HIGH,
+		YEAR_LOW
 	}
 
 	private final Security security;

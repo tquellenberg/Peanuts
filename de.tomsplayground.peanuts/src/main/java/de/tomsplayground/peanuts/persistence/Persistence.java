@@ -25,6 +25,7 @@ import javax.crypto.spec.PBEParameterSpec;
 import org.apache.commons.io.IOUtils;
 
 import de.tomsplayground.peanuts.domain.base.AccountManager;
+import de.tomsplayground.peanuts.domain.process.IStockSplitProvider;
 
 public class Persistence {
 
@@ -38,7 +39,7 @@ public class Persistence {
 		this.persistenceService = persistence;
 	}
 
-	public void write(Writer writer, AccountManager accountManager) {
+	public void write(Writer writer, IStockSplitProvider accountManager) {
 		persistenceService.write(accountManager, writer);
 	}
 

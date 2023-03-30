@@ -392,6 +392,7 @@ public class Calculator implements CalculatorConstants {
 	}
 
 	static private final class LookaheadSuccess extends java.lang.Error {
+		private static final long serialVersionUID = -211596694150076208L;
 	}
 
 	final private LookaheadSuccess jj_ls = new LookaheadSuccess();

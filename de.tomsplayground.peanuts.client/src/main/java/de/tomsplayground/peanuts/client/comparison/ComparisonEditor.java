@@ -317,6 +317,7 @@ public class ComparisonEditor extends EditorPart {
 			Day start = getSelectedStartDate();
 			Day end = Day.today();
 			TimeSeries series = new TimeSeries(StringUtils.abbreviate(security.getName(), 18));
+			// FIXME: split adjusted
 			IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
 			BigDecimal startValue = priceProvider.getPrice(start).getValue();
 
@@ -324,6 +325,7 @@ public class ComparisonEditor extends EditorPart {
 			BigDecimal startBaseValue = null;
 			Security baseSecurity = getComparisonInput().getComparison().getBaseSecurity();
 			if (baseSecurity != null) {
+				// FIXME: split adjusted
 				basePriceProvider = PriceProviderFactory.getInstance().getPriceProvider(baseSecurity);
 				startBaseValue = basePriceProvider.getPrice(start).getValue();
 			}

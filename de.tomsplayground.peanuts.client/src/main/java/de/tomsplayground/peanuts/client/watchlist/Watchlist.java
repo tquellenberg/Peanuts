@@ -84,12 +84,11 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 			return null;
 		}
 		security.addPropertyChangeListener(propertyChangeListener);
-		IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
-		if (priceProvider instanceof ObservableModelObject ob) {
-			ob.addPropertyChangeListener(propertyChangeListener);
-		}
 		ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
 		IPriceProvider adjustedPriceProvider = PriceProviderFactory.getInstance().getSplitAdjustedPriceProvider(security, stockSplits);
+		if (adjustedPriceProvider instanceof ObservableModelObject ob) {
+			ob.addPropertyChangeListener(propertyChangeListener);
+		}
 		WatchEntry watchEntry = new WatchEntry(security, adjustedPriceProvider);
 		entries.add(watchEntry);
 		firePropertyChange("entries", null, watchEntry);
@@ -101,11 +100,10 @@ public class Watchlist extends ObservableModelObject implements INamedElement {
 		for (Iterator<WatchEntry> iterator = entries.iterator(); iterator.hasNext();) {
 			WatchEntry watchEntry = iterator.next();
 			if (watchEntry.getSecurity().equals(security)) {
-				iterator.remove();
-				IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
-				if (priceProvider instanceof ObservableModelObject ob) {
+				if (watchEntry.getPriceProvider() instanceof ObservableModelObject ob) {
 					ob.removePropertyChangeListener(propertyChangeListener);
 				}
+				iterator.remove();
 				firePropertyChange("entries", watchEntry, null);
 				security.removePropertyChangeListener(propertyChangeListener);
 				log.info("Successfully removed");

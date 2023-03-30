@@ -26,7 +26,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/jackson-core-2.14.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackson-databind-2.14.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jdom2-2.0.6.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jfreechart-1.5.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jfreechart-1.5.3.jar" sourcepath="lib/src/jfreechart-1.5.3.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/jfreechart-swt-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/joda-time-2.12.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jsr305-3.0.2.jar"/>

@@ -78,6 +78,8 @@ import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.domain.process.StopLoss;
+import de.tomsplayground.peanuts.domain.statistics.SecurityHighLow;
+import de.tomsplayground.peanuts.domain.statistics.SecurityHighLow.HighLowEntry;
 import de.tomsplayground.peanuts.domain.statistics.SimpleMovingAverage;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
@@ -192,6 +194,7 @@ public class ChartEditorPart extends EditorPart {
 		timeChart = new TimeChart(chart, dataset);
 
 		addOrderAnnotations();
+		addHighLowAnnotations();
 
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 
@@ -257,6 +260,7 @@ public class ChartEditorPart extends EditorPart {
 		createDataset();
 		pricePlot.clearAnnotations();
 		addOrderAnnotations();
+		addHighLowAnnotations();
 		if (avgPriceAnnotation != null) {
 			pricePlot.removeRangeMarker(avgPriceAnnotation);
 		}
@@ -286,7 +290,7 @@ public class ChartEditorPart extends EditorPart {
 	}
 
 	private BigDecimal getAvgPrice() {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
+		Security security = getSecurity();
 		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
 		if (inventory.getSecurities().contains(security)) {
 			InventoryEntry inventoryEntry = inventory.getEntry(security);
@@ -353,6 +357,46 @@ public class ChartEditorPart extends EditorPart {
 		}
 	}
 
+	private void addHighLowAnnotations() {
+		SecurityHighLow securityHighLow = new SecurityHighLow(PriceProviderFactory.getInstance());
+		HighLowEntry highLow = securityHighLow.getHighLow(getSecurity(), Activator.getDefault().getAccountManager().getStockSplits(getSecurity()));
+		IPriceProvider pp = getChartPriceProvider();
+
+		IPrice price = highLow.high();
+		if (! price.equals(Price.ZERO)) {
+			String t = "High";
+			de.tomsplayground.peanuts.util.Day day = price.getDay();
+			long x = new Day(day.day, day.getMonth().getValue(), day.year).getFirstMillisecond();
+			double y = pp.getPrice(day).getValue().doubleValue();
+	
+			XYPointerAnnotation pointerAnnotation = new XYPointerAnnotation(t, x, y, 3* Math.PI / 2);
+			org.eclipse.swt.graphics.Color swtColor = Activator.getDefault().getColorProvider().get(Activator.GREEN);
+			Color c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
+	
+			pointerAnnotation.setPaint(c);
+			pointerAnnotation.setArrowPaint(c);
+			pointerAnnotation.setToolTipText(PeanutsUtil.formatDate(day) + " " + t);
+			pricePlot.addAnnotation(pointerAnnotation);
+		}
+
+		price = highLow.low();
+		if (! price.equals(Price.ZERO)) {
+			String t = "Low";
+			de.tomsplayground.peanuts.util.Day day = price.getDay();
+			long x = new Day(day.day, day.getMonth().getValue(), day.year).getFirstMillisecond();
+			double y = pp.getPrice(day).getValue().doubleValue();
+	
+			XYPointerAnnotation pointerAnnotation = new XYPointerAnnotation(t, x, y, Math.PI / 2);
+			org.eclipse.swt.graphics.Color swtColor = Activator.getDefault().getColorProvider().get(Activator.RED);
+			Color c = new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
+	
+			pointerAnnotation.setPaint(c);
+			pointerAnnotation.setArrowPaint(c);
+			pointerAnnotation.setToolTipText(PeanutsUtil.formatDate(day) + " " + t);
+			pricePlot.addAnnotation(pointerAnnotation);
+		}
+	}
+	
 	protected ImmutableList<XYAnnotation> addOrderAnnotations() {
 		List<XYAnnotation> annotations = new ArrayList<>();
 		IPriceProvider pp = getChartPriceProvider();
@@ -417,9 +461,8 @@ public class ChartEditorPart extends EditorPart {
 	}
 
 	private ImmutableList<InvestmentTransaction> getOrders() {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
-		InventoryEntry inventoryEntry = inventory.getEntry(security);
+		InventoryEntry inventoryEntry = inventory.getEntry(getSecurity());
 		if (inventoryEntry != null) {
 			return inventoryEntry.getTransactions();
 		} else {
@@ -435,8 +478,7 @@ public class ChartEditorPart extends EditorPart {
 	 * @return A chart.
 	 */
 	private JFreeChart createChart() {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
+		FundamentalDatas fundamentalDatas = getSecurity().getFundamentalDatas();
 		boolean showPeDeltaChart = ! fundamentalDatas.isEmpty();
 
 		DateAxis axis = new DateAxis("Date");
@@ -494,8 +536,7 @@ public class ChartEditorPart extends EditorPart {
 	}
 
 	private void calculateFixedPePrice() {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
+		FundamentalDatas fundamentalDatas = getSecurity().getFundamentalDatas();
 		if (fundamentalDatas.isEmpty()) {
 			return;
 		}
@@ -589,7 +630,7 @@ public class ChartEditorPart extends EditorPart {
 	}
 
 	private void updateStopLoss() {
-		Security security = ((SecurityEditorInput)getEditorInput()).getSecurity();
+		Security security = getSecurity();
 		ImmutableSet<StopLoss> stopLosses = Activator.getDefault().getAccountManager().getStopLosses(security);
 		if (! stopLosses.isEmpty()) {
 			createStopLoss(stopLoss, stopLosses.iterator().next());
@@ -664,9 +705,12 @@ public class ChartEditorPart extends EditorPart {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		security.putConfigurationValue(CHART_TYPE, displayType.getItem(displayType.getSelectionIndex()));
+		getSecurity().putConfigurationValue(CHART_TYPE, displayType.getItem(displayType.getSelectionIndex()));
 		dirty = false;
+	}
+
+	private Security getSecurity() {
+		return ((SecurityEditorInput) getEditorInput()).getSecurity();
 	}
 
 	@Override

@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
+import de.tomsplayground.peanuts.domain.process.IStockSplitProvider;
 import de.tomsplayground.peanuts.domain.process.Transaction;
 import de.tomsplayground.peanuts.domain.process.Transfer;
 import de.tomsplayground.peanuts.persistence.xstream.PersistenceService;
@@ -38,7 +39,7 @@ public class PersistenceTest {
 		account2 = accountManager.getOrCreateAccount("Test2", Account.Type.BANK);
 	}
 
-	private String write(IPersistenceService persistence, AccountManager accountManager) {
+	private String write(IPersistenceService persistence, IStockSplitProvider accountManager) {
 		StringWriter stringWriter = new StringWriter();
 		persistence.write(accountManager, stringWriter);
 		return stringWriter.toString();

@@ -411,6 +411,7 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 	 * The splits are ordered by date.
 	 *
 	 */
+	@Override
 	public ImmutableList<StockSplit> getStockSplits(Security security) {
 		ImmutableList<StockSplit> result = stockSplitsPerSecurity.get(security);
 		if (result == null) {
