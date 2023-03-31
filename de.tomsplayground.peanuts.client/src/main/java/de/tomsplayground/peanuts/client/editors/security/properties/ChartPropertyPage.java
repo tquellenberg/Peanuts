@@ -23,12 +23,10 @@ import de.tomsplayground.peanuts.domain.base.Security;
 
 public class ChartPropertyPage extends PropertyPage {
 
-	public static final String CONF_SHOW_AVG = "SHOW_AVG";
 	public static final String CONF_SHOW_BUY_SELL = "SHOW_BUY_SELL";
 	public static final String CONF_SHOW_DIVIDENDS = "SHOW_DIVIDENDS";
 	public static final String CONF_COMPARE_WITH = "COMPARE_WITH";
 
-	private Button showAverage;
 	private Combo compareWithList;
 	private Button showBuyAndSell;
 	private Button showDividends;
@@ -39,10 +37,6 @@ public class ChartPropertyPage extends PropertyPage {
 		composite.setLayout(new GridLayout(2, false));
 
 		Label label = new Label(composite, SWT.NONE);
-		label.setText("Show average");
-		showAverage = new Button(composite, SWT.CHECK);
-
-		label = new Label(composite, SWT.NONE);
 		label.setText("Show buy and sell");
 		showBuyAndSell = new Button(composite, SWT.CHECK);
 
@@ -65,8 +59,6 @@ public class ChartPropertyPage extends PropertyPage {
 
 		IAdaptable adapter = getElement();
 		Security security = adapter.getAdapter(Security.class);
-		String showAvg = security.getConfigurationValue(CONF_SHOW_AVG);
-		showAverage.setSelection(Boolean.parseBoolean(showAvg));
 
 		String showBuyAndSellStr = security.getConfigurationValue(CONF_SHOW_BUY_SELL);
 		if (StringUtils.isBlank(showBuyAndSellStr)) {
@@ -95,7 +87,6 @@ public class ChartPropertyPage extends PropertyPage {
 	public boolean performOk() {
 		IAdaptable adapter = getElement();
 		Security security = adapter.getAdapter(Security.class);
-		security.putConfigurationValue(CONF_SHOW_AVG, Boolean.toString(showAverage.getSelection()));
 		security.putConfigurationValue(CONF_SHOW_BUY_SELL, Boolean.toString(showBuyAndSell.getSelection()));
 		security.putConfigurationValue(CONF_SHOW_DIVIDENDS, Boolean.toString(showDividends.getSelection()));
 

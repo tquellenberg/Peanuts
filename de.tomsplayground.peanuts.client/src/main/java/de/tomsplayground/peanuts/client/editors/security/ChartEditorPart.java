@@ -1,6 +1,5 @@
 package de.tomsplayground.peanuts.client.editors.security;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -96,6 +95,12 @@ public class ChartEditorPart extends EditorPart {
 	private TimeSeries priceTimeSeries;
 	private IPriceProvider priceProvider;
 	private ChartComposite chartComposite;
+	
+	enum MovingAverage {
+		MA20,
+		MA100,
+		MA200
+	}
 
 	private final PropertyChangeListener priceProviderChangeListener = new UniqueAsyncExecution() {
 		@Override
@@ -142,8 +147,6 @@ public class ChartEditorPart extends EditorPart {
 		}
 	};
 
-	private TimeSeries average20Days;
-	private TimeSeries average100Days;
 	// Upper chart
 	private final TimeSeriesCollection dataset = new TimeSeriesCollection();
 	// Lower chart
@@ -158,6 +161,7 @@ public class ChartEditorPart extends EditorPart {
 
 	private Currency alternativeCurrency;
 	private Button convertToAlternativeCurrency;
+	private StandardXYItemRenderer renderer;
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -204,9 +208,9 @@ public class ChartEditorPart extends EditorPart {
 
 		Composite buttons = new Composite(body, SWT.NONE);
 		buttons.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
-		GridLayout layout2 = new GridLayout(3, false);
+		GridLayout layout2 = new GridLayout(13, false);
 		layout2.marginHeight = 5;
-		layout2.marginWidth = 10;
+		layout2.marginWidth = 5;
 		layout2.verticalSpacing = 0;
 		buttons.setLayout(layout2);
 		buttons.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
@@ -239,7 +243,7 @@ public class ChartEditorPart extends EditorPart {
 			}
 		}
 		Label text = new Label(buttons, SWT.NONE);
-		text.setText("Convert from "+security.getCurrency().getCurrencyCode()+" to "+alternativeCurrency.getCurrencyCode());
+		text.setText(" Convert from "+security.getCurrency().getCurrencyCode()+" to "+alternativeCurrency.getCurrencyCode());
 		convertToAlternativeCurrency = new Button(buttons, SWT.CHECK);
 		convertToAlternativeCurrency.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -247,6 +251,25 @@ public class ChartEditorPart extends EditorPart {
 				fullChartUpdate();
 			}
 		});
+		
+		// Space
+		new Label(buttons, SWT.NONE);
+		
+		// MAs
+		for(MovingAverage ma : MovingAverage.values()) {
+			text = new Label(buttons, SWT.NONE);
+			text.setText("  "+ma.toString());
+			Button button = new Button(buttons, SWT.CHECK);
+			button.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					setShowAvg(ma, button.getSelection());
+					initRenderer();
+					fullChartUpdate();
+				}
+			});
+			button.setSelection(isShowAvg(ma));
+		}
 
 		calculateCompareToValues();
 
@@ -489,21 +512,8 @@ public class ChartEditorPart extends EditorPart {
 		JFreeChart chart = new JFreeChart(getEditorInput().getName(), combiPlot);
 		chart.setBackgroundPaint(Color.WHITE);
 
-		StandardXYItemRenderer renderer = new StandardXYItemRenderer();
-		renderer.setDefaultToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
-		renderer.setSeriesPaint(0, Color.BLACK);
-		int nextPos = 1;
-		if (isShowAvg()) {
-			renderer.setSeriesStroke(nextPos++, new BasicStroke(2.0f));
-			renderer.setSeriesStroke(nextPos++, new BasicStroke(2.0f));
-		}
-		// Stop loss
-		renderer.setSeriesPaint(nextPos++, Color.GREEN);
-		if (getCompareTo() != null) {
-			// Compare to
-			renderer.setSeriesPaint(nextPos++, Color.LIGHT_GRAY);
-		}
-		renderer.setSeriesPaint(nextPos++, FAIR_PRICE_COLOR);
+		renderer = new StandardXYItemRenderer();
+		initRenderer();
 
 		NumberAxis rangeAxis2 = new NumberAxis("Price "+getInventoryCurrencyConverter().getToCurrency().getSymbol());
 		rangeAxis2.setAutoRange(false);
@@ -533,6 +543,24 @@ public class ChartEditorPart extends EditorPart {
 			combiPlot.add(plot2, 30);
 		}
 		return chart;
+	}
+
+	private void initRenderer() {
+		renderer.setDefaultToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
+		renderer.setSeriesPaint(0, Color.BLACK);
+		int nextPos = 1;
+		for (MovingAverage ma : MovingAverage.values()) {
+			if (isShowAvg(ma)) {
+				renderer.setSeriesPaint(nextPos++, PeanutsDrawingSupplier.getColor(ma.toString()));
+			}
+		}
+		// Stop loss
+		renderer.setSeriesPaint(nextPos++, Color.GREEN);
+		if (getCompareTo() != null) {
+			// Compare to
+			renderer.setSeriesPaint(nextPos++, Color.LIGHT_GRAY);
+		}
+		renderer.setSeriesPaint(nextPos++, FAIR_PRICE_COLOR);
 	}
 
 	private void calculateFixedPePrice() {
@@ -574,14 +602,20 @@ public class ChartEditorPart extends EditorPart {
 		}
 		dataset.addSeries(priceTimeSeries);
 
-		average20Days = new TimeSeries("MA20");
-		average100Days = new TimeSeries("MA100");
-
-		if (isShowAvg()) {
-			createMovingAverage(average20Days, 20);
-			dataset.addSeries(average20Days);
-			createMovingAverage(average100Days, 100);
-			dataset.addSeries(average100Days);
+		if (isShowAvg(MovingAverage.MA20)) {
+			TimeSeries maTimeSeries = new TimeSeries("MA20");
+			createMovingAverage(maTimeSeries, 20);
+			dataset.addSeries(maTimeSeries);
+		}
+		if (isShowAvg(MovingAverage.MA100)) {
+			TimeSeries maTimeSeries = new TimeSeries("MA100");
+			createMovingAverage(maTimeSeries, 100);
+			dataset.addSeries(maTimeSeries);
+		}
+		if (isShowAvg(MovingAverage.MA200)) {
+			TimeSeries maTimeSeries = new TimeSeries("MA200");
+			createMovingAverage(maTimeSeries, 200);
+			dataset.addSeries(maTimeSeries);
 		}
 
 		stopLoss = new TimeSeries("Stop Loss");
@@ -637,9 +671,13 @@ public class ChartEditorPart extends EditorPart {
 		}
 	}
 
-	private boolean isShowAvg() {
+	private boolean isShowAvg(MovingAverage movingAverage) {
 		return Boolean.parseBoolean(((SecurityEditorInput)getEditorInput()).getSecurity()
-			.getConfigurationValue(ChartPropertyPage.CONF_SHOW_AVG));
+			.getConfigurationValue(movingAverage.toString()));
+	}
+	
+	private void setShowAvg(MovingAverage movingAverage, boolean value) {
+		getSecurity().putConfigurationValue(movingAverage.toString(), Boolean.toString(value));
 	}
 
 	private boolean isShowBuyAndSell() {

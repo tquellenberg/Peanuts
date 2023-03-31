@@ -2,6 +2,7 @@ package de.tomsplayground.peanuts.client.chart;
 
 import java.awt.Color;
 import java.awt.Paint;
+import java.util.Map;
 
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 
@@ -32,6 +33,11 @@ public class PeanutsDrawingSupplier extends DefaultDrawingSupplier {
 		new Color(0xFFE680),
 		new Color(0xAA80FF)
 	};
+	
+	public static final Map<String, Color> defaultColors = Map.of(
+			"MA20", new Color(0x89CFF0), 
+			"MA100", new Color(0x6495ED) , 
+			"MA200", new Color(0x00008B));
 
 	public PeanutsDrawingSupplier() {
 		super(PEANUTS_DEFAULT_PAINT_SEQUENCE,
@@ -39,5 +45,9 @@ public class PeanutsDrawingSupplier extends DefaultDrawingSupplier {
 			DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
 			DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
 			DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE);
+	}
+
+	public static Paint getColor(String name) {
+		return defaultColors.get(name);
 	}
 }
