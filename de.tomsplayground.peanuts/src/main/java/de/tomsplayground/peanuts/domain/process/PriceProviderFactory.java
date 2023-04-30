@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -161,7 +162,7 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		String ticker = StringUtils.removeStart(security.getTicker(), GOOGLE_PREFIX);
 		try {
 			return new GooglePriceReader(security, ticker);
-		} catch (IOException | CsvValidationException e) {
+		} catch (IOException | CsvValidationException | URISyntaxException e) {
 			log.error("readHistoricalPricesFromGoogle " + security.getName() + " " + e.getMessage());
 			return null;
 		}

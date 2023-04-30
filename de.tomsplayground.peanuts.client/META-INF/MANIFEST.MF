@@ -50,6 +50,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.forms,
  org.eclipse.core.expressions
-Bundle-RequiredExecutionEnvironment: JavaSE-18
+Bundle-RequiredExecutionEnvironment: JavaSE-19
 Bundle-Vendor: Tom's Playground
 Automatic-Module-Name: de.tomsplayground.peanuts.client

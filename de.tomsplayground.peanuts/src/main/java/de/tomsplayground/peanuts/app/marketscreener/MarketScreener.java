@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +62,7 @@ public class MarketScreener {
 		}
 		List<FundamentalData> fundamentalDatas = new ArrayList<>();
 		try {
-			String html = getPage(new URL(financialsUrl).toURI());
+			String html = getPage(new URI(financialsUrl));
 			HtmlCleaner htmlCleaner = new HtmlCleaner();
 			TagNode tagNode = htmlCleaner.clean(html);
 

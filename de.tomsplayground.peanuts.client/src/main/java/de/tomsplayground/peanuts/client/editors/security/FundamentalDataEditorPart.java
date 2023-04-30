@@ -61,7 +61,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
 import de.tomsplayground.peanuts.app.marketscreener.MarketScreener;
-import de.tomsplayground.peanuts.app.morningstar.KeyRatios;
 import de.tomsplayground.peanuts.app.yahoo.MarketCap;
 import de.tomsplayground.peanuts.app.yahoo.YahooAPI;
 import de.tomsplayground.peanuts.app.yahoo.YahooAPI.DebtEquityValue;
@@ -457,18 +456,6 @@ public class FundamentalDataEditorPart extends EditorPart {
 		GridData layoutData = new GridData();
 		layoutData.widthHint = 100;
 		morningstarSymbol.setLayoutData(layoutData);
-		Button morningStartSymbolGo = new Button(metaComposite, SWT.PUSH);
-		morningStartSymbolGo.setText("Load data");
-		morningStartSymbolGo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				try {
-					updateFundamentaData(new KeyRatios().readUrl(morningstarSymbol.getText()));
-				} catch (RuntimeException ex) {
-					ex.printStackTrace();
-				}
-			}
-		});
 
 		fourTradersGo = new Button(metaComposite, SWT.PUSH);
 		fourTradersGo.setText(is4Traders(security)?"Load data from 4-Traders":"Load data from MarketScreener");

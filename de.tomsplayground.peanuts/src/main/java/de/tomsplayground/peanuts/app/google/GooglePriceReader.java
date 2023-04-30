@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -32,9 +34,9 @@ public class GooglePriceReader extends PriceProvider {
 
 	private final Reader reader;
 
-	public GooglePriceReader(Security security, String ticker) throws IOException, CsvValidationException {
+	public GooglePriceReader(Security security, String ticker) throws IOException, CsvValidationException, URISyntaxException {
 		super(security);
-		URL url = new URL("http://www.google.com/finance/historical?q=" + ticker + "&output=csv");
+		URL url = new URI("http://www.google.com/finance/historical?q=" + ticker + "&output=csv").toURL();
 		reader = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8);
 		read();
 	}
