@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.ParsePosition;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -17,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.tomsplayground.peanuts.calculator.Calculator;
 import de.tomsplayground.peanuts.domain.process.ITimedElement;
 
 public class PeanutsUtil {
@@ -33,6 +35,8 @@ public class PeanutsUtil {
 	private static final NumberFormat percentValueFormat = NumberFormat.getPercentInstance();
 
 	public static final MathContext MC = new MathContext(16, RoundingMode.HALF_UP);
+	
+	public static final Calculator calculator = new Calculator();
 
 	static {
 		((DecimalFormat) currencyValueFormat).setMinimumFractionDigits(2);
@@ -42,6 +46,7 @@ public class PeanutsUtil {
 		((DecimalFormat) quantityFormat).setParseBigDecimal(true);
 		((DecimalFormat) percentValueFormat).setParseBigDecimal(true);
 		percentFormat.setMinimumFractionDigits(2);
+		calculator.setMathContext(MC);
 	}
 
 	public static String format(BigDecimal amount, int fractionDigits) {
@@ -147,8 +152,23 @@ public class PeanutsUtil {
 		return amount;
 	}
 
-	public static BigDecimal parseCurrency(String str) throws ParseException {
-		BigDecimal amount = (BigDecimal) currencyValueFormat.parse(str);
+	public static BigDecimal parseCurrency(String source) throws ParseException {
+		source = StringUtils.strip(source);
+		BigDecimal amount;
+		try {
+			ParsePosition pp = new ParsePosition(0);
+			amount = (BigDecimal) currencyValueFormat.parse(source, pp);
+			if (amount == null || pp.getIndex() < source.length()) {
+				throw new ParseException("Unparseable number: \"" + source + "\"", pp.getErrorIndex());
+			}
+		} catch (ParseException e) {
+			try {
+				amount = calculator.parse(source);
+			} catch (RuntimeException e2) {
+				// Original ParseException
+				throw e;
+			}
+		}
 		return amount;
 	}
 

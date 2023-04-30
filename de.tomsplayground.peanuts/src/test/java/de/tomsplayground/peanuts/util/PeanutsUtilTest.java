@@ -30,10 +30,40 @@ public class PeanutsUtilTest {
 	}
 
 	@Test
-	public void testparsePercent() throws ParseException {
+	public void testParsePercent() throws ParseException {
 		Helper.assertEquals(new BigDecimal("0.8"), PeanutsUtil.parsePercent("80,00%"));
 	}
 
+	@Test
+	public void testParseCurrency() throws ParseException {
+		Helper.assertEquals(new BigDecimal("809.00"), PeanutsUtil.parseCurrency("809,00"));
+	}
+	
+	@Test
+	public void testParseCurrencyError()  {
+		try {
+			PeanutsUtil.parseCurrency("123xxx,00");
+		} catch (ParseException e) {
+			return;
+		}
+		fail("ParseException expected");
+	}
+	
+	@Test
+	public void testParseCurrencyError2()  {
+		try {
+			PeanutsUtil.parseCurrency("");
+		} catch (ParseException e) {
+			return;
+		}
+		fail("ParseException expected");
+	}
+	
+	@Test
+	public void testParseCurrencyCalculator() throws ParseException {
+		Helper.assertEquals(new BigDecimal("161.80"), PeanutsUtil.parseCurrency("809,00/5"));
+	}
+	
 	@Test
 	public void testFormatCurrencyRounding() {
 		BigDecimal amount = new BigDecimal("105.525");
