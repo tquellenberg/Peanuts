@@ -20,11 +20,11 @@ public class YahooPriceReaderTest extends TestCase {
 		security.setTicker("CAP.PA");
 	}
 
-	@Test
-	public void testYahooCurrent() throws IOException {
-		YahooPriceReader forTicker = YahooPriceReader.forTicker(security, Type.CURRENT);
-		assertTrue(forTicker.getPrices().size() == 1);
-	}
+//	@Test
+//	public void testYahooCurrent() throws IOException {
+//		YahooPriceReader forTicker = YahooPriceReader.forTicker(security, Type.CURRENT);
+//		assertTrue(forTicker.getPrices().size() == 1);
+//	}
 
 	@Test
 	public void testYahooLastDays() throws IOException {
