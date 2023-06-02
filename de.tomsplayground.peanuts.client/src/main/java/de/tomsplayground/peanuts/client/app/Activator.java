@@ -10,6 +10,9 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Objects;
 
 import org.apache.commons.io.FileUtils;
@@ -41,6 +44,7 @@ import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.persistence.Persistence;
 import de.tomsplayground.peanuts.persistence.xstream.PersistenceService;
+import de.tomsplayground.peanuts.util.Day;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -299,7 +303,13 @@ public class Activator extends AbstractUIPlugin {
 		// Save copy of old file
 		File file = new File(filename);
 		if (file.exists()) {
-			File bakFile = new File(filename+".bak");
+			LocalDate lastModifiedTime = LocalDate.ofInstant(Files.getLastModifiedTime(file.toPath()).toInstant(), ZoneId.systemDefault());
+			File bakFile = null;
+			if (Day.from(lastModifiedTime).equals(Day.today())) {
+				bakFile = new File(filename+".bak");
+			} else {
+				bakFile = new File(filename+"."+lastModifiedTime+".bak");
+			}
 			bakFile.delete();
 			FileUtils.copyFile(file, bakFile);
 		}

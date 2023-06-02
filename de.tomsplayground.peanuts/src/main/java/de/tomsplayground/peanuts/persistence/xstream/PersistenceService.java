@@ -19,7 +19,6 @@ import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.note.Note;
 import de.tomsplayground.peanuts.domain.process.BankTransaction;
 import de.tomsplayground.peanuts.domain.process.Credit;
-import de.tomsplayground.peanuts.domain.process.IStockSplitProvider;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.NoTrailingStrategy;
 import de.tomsplayground.peanuts.domain.process.PercentTrailingStrategy;
@@ -91,7 +90,7 @@ public class PersistenceService implements IPersistenceService {
 	}
 
 	@Override
-	public void write(IStockSplitProvider accountManager, Writer writer) {
+	public void write(AccountManager accountManager, Writer writer) {
 		xstream.marshal(accountManager, new CompactWriter(writer));
 	}
 

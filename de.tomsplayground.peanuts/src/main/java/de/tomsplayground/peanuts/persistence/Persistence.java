@@ -25,7 +25,6 @@ import javax.crypto.spec.PBEParameterSpec;
 import org.apache.commons.io.IOUtils;
 
 import de.tomsplayground.peanuts.domain.base.AccountManager;
-import de.tomsplayground.peanuts.domain.process.IStockSplitProvider;
 
 public class Persistence {
 
@@ -37,10 +36,6 @@ public class Persistence {
 
 	public void setPersistenceService(IPersistenceService persistence) {
 		this.persistenceService = persistence;
-	}
-
-	public void write(Writer writer, IStockSplitProvider accountManager) {
-		persistenceService.write(accountManager, writer);
 	}
 
 	public static Reader secureReader(File file, String passphrase) {
@@ -113,6 +108,10 @@ public class Persistence {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public void write(Writer writer, AccountManager accountManager) {
+		persistenceService.write(accountManager, writer);
 	}
 
 }
