@@ -1,11 +1,14 @@
 package de.tomsplayground.peanuts.client.actions;
 
+import static org.joda.time.DateTime.now;
+
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -29,7 +32,7 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 
 	private final static int MAX_SECURITY_UPDATED_PER_RUN = 15;
 
-	private final static int MAX_AGE_BEFORE_UPDATE = 28;
+	private final static int MAX_AGE_BEFORE_UPDATE = 30;
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -70,39 +73,45 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 	}
 
 	private List<Security> securitiesToUpdate() {
-		List<Security> securitiesToUpdate = new ArrayList<>();
+		SortedMap<DateTime, Security> securitiesToUpdate = new TreeMap<>();
 		for (Security security : Activator.getDefault().getAccountManager().getSecurities()) {
-			if (isUpdateRequired(security)) {
-				String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.MARKET_SCREENER_URL);
-				if (StringUtils.isNotBlank(financialsUrl) && !StringUtils.equals(financialsUrl, "-")) {
-					securitiesToUpdate.add(security);
+			if (isUpdatePossible(security)) {
+				DateTime lastUpdateDate = getLastUpdateDate(security);
+				if (lastUpdateDate.compareTo(now().minusDays(MAX_AGE_BEFORE_UPDATE)) < 0) {
+					securitiesToUpdate.put(lastUpdateDate, security);
 				}
 			}
 		}
 		
-		while (securitiesToUpdate.size() >= MAX_SECURITY_UPDATED_PER_RUN) {
-			securitiesToUpdate.remove(RandomUtils.nextInt(0, securitiesToUpdate.size()));
+		List<Security> securities = new ArrayList<>(securitiesToUpdate.values());
+		while (securities.size() > MAX_SECURITY_UPDATED_PER_RUN) {
+			securities.remove(securities.size()-1);
 		}
 		
-		securitiesToUpdate.sort(INamedElement.NAMED_ELEMENT_ORDER);
+		securities.sort(INamedElement.NAMED_ELEMENT_ORDER);
 		
-		return securitiesToUpdate;
+		return securities;
 	}
 	
-	private boolean isUpdateRequired(Security security) {
+	private DateTime getLastUpdateDate(Security security) {
+		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
+		Optional<DateTime> maxDate = fundamentalDatas.getMaxModificationDate();
+		return maxDate.orElse(new DateTime(0L));
+	}
+	
+	private boolean isUpdatePossible(Security security) {
 		if (security.isDeleted()) {
+			return false;
+		}
+		String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.MARKET_SCREENER_URL);
+		if (StringUtils.isBlank(financialsUrl) || StringUtils.equals(financialsUrl, "-")) {
 			return false;
 		}
 		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
 		if (fundamentalDatas.isEmpty()) {
 			return false;
 		}
-		Optional<DateTime> maxDate = fundamentalDatas.getMaxModificationDate();
-		DateTime d = DateTime.now().minusDays(MAX_AGE_BEFORE_UPDATE);
-		if (!maxDate.isPresent() || maxDate.get().compareTo(d) < 0) {
-			return true;
-		}
-		return false;
+		return true;
 	}
 
 	private void updateFundamentaData(Security security, List<FundamentalData> newDatas) {
