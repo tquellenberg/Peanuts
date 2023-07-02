@@ -199,6 +199,19 @@ public class InventoryEditorPart extends EditorPart {
 	private DividendStats dividendStats;
 
 	private static class InventoryContentProvider implements ITreeContentProvider {
+
+		@Override
+		public Object[] getElements(Object inputElement) {
+			Inventory inventory = (Inventory) inputElement;
+			List<InventoryEntry> entries = new ArrayList<InventoryEntry>(inventory.getEntries());
+			return entries.toArray();
+		}
+
+		@Override
+		public boolean hasChildren(Object element) {
+			return element instanceof InventoryEntry;
+		}
+
 		@Override
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof InventoryEntry entry) {
@@ -211,18 +224,6 @@ public class InventoryEditorPart extends EditorPart {
 		@Override
 		public Object getParent(Object element) {
 			return null;
-		}
-
-		@Override
-		public boolean hasChildren(Object element) {
-			return element instanceof InventoryEntry;
-		}
-
-		@Override
-		public Object[] getElements(Object inputElement) {
-			Inventory inventory = (Inventory) inputElement;
-			List<InventoryEntry> entries = new ArrayList<InventoryEntry>(inventory.getEntries());
-			return entries.toArray();
 		}
 
 		@Override

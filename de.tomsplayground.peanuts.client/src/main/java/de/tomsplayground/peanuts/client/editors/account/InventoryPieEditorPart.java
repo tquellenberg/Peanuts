@@ -53,6 +53,8 @@ public class InventoryPieEditorPart extends EditorPart {
 	private JFreeChart chart;
 	private DefaultPieDataset<String> dataset;
 
+	private ChartComposite chartFrame;
+
 	private final PropertyChangeListener inventoryChangeListener = new UniqueAsyncExecution() {
 
 		@Override
@@ -65,9 +67,7 @@ public class InventoryPieEditorPart extends EditorPart {
 			return getSite().getShell().getDisplay();
 		}
 	};
-	private ChartComposite chartFrame;
-
-
+	
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		if ( !(input instanceof ITransactionProviderInput)) {

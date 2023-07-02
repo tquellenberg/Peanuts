@@ -18,12 +18,9 @@ public abstract class UniqueAsyncExecution implements PropertyChangeListener {
 		if (! executionInQueue) {
 			executionInQueue = true;
 			final Display display = getDisplay();
-			display.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					executionInQueue = false;
-					doit(evt, display);
-				}
+			display.asyncExec(() -> {
+				executionInQueue = false;
+				doit(evt, display);
 			});
 		}
 	}
