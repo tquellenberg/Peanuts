@@ -37,7 +37,7 @@ public class MarketScreener {
 		.setDefaultRequestConfig(defaultRequestConfig).build();
 
 	public static void main(String[] args) {
-		List<FundamentalData> scrapFinancials = new MarketScreener().scrapFinancials("https://www.marketscreener.com/quote/stock/PAN-AMERICAN-SILVER-CORP-1411165/financials/");
+		List<FundamentalData> scrapFinancials = new MarketScreener().scrapFinancials("https://www.marketscreener.com/quote/stock/DWS-GROUP-GMBH-CO-KGAA-42452445/finances/");
 		for (FundamentalData fundamentalData : scrapFinancials) {
 			System.out.println(fundamentalData);
 		}
@@ -60,18 +60,35 @@ public class MarketScreener {
 		if (financialsUrl.startsWith("http://www.4-traders.com/")) {
 			financialsUrl = StringUtils.replace(financialsUrl, "http://www.4-traders.com/", "https://www.marketscreener.com/");
 		}
+		if (financialsUrl.endsWith("/financials/")) {
+			financialsUrl = StringUtils.replace(financialsUrl, "/financials/", "/finances/");
+		}
+		if (! financialsUrl.contains("/quote/stock/")) {
+			financialsUrl = StringUtils.replace(financialsUrl, "https://www.marketscreener.com/", "https://www.marketscreener.com/quote/stock/");
+		}
+		log.info("URL: {}", financialsUrl);
 		List<FundamentalData> fundamentalDatas = new ArrayList<>();
 		try {
 			String html = getPage(new URI(financialsUrl));
+
+//			FileUtils.writeStringToFile(new File("./test.html"), html, Charset.forName("UTF-8"));			
+//			String html = FileUtils.readFileToString(new File("./test.html"), Charset.forName("UTF-8"));
+			
 			HtmlCleaner htmlCleaner = new HtmlCleaner();
 			TagNode tagNode = htmlCleaner.clean(html);
 
 			// Table "Annual Income Statement Data"
-			XPather xPather = new XPather("//table[@class='BordCollapseYear2']");
+			XPather xPather = new XPather("//table[@id='iseTableA']");
 			Object[] result = xPather.evaluateAgainstNode(tagNode);
 			TagNode incomeTable = null;
-			if (result.length > 1 && result[1] instanceof TagNode resultNode) {
+			if (result.length == 0) {
+				log.error("Income table not found in HTML.");
+			} else if (result.length == 1 && result[0] instanceof TagNode resultNode) {
 				incomeTable = resultNode;
+			} else if (result.length > 1) {
+				log.error("More than one table found in HTML. ({})", result.length);
+			} else {
+				log.error("Problem with income table. {}", result[0].getClass());
 			}
 
 			// Find rows
@@ -92,12 +109,18 @@ public class MarketScreener {
 					dividendRow = j;
 				}
 			}
+			if (epsRow == -1) {
+				log.error("EPS row not found in table.");
+			}
+			if (dividendRow == -1) {
+				log.error("Dividend row not found in table.");
+			}
 			
 			for (int i = 2; i <= 15; i++) {
 				FundamentalData fundamentalData = new FundamentalData();
 
 				// Year
-				xPather = new XPather("tbody/tr[1]/td[" + i + "]/text()");
+				xPather = new XPather("thead/tr[1]/th[" + i + "]/span[1]/text()");
 				result = xPather.evaluateAgainstNode(incomeTable);
 				if (result.length == 0) {
 					// Okay
@@ -120,10 +143,12 @@ public class MarketScreener {
 				// EPS
 				xPather = new XPather("tbody/tr[" + epsRow + "]/td[" + i + "]/text()");
 				result = xPather.evaluateAgainstNode(incomeTable);
+				if (result.length == 0) {
+					log.error("EPS not found in {},{}", epsRow, i);
+				}
 				String cellText = result[0].toString();
 				try {
-					BigDecimal eps = parseNumber(cellText);
-					fundamentalData.setEarningsPerShare(eps);
+					fundamentalData.setEarningsPerShare(parseNumber(cellText));
 				} catch (NumberFormatException e) {
 					log.info("EPS NumberFormatException: "+e.getMessage() + " '"+cellText+"' "+financialsUrl);
 					// Okay
@@ -133,9 +158,12 @@ public class MarketScreener {
 				// Dividend
 				xPather = new XPather("tbody/tr[" + dividendRow + "]/td[" + i + "]/text()");
 				result = xPather.evaluateAgainstNode(incomeTable);
+				if (result.length == 0) {
+					log.error("Dividend not found in {},{}", dividendRow, i);
+				}
 				cellText = result[0].toString();
 				try {
-					if (StringUtils.equals("-", cellText)) {
+					if (StringUtils.equals("-", cellText.trim())) {
 						fundamentalData.setDividende(BigDecimal.ZERO);
 					} else {
 						fundamentalData.setDividende(parseNumber(cellText));
@@ -160,7 +188,7 @@ public class MarketScreener {
 	private BigDecimal parseNumber(String r) {
 		r = StringUtils.remove(r, "<b>");
 		r = StringUtils.remove(r, "<\\b>");
-		return new BigDecimal(StringUtils.remove(r.replace(',', '.'), ' '));
+		return new BigDecimal(r.replace(',', '.').trim());
 	}
 
 }
