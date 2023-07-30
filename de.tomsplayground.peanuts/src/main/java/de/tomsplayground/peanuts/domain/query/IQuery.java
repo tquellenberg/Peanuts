@@ -4,7 +4,7 @@ import java.util.function.Predicate;
 
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 
-public interface IQuery {
+sealed public interface IQuery permits CategoryQuery, DateQuery, InvestmentQuery, SecurityInvestmentQuery {
 
 	Predicate<ITransaction> getPredicate();
 

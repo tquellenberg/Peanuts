@@ -12,7 +12,7 @@ import de.tomsplayground.peanuts.domain.base.Category;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 
 @XStreamAlias("categoryQuery")
-public class CategoryQuery implements IQuery {
+public final class CategoryQuery implements IQuery {
 
 	final private Set<Category> categories = new HashSet<Category>();
 
@@ -40,11 +40,8 @@ public class CategoryQuery implements IQuery {
 
 	@Override
 	public Predicate<ITransaction> getPredicate() {
-		return new Predicate<ITransaction>() {
-			@Override
-			public boolean test(ITransaction input) {
-				return isOkay(input.getCategory());
-			}
+		return (t) -> {
+			return isOkay(t.getCategory());
 		};
 	}
 

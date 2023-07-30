@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 
-public class InvestmentQuery implements IQuery {
+public final class InvestmentQuery implements IQuery {
 
 	@Override
 	public Predicate<ITransaction> getPredicate() {

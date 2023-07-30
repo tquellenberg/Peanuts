@@ -8,7 +8,7 @@ import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 
-public class SecurityInvestmentQuery implements IQuery {
+public final class SecurityInvestmentQuery implements IQuery {
 
 	private final Security security;
 
@@ -16,17 +16,15 @@ public class SecurityInvestmentQuery implements IQuery {
 		this.security = security;
 	}
 
-	private boolean isOkay(ITransaction input) {
-		if (input instanceof InvestmentTransaction invT) {
-			Security transSecurity = invT.getSecurity();
-			return transSecurity != null && StringUtils.equals(transSecurity.getISIN(), security.getISIN());
-		}
-		return false;
-	}
-
 	@Override
 	public Predicate<ITransaction> getPredicate() {
-		return this::isOkay;
+		return (t) -> {
+			if (t instanceof InvestmentTransaction invT) {
+				Security transSecurity = invT.getSecurity();
+				return transSecurity != null && StringUtils.equals(transSecurity.getISIN(), security.getISIN());
+			}
+			return false;
+		};
 	}
 
 }

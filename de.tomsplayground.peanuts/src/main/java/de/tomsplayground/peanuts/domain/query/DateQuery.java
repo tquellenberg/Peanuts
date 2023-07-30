@@ -9,7 +9,7 @@ import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.util.Day;
 
 @XStreamAlias("dateQuery")
-public class DateQuery implements IQuery {
+public final class DateQuery implements IQuery {
 
 	public enum TimeRange {
 		ALL, THIS_YEAR, LAST_12_MONTH, MANUAL
@@ -59,22 +59,15 @@ public class DateQuery implements IQuery {
 		}
 	}
 
-	private boolean isOkay(ITransaction t) {
-		return (start == null || start.compareTo(t.getDay()) <= 0) &&
-			(end == null || end.compareTo(t.getDay()) > 0);
-	}
-
 	@Override
 	public Predicate<ITransaction> getPredicate() {
 		if (timeRange == TimeRange.ALL) {
 			return Predicates.alwaysTrue();
 		}
 		calculateDates();
-		return new Predicate<ITransaction>() {
-			@Override
-			public boolean test(ITransaction input) {
-				return isOkay(input);
-			}
+		return (t) -> {
+			return (start == null || start.compareTo(t.getDay()) <= 0) &&
+					(end == null || end.compareTo(t.getDay()) > 0);
 		};
 	}
 
