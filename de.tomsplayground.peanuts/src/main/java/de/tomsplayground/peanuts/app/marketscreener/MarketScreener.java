@@ -186,9 +186,10 @@ public class MarketScreener {
 	}
 
 	private BigDecimal parseNumber(String r) {
+		r = r.replaceAll("\\s","");
 		r = StringUtils.remove(r, "<b>");
 		r = StringUtils.remove(r, "<\\b>");
-		return new BigDecimal(r.replace(',', '.').trim());
+		return new BigDecimal(r.replace(',', '.'));
 	}
 
 }
