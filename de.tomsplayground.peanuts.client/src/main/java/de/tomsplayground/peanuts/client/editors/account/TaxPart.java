@@ -1,7 +1,9 @@
 package de.tomsplayground.peanuts.client.editors.account;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,8 +16,6 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -32,6 +32,7 @@ import org.eclipse.ui.part.EditorPart;
 
 import com.google.common.collect.ImmutableList;
 
+import de.tomsplayground.peanuts.app.ib.IbFlexQuery;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.editors.ITransactionProviderInput;
 import de.tomsplayground.peanuts.config.IConfigurable;
@@ -40,6 +41,8 @@ import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
+import de.tomsplayground.peanuts.domain.option.OptionsLog;
+import de.tomsplayground.peanuts.domain.option.OptionsLog.Gain;
 import de.tomsplayground.peanuts.domain.process.CurrencyAdjustedPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
@@ -100,16 +103,29 @@ public class TaxPart extends EditorPart {
 				if (columnIndex == 6) {
 					return PeanutsUtil.formatCurrency(t.getGain(), account.getCurrency());
 				}
-				if (columnIndex == 7 && sumStockValues != null) {
+				if (columnIndex == 7 && sumStockValues.containsKey(t)) {
 					return PeanutsUtil.formatCurrency(sumStockValues.get(t), account.getCurrency());
 				}
-				if (columnIndex == 8 && sumOtherValues != null) {
-					return PeanutsUtil.formatCurrency(sumOtherValues.get(t), account.getCurrency());
+			}
+			if (element instanceof Gain gain) {
+				if (columnIndex == 0) {
+					return PeanutsUtil.formatDate(Day.from(gain.d().toLocalDate()));
+				}
+				if (columnIndex == 1) {
+					return gain.option().getDescription();
+				}
+				if (columnIndex == 2) {
+					return Integer.toString(gain.quantity());
+				}
+				if (columnIndex == 6) {
+					return PeanutsUtil.formatCurrency(gain.gain(), account.getCurrency());
+				}
+				if (columnIndex == 7 && sumOptionsValues.containsKey(gain)) {
+					return PeanutsUtil.formatCurrency(sumOptionsValues.get(gain), account.getCurrency());
 				}
 			}
 			return null;
 		}
-
 	}
 
 	private ITransactionProvider account;
@@ -119,9 +135,8 @@ public class TaxPart extends EditorPart {
 
 	private int selectedYear;
 
-	private Map<AnalyzedInvestmentTransaction, BigDecimal> sumStockValues;
-
-	private Map<AnalyzedInvestmentTransaction, BigDecimal> sumOtherValues;
+	private final Map<AnalyzedInvestmentTransaction, BigDecimal> sumStockValues = new HashMap<>();
+	private final Map<Gain, BigDecimal> sumOptionsValues = new HashMap<>();
 
 	private RealizedGain realizedGain;
 
@@ -147,13 +162,14 @@ public class TaxPart extends EditorPart {
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		top.setLayout(layout);
+
 		// top banner
 		final Composite banner = new Composite(top, SWT.NONE);
 		banner.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		layout = new GridLayout();
 		layout.marginHeight = 5;
 		layout.marginWidth = 10;
-		layout.numColumns = 2;
+		layout.numColumns = 3;
 		banner.setLayout(layout);
 		Font boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT);
 
@@ -172,16 +188,32 @@ public class TaxPart extends EditorPart {
 			yearCombo.add(Integer.toString(i));
 		}
 		yearCombo.select(yearCombo.indexOf(Integer.toString(selectedYear)));
-		yearCombo.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				final String yearString = ((Combo)e.widget).getText();
-				if (StringUtils.isNotBlank(yearString) && StringUtils.isNumeric(yearString)) {
-					selectedYear = Integer.parseInt(yearString);
-					setData();
-					saveState();
-				}
+		yearCombo.addModifyListener(e -> {
+			String yearString = ((Combo)e.widget).getText();
+			if (StringUtils.isNotBlank(yearString) && StringUtils.isNumeric(yearString)) {
+				selectedYear = Integer.parseInt(yearString);
+				setStockData(true);
+				saveState();
 			}
+		});
+		
+		Combo typeCombo = new Combo(banner, SWT.DROP_DOWN | SWT.READ_ONLY);
+		typeCombo.add("Stocks");
+		typeCombo.add("Other");
+		typeCombo.add("Short Options");
+		typeCombo.add("Long Options");
+		typeCombo.select(0);
+		typeCombo.addModifyListener(e -> {
+			String selected = ((Combo)e.widget).getText();
+			switch (selected) {
+			case "Stocks": setStockData(true); break;
+			case "Other": setStockData(false); break;
+			case "Short Options": setOptionsData(false); break;
+			case "Long Options": setOptionsData(true); break;
+			default:
+				throw new IllegalArgumentException("Unexpected value: " + selected);
+			}
+			tableViewer.refresh();
 		});
 
 		ControlListener saveSizeOnResize = new ControlListener() {
@@ -253,21 +285,7 @@ public class TaxPart extends EditorPart {
 		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Sum stocks");
-		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
-		col.addControlListener(saveSizeOnResize);
-		colNumber++;
-
-		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Sum others");
-		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
-		col.addControlListener(saveSizeOnResize);
-		colNumber++;
-
-		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Gain/Lost (%)");
+		col.setText("Sum");
 		col.setResizable(true);
 		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
 		col.addControlListener(saveSizeOnResize);
@@ -283,7 +301,7 @@ public class TaxPart extends EditorPart {
 
 		realizedGain = new RealizedGain(inventory);
 
-		setData();
+		setStockData(true);
 	}
 	
 	@Override
@@ -292,7 +310,7 @@ public class TaxPart extends EditorPart {
 		super.dispose();
 	}
 
-	private void setData() {
+	private void setStockData(boolean isStock) {
 		ImmutableList<AnalyzedInvestmentTransaction> realizedTransaction = realizedGain.getRealizedTransaction(selectedYear);
 		realizedTransaction = ImmutableList.sortedCopyOf((a,b) -> a.getDay().compareTo(b.getDay()), realizedTransaction);
 
@@ -300,22 +318,33 @@ public class TaxPart extends EditorPart {
 		SecurityCategoryMapping securityCategoryMapping = accountManager.getSecurityCategoryMapping("Typ");
 
 		BigDecimal sumStocks = BigDecimal.ZERO;
-		BigDecimal sumOthers = BigDecimal.ZERO;
-		sumStockValues = new HashMap<>();
-		sumOtherValues = new HashMap<>();
+		sumStockValues.clear();
+		List<AnalyzedInvestmentTransaction> transToShow = new ArrayList<>();
 		for (AnalyzedInvestmentTransaction t : realizedTransaction) {
 			Security security = t.getSecurity();
 			String category = securityCategoryMapping.getCategory(security);
-			if (StringUtils.equalsAny(category, "Div Aktie", "Aktie")) {
+			if (StringUtils.equalsAny(category, "Div Aktie", "Aktie") == isStock) {
 				sumStocks = sumStocks.add(t.getGain());
 				sumStockValues.put(t, sumStocks);
-			} else {
-				sumOthers = sumOthers.add(t.getGain());
-				sumOtherValues.put(t, sumOthers);
+				transToShow.add(t);
 			}
 		}
 
-		tableViewer.setInput(realizedTransaction);
+		tableViewer.setInput(transToShow);
+	}
+	
+	private void setOptionsData(boolean longTrade) {
+		String filename = "/Users/quelle/Documents/Geld/InteractiveBrokers/FlexQuery_2023.xml";
+		OptionsLog optionsFromXML = new IbFlexQuery().readOptionsFromXML(filename);
+		List<Gain> gains = optionsFromXML.getGains().stream().filter(g -> g.longTrade() == longTrade).toList();
+		BigDecimal sumStocks = BigDecimal.ZERO;
+		sumOptionsValues.clear();
+		for (Gain gain : gains) {
+			sumStocks = sumStocks.add(gain.gain());
+			sumOptionsValues.put(gain, sumStocks);
+		}
+		
+		tableViewer.setInput(gains);
 	}
 
 	@Override
@@ -371,6 +400,5 @@ public class TaxPart extends EditorPart {
 	@Override
 	public void doSaveAs() {
 	}
-
 
 }

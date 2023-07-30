@@ -38,9 +38,14 @@ public class AccountEditor extends MultiPageEditorPart {
 		accountEditorPart = new TransactionListEditorPart();
 		createEditorPage(accountEditorPart, "Transactions");
 		createEditorPage(new ValueChartEditorPart(), "Chart");
-		Type accountType = ((AccountEditorInput) getEditorInput()).getAccount().getType();
+		Account account = ((AccountEditorInput) getEditorInput()).getAccount();
+		Type accountType = account.getType();
 		if (accountType == Account.Type.INVESTMENT || accountType == Account.Type.COMMODITY) {
 			createEditorPage(new InventoryEditorPart(), "Inventory");
+			// TODO: Flag
+			if (account.getName().equals("InteractiveBrokers")) {
+				createEditorPage(new OptionsLogEditorPart(), "Options");
+			}
 			createEditorPage(new InventoryPieEditorPart(), "InventoryPie");
 			createEditorPage(new TaxPart(), "Tax");
 			createEditorPage(new InvestmentPerformanceEditorPart(), "Performance");
