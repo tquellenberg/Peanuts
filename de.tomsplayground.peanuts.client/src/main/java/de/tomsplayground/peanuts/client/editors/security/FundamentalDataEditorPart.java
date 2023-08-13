@@ -4,6 +4,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,8 +56,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -289,9 +290,9 @@ public class FundamentalDataEditorPart extends EditorPart {
 					case 13:
 						return PeanutsUtil.formatPercent(calculateYOC(data));
 					case 14:
-						DateTime lastModifyDate = data.getLastModifyDate();
+						LocalDateTime lastModifyDate = data.getLastModifyDate();
 						if (lastModifyDate != null) {
-							return DateTimeFormat.shortDateTime().print(lastModifyDate);
+							return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(lastModifyDate);
 						}
 						return "";
 					default:

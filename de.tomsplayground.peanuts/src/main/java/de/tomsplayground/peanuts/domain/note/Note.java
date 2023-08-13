@@ -1,7 +1,8 @@
 package de.tomsplayground.peanuts.domain.note;
 
+import java.time.LocalDateTime;
+
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -9,8 +10,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 public class Note implements Comparable<Note> {
 
 	private String text;
-	private DateTime modificationDate;
-	private final DateTime creationDate = new DateTime();
+	private LocalDateTime modificationDate;
+	private final LocalDateTime creationDate = LocalDateTime.now();
 
 	public Note(String text) {
 		this.text = StringUtils.defaultString(text);
@@ -24,12 +25,12 @@ public class Note implements Comparable<Note> {
 		return StringUtils.defaultString(text);
 	}
 	public final void updateModificationDate() {
-		this.modificationDate = new DateTime();
+		this.modificationDate = LocalDateTime.now();
 	}
-	public DateTime getModificationDate() {
+	public LocalDateTime getModificationDate() {
 		return modificationDate;
 	}
-	public DateTime getCreationDate() {
+	public LocalDateTime getCreationDate() {
 		return creationDate;
 	}
 

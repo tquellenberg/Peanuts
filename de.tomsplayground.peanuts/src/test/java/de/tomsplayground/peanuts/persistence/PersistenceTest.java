@@ -15,6 +15,8 @@ import org.junit.Test;
 
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
+import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.note.Note;
 import de.tomsplayground.peanuts.domain.process.Transaction;
 import de.tomsplayground.peanuts.domain.process.Transfer;
 import de.tomsplayground.peanuts.persistence.xstream.PersistenceService;
@@ -52,6 +54,16 @@ public class PersistenceTest {
 		AccountManager accountManager2 = persistence.readAccountManager(xml);
 
 		assertEquals(accountManager.getAccounts().size(), accountManager2.getAccounts().size());
+	}
+	
+	@Test
+	public void testNotesWithDateTime() {
+		Security security = accountManager.getOrCreateSecurity("Apple");
+		security.addNote(new Note("Test 123"));
+		
+		IPersistenceService persistence = new PersistenceService();
+		String xml = write(persistence, accountManager);
+		System.out.println(xml);
 	}
 
 	@Test

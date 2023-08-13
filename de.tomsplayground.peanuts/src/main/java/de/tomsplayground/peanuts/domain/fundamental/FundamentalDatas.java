@@ -1,12 +1,12 @@
 package de.tomsplayground.peanuts.domain.fundamental;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +64,7 @@ public class FundamentalDatas {
 		}
 	}
 
-	public Optional<DateTime> getMaxModificationDate() {
+	public Optional<LocalDateTime> getMaxModificationDate() {
 		return fundamentalDatas.stream()
 			.map(d -> d.getLastModifyDate())
 			.filter(a -> a != null)

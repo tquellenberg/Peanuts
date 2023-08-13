@@ -11,6 +11,9 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -97,12 +100,30 @@ public class Persistence {
 		matcher.appendTail(result);
 		return result.toString();
 	}
+	
+	public static String updateJodaDateTime(String xml) {
+		xml = xml.replaceAll("<iChronology class=\"org.joda.time.chrono.ISOChronology\" id=(.*?)</iChronology>", "<iChronology class=\"org.joda.time.chrono.ISOChronology\" reference=\"12345\"/>");
+		
+		Matcher matcher = Pattern.compile(
+				"<iMillis>([0-9]*)</iMillis><iChronology class=\"org.joda.time.chrono.ISOChronology\" reference=\"([0-9]*)\"/>")
+				.matcher(xml);
+		StringBuffer result = new StringBuffer();
+		while (matcher.find()) {
+			long iMillis = Long.valueOf(matcher.group(1));
+			
+			LocalDateTime localDateTime = Instant.ofEpochMilli(iMillis).atZone(ZoneId.systemDefault()).toLocalDateTime();
+			matcher.appendReplacement(result, localDateTime.toString());
+		}		
+		matcher.appendTail(result);
+		return result.toString();
+	}
 
 	public AccountManager read(Reader reader) {
 		try {
 			String xml = IOUtils.toString(reader);
 			String xml2 = updateConcurrentHashMap(xml);
-			AccountManager readAccountManager = persistenceService.readAccountManager(xml2);
+			String xml3 = updateJodaDateTime(xml2);
+			AccountManager readAccountManager = persistenceService.readAccountManager(xml3);
 			readAccountManager.reconfigureAfterDeserialization();
 			return readAccountManager;
 		} catch (IOException e) {

@@ -1,12 +1,12 @@
 package de.tomsplayground.peanuts.domain.fundamental;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Currency;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.joda.time.DateTime;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -26,7 +26,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 	private BigDecimal earningsPerShare;
 	private BigDecimal debtEquityRatio;
 	private String currency;
-	private DateTime lastModifyDate;
+	private LocalDateTime lastModifyDate;
 	private boolean ignoreInAvgCalculation;
 	private boolean locked;
 
@@ -39,7 +39,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		this.earningsPerShare = BigDecimal.ZERO;
 		this.debtEquityRatio = BigDecimal.ZERO;
 		this.ficalYearEndsMonth = 0;
-		this.lastModifyDate = new DateTime();
+		this.lastModifyDate = LocalDateTime.now();
 	}
 
 	public FundamentalData(FundamentalData d) {
@@ -149,11 +149,11 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		this.fiscalEndDay = null;
 	}
 
-	public DateTime getLastModifyDate() {
+	public LocalDateTime getLastModifyDate() {
 		return lastModifyDate;
 	}
 	public void updateLastModifyDate() {
-		lastModifyDate = new DateTime();
+		lastModifyDate = LocalDateTime.now();
 	}
 
 	public void setIgnoreInAvgCalculation(boolean ignoreInAvgCalculation) {

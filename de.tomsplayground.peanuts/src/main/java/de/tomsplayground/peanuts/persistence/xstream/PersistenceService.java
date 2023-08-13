@@ -78,8 +78,6 @@ public class PersistenceService implements IPersistenceService {
 		// Additional classes
 		// TODO: replace by simple types
 		xstream.allowTypes(new String[] {
-			"org.joda.time.chrono.ISOChronology$Stub", "org.joda.time.chrono.ISOChronology",
-			"org.joda.time.DateTimeZone$Stub", "org.joda.time.DateTimeZone",
 			"de.tomsplayground.peanuts.domain.reporting.transaction.Report$1",
 			"com.google.common.collect.ImmutableList$SerializedForm"});
 		xstream.addDefaultImplementation(DummyImmutableList.class, ImmutableList.class);

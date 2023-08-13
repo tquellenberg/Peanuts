@@ -1,7 +1,7 @@
 package de.tomsplayground.peanuts.client.actions;
 
-import static org.joda.time.DateTime.now;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.joda.time.DateTime;
 
 import de.tomsplayground.peanuts.app.marketscreener.MarketScreener;
 import de.tomsplayground.peanuts.client.app.Activator;
@@ -73,11 +72,11 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 	}
 
 	private List<Security> securitiesToUpdate() {
-		SortedMap<DateTime, Security> securitiesToUpdate = new TreeMap<>();
+		SortedMap<LocalDateTime, Security> securitiesToUpdate = new TreeMap<>();
 		for (Security security : Activator.getDefault().getAccountManager().getSecurities()) {
 			if (isUpdatePossible(security)) {
-				DateTime lastUpdateDate = getLastUpdateDate(security);
-				if (lastUpdateDate.compareTo(now().minusDays(MAX_AGE_BEFORE_UPDATE)) < 0) {
+				LocalDateTime lastUpdateDate = getLastUpdateDate(security);
+				if (lastUpdateDate.compareTo(LocalDateTime.now().minusDays(MAX_AGE_BEFORE_UPDATE)) < 0) {
 					securitiesToUpdate.put(lastUpdateDate, security);
 				}
 			}
@@ -93,10 +92,10 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 		return securities;
 	}
 	
-	private DateTime getLastUpdateDate(Security security) {
+	private LocalDateTime getLastUpdateDate(Security security) {
 		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
-		Optional<DateTime> maxDate = fundamentalDatas.getMaxModificationDate();
-		return maxDate.orElse(new DateTime(0L));
+		Optional<LocalDateTime> maxDate = fundamentalDatas.getMaxModificationDate();
+		return maxDate.orElse(LocalDateTime.MIN);
 	}
 	
 	private boolean isUpdatePossible(Security security) {

@@ -1,12 +1,12 @@
 package de.tomsplayground.peanuts.client.watchlist;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Currency;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.joda.time.DateTime;
 
 import de.tomsplayground.peanuts.app.yahoo.MarketCap;
 import de.tomsplayground.peanuts.client.app.Activator;
@@ -265,7 +265,7 @@ public class WatchEntry {
 		return deRatio;
 	}
 
-	public DateTime getFundamentalDataDate() {
+	public LocalDateTime getFundamentalDataDate() {
 		return security.getFundamentalDatas().getMaxModificationDate().orElse(null);
 	}
 

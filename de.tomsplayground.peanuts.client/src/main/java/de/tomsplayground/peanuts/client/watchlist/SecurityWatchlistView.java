@@ -3,6 +3,7 @@ package de.tomsplayground.peanuts.client.watchlist;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
@@ -46,8 +47,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
 import org.eclipse.ui.part.ViewPart;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.dnd.PeanutsTransfer;
@@ -135,8 +134,8 @@ public class SecurityWatchlistView extends ViewPart {
 	private final WatchEntryViewerComparator dateComparator2 = new WatchEntryViewerComparator() {
 		@Override
 		public int compare(WatchEntry w1, WatchEntry w2) {
-			DateTime fundamentalDataDate1 = w1.getFundamentalDataDate();
-			DateTime fundamentalDataDate2 = w2.getFundamentalDataDate();
+			LocalDateTime fundamentalDataDate1 = w1.getFundamentalDataDate();
+			LocalDateTime fundamentalDataDate2 = w2.getFundamentalDataDate();
 			return ObjectUtils.compare(fundamentalDataDate2, fundamentalDataDate1, true);
 		}
 	};
@@ -319,11 +318,11 @@ public class SecurityWatchlistView extends ViewPart {
 					}
 					return SHORT_DATE_FORMATTER.format(price.getDay().toLocalDate());
 				case 2:
-					DateTime fundamentalDataDate = watchEntry.getFundamentalDataDate();
+					LocalDateTime fundamentalDataDate = watchEntry.getFundamentalDataDate();
 					if (fundamentalDataDate == null) {
 						return "";
 					}
-					return DateTimeFormat.shortDate().print(fundamentalDataDate);
+					return DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).format(fundamentalDataDate);
 				case 3:
 					BigDecimal data1 = watchEntry.getPeRatio();
 					if (data1 != null) {
