@@ -11,22 +11,13 @@ import de.tomsplayground.peanuts.util.Day;
 
 public class BalanceCache {
 	
-	private static class YearEntry {
-		int year;
-		BigDecimal startBalance;
-		// Pointer to first transaction of this year
-		int pointer;
-		
-		public YearEntry(int year, int pointer, BigDecimal startBalance) {
-			this.year = year;
-			this.pointer = pointer;
-			this.startBalance = startBalance;
-		}
-	}
+	// startBalance and pointer to first transaction of this year
+	private record YearEntry(int year, BigDecimal startBalance, int pointer) {}
 
 	private final Map<Integer, YearEntry> cache = new HashMap<>();
+	
 	private final YearEntry START;
-	private List<ITransaction> transactions;
+	private final List<ITransaction> transactions;
 	
 	public BalanceCache(List<ITransaction> transactions) {
 		this.transactions = transactions;
@@ -36,8 +27,7 @@ public class BalanceCache {
 		} else {
 			startYear = transactions.get(0).getDay().year;
 		}
-		START = new YearEntry(startYear, 0, BigDecimal.ZERO);
-		this.transactions = transactions;
+		this.START = new YearEntry(startYear, BigDecimal.ZERO, 0);
 	}
 	
 	public void resetYearAndFollowing(int year) {
@@ -68,7 +58,7 @@ public class BalanceCache {
 					break;
 				}
 			}
-			YearEntry entry = new YearEntry(year, pos, balance);
+			YearEntry entry = new YearEntry(year, balance, pos);
 			cache.put(year, entry);
 			return entry;
 		}

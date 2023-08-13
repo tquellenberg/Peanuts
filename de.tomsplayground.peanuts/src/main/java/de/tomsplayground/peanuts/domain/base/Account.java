@@ -59,7 +59,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 
 	transient private PropertyChangeListener transactionChangeListener = new TransactionPropertyListener();
 
-	private class TransactionPropertyListener implements PropertyChangeListener {
+	private final class TransactionPropertyListener implements PropertyChangeListener {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			if (evt.getPropertyName().equals("date")) {

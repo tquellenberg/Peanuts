@@ -9,15 +9,10 @@ import java.util.NoSuchElementException;
  * Date range with iterator, including start and end date.
  *
  */
-public class DayRange implements Iterable<Day> {
+public record DayRange(Day startDate, Day endDate) implements Iterable<Day> {
 
-	private final Day startDate;
-	private final Day endDate;
-
-	public DayRange(Day start, Day end) {
-		isTrue(start.before(end) || start.equals(end));
-		this.startDate = start;
-		this.endDate = end;
+	public DayRange {
+		isTrue(startDate.before(endDate) || startDate.equals(endDate));
 	}
 
 	private final class DayRangeIterator implements Iterator<Day> {
@@ -48,11 +43,4 @@ public class DayRange implements Iterable<Day> {
 		return new DayRangeIterator();
 	}
 
-	public Day getEndDate() {
-		return endDate;
-	}
-
-	public Day getStartDate() {
-		return startDate;
-	}
 }
