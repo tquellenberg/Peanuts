@@ -6,12 +6,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.util.Timeout;
 import org.htmlcleaner.HtmlCleaner;
@@ -34,10 +38,12 @@ public class MarketScreener {
         .build();
 	
 	private final CloseableHttpClient httpclient = HttpClientBuilder.create()
-		.setDefaultRequestConfig(defaultRequestConfig).build();
+		.setDefaultRequestConfig(defaultRequestConfig)
+		.setRedirectStrategy(new DefaultRedirectStrategy())
+		.build();
 
 	public static void main(String[] args) {
-		List<FundamentalData> scrapFinancials = new MarketScreener().scrapFinancials("https://www.marketscreener.com/quote/stock/DWS-GROUP-GMBH-CO-KGAA-42452445/finances/");
+		List<FundamentalData> scrapFinancials = new MarketScreener().scrapFinancials("https://www.marketscreener.com/quote/stock/THE-GOLDMAN-SACHS-GROUP-I-12831/finances/");
 		for (FundamentalData fundamentalData : scrapFinancials) {
 			System.out.println(fundamentalData);
 		}
@@ -48,7 +54,25 @@ public class MarketScreener {
 		httpGet.addHeader("User-Agent", USER_AGENT);
 		try {
 			return httpclient.execute(httpGet, response -> {
-				return EntityUtils.toString(response.getEntity());
+				int code = response.getCode();
+				String content = EntityUtils.toString(response.getEntity());
+				if (code == 302) {
+					String newUrl = "";
+					Header header = response.getHeader("Location");
+					if (header != null) {
+						// Look into header
+						newUrl = response.getHeader("Location").getValue();
+					} else {
+						// Parse content
+						Pattern pattern = Pattern.compile("url='(.*)'");
+						Matcher matcher = pattern.matcher(content);
+						if (matcher.find()) {
+							newUrl = "https://www.marketscreener.com"+matcher.group(1);
+						}
+					}
+					log.info("Moved: {}", newUrl);
+				}
+				return content;
 			});
 		} catch (IOException e) {
 			log.error("URL"+url, e);
