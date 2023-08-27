@@ -654,7 +654,8 @@ public class SecurityWatchlistView extends ViewPart {
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Div");
+		col.setText("Div%");
+		col.setToolTipText("Based on fundamental data and latest stock price.");
 		col.setWidth((colWidth[colNum] > 0) ? colWidth[colNum] : 100);
 		col.setResizable(true);
 		col.addSelectionListener(new SelectionAdapter() {

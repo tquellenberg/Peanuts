@@ -10,7 +10,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
-import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
@@ -111,16 +110,6 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		return (day.after(getFiscalStartDay()) && day.before(getFiscalEndDay())) ||
 			day.equals(getFiscalStartDay()) ||
 			day.equals(getFiscalEndDay());
-	}
-
-	public BigDecimal calculateYOC(InventoryEntry inventoryEntry) {
-		if (inventoryEntry.getQuantity().signum() <= 0) {
-			return BigDecimal.ZERO;
-		}
-		if (inventoryEntry.getAvgPrice().signum() == 0) {
-			return BigDecimal.ZERO;
-		}
-		return getDividende().divide(inventoryEntry.getAvgPrice(), PeanutsUtil.MC);
 	}
 
 	public Currency getCurrency() {

@@ -72,9 +72,11 @@ import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
-import de.tomsplayground.peanuts.domain.dividend.DividendStats;
 import de.tomsplayground.peanuts.domain.dividend.SecurityDividendStats;
+import de.tomsplayground.peanuts.domain.fundamental.CurrencyAjustedFundamentalData;
+import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 import de.tomsplayground.peanuts.domain.process.CurrencyAdjustedPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
@@ -196,7 +198,9 @@ public class InventoryEditorPart extends EditorPart {
 		}
 	};
 
-	private DividendStats dividendStats;
+//	private DividendStats dividendStats;
+
+	private IPriceProviderFactory priceProviderFactory;
 
 	private static class InventoryContentProvider implements ITreeContentProvider {
 
@@ -317,9 +321,9 @@ public class InventoryEditorPart extends EditorPart {
 					return PeanutsUtil.formatPercent(entry.getXIRR());
 				}
 				if (columnIndex == INVENTORY_POS_YOC) {
-					BigDecimal dividendSum = new SecurityDividendStats(entry.getSecurity()).getYoC(entry.getAvgPrice(), dividendStats);
-					if (dividendSum.compareTo(BigDecimal.ZERO) != 0) {
-						return PeanutsUtil.formatPercent(dividendSum);
+					BigDecimal dividendYoc = new SecurityDividendStats(entry.getSecurity()).getYoC(entry.getAvgPrice(), Activator.getDefault().getExchangeRates());
+					if (dividendYoc.compareTo(BigDecimal.ZERO) != 0) {
+						return PeanutsUtil.formatPercent(dividendYoc);
 					}
 				}
 				if (columnIndex == INVENTORY_POS_PAYED_DIVIDEND) {
@@ -330,9 +334,18 @@ public class InventoryEditorPart extends EditorPart {
 					}
 				}
 				if (columnIndex == INVENTORY_POS_DIVIDEND_YIELD) {
-					BigDecimal dividendSum = new SecurityDividendStats(entry.getSecurity()).getYoC(entry.getPrice().getValue(), dividendStats);
-					if (dividendSum.compareTo(BigDecimal.ZERO) != 0) {
-						return PeanutsUtil.formatPercent(dividendSum);
+					BigDecimal dividendYield = BigDecimal.ZERO;
+					Security security = entry.getSecurity();
+					FundamentalData fundamentalData = security.getFundamentalDatas().getCurrentFundamentalData();
+					if (fundamentalData != null) {
+						ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
+						CurrencyConverter currencyConverter = exchangeRates.createCurrencyConverter(fundamentalData.getCurrency(), getTransactions().getCurrency());
+						CurrencyAjustedFundamentalData currencyAjustedFundamentalData = new CurrencyAjustedFundamentalData(fundamentalData, currencyConverter);
+						
+						dividendYield = currencyAjustedFundamentalData.calculateDivYield(priceProviderFactory.getPriceProvider(security));
+					}
+					if (dividendYield.compareTo(BigDecimal.ZERO) != 0) {
+						return PeanutsUtil.formatPercent(dividendYield);
 					}
 				}
 				
@@ -733,6 +746,7 @@ public class InventoryEditorPart extends EditorPart {
 
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("YoC");
+		col.setToolTipText("Future Div / Investment Sum");
 		col.setResizable(true);
 		col.setWidth((colWidth[11] > 0) ? colWidth[11] : 100);
 // TODO:
@@ -746,6 +760,7 @@ public class InventoryEditorPart extends EditorPart {
 
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Future Div");
+		col.setToolTipText("12 months future dividends from div tab.");
 		col.setResizable(true);
 		col.setWidth((colWidth[12] > 0) ? colWidth[12] : 100);
 // TODO:
@@ -759,6 +774,7 @@ public class InventoryEditorPart extends EditorPart {
 
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Div%");
+		col.setToolTipText("Based on fundamental data and latest stock price.");
 		col.setResizable(true);
 		col.setWidth((colWidth[13] > 0) ? colWidth[13] : 100);
 // TODO:
@@ -787,14 +803,13 @@ public class InventoryEditorPart extends EditorPart {
 			}
 		});
 
-		IPriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
 		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
-		priceProviderFactory = new CurrencyAdjustedPriceProviderFactory(account.getCurrency(), priceProviderFactory, exchangeRates);
+		priceProviderFactory = new CurrencyAdjustedPriceProviderFactory(account.getCurrency(), PriceProviderFactory.getInstance(), exchangeRates);
 		inventory = new Inventory(account, priceProviderFactory, new AnalyzerFactory(), Activator.getDefault().getAccountManager());
 		inventory.setDate(date);
 		inventory.addPropertyChangeListener(inventoryChangeListener);
-		dividendStats = new DividendStats(Activator.getDefault().getAccountManager(), priceProviderFactory,
-				Activator.getDefault().getAccountManager());
+//		dividendStats = new DividendStats(Activator.getDefault().getAccountManager(), priceProviderFactory,
+//				Activator.getDefault().getAccountManager());
 		
 		treeViewer.setInput(inventory);
 
@@ -858,7 +873,7 @@ public class InventoryEditorPart extends EditorPart {
 	public void dispose() {
 		inventory.removePropertyChangeListener(inventoryChangeListener);
 		inventory.dispose();
-		dividendStats.dispose();
+//		dividendStats.dispose();
 		super.dispose();
 	}
 

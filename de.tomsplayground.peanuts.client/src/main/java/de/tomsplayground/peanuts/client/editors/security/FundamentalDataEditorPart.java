@@ -207,15 +207,6 @@ public class FundamentalDataEditorPart extends EditorPart {
 			return currencyAjustedData.calculateDivYield(priceProvider);
 		}
 
-		private BigDecimal calculateYOC(FundamentalData data) {
-			if (inventoryEntry != null && data.getYear() == (Day.today()).year) {
-				CurrencyAjustedFundamentalData currencyAjustedData = new CurrencyAjustedFundamentalData(data, currencyConverter);
-				return currencyAjustedData.calculateYOC(inventoryEntry);
-			} else {
-				return null;
-			}
-		}
-
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
 			if (element instanceof AvgFundamentalData) {
@@ -288,8 +279,6 @@ public class FundamentalDataEditorPart extends EditorPart {
 					case 12:
 						return PeanutsUtil.formatPercent(divYield(data));
 					case 13:
-						return PeanutsUtil.formatPercent(calculateYOC(data));
-					case 14:
 						LocalDateTime lastModifyDate = data.getLastModifyDate();
 						if (lastModifyDate != null) {
 							return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(lastModifyDate);
@@ -579,13 +568,8 @@ public class FundamentalDataEditorPart extends EditorPart {
 		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Div yield");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
-		col.setResizable(true);
-		colNumber++;
-
-		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("YOC");
+		col.setText("Div%");
+		col.setToolTipText("Based on fundamental data and latest stock price.");
 		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
 		col.setResizable(true);
 		colNumber++;
@@ -597,7 +581,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 		colNumber++;
 
 		tableViewer.setColumnProperties(new String[] { "year", "fiscalYear", "div", "divgr", "div2", "div2gr",
-			"EPS", "EPSgr", "EPS2", "EPS2gr", "deRatio", "peRatio", "divYield", "YOC", "date"});
+			"EPS", "EPSgr", "EPS2", "EPS2gr", "deRatio", "peRatio", "divYield", "date"});
 		tableViewer.setCellModifier(new ICellModifier() {
 
 			@Override

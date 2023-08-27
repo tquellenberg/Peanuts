@@ -20,7 +20,7 @@ import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
-public class FundamentalDatas {
+public final class FundamentalDatas {
 
 	private final static Logger log = LoggerFactory.getLogger(FundamentalDatas.class);
 

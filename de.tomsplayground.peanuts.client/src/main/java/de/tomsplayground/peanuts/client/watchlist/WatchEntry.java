@@ -11,7 +11,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import de.tomsplayground.peanuts.app.yahoo.MarketCap;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.editors.security.FundamentalDataEditorPart;
-import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
@@ -147,17 +146,6 @@ public class WatchEntry {
 		CurrencyAjustedFundamentalData data1 = getCurrentFundamentalData();
 		if (data1 != null) {
 			return data1.calculateDivYield(adjustedPriceProvider);
-		}
-		return null;
-	}
-
-	public BigDecimal getYOC(InventoryEntry inventoryEntry) {
-		if (inventoryEntry == null || inventoryEntry.getQuantity().signum() <= 0) {
-			return null;
-		}
-		CurrencyAjustedFundamentalData data1 = getCurrentFundamentalData();
-		if (data1 != null) {
-			return data1.calculateYOC(inventoryEntry);
 		}
 		return null;
 	}
