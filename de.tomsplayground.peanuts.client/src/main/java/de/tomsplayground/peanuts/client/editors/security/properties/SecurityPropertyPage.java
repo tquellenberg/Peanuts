@@ -12,12 +12,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 
+import de.tomsplayground.peanuts.app.marketscreener.MarketScreener;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalDatas;
 
 public class SecurityPropertyPage extends PropertyPage {
-
-	public static final String MARKET_SCREENER_URL = "fourTrasdersUrl";
 
 	public static final String OVERRIDE_EXISTING_PRICE_DATA = "OVERRIDE_EXISTING_PRICE_DATA";
 
@@ -63,7 +62,7 @@ public class SecurityPropertyPage extends PropertyPage {
 		morningstarSymbol.setText(StringUtils.defaultString(security.getMorningstarSymbol()));
 
 		fourTradersUrl = createTextWithLabel(composite, "4-Traders Url");
-		fourTradersUrl.setText(StringUtils.defaultString(security.getConfigurationValue(MARKET_SCREENER_URL)));
+		fourTradersUrl.setText(StringUtils.defaultString(security.getConfigurationValue(MarketScreener.CONFIG_KEY_URL)));
 
 		overriddenAvgPE = createTextWithLabel(composite, "Overridden avg PE");
 		overriddenAvgPE.setText(StringUtils.defaultString(security.getConfigurationValue(FundamentalDatas.OVERRIDDEN_AVG_PE)));
@@ -96,7 +95,7 @@ public class SecurityPropertyPage extends PropertyPage {
 		security.setISIN(isin.getText());
 		security.setTicker(ticker.getText());
 		security.setMorningstarSymbol(morningstarSymbol.getText());
-		security.putConfigurationValue(MARKET_SCREENER_URL, fourTradersUrl.getText());
+		security.putConfigurationValue(MarketScreener.CONFIG_KEY_URL, fourTradersUrl.getText());
 		security.putConfigurationValue(Security.CONFIG_KEY_YAHOO_SYMBOL, yahooSymbol.getText());
 		security.putConfigurationValue(OVERRIDE_EXISTING_PRICE_DATA, Boolean.toString(overridePriceDate.getSelection()));
 		String value = overriddenAvgPE.getText();

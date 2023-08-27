@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import de.tomsplayground.peanuts.app.marketscreener.MarketScreener;
 import de.tomsplayground.peanuts.client.app.Activator;
-import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
 import de.tomsplayground.peanuts.domain.base.INamedElement;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
@@ -45,8 +44,7 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 					for (Security security : securities) {
 						
 						monitor.subTask("Refreshing " + security.getName());
-						String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.MARKET_SCREENER_URL);
-						updateFundamentaData(security, fourTraders.scrapFinancials(financialsUrl));
+						updateFundamentaData(security, fourTraders.scrapFinancials(security));
 						monitor.worked(1);
 
 						try {
@@ -102,8 +100,8 @@ public class Update4TraderFundamentalData extends AbstractHandler {
 		if (security.isDeleted()) {
 			return false;
 		}
-		String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.MARKET_SCREENER_URL);
-		if (StringUtils.isBlank(financialsUrl) || StringUtils.equals(financialsUrl, "-")) {
+		String financialsUrl = security.getConfigurationValue(MarketScreener.CONFIG_KEY_URL);
+		if (StringUtils.isBlank(financialsUrl)) {
 			return false;
 		}
 		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();

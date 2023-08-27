@@ -16,13 +16,10 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
@@ -67,11 +64,8 @@ import de.tomsplayground.peanuts.app.yahoo.YahooAPI;
 import de.tomsplayground.peanuts.app.yahoo.YahooAPI.DebtEquityValue;
 import de.tomsplayground.peanuts.app.yahoo.YahooAPI.YahooData;
 import de.tomsplayground.peanuts.client.app.Activator;
-import de.tomsplayground.peanuts.client.editors.security.properties.SecurityPropertyPage;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.client.widgets.CurrencyComboViewer;
-import de.tomsplayground.peanuts.domain.base.Inventory;
-import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
@@ -104,7 +98,6 @@ public class FundamentalDataEditorPart extends EditorPart {
 	private boolean dirty = false;
 	private List<FundamentalData> fundamentalDataList;
 	private IPriceProvider priceProvider;
-	private InventoryEntry inventoryEntry;
 	private CurrencyComboViewer currencyComboViewer;
 	private CurrencyConverter currencyConverter;
 	private List<Object> tableRows;
@@ -455,7 +448,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 				updateMarketScreenerData(security);
 			}
 		});
-		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.MARKET_SCREENER_URL)));
+		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(MarketScreener.CONFIG_KEY_URL)));
 
 		deYahooGo = new Button(metaComposite, SWT.PUSH);
 		deYahooGo.setText("Load D/E from Yahoo");
@@ -665,13 +658,6 @@ public class FundamentalDataEditorPart extends EditorPart {
 		ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
 		priceProvider = PriceProviderFactory.getInstance().getSplitAdjustedPriceProvider(security, stockSplits);
 
-		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
-		for (InventoryEntry entry : inventory.getEntries()) {
-			if (entry.getSecurity().equals(security)) {
-				inventoryEntry = entry;
-			}
-		}
-
 		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
 		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();
 		fundamentalDataList = cloneFundamentalData(fundamentalDatas.getDatas());
@@ -749,7 +735,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 	private void updateButtonState() {
 		Security security = getSecurity();
 		deYahooGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(Security.CONFIG_KEY_YAHOO_SYMBOL)));
-		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(SecurityPropertyPage.MARKET_SCREENER_URL)));
+		fourTradersGo.setEnabled(StringUtils.isNotBlank(security.getConfigurationValue(MarketScreener.CONFIG_KEY_URL)));
 	}
 
 	private void updateMarketCapLable() {
@@ -816,27 +802,19 @@ public class FundamentalDataEditorPart extends EditorPart {
 	}
 
 	private boolean is4Traders(Security security) {
-		String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.MARKET_SCREENER_URL);
+		String financialsUrl = security.getConfigurationValue(MarketScreener.CONFIG_KEY_URL);
 		return StringUtils.isNotBlank(financialsUrl) && financialsUrl.contains("4-traders.com");
 	}
 	
 	private void updateMarketScreenerData(final Security security) {
-		try {
-			String financialsUrl = security.getConfigurationValue(SecurityPropertyPage.MARKET_SCREENER_URL);
-			if (StringUtils.isNotBlank(financialsUrl)) {
-				MarketScreener marketScreener = new MarketScreener();
-				updateFundamentaData(marketScreener.scrapFinancials(financialsUrl));
-			} else {
-				String errorText = "No unique result could be found for "+security.getISIN();
-				IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, errorText);
-				ErrorDialog.openError(getSite().getShell(), errorText, null, status);
-			}
-		} catch (RuntimeException ex) {
-			ex.printStackTrace();
-		}
+		MarketScreener marketScreener = new MarketScreener();
+		updateFundamentaData(marketScreener.scrapFinancials(security));
 	}
 
 	private void updateFundamentaData(List<FundamentalData> newDatas) {
+		if (newDatas.isEmpty()) {
+			return;
+		}
 		for (FundamentalData newData : newDatas) {
 			newData.setCurrency(currencyConverter.getFromCurrency());
 			if (newData.getDividende().signum() == 0 && newData.getEarningsPerShare().signum() == 0) {

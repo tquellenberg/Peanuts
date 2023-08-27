@@ -25,62 +25,99 @@ import org.htmlcleaner.XPatherException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
 
 public class MarketScreener {
 
 	private final static Logger log = LoggerFactory.getLogger(MarketScreener.class);
 
+	public static final String CONFIG_KEY_URL = "fourTrasdersUrl";
+
 	public static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
 
-	private final RequestConfig defaultRequestConfig = RequestConfig.custom()
+	private final static RequestConfig defaultRequestConfig = RequestConfig.custom()
 		.setConnectionRequestTimeout(Timeout.ofSeconds(30))
         .build();
 	
-	private final CloseableHttpClient httpclient = HttpClientBuilder.create()
+	private final static CloseableHttpClient httpclient = HttpClientBuilder.create()
 		.setDefaultRequestConfig(defaultRequestConfig)
 		.setRedirectStrategy(new DefaultRedirectStrategy())
 		.build();
 
 	public static void main(String[] args) {
-		List<FundamentalData> scrapFinancials = new MarketScreener().scrapFinancials("https://www.marketscreener.com/quote/stock/THE-GOLDMAN-SACHS-GROUP-I-12831/finances/");
-		for (FundamentalData fundamentalData : scrapFinancials) {
+		Result result = new MarketScreener().scrapFinancials("https://www.marketscreener.com/quote/stock/THE-GOLDMAN-SACHS-GROUP-I-12831/finances/");
+		for (FundamentalData fundamentalData : result.datas) {
 			System.out.println(fundamentalData);
 		}
 	}
+	
+	private record HttpResponse(String content, String newUrl, boolean moved) {};
 
-	private String getPage(URI url) throws IOException {
+	private HttpResponse getPage(URI url) throws IOException {
 		HttpGet httpGet = new HttpGet(url);
 		httpGet.addHeader("User-Agent", USER_AGENT);
 		try {
-			return httpclient.execute(httpGet, response -> {
-				int code = response.getCode();
-				String content = EntityUtils.toString(response.getEntity());
-				if (code == 302) {
-					String newUrl = "";
-					Header header = response.getHeader("Location");
-					if (header != null) {
-						// Look into header
-						newUrl = response.getHeader("Location").getValue();
-					} else {
-						// Parse content
-						Pattern pattern = Pattern.compile("url='(.*)'");
-						Matcher matcher = pattern.matcher(content);
-						if (matcher.find()) {
-							newUrl = "https://www.marketscreener.com"+matcher.group(1);
-						}
-					}
-					log.info("Moved: {}", newUrl);
-				}
-				return content;
-			});
+			 HttpResponse response = executeRequest(httpGet);
+			 if (response.moved) {
+				 String newUrl = response.newUrl;
+				 httpGet.setUri(URI.create(newUrl));
+				 response = executeRequest(httpGet);
+				 if (! response.moved) {
+					 response = new HttpResponse(response.content, newUrl, true);
+				 }
+			 }
+			 return response;
 		} catch (IOException e) {
 			log.error("URL"+url, e);
 			throw e;
 		}
 	}
 
-	public List<FundamentalData> scrapFinancials(String financialsUrl) {
+	private HttpResponse executeRequest(HttpGet httpGet) throws IOException {
+		return httpclient.execute(httpGet, response -> {
+			int code = response.getCode();
+			String content = EntityUtils.toString(response.getEntity());
+			if (code == 302) {
+				String newUrl = "";
+				Header header = response.getHeader("Location");
+				if (header != null) {
+					// Look into header
+					newUrl = response.getHeader("Location").getValue();
+				} else {
+					// Parse content
+					Pattern pattern = Pattern.compile("url='(.*)'");
+					Matcher matcher = pattern.matcher(content);
+					if (matcher.find()) {
+						newUrl = "https://www.marketscreener.com"+matcher.group(1);
+					}
+				}
+				log.info("Moved: {}", newUrl);
+				return new HttpResponse("", newUrl, true);
+			}
+			return new HttpResponse(content, "", false);
+		});
+	}
+
+	public List<FundamentalData> scrapFinancials(Security security) {
+		String financialsUrl = security.getConfigurationValue(MarketScreener.CONFIG_KEY_URL);
+		String fixedUrl = fixMarketscreenerUrl(financialsUrl);
+		if (! financialsUrl.equals(fixedUrl)) {
+			security.putConfigurationValue(MarketScreener.CONFIG_KEY_URL, fixedUrl);
+			financialsUrl = fixedUrl;
+		}
+		if (StringUtils.isNotBlank(financialsUrl)) {
+			Result result = scrapFinancials(financialsUrl);
+			if (!result.datas.isEmpty() && result.response.moved && StringUtils.isNoneBlank(result.response.newUrl)) {
+				security.putConfigurationValue(MarketScreener.CONFIG_KEY_URL, result.response.newUrl);
+			}
+			return result.datas;
+		} else {
+			return new ArrayList<>();
+		}
+	}
+
+	private String fixMarketscreenerUrl(String financialsUrl) {
 		if (financialsUrl.startsWith("http://www.4-traders.com/")) {
 			financialsUrl = StringUtils.replace(financialsUrl, "http://www.4-traders.com/", "https://www.marketscreener.com/");
 		}
@@ -90,10 +127,18 @@ public class MarketScreener {
 		if (! financialsUrl.contains("/quote/stock/")) {
 			financialsUrl = StringUtils.replace(financialsUrl, "https://www.marketscreener.com/", "https://www.marketscreener.com/quote/stock/");
 		}
+		return financialsUrl;
+	}
+	
+	private record Result(List<FundamentalData> datas, HttpResponse response) {};
+	
+	private Result scrapFinancials(String financialsUrl) {
 		log.info("URL: {}", financialsUrl);
 		List<FundamentalData> fundamentalDatas = new ArrayList<>();
+		HttpResponse response = null;
 		try {
-			String html = getPage(new URI(financialsUrl));
+			response = getPage(new URI(financialsUrl));
+			String html = response.content;
 
 //			FileUtils.writeStringToFile(new File("./test.html"), html, Charset.forName("UTF-8"));			
 //			String html = FileUtils.readFileToString(new File("./test.html"), Charset.forName("UTF-8"));
@@ -199,6 +244,7 @@ public class MarketScreener {
 
 				fundamentalDatas.add(fundamentalData);
 			}
+			return new Result(fundamentalDatas, response);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (XPatherException e) {
@@ -206,7 +252,7 @@ public class MarketScreener {
 		} catch (URISyntaxException e1) {
 			e1.printStackTrace();
 		}
-		return fundamentalDatas;
+		return new Result(new ArrayList<>(), response);
 	}
 
 	private BigDecimal parseNumber(String r) {
