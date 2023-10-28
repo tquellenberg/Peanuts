@@ -66,6 +66,7 @@ import de.tomsplayground.peanuts.app.yahoo.YahooAPI.YahooData;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.client.widgets.CurrencyComboViewer;
+import de.tomsplayground.peanuts.client.widgets.PersistentColumWidth;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
@@ -94,7 +95,6 @@ public class FundamentalDataEditorPart extends EditorPart {
 	private static final BigDecimal DIVIDEND_GROWTH_DOWN = new BigDecimal("0.02");
 
 	private TableViewer tableViewer;
-	private final int colWidth[] = new int[15];
 	private boolean dirty = false;
 	private List<FundamentalData> fundamentalDataList;
 	private IPriceProvider priceProvider;
@@ -471,10 +471,9 @@ public class FundamentalDataEditorPart extends EditorPart {
 		table.setLinesVisible(true);
 		table.setFont(Activator.getDefault().getNormalFont());
 
-		int colNumber = 0;
 		TableColumn col = new TableColumn(table, SWT.LEFT);
 		col.setText("Year");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 80);
+		col.setWidth(80);
 		col.setResizable(true);
 		ViewerComparator comparator = new ViewerComparator() {
 			@Override
@@ -492,86 +491,75 @@ public class FundamentalDataEditorPart extends EditorPart {
 		tableViewer.setComparator(comparator);
 		table.setSortColumn(col);
 		table.setSortDirection(SWT.UP);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Fiscal Year");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 40);
+		col.setWidth(40);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Dividende");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setWidth(70);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Change %");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setWidth(70);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Dividende "+security.getCurrency().getSymbol());
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setWidth(70);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Change %");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setWidth(70);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("EPS");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Change %");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setWidth(70);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("EPS "+security.getCurrency().getSymbol());
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setWidth(70);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Change %");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setWidth(70);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("D/E ratio");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("P/E ratio");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setWidth(70);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Div%");
 		col.setToolTipText("Based on fundamental data and latest stock price.");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setWidth(70);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Date");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 120);
+		col.setWidth(120);
 		col.setResizable(true);
-		colNumber++;
+		
+		new PersistentColumWidth(table, Activator.getDefault().getPreferenceStore(), 
+				getClass().getCanonicalName()+"."+getEditorInput().getName());
 
 		tableViewer.setColumnProperties(new String[] { "year", "fiscalYear", "div", "divgr", "div2", "div2gr",
 			"EPS", "EPSgr", "EPS2", "EPS2gr", "deRatio", "peRatio", "divYield", "date"});

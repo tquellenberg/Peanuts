@@ -31,8 +31,6 @@ import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -54,6 +52,7 @@ import org.eclipse.ui.part.EditorPart;
 import com.google.common.collect.Lists;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.widgets.PersistentColumWidth;
 import de.tomsplayground.peanuts.client.widgets.TransactionListContentProvider;
 import de.tomsplayground.peanuts.client.widgets.TransactionListContentProvider.TimeTreeNode;
 import de.tomsplayground.peanuts.domain.base.Account;
@@ -77,8 +76,6 @@ public class TransactionListEditorPart extends EditorPart {
 
 	private Composite top;
 
-	private final int colWidth[] = new int[5];
-	
 	private Set<ITransaction> lastDayOfMonthTransactions = new HashSet<>();
 
 	protected PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
@@ -241,8 +238,6 @@ public class TransactionListEditorPart extends EditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		restoreState();
-
 		top = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
@@ -325,51 +320,40 @@ public class TransactionListEditorPart extends EditorPart {
 			}
 		});
 
-		Tree table = transactionTree.getTree();
-		table.setHeaderVisible(true);
-		table.setLinesVisible(true);
-		table.setFont(Activator.getDefault().getNormalFont());
+		Tree tree = transactionTree.getTree();
+		tree.setHeaderVisible(true);
+		tree.setLinesVisible(true);
+		tree.setFont(Activator.getDefault().getNormalFont());
 
-		ControlListener saveSizeOnResize = new ControlListener() {
-			@Override
-			public void controlResized(ControlEvent e) {
-				saveState();
-			}
-			@Override
-			public void controlMoved(ControlEvent e) {
-			}
-		};
 		TreeColumn col;
 
-		col = new TreeColumn(table, SWT.LEFT);
+		col = new TreeColumn(tree, SWT.LEFT);
 		col.setText("Date");
-		col.setWidth((colWidth[0] > 0) ? colWidth[0] : 100);
+		col.setWidth(120);
 		col.setResizable(true);
-		col.addControlListener(saveSizeOnResize);
 
-		col = new TreeColumn(table, SWT.LEFT);
+		col = new TreeColumn(tree, SWT.LEFT);
 		col.setText("Beschreibung");
-		col.setWidth((colWidth[1] > 0) ? colWidth[1] : 300);
+		col.setWidth(300);
 		col.setResizable(true);
-		col.addControlListener(saveSizeOnResize);
 
-		col = new TreeColumn(table, SWT.RIGHT);
+		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Betrag");
-		col.setWidth((colWidth[2] > 0) ? colWidth[2] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
-		col.addControlListener(saveSizeOnResize);
 
-		col = new TreeColumn(table, SWT.RIGHT);
+		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Saldo");
-		col.setWidth((colWidth[3] > 0) ? colWidth[3] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
-		col.addControlListener(saveSizeOnResize);
 
-		col = new TreeColumn(table, SWT.LEFT);
+		col = new TreeColumn(tree, SWT.LEFT);
 		col.setText("BasicData");
-		col.setWidth((colWidth[4] > 0) ? colWidth[4] : 150);
+		col.setWidth(150);
 		col.setResizable(true);
-		col.addControlListener(saveSizeOnResize);
+		
+		new PersistentColumWidth(tree, Activator.getDefault().getPreferenceStore(), 
+				getClass().getCanonicalName()+"."+getEditorInput().getName());
 
 		final Account account = ((AccountEditorInput) getEditorInput()).account;
 
@@ -388,7 +372,7 @@ public class TransactionListEditorPart extends EditorPart {
 		Color red = Activator.getDefault().getColorProvider().get(Activator.RED);
 		transactionTree.setLabelProvider(new AccountLabelProvider(red, account));
 		transactionTree.setContentProvider(new TransactionListContentProvider());
-		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		updateSaldoLabel();
 
 		final IAction addBankTransactionAction = new Action() {
@@ -518,7 +502,7 @@ public class TransactionListEditorPart extends EditorPart {
 				removeTransactionAction.setEnabled(transactionSelected);
 			}
 		});
-		table.setMenu(menuMgr.createContextMenu(table));
+		tree.setMenu(menuMgr.createContextMenu(tree));
 		getSite().registerContextMenu(menuMgr, getSite().getSelectionProvider());
 		getSite().setSelectionProvider(transactionTree);
 		account.addPropertyChangeListener(propertyChangeListener);
@@ -657,22 +641,4 @@ public class TransactionListEditorPart extends EditorPart {
 		return false;
 	}
 
-	public void restoreState() {
-		Account account = ((AccountEditorInput) getEditorInput()).account;
-		for (int i = 0; i < colWidth.length; i++ ) {
-			String width = account.getConfigurationValue(getClass().getSimpleName()+".col" + i);
-			if (width != null) {
-				colWidth[i] = Integer.valueOf(width).intValue();
-			}
-		}
-	}
-
-	public void saveState() {
-		Account account = ((AccountEditorInput) getEditorInput()).account;
-		TreeColumn[] columns = transactionTree.getTree().getColumns();
-		for (int i = 0; i < columns.length; i++ ) {
-			TreeColumn tableColumn = columns[i];
-			account.putConfigurationValue(getClass().getSimpleName()+".col" + i, String.valueOf(tableColumn.getWidth()));
-		}
-	}
 }

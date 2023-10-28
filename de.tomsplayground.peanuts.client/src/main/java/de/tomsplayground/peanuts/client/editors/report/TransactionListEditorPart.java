@@ -21,6 +21,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
 import de.tomsplayground.peanuts.client.app.Activator;
+import de.tomsplayground.peanuts.client.widgets.PersistentColumWidth;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.LabeledTransaction;
@@ -88,7 +89,6 @@ public class TransactionListEditorPart extends EditorPart {
 		}
 	}
 
-	private final int colWidth[] = new int[4];
 	private TableViewer tableViewer;
 
 	@Override
@@ -117,23 +117,26 @@ public class TransactionListEditorPart extends EditorPart {
 
 		TableColumn col = new TableColumn(table, SWT.LEFT);
 		col.setText("Datum");
-		col.setWidth((colWidth[0] > 0) ? colWidth[0] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
 
 		col = new TableColumn(table, SWT.LEFT);
 		col.setText("Beschreibung");
-		col.setWidth((colWidth[1] > 0) ? colWidth[1] : 300);
+		col.setWidth(300);
 		col.setResizable(true);
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Betrag");
-		col.setWidth((colWidth[2] > 0) ? colWidth[2] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Saldo");
-		col.setWidth((colWidth[3] > 0) ? colWidth[3] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
+		
+		new PersistentColumWidth(table, Activator.getDefault().getPreferenceStore(), 
+				getClass().getCanonicalName()+"."+getEditorInput().getName());
 
 		Report report = ((ReportEditorInput) getEditorInput()).getReport();
 

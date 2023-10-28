@@ -36,6 +36,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.service.application.ApplicationHandle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.tomsplayground.peanuts.client.savedtransaction.SavedTransactionManager;
 import de.tomsplayground.peanuts.client.util.PeanutsAdapterFactory;
@@ -50,6 +52,8 @@ import de.tomsplayground.peanuts.util.Day;
  * The activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin {
+
+	private final static Logger log = LoggerFactory.getLogger(Activator.class);
 
 	private static final String EXAMPLE_FILENAME = "example.bpx";
 	private static final String EXAMPLE = "<EXAMPLE>";
@@ -384,9 +388,13 @@ public class Activator extends AbstractUIPlugin {
 		this.passphrase = password;
 	}
 
-	private void setFilename(String filename) throws IOException {
+	private void setFilename(String filename) {
 		getPreferenceStore().setValue(FILENAME_PROPERTY, filename);
-		((IPersistentPreferenceStore) getPreferenceStore()).save();
+		try {
+			((IPersistentPreferenceStore) getPreferenceStore()).save();
+		} catch (IOException e) {
+			log.error("PreferenceStore.save", e);
+		}
 	}
 
 	public String getFilename() {

@@ -14,8 +14,6 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -35,6 +33,7 @@ import com.google.common.collect.ImmutableList;
 import de.tomsplayground.peanuts.app.ib.IbFlexQuery;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.editors.ITransactionProviderInput;
+import de.tomsplayground.peanuts.client.widgets.PersistentColumWidth;
 import de.tomsplayground.peanuts.config.IConfigurable;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.ITransactionProvider;
@@ -130,7 +129,6 @@ public class TaxPart extends EditorPart {
 
 	private ITransactionProvider account;
 
-	private final int colWidth[] = new int[11];
 	private TableViewer tableViewer;
 
 	private int selectedYear;
@@ -216,16 +214,6 @@ public class TaxPart extends EditorPart {
 			tableViewer.refresh();
 		});
 
-		ControlListener saveSizeOnResize = new ControlListener() {
-			@Override
-			public void controlResized(ControlEvent e) {
-				saveState();
-			}
-			@Override
-			public void controlMoved(ControlEvent e) {
-			}
-		};
-
 		tableViewer = new TableViewer(top, SWT.FULL_SELECTION);
 		Table table = tableViewer.getTable();
 		table.setHeaderVisible(true);
@@ -233,64 +221,49 @@ public class TaxPart extends EditorPart {
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		table.setFont(Activator.getDefault().getNormalFont());
 
-		int colNumber = 0;
-
 		TableColumn col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Date");
 		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
-		col.addControlListener(saveSizeOnResize);
-		colNumber++;
+		col.setWidth(100);
 
 		col = new TableColumn(table, SWT.LEFT);
 		col.setText("Name");
 		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
-		col.addControlListener(saveSizeOnResize);
-		colNumber++;
+		col.setWidth(100);
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Quantity");
 		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
-		col.addControlListener(saveSizeOnResize);
-		colNumber++;
+		col.setWidth(100);
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Price");
 		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
-		col.addControlListener(saveSizeOnResize);
-		colNumber++;
+		col.setWidth(100);
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Commision");
 		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
-		col.addControlListener(saveSizeOnResize);
-		colNumber++;
+		col.setWidth(100);
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Saldo");
 		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
-		col.addControlListener(saveSizeOnResize);
-		colNumber++;
+		col.setWidth(100);
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Gain/Lost");
 		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
-		col.addControlListener(saveSizeOnResize);
-		colNumber++;
+		col.setWidth(100);
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Sum");
 		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
-		col.addControlListener(saveSizeOnResize);
-		colNumber++;
+		col.setWidth(100);
 
+		new PersistentColumWidth(table, Activator.getDefault().getPreferenceStore(), 
+				getClass().getCanonicalName()+"."+getEditorInput().getName());
+		
 		tableViewer.setLabelProvider(new RealizedEarningsTableLabelProvider());
 		tableViewer.setContentProvider(new ArrayContentProvider());
 
@@ -356,12 +329,6 @@ public class TaxPart extends EditorPart {
 		IConfigurable config = getEditorInput().getAdapter(IConfigurable.class);
 		if (config != null) {
 			String simpleClassName = getClass().getSimpleName();
-			for (int i = 0; i < colWidth.length; i++ ) {
-				String width = config.getConfigurationValue(simpleClassName+".col" + i);
-				if (width != null) {
-					colWidth[i] = Integer.valueOf(width).intValue();
-				}
-			}
 			String selectedYearStr = config.getConfigurationValue(simpleClassName+".selectedYear");
 			if (StringUtils.isNotBlank(selectedYearStr)) {
 				selectedYear = Integer.valueOf(selectedYearStr);
@@ -375,11 +342,6 @@ public class TaxPart extends EditorPart {
 		IConfigurable config = getEditorInput().getAdapter(IConfigurable.class);
 		if (config != null) {
 			String simpleClassName = getClass().getSimpleName();
-			TableColumn[] columns = tableViewer.getTable().getColumns();
-			for (int i = 0; i < columns.length; i++ ) {
-				TableColumn tableColumn = columns[i];
-				config.putConfigurationValue(simpleClassName+".col" + i, String.valueOf(tableColumn.getWidth()));
-			}
 			config.putConfigurationValue(simpleClassName+".selectedYear", Integer.toString(selectedYear));
 		}
 	}

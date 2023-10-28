@@ -53,6 +53,7 @@ import com.google.common.collect.ImmutableList;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.client.widgets.DateCellEditor;
+import de.tomsplayground.peanuts.client.widgets.PersistentColumWidth;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
@@ -77,8 +78,6 @@ public class DividendEditorPart extends EditorPart {
 	private boolean dirty;
 
 	private TableViewer tableViewer;
-
-	private final int colWidth[] = new int[15];
 
 	private List<Dividend> dividends;
 
@@ -247,72 +246,63 @@ public class DividendEditorPart extends EditorPart {
 		table.setLinesVisible(true);
 		table.setFont(Activator.getDefault().getNormalFont());
 
-		int colNumber = 0;
 		TableColumn col = new TableColumn(table, SWT.LEFT);
 		col.setText("Date");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 80);
+		col.setWidth(80);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Dividend");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 80);
+		col.setWidth(80);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Currency");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setWidth(70);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("# of shares");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 70);
+		col.setWidth(70);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Dividend sum");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Dividend sum "+Currencies.getInstance().getDefaultCurrency().getSymbol());
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Tax "+Currencies.getInstance().getDefaultCurrency().getSymbol());
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Tax %");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Netto "+Currencies.getInstance().getDefaultCurrency().getSymbol());
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("YOC");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
-		colNumber++;
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Booked");
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
-		colNumber++;
+		
+		new PersistentColumWidth(table, Activator.getDefault().getPreferenceStore(), 
+				getClass().getCanonicalName()+"."+getEditorInput().getName());
 
 		tableViewer.setColumnProperties(new String[] { "payDay", "dividend", "currency", "numberOfShares", "amount",
 			"amountInDefaultCurrency", "tax", "netto", "booked"});

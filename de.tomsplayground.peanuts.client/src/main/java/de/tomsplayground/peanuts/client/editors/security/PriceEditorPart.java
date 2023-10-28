@@ -18,8 +18,6 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -39,6 +37,7 @@ import com.google.common.collect.ImmutableList;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.client.widgets.DateCellEditor;
+import de.tomsplayground.peanuts.client.widgets.PersistentColumWidth;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.beans.ObservableModelObject;
 import de.tomsplayground.peanuts.domain.process.IPrice;
@@ -51,7 +50,6 @@ import de.tomsplayground.peanuts.util.PeanutsUtil;
 public class PriceEditorPart extends EditorPart {
 
 	private TableViewer tableViewer;
-	private final int colWidth[] = new int[2];
 	private boolean dirty = false;
 	private IPriceProvider priceProvider;
 
@@ -105,8 +103,6 @@ public class PriceEditorPart extends EditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		restoreState();
-
 		Composite top = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
@@ -119,28 +115,19 @@ public class PriceEditorPart extends EditorPart {
 		table.setLinesVisible(true);
 		table.setFont(Activator.getDefault().getNormalFont());
 
-		ControlListener saveSizeOnResize = new ControlListener() {
-			@Override
-			public void controlResized(ControlEvent e) {
-				saveState();
-			}
-			@Override
-			public void controlMoved(ControlEvent e) {
-			}
-		};
-
 		TableColumn col = new TableColumn(table, SWT.LEFT);
 		col.setText("Date");
-		col.setWidth((colWidth[0] > 0) ? colWidth[0] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
-		col.addControlListener(saveSizeOnResize);
 
 		col = new TableColumn(table, SWT.LEFT);
 		col.setText("Close");
-		col.setWidth((colWidth[1] > 0) ? colWidth[1] : 100);
+		col.setWidth(100);
 		col.setResizable(true);
-		col.addControlListener(saveSizeOnResize);
 
+		new PersistentColumWidth(table, Activator.getDefault().getPreferenceStore(), 
+				getClass().getCanonicalName()+"."+getEditorInput().getName());
+		
 		tableViewer.setColumnProperties(new String[] { "date", "close"});
 		tableViewer.setCellModifier(new ICellModifier() {
 
@@ -277,25 +264,6 @@ public class PriceEditorPart extends EditorPart {
 	@Override
 	public boolean isSaveAsAllowed() {
 		return false;
-	}
-
-	public void restoreState() {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		for (int i = 0; i < colWidth.length; i++ ) {
-			String width = security.getConfigurationValue(getClass().getSimpleName()+".col" + i);
-			if (width != null) {
-				colWidth[i] = Integer.valueOf(width).intValue();
-			}
-		}
-	}
-
-	public void saveState() {
-		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		TableColumn[] columns = tableViewer.getTable().getColumns();
-		for (int i = 0; i < columns.length; i++ ) {
-			TableColumn tableColumn = columns[i];
-			security.putConfigurationValue(getClass().getSimpleName()+".col" + i, String.valueOf(tableColumn.getWidth()));
-		}
 	}
 
 	public void markDirty() {

@@ -18,8 +18,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -43,7 +41,7 @@ import de.tomsplayground.peanuts.app.ib.IbConnection.FullExec;
 import de.tomsplayground.peanuts.app.ib.IbFlexQuery;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.editors.ITransactionProviderInput;
-import de.tomsplayground.peanuts.config.IConfigurable;
+import de.tomsplayground.peanuts.client.widgets.PersistentColumWidth;
 import de.tomsplayground.peanuts.domain.option.IbOptions;
 import de.tomsplayground.peanuts.domain.option.Option;
 import de.tomsplayground.peanuts.domain.option.OptionsLog;
@@ -57,7 +55,6 @@ public class OptionsLogEditorPart extends EditorPart {
 
 	private final static Logger log = LoggerFactory.getLogger(OptionsLogEditorPart.class);
 
-	private final int colWidth[] = new int[14];
 	private TreeViewer treeViewer;
 	private OptionsLog optionsFromXML;
 	
@@ -270,8 +267,6 @@ public class OptionsLogEditorPart extends EditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		restoreState();
-		
 		Composite top = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
@@ -322,114 +317,72 @@ public class OptionsLogEditorPart extends EditorPart {
 		tree.setFont(Activator.getDefault().getNormalFont());
 		treeViewer.setContentProvider(new OptionsLogContentProvider());
 
-		ControlListener saveSizeOnResize = new ControlListener() {
-			@Override
-			public void controlResized(ControlEvent e) {
-				saveState();
-			}
-			@Override
-			public void controlMoved(ControlEvent e) {
-			}
-		};
-
-		int colNumber = 0;
 		TreeColumn col = new TreeColumn(tree, SWT.LEFT);
 		
 		col.setText("Name");
 		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 200);
+		col.setWidth(200);
 		col.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				setSorting((TreeColumn)e.widget, optionNameComparator);
 			}
 		});
-		col.addControlListener(saveSizeOnResize);
 		treeViewer.getTree().setSortColumn(col);
 		treeViewer.getTree().setSortDirection(SWT.UP);
 		treeViewer.setLabelProvider(new OptionsLogLabelProvider());
 
-		colNumber++;
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Quantity");
 		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setWidth(100);
 		col.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				setSorting((TreeColumn)e.widget, optionQuantityComparator);
 			}
 		});
-		col.addControlListener(saveSizeOnResize);
 		
-		colNumber++;
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Resttage");
 		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setWidth(100);
 		col.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				setSorting((TreeColumn)e.widget, optionExpirationComparator);
 			}
 		});
-		col.addControlListener(saveSizeOnResize);
 
-		colNumber++;
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Kosten");
 		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
-		col.addControlListener(saveSizeOnResize);
+		col.setWidth(100);
 
-		colNumber++;
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Preis");
 		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
-		col.addControlListener(saveSizeOnResize);
+		col.setWidth(100);
 
-		colNumber++;
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Abstand %");
 		col.setResizable(true);
-		col.setWidth((colWidth[colNumber] > 0) ? colWidth[colNumber] : 100);
+		col.setWidth(100);
 		col.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				setSorting((TreeColumn)e.widget, optionDistanceComparator);
 			}
 		});
-		col.addControlListener(saveSizeOnResize);
+		
+		new PersistentColumWidth(tree, Activator.getDefault().getPreferenceStore(), 
+				getClass().getCanonicalName()+"."+getEditorInput().getName());
 
 		String filename = "/Users/quelle/Documents/Geld/InteractiveBrokers/FlexQuery_2023.xml";
 		optionsFromXML = new IbFlexQuery().readOptionsFromXML(filename);
 		treeViewer.setInput(optionsFromXML);
 		
 		CompletableFuture.runAsync(() -> loadIbData());
-	}
-
-	public void restoreState() {
-		IConfigurable config = getEditorInput().getAdapter(IConfigurable.class);
-		if (config != null) {
-			for (int i = 0; i < colWidth.length; i++ ) {
-				String width = config.getConfigurationValue(getClass().getSimpleName()+".col" + i);
-				if (width != null) {
-					colWidth[i] = Integer.valueOf(width).intValue();
-				}
-			}
-		}
-	}
-
-	public void saveState() {
-		IConfigurable config = getEditorInput().getAdapter(IConfigurable.class);
-		if (config != null) {
-			TreeColumn[] columns = treeViewer.getTree().getColumns();
-			for (int i = 0; i < columns.length; i++ ) {
-				TreeColumn tableColumn = columns[i];
-				config.putConfigurationValue(getClass().getSimpleName()+".col" + i, String.valueOf(tableColumn.getWidth()));
-			}
-		}
 	}
 
 	protected void setSorting(TreeColumn column, OptionsLogComparator newComparator) {

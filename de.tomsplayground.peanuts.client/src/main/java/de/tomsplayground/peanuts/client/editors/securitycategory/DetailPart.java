@@ -23,8 +23,6 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -45,6 +43,7 @@ import com.google.common.base.Predicate;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.client.util.MinQuantity;
+import de.tomsplayground.peanuts.client.widgets.PersistentColumWidth;
 import de.tomsplayground.peanuts.client.wizards.securitycategory.SecurityCategoryEditWizard;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
@@ -160,7 +159,6 @@ public class DetailPart extends EditorPart {
 	}
 
 	private TreeViewer treeViewer;
-	private final int colWidth[] = new int[2];
 	private Inventory inventory;
 	private Button editButton;
 	private Button newButton;
@@ -181,8 +179,6 @@ public class DetailPart extends EditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		restoreState();
-
 		inventory = Activator.getDefault().getAccountManager().getFullInventory();
 
 		mapping = ((SecurityCategoryEditorInput) getEditorInput()).getSecurityCategoryMapping();
@@ -229,27 +225,18 @@ public class DetailPart extends EditorPart {
 			}
 		});
 
-		ControlListener saveSizeOnResize = new ControlListener() {
-			@Override
-			public void controlResized(ControlEvent e) {
-				saveState();
-			}
-			@Override
-			public void controlMoved(ControlEvent e) {
-			}
-		};
-
 		TreeColumn col = new TreeColumn(tree, SWT.LEFT);
 		col.setText("Name");
 		col.setResizable(true);
-		col.setWidth((colWidth[0] > 0) ? colWidth[0] : 200);
-		col.addControlListener(saveSizeOnResize);
+		col.setWidth(200);
 
 		col = new TreeColumn(tree, SWT.RIGHT);
 		col.setText("Value");
 		col.setResizable(true);
-		col.setWidth((colWidth[1] > 0) ? colWidth[1] : 100);
-		col.addControlListener(saveSizeOnResize);
+		col.setWidth(100);
+		
+		new PersistentColumWidth(tree, Activator.getDefault().getPreferenceStore(), 
+				getClass().getCanonicalName()+"."+getEditorInput().getName());
 
 		Composite buttonList = new Composite(top, SWT.NONE);
 		buttonList.setLayout(new RowLayout());
@@ -371,24 +358,4 @@ public class DetailPart extends EditorPart {
 	public void setFocus() {
 		treeViewer.getTree().setFocus();
 	}
-
-	public void restoreState() {
-		SecurityCategoryMapping mapping = ((SecurityCategoryEditorInput) getEditorInput()).getSecurityCategoryMapping();
-		for (int i = 0; i < colWidth.length; i++ ) {
-			String width = mapping.getConfigurationValue(getClass().getSimpleName()+".col" + i);
-			if (width != null) {
-				colWidth[i] = Integer.valueOf(width).intValue();
-			}
-		}
-	}
-
-	public void saveState() {
-		SecurityCategoryMapping mapping = ((SecurityCategoryEditorInput) getEditorInput()).getSecurityCategoryMapping();
-		TreeColumn[] columns = treeViewer.getTree().getColumns();
-		for (int i = 0; i < columns.length; i++ ) {
-			TreeColumn tableColumn = columns[i];
-			mapping.putConfigurationValue(getClass().getSimpleName()+".col" + i, String.valueOf(tableColumn.getWidth()));
-		}
-	}
-
 }
