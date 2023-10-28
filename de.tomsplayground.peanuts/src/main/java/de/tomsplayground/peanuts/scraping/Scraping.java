@@ -52,7 +52,7 @@ public class Scraping {
 	private String result = "";
 
 	public static void main(String[] args) {
-		Scraping scraping = new Scraping("Silber", "https://www.finanzen.net/rohstoffe/silberpreis", "//div[@class='snapshot__values-second']/div[1]/span[1]/text()");
+		Scraping scraping = new Scraping("Silber", "https://www.finanzen.net/rohstoffe/silberpreis", "//div[@class='snapshot__values-second']/span[1]/span[1]/text()");
 		Price price = scraping.execute();
 		System.out.println(price);
 	}
@@ -87,9 +87,13 @@ public class Scraping {
 		httpGet.setConfig(RequestConfig.custom()
 			.setConnectionRequestTimeout(Timeout.ofSeconds(20)).build());
 		httpGet.addHeader(HttpHeaders.USER_AGENT, MarketScreener.USER_AGENT);
-		httpGet.addHeader(HttpHeaders.ACCEPT, "*/*");
+		httpGet.addHeader(HttpHeaders.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
+		httpGet.addHeader(HttpHeaders.ACCEPT_LANGUAGE, "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");
 		try {
 			return httpClient.execute(httpGet, context, response -> {
+				if (response.getCode() != 200) {
+					log.error("Response code: {} for url: ", response.getCode(), url);
+				}
 				return EntityUtils.toString(response.getEntity());
 			});
 		} catch (IOException e) {

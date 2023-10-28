@@ -1,6 +1,5 @@
 package de.tomsplayground.peanuts.domain.watchlist;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,8 +12,6 @@ import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 
 @XStreamAlias("categoryfilter")
 public class CategoryFilter implements ISecuriityFilter {
-
-	public static final CategoryFilter NO_FILTER = new CategoryFilter("", Collections.<String>emptySet());
 
 	private final String categoryName;
 	private final Set<String> categoryValues = new HashSet<>();
