@@ -34,6 +34,7 @@ import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.swt.ChartComposite;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleInsets;
@@ -188,6 +189,9 @@ public class ChartEditorPart extends EditorPart {
 			timeChart = new TimeChart(chart, dataset);
 			timeChart.setChartType(timerange, getReport().getMaxDate());
 			axisDateFormat = new SimpleDateFormat("MMM yyyy");
+			
+			XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) ( (XYPlot)chart.getPlot()).getRenderer();
+			renderer.setSeriesPaint(0, Color.BLACK);
 
 			todayMarker((XYPlot) chart.getPlot());
 		} else {

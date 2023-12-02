@@ -493,6 +493,13 @@ public class ChartEditorPart extends EditorPart {
 		}
 	}
 
+	private boolean isShowPeDeltaChart() {
+		FundamentalDatas fundamentalDatas = getSecurity().getFundamentalDatas();
+		return fundamentalDatas.getDatas().stream()
+				.filter(d -> d.getEarningsPerShare().signum() != 0)
+				.findAny().isPresent();
+	}
+	
 	/**
 	 * Creates a chart.
 	 *
@@ -501,8 +508,7 @@ public class ChartEditorPart extends EditorPart {
 	 * @return A chart.
 	 */
 	private JFreeChart createChart() {
-		FundamentalDatas fundamentalDatas = getSecurity().getFundamentalDatas();
-		boolean showPeDeltaChart = ! fundamentalDatas.isEmpty();
+		boolean showPeDeltaChart = isShowPeDeltaChart();
 
 		DateAxis axis = new DateAxis("Date");
 		axis.setDateFormatOverride(new SimpleDateFormat("MMM yyyy"));
@@ -564,11 +570,11 @@ public class ChartEditorPart extends EditorPart {
 	}
 
 	private void calculateFixedPePrice() {
-		FundamentalDatas fundamentalDatas = getSecurity().getFundamentalDatas();
-		if (fundamentalDatas.isEmpty()) {
+		if (! isShowPeDeltaChart()) {
 			return;
 		}
 		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
+		FundamentalDatas fundamentalDatas = getSecurity().getFundamentalDatas();
 		BigDecimal avgPE = fundamentalDatas.getOverriddenAvgPE();
 		if (avgPE == null) {
 			AvgFundamentalData avgData = fundamentalDatas.getAvgFundamentalData(priceProvider, exchangeRates);

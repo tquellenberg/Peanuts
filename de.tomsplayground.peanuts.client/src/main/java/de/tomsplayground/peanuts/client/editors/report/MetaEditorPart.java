@@ -118,11 +118,7 @@ public class MetaEditorPart extends EditorPart {
 		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gridData.horizontalSpan = 2;
 		reportName.setLayoutData(gridData);
-		reportName.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				sectionPart.markDirty();
-			}});
+		reportName.addModifyListener(e -> sectionPart.markDirty());
 
 		toolkit.createLabel(sectionClient, "Range");
 		rangeType = new Combo(sectionClient, SWT.READ_ONLY);
@@ -150,6 +146,7 @@ public class MetaEditorPart extends EditorPart {
 		gridData = new GridData(SWT.LEFT, SWT.CENTER, true, false);
 		gridData.horizontalSpan = 2;
 		fromDate.setLayoutData(gridData);
+		fromDate.addModifyListener(e -> sectionPart.markDirty());
 
 		toolkit.createLabel(sectionClient, "To");
 		toDate = new DateComposite(sectionClient, SWT.NONE);
@@ -157,6 +154,7 @@ public class MetaEditorPart extends EditorPart {
 		gridData = new GridData(SWT.LEFT, SWT.CENTER, true, false);
 		gridData.horizontalSpan = 2;
 		toDate.setLayoutData(gridData);
+		toDate.addModifyListener(e -> sectionPart.markDirty());
 
 		Label l = toolkit.createLabel(sectionClient, "Config");
 		l.setLayoutData(new GridData(SWT.TOP, SWT.LEFT, false, false));
