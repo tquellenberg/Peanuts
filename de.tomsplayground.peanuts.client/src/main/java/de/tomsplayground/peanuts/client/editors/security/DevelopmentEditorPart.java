@@ -149,7 +149,7 @@ public class DevelopmentEditorPart extends EditorPart {
 	protected List<String[]> generateValues() {
 		List<String[]> result = new ArrayList<String[]>();
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		IPriceProvider prices = PriceProviderFactory.getInstance().getSplitAdjustedPriceProvider(security, 
+		IPriceProvider prices = PriceProviderFactory.getPlainInstance().getSplitAdjustedPriceProvider(security, 
 				Activator.getDefault().getAccountManager().getStockSplits(security));
 
 		development(result, prices, ChronoUnit.DAYS, -7, "One week");

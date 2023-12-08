@@ -6,7 +6,9 @@ import java.util.Currency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
+import de.tomsplayground.peanuts.domain.process.Price;
 import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
@@ -30,14 +32,17 @@ public class CurrencyConverter {
 		this(priceProvider, c1, c2, false);
 	}
 
-	public BigDecimal getRatio(Day day) {
-		return convert(BigDecimal.ONE, day);
-	}
-
 	public BigDecimal convert(BigDecimal value, Day day) {
 		return convert(value, day, invertedPriceProvide);
 	}
 
+	public IPrice convert(IPrice price) {
+		if (from.equals(to)) {
+			return price;
+		}
+		return new Price(price.getDay(), convert(price.getValue(), price.getDay()));
+	}
+	
 	public CurrencyConverter getInvertedCurrencyConverter() {
 		return new CurrencyConverter(priceProvider, to, from, !invertedPriceProvide);
 	}

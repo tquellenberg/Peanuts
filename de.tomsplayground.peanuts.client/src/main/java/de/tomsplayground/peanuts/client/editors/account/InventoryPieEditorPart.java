@@ -113,7 +113,9 @@ public class InventoryPieEditorPart extends EditorPart {
 		marketValueLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 
 		ITransactionProvider transactions = ((ITransactionProviderInput) getEditorInput()).getTransactionProvider();
-		inventory = new Inventory(transactions, PriceProviderFactory.getInstance(), new AnalyzerFactory(), Activator.getDefault().getAccountManager());
+		inventory = new Inventory(transactions, 
+				PriceProviderFactory.getInstance(transactions.getCurrency(), Activator.getDefault().getExchangeRates()), 
+				new AnalyzerFactory(), Activator.getDefault().getAccountManager());
 		inventory.setDate(date);
 		inventory.addPropertyChangeListener(inventoryChangeListener);
 

@@ -22,7 +22,7 @@ public class DeletePriceHandler extends AbstractHandler {
 		ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
 		IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
 		Security security = ((SecurityEditorInput) activeEditor.getEditorInput()).getSecurity();
-		IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
+		IPriceProvider priceProvider = PriceProviderFactory.getPlainInstance().getPriceProvider(security);
 		if (currentSelection instanceof IStructuredSelection structuredSel) {
 			@SuppressWarnings("rawtypes")
 			Iterator iterator = structuredSel.iterator();

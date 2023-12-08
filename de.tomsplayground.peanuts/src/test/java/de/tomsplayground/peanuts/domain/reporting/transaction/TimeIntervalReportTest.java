@@ -1,6 +1,8 @@
 package de.tomsplayground.peanuts.domain.reporting.transaction;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -95,18 +97,13 @@ public class TimeIntervalReportTest {
 		assertEquals(0, values.size());
 	}
 
-	private static class SimplePriceProvider extends PriceProvider {
-		SimplePriceProvider() {
-			super(null);
-		}
-	}
-
 	@Test
 	public void inventoryValues() throws Exception {
 		Day now = Day.today();
-		investmmentAccount.addTransaction(new InvestmentTransaction(now, new Security("Apple"), BigDecimal.ONE,
+		Security security = new Security("Apple");
+		investmmentAccount.addTransaction(new InvestmentTransaction(now, security, BigDecimal.ONE,
 			BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY));
-		final SimplePriceProvider priceProvider = new SimplePriceProvider();
+		final PriceProvider priceProvider = new PriceProvider(security);
 		priceProvider.setPrice(new Price(now, BigDecimal.TEN));
 		TimeIntervalReport timeIntervalReport = new TimeIntervalReport(investmmentAccount, TimeIntervalReport.Interval.MONTH, new IPriceProviderFactory(){
 			@Override
@@ -131,10 +128,11 @@ public class TimeIntervalReportTest {
 
 	@Test
 	public void futureTransactionInventoryValues() throws Exception {
-		final SimplePriceProvider priceProvider = new SimplePriceProvider();
 		// Today
 		Day today = Day.today();
-		investmmentAccount.addTransaction(new InvestmentTransaction(today, new Security("Apple"), BigDecimal.ONE,
+		Security security = new Security("Apple");
+		final PriceProvider priceProvider = new PriceProvider(security);
+		investmmentAccount.addTransaction(new InvestmentTransaction(today, security, BigDecimal.ONE,
 			BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY));
 		priceProvider.setPrice(new Price(today, BigDecimal.TEN));
 		// Tomorrow
@@ -162,9 +160,10 @@ public class TimeIntervalReportTest {
 	@Test
 	public void propertyChanged() throws Exception {
 		Day now = Day.today();
-		investmmentAccount.addTransaction(new InvestmentTransaction(now, new Security("Apple"), BigDecimal.ONE,
+		Security security = new Security("Apple");
+		investmmentAccount.addTransaction(new InvestmentTransaction(now, security, BigDecimal.ONE,
 			BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY));
-		final SimplePriceProvider priceProvider = new SimplePriceProvider();
+		final PriceProvider priceProvider = new PriceProvider(security);
 		priceProvider.setPrice(new Price(now, BigDecimal.TEN));
 		TimeIntervalReport timeIntervalReport = new TimeIntervalReport(investmmentAccount, TimeIntervalReport.Interval.MONTH, new IPriceProviderFactory(){
 			@Override

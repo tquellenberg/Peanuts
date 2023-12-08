@@ -50,6 +50,7 @@ public class DayCache {
 		int yearIndex = (YEAR - year) + 1;
 		int index = (day - 1) + ((month.getValue()-1) * MONTH_SLOTS) + (yearIndex * YEAR_SLOTS);
 		if (index < 0 || index >= cache.length) {
+			log.info("Out of range: {}, {}, {}", year, month, day);
 			return -1;
 		}
 		return index;

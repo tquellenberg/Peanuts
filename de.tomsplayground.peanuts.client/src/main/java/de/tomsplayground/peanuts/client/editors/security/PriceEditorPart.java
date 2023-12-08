@@ -195,7 +195,7 @@ public class PriceEditorPart extends EditorPart {
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-		priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
+		priceProvider = PriceProviderFactory.getPlainInstance().getPriceProvider(security);
 		ImmutableList<IPrice> list = priceProvider.getPrices();
 		tableViewer.setInput(list.reverse());
 
@@ -246,7 +246,7 @@ public class PriceEditorPart extends EditorPart {
 	public void doSave(IProgressMonitor monitor) {
 		if (dirty) {
 			Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
-			PriceProviderFactory.getInstance().saveToLocal(security, priceProvider);
+			PriceProviderFactory.getPlainInstance().saveToLocal(security, priceProvider);
 			dirty = false;
 		}
 	}

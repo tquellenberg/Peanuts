@@ -246,7 +246,8 @@ public class ChartEditorPart extends EditorPart {
 	private TimeSeriesCollection createTotalDataset() {
 		Report report = getReport();
 		TimeIntervalReport intervalReport = new TimeIntervalReport(report, TimeIntervalReport.Interval.DAY, 
-				PriceProviderFactory.getInstance(), Activator.getDefault().getAccountManager());
+				PriceProviderFactory.getInstance(report.getCurrency(), Activator.getDefault().getExchangeRates()), 
+				Activator.getDefault().getAccountManager());
 		List<BigDecimal> values = intervalReport.getValues();
 		List<BigDecimal> inventoryValues = intervalReport.getInventoryValues();
 		TimeSeries s1 = new TimeSeries(getEditorInput().getName());
@@ -291,8 +292,9 @@ public class ChartEditorPart extends EditorPart {
 
 	private TimeSeriesCollection createDeltaDataset(Interval interval, Class<? extends RegularTimePeriod> intervalClass) {
 		Report report = getReport();
-		TimeIntervalReport intervalReport = new TimeIntervalReport(report, interval, PriceProviderFactory.getInstance(),
-				 Activator.getDefault().getAccountManager());
+		TimeIntervalReport intervalReport = new TimeIntervalReport(report, interval, 
+				PriceProviderFactory.getInstance(report.getCurrency(), Activator.getDefault().getExchangeRates()),
+				Activator.getDefault().getAccountManager());
 		List<BigDecimal> values = intervalReport.getValues();
 		List<BigDecimal> inventoryValues = intervalReport.getInventoryValues();
 		TimeSeries s1 = new TimeSeries(getEditorInput().getName());

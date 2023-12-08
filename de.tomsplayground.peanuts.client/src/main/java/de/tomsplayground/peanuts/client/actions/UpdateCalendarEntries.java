@@ -1,7 +1,7 @@
 package de.tomsplayground.peanuts.client.actions;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -76,10 +76,8 @@ public class UpdateCalendarEntries extends AbstractHandler {
 	}
 
 	private List<Security> securitiesToUpdate() {
-		Inventory fullInventory = Activator.getDefault().getAccountManager().getFullInventory();
-		List<Security> securities = fullInventory.getEntries().stream()
-				.filter(e -> e.getQuantity().signum() > 0)
-				.map(e -> e.getSecurity()).collect(Collectors.toList());
+		Inventory fullInventory = Activator.getDefault().getAccountManager().getFullInventory(Activator.getDefault().getExchangeRates());
+		List<Security> securities = new ArrayList<>(fullInventory.getSecuritiesWithNoneZeroQuantity());
 		securities.sort(INamedElement.NAMED_ELEMENT_ORDER);
 		return securities;
 	}

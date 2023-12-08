@@ -150,7 +150,7 @@ public class ScrapingEditorPart extends EditorPart {
 		Scraping scraping = new Scraping(security);
 		Price price = scraping.execute();
 		if (!test && price != null) {
-			IPriceProvider priceProvider = PriceProviderFactory.getInstance().getPriceProvider(security);
+			IPriceProvider priceProvider = PriceProviderFactory.getPlainInstance().getPriceProvider(security);
 			priceProvider.setPrice(price);
 			dirty = true;
 			firePropertyChange(IEditorPart.PROP_DIRTY);

@@ -11,6 +11,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 
 @XStreamAlias("watchlist")
 public class WatchlistConfiguration {
@@ -72,14 +73,14 @@ public class WatchlistConfiguration {
 		return type == Type.MANUAL;
 	}
 
-	public ImmutableList<Security> getSecuritiesByConfiguration(final AccountManager accountManager) {
+	public ImmutableList<Security> getSecuritiesByConfiguration(final AccountManager accountManager, ExchangeRates rates) {
 		Stream<Security> result = switch (getType()) {
 			case ALL_SECURITIES ->
 				accountManager.getSecurities().parallelStream().filter(s -> ! s.isDeleted());
 			case ALL_SECURITIES_INCL_DELETED ->
 				accountManager.getSecurities().parallelStream();
 			case MY_SECURITIES ->
-				accountManager.getFullInventory().getSecurities().parallelStream();
+				accountManager.getFullInventory(rates).getSecuritiesWithNoneZeroQuantity().parallelStream();
 			default ->
 				Stream.empty();
 		};

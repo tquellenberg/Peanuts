@@ -1,6 +1,5 @@
 package de.tomsplayground.peanuts.client.actions;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +17,6 @@ import com.google.common.collect.ImmutableSet;
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.AccountManager;
 import de.tomsplayground.peanuts.domain.base.Inventory;
-import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.dividend.Dividend;
 import de.tomsplayground.peanuts.util.Day;
@@ -33,15 +31,12 @@ public class CopyDividendsToNewYear extends AbstractHandler {
 				int year = Day.today().year;
 				try {
 					AccountManager accountManager = Activator.getDefault().getAccountManager();
-					Inventory fullInventory = accountManager.getFullInventory();
-					ImmutableSet<InventoryEntry> entries = fullInventory.getEntries();
+					Inventory fullInventory = accountManager.getFullInventory(Activator.getDefault().getExchangeRates());
+					ImmutableSet<Security> entries = fullInventory.getSecuritiesWithNoneZeroQuantity();
 					monitor.beginTask("Copy dividends", entries.size());
-					for (InventoryEntry entry : entries) {
-						if (entry.getQuantity().compareTo(BigDecimal.ZERO) > 0) {
-							Security security = entry.getSecurity();
-							monitor.subTask("Copy " + security.getName());
-							copyDividends(security, year);
-						}
+					for (Security security : entries) {
+						monitor.subTask("Copy " + security.getName());
+						copyDividends(security, year);
 						monitor.worked(1);
 						if (monitor.isCanceled()) {
 							return Status.CANCEL_STATUS;

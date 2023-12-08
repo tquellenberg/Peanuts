@@ -55,6 +55,7 @@ import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.client.widgets.DateComposite;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.Inventory;
+import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.util.Day;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
@@ -238,8 +239,10 @@ public class AccountListView extends ViewPart {
 		accounts = Activator.getDefault().getAccountManager().getAccounts();
 		for (Account account : accounts) {
 			account.addPropertyChangeListener(propertyChangeListener);
-			Inventory inventory = new Inventory(account, PriceProviderFactory.getInstance(), null,
-					 Activator.getDefault().getAccountManager());
+			Inventory inventory = new Inventory(account, 
+					PriceProviderFactory.getInstance(Currencies.getInstance().getDefaultCurrency(), Activator.getDefault().getExchangeRates()),
+					null,
+					Activator.getDefault().getAccountManager());
 			inventory.addPropertyChangeListener(propertyChangeListener);
 			inventories.put(account, inventory);
 		}

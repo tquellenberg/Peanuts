@@ -52,7 +52,7 @@ public class InventoryTest {
 	public void testInventory() throws Exception {
 		Inventory inventory = new Inventory(investmmentAccount, null, null, null);
 
-		assertEquals(1, inventory.getSecurities().size());
+		assertEquals(1, inventory.getAllSecurities().size());
 	}
 
 	@Test
@@ -63,7 +63,7 @@ public class InventoryTest {
 		investmmentAccount.addTransaction(investmentTransaction2);
 		Inventory inventory = new Inventory(investmmentAccount, null, null, null);
 
-		assertEquals(1, inventory.getSecurities().size());
+		assertEquals(1, inventory.getAllSecurities().size());
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class InventoryTest {
 		investmmentAccount.addTransaction(investmentTransaction2);
 		Inventory inventory = new Inventory(investmmentAccount, null, null, null);
 
-		assertEquals(1, inventory.getSecurities().size());
+		assertEquals(1, inventory.getAllSecurities().size());
 	}
 
 	@Test
@@ -85,7 +85,7 @@ public class InventoryTest {
 		investmmentAccount.addTransaction(expense);
 		Inventory inventory = new Inventory(investmmentAccount, null, null, null);
 
-		assertEquals(1, inventory.getSecurities().size());
+		assertEquals(1, inventory.getAllSecurities().size());
 	}
 	
 	@Test
@@ -127,7 +127,7 @@ public class InventoryTest {
 		Inventory inventory = new Inventory(investmmentAccount, null, null, null);
 		inventory.setDate(Day.today().addDays(-31));
 
-		assertEquals(0, inventory.getSecurities().size());
+		assertEquals(0, inventory.getAllSecurities().size());
 		assertEquals(0, inventory.getEntries().size());
 	}
 
@@ -165,12 +165,6 @@ public class InventoryTest {
 		assertEquals(2, entry.getTransactions().size());
 	}
 
-	private static class SimplePriceProvider extends PriceProvider {
-		SimplePriceProvider() {
-			super(null);
-		}
-	}
-
 	@Test
 	public void testMarketValue() {
 		// remove investmentTransaction1
@@ -187,7 +181,7 @@ public class InventoryTest {
 		Inventory inventory = new Inventory(investmmentAccount, new IPriceProviderFactory() {
 			@Override
 			public IPriceProvider getPriceProvider(Security security) {
-				SimplePriceProvider priceProvider = new SimplePriceProvider();
+				PriceProvider priceProvider = new PriceProvider(security);
 				priceProvider.setPrice(new Price(now.addDays(-1), new BigDecimal("11.00")));
 				priceProvider.setPrice(new Price(now, new BigDecimal("12.00")));
 				return priceProvider;
@@ -221,7 +215,7 @@ public class InventoryTest {
 		Inventory inventory = new Inventory(investmmentAccount, new IPriceProviderFactory() {
 			@Override
 			public IPriceProvider getPriceProvider(Security security) {
-				SimplePriceProvider priceProvider = new SimplePriceProvider();
+				PriceProvider priceProvider = new PriceProvider(security);
 				priceProvider.setPrice(new Price(now, new BigDecimal("12.00")));
 				return priceProvider;
 			}
@@ -250,7 +244,7 @@ public class InventoryTest {
 		InvestmentTransaction buy = new InvestmentTransaction(now, apple, BigDecimal.TEN, BigDecimal.ONE, BigDecimal.ZERO, InvestmentTransaction.Type.BUY);
 		investmmentAccount.addTransaction(buy);
 
-		final SimplePriceProvider priceProvider = new SimplePriceProvider();
+		final PriceProvider priceProvider = new PriceProvider(apple);
 		priceProvider.setPrice(new Price(now, new BigDecimal("12.00")));
 		Inventory inventory = new Inventory(investmmentAccount, new IPriceProviderFactory() {
 			@Override

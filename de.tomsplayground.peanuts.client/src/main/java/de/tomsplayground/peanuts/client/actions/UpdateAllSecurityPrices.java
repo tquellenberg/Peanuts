@@ -60,7 +60,7 @@ public class UpdateAllSecurityPrices extends AbstractHandler {
 	
 	private IStatus refreshPrices(IProgressMonitor monitor) {
 		try {
-			PriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
+			PriceProviderFactory priceProviderFactory = PriceProviderFactory.getPlainInstance();
 			ImmutableList<Security> securities = Activator.getDefault().getAccountManager().getSecurities();
 			monitor.beginTask("Refresh investment prices", securities.size());
 			for (Security security : securities.stream().sorted(INamedElement.NAMED_ELEMENT_ORDER).toList()) {

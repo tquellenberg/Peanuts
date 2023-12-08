@@ -1,14 +1,9 @@
 package de.tomsplayground.peanuts.client.editors.securitycategory;
 
-import static com.google.common.collect.Collections2.filter;
-import static com.google.common.collect.Collections2.transform;
-import static de.tomsplayground.peanuts.client.util.MinQuantity.isNotZero;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Currency;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -19,7 +14,6 @@ import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
@@ -38,16 +32,13 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-
 import de.tomsplayground.peanuts.client.app.Activator;
-import de.tomsplayground.peanuts.client.util.MinQuantity;
 import de.tomsplayground.peanuts.client.widgets.PersistentColumWidth;
 import de.tomsplayground.peanuts.client.wizards.securitycategory.SecurityCategoryEditWizard;
 import de.tomsplayground.peanuts.domain.base.Inventory;
 import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 import de.tomsplayground.peanuts.util.PeanutsUtil;
 
@@ -62,7 +53,7 @@ public class DetailPart extends EditorPart {
 					return s;
 				}
 				if (columnIndex == 1) {
-					return PeanutsUtil.formatCurrency(mapping.calculateCategoryValues(inventory).get(s), Currency.getInstance("EUR"));
+					return PeanutsUtil.formatCurrency(mapping.calculateCategoryValues(inventory).get(s), Currencies.getInstance().getDefaultCurrency());
 				}
 			} else if (element instanceof Security security) {
 				if (columnIndex == 0) {
@@ -70,7 +61,7 @@ public class DetailPart extends EditorPart {
 				}
 				if (columnIndex == 1) {
 					// FIXME: Reports und Inventories brauchen eine Währung
-					return PeanutsUtil.formatCurrency(calc(security), Currency.getInstance("EUR"));
+					return PeanutsUtil.formatCurrency(calc(security), Currencies.getInstance().getDefaultCurrency());
 				}
 			}
 			return null;
@@ -83,10 +74,9 @@ public class DetailPart extends EditorPart {
 	}
 
 	private BigDecimal calc(Security sec) {
-		for (InventoryEntry inventoryEntry : inventory.getEntries()) {
-			if (inventoryEntry.getSecurity().equals(sec)) {
-				return inventoryEntry.getMarketValue();
-			}
+		InventoryEntry inventoryEntry = inventory.getEntry(sec);
+		if (inventoryEntry != null) {
+			return inventoryEntry.getMarketValue();
 		}
 		return BigDecimal.ZERO;
 	}
@@ -117,17 +107,7 @@ public class DetailPart extends EditorPart {
 		}
 
 		private Collection<Security> getSecuritiesInInventory() {
-			return transform(filter(inventory.getEntries(), new Predicate<InventoryEntry>() {
-				@Override
-				public boolean apply(InventoryEntry entry) {
-					return isNotZero(entry.getQuantity());
-				}
-			}), new Function<InventoryEntry, Security>() {
-				@Override
-				public Security apply(InventoryEntry entry) {
-					return entry.getSecurity();
-				}
-			});
+			return inventory.getSecuritiesWithNoneZeroQuantity();
 		}
 
 		@Override
@@ -139,7 +119,7 @@ public class DetailPart extends EditorPart {
 					securities.removeAll(content.getAllSecurities());
 				} else {
 					securities = new ArrayList<Security>(content.getSecuritiesByCategory(category));
-					securities.retainAll(inventory.getSecurities());
+					securities.retainAll(getSecuritiesInInventory());
 				}
 				securities.sort((a, b) -> calc(b).compareTo(calc(a)));
 				return securities.toArray();
@@ -179,7 +159,7 @@ public class DetailPart extends EditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		inventory = Activator.getDefault().getAccountManager().getFullInventory();
+		inventory = Activator.getDefault().getAccountManager().getFullInventory(Activator.getDefault().getExchangeRates());
 
 		mapping = ((SecurityCategoryEditorInput) getEditorInput()).getSecurityCategoryMapping();
 
@@ -212,16 +192,6 @@ public class DetailPart extends EditorPart {
 					upButton.setEnabled(false);
 					downButton.setEnabled(false);
 				}
-			}
-		});
-		treeViewer.addFilter(new ViewerFilter() {
-			@Override
-			public boolean select(Viewer viewer, Object parentElement, Object element) {
-				if (element instanceof Security security) {
-					InventoryEntry entry = inventory.getEntry(security);
-					return (entry != null && MinQuantity.isNotZero(entry.getQuantity()));
-				}
-				return true;
 			}
 		});
 

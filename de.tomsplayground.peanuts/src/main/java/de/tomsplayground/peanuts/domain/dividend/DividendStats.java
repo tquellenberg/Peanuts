@@ -23,7 +23,6 @@ import de.tomsplayground.peanuts.domain.currenncy.CurrencyConverter;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.IStockSplitProvider;
-import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer;
 import de.tomsplayground.peanuts.domain.reporting.investment.PerformanceAnalyzer.YearValue;
 import de.tomsplayground.peanuts.domain.reporting.transaction.Report;
@@ -67,11 +66,11 @@ public class DividendStats extends ObservableModelObject {
 		report.setAccounts(accountManager.getAccounts().stream()
 			.filter(acc -> acc.getType() == Account.Type.INVESTMENT)
 			.collect(Collectors.toList()));
-		fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), null, accountManager);
+		fullInventory = new Inventory(report, priceProviderFactory, null, accountManager);
 		fullInventory.addPropertyChangeListener(inventoriyListener);
 		exchangeRates = new ExchangeRates(priceProviderFactory, accountManager);
 
-		PerformanceAnalyzer analizer = new PerformanceAnalyzer(report, PriceProviderFactory.getInstance(), stockSplitProvider);
+		PerformanceAnalyzer analizer = new PerformanceAnalyzer(report, priceProviderFactory, stockSplitProvider);
 		performanceValues = analizer.getValues();
 
 		updatedCachedData();

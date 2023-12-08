@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.domain.reporting.investment;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 import java.time.Month;
@@ -35,12 +35,6 @@ public class PerformanceAnalyzerTest {
 	private IPriceProviderFactory priceProviderFactory;
 	private IStockSplitProvider stockSplitProvider;
 
-	private static class SimplePriceProvider extends PriceProvider {
-		SimplePriceProvider() {
-			super(null);
-		}
-	}
-
 	@Before
 	public void setup() {
 		accountManager = new AccountManager();
@@ -48,7 +42,7 @@ public class PerformanceAnalyzerTest {
 		priceProviderFactory = new IPriceProviderFactory() {
 			@Override
 			public IPriceProvider getPriceProvider(Security security) {
-				SimplePriceProvider simplePriceProvider = new SimplePriceProvider();
+				PriceProvider simplePriceProvider = new PriceProvider(security);
 				simplePriceProvider.setPrice(new Price(Day.of(2008, Month.APRIL, 13), new BigDecimal("9.00")));
 				return simplePriceProvider;
 			}

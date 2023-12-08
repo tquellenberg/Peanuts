@@ -42,7 +42,6 @@ import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.option.OptionsLog;
 import de.tomsplayground.peanuts.domain.option.OptionsLog.Gain;
-import de.tomsplayground.peanuts.domain.process.CurrencyAdjustedPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzedInvestmentTransaction;
@@ -267,9 +266,8 @@ public class TaxPart extends EditorPart {
 		tableViewer.setLabelProvider(new RealizedEarningsTableLabelProvider());
 		tableViewer.setContentProvider(new ArrayContentProvider());
 
-		IPriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance();
 		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
-		priceProviderFactory = new CurrencyAdjustedPriceProviderFactory(account.getCurrency(), priceProviderFactory, exchangeRates);
+		IPriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance(account.getCurrency(), exchangeRates);
 		inventory = new Inventory(account, priceProviderFactory, new AnalyzerFactory(), Activator.getDefault().getAccountManager());
 
 		realizedGain = new RealizedGain(inventory);

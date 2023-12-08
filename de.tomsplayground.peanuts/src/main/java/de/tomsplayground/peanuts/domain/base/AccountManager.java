@@ -24,9 +24,11 @@ import de.tomsplayground.peanuts.domain.calendar.SecurityCalendarEntry;
 import de.tomsplayground.peanuts.domain.comparision.Comparison;
 import de.tomsplayground.peanuts.domain.comparision.DefaultComparisonInput;
 import de.tomsplayground.peanuts.domain.currenncy.Currencies;
+import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.process.Credit;
 import de.tomsplayground.peanuts.domain.process.EuroTransactionWrapper;
 import de.tomsplayground.peanuts.domain.process.ICredit;
+import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.IStockSplitProvider;
 import de.tomsplayground.peanuts.domain.process.ITimedElement;
 import de.tomsplayground.peanuts.domain.process.ITransaction;
@@ -536,13 +538,14 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 		return remove;
 	}
 
-	public Inventory getFullInventory() {
+	public Inventory getFullInventory(ExchangeRates rates) {
 		synchronized (this) {
 			if (fullInventory == null) {
 				Report report = new Report("temp");
 				report.setAccounts(getAccounts());
-
-				fullInventory = new Inventory(report, PriceProviderFactory.getInstance(), new AnalyzerFactory(), this);
+				IPriceProviderFactory priceProviderFactory = PriceProviderFactory.getInstance(report.getCurrency(), rates);
+				
+				fullInventory = new Inventory(report, priceProviderFactory, new AnalyzerFactory(), this);
 			} else {
 				// Day may have changed
 				fullInventory.setDate(Day.today());

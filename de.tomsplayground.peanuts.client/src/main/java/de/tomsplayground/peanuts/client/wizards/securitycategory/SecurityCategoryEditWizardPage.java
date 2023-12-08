@@ -30,7 +30,6 @@ import org.eclipse.swt.widgets.Text;
 
 import de.tomsplayground.peanuts.client.app.Activator;
 import de.tomsplayground.peanuts.domain.base.Inventory;
-import de.tomsplayground.peanuts.domain.base.InventoryEntry;
 import de.tomsplayground.peanuts.domain.base.Security;
 import de.tomsplayground.peanuts.domain.statistics.SecurityCategoryMapping;
 
@@ -144,7 +143,8 @@ public class SecurityCategoryEditWizardPage extends WizardPage {
 		});
 
 		// Content
-		securities = new ArrayList<Security>(Activator.getDefault().getAccountManager().getSecurities());
+		inventory = Activator.getDefault().getAccountManager().getFullInventory(Activator.getDefault().getExchangeRates());
+		securities = new ArrayList<Security>(inventory.getSecuritiesWithNoneZeroQuantity());
 		if (category != null) {
 			selectedSecurities = new ArrayList<Security>(mapping.getSecuritiesByCategory(category));
 		} else {
@@ -153,6 +153,7 @@ public class SecurityCategoryEditWizardPage extends WizardPage {
 		securities.removeAll(selectedSecurities);
 		listViewer1.setInput(securities);
 		listViewer1.setComparator(SECURITY_SORTER);
+		
 		listViewer2.setInput(selectedSecurities);
 		listViewer2.setComparator(SECURITY_SORTER);
 
@@ -173,16 +174,7 @@ public class SecurityCategoryEditWizardPage extends WizardPage {
 				}
 			}
 		});
-		inventory = Activator.getDefault().getAccountManager().getFullInventory();
-		viewerFilter = new ViewerFilter() {
-			@Override
-			public boolean select(Viewer viewer, Object parentElement, Object element) {
-				Security security = (Security)element;
-				InventoryEntry entry = inventory.getEntry(security);
-				return (entry != null && entry.getQuantity().intValue() > 0);
-			}
-		};
-		listViewer1.addFilter(viewerFilter);
+
 		Label label2 = new Label(buttonComposite, SWT.NONE);
 		label2.setText("Show only my securities");
 

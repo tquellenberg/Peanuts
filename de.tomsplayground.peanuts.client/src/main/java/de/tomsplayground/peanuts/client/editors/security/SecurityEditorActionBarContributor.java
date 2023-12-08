@@ -26,7 +26,7 @@ public class SecurityEditorActionBarContributor extends MultiPageEditorActionBar
 			@Override
 			public void run() {
 				Security security = ((SecurityEditorInput) part.getEditorInput()).getSecurity();
-				PriceProviderFactory.getInstance().refresh(security, Boolean.valueOf(
+				PriceProviderFactory.getPlainInstance().refresh(security, Boolean.valueOf(
 					security.getConfigurationValue(SecurityPropertyPage.OVERRIDE_EXISTING_PRICE_DATA)).booleanValue());
 			}
 		});

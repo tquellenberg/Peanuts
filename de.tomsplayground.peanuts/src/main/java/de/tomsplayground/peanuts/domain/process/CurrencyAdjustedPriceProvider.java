@@ -22,13 +22,13 @@ public final class CurrencyAdjustedPriceProvider extends AdjustedPriceProvider {
 	@Override
 	ImmutableList<IPrice> adjust(ImmutableList<IPrice> prices) {
 		return prices.parallelStream()
-			.map(p -> new AdjustedPrice(p, currencyConverter.getRatio(p.getDay())))
+			.map(p -> currencyConverter.convert(p))
 			.collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf));
 	}
 
 	@Override
 	IPrice adjust(IPrice price) {
-		return new AdjustedPrice(price, currencyConverter.getRatio(price.getDay()));
+		return currencyConverter.convert(price);
 	}
 
 	@Override

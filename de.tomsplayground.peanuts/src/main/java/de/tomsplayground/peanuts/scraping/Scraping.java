@@ -31,6 +31,8 @@ import de.tomsplayground.peanuts.util.Day;
 
 public class Scraping {
 
+	private static final Timeout TIMEOUT = Timeout.ofSeconds(5);
+
 	private final static Logger log = LoggerFactory.getLogger(Scraping.class);
 
 	public static final String SCRAPING_XPATH = "scaping.close";
@@ -84,8 +86,7 @@ public class Scraping {
 
 	private String get(String url) throws IOException {
 		HttpGet httpGet = new HttpGet(url);
-		httpGet.setConfig(RequestConfig.custom()
-			.setConnectionRequestTimeout(Timeout.ofSeconds(20)).build());
+		httpGet.setConfig(RequestConfig.custom().setConnectionRequestTimeout(TIMEOUT).build());
 		httpGet.addHeader(HttpHeaders.USER_AGENT, MarketScreener.USER_AGENT);
 		httpGet.addHeader(HttpHeaders.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
 		httpGet.addHeader(HttpHeaders.ACCEPT_LANGUAGE, "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");

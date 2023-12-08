@@ -56,7 +56,7 @@ public class AlarmView extends ViewPart {
 
 	private final int colWidth[] = new int[4];
 
-	private final AlarmManager alarmManager = new AlarmManager(PriceProviderFactory.getInstance());
+	private final AlarmManager alarmManager = new AlarmManager(PriceProviderFactory.getPlainInstance());
 
 	private ScheduledExecutorService executor;
 

@@ -92,8 +92,10 @@ public class PieEditorPart extends EditorPart {
 
 		Report report = new Report("temp");
 		report.setAccounts(Activator.getDefault().getAccountManager().getAccounts());
-		inventory = new Inventory(report, PriceProviderFactory.getInstance(), null,
-				 Activator.getDefault().getAccountManager());
+		inventory = new Inventory(report, 
+				PriceProviderFactory.getInstance(report.getCurrency(), Activator.getDefault().getExchangeRates()), 
+				null,
+				Activator.getDefault().getAccountManager());
 		inventory.addPropertyChangeListener(inventoryChangeListener);
 
 		dataset = new DefaultPieDataset<String>();

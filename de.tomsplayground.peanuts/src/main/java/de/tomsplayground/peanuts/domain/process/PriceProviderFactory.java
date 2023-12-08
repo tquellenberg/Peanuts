@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.URISyntaxException;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -26,6 +27,7 @@ import de.tomsplayground.peanuts.app.local.LocalPriceReader;
 import de.tomsplayground.peanuts.app.yahoo.YahooPriceReader;
 import de.tomsplayground.peanuts.app.yahoo.YahooPriceReader.Type;
 import de.tomsplayground.peanuts.domain.base.Security;
+import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 
 public class PriceProviderFactory implements IPriceProviderFactory {
 
@@ -42,13 +44,17 @@ public class PriceProviderFactory implements IPriceProviderFactory {
 		// private constructor
 	}
 
-	public static synchronized PriceProviderFactory getInstance() {
+	public static synchronized PriceProviderFactory getPlainInstance() {
 		if (priceProviderFactory == null) {
 			priceProviderFactory = new PriceProviderFactory();
 		}
 		return priceProviderFactory;
 	}
 
+	public static IPriceProviderFactory getInstance(Currency currency, ExchangeRates rates) {
+		return new CurrencyAdjustedPriceProviderFactory(currency, getPlainInstance(), rates);
+	}
+	
 	@Override
 	public IPriceProvider getPriceProvider(Security security) {
 		IPriceProvider localPriceProvider;

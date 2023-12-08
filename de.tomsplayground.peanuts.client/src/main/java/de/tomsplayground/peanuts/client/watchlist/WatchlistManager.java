@@ -112,7 +112,8 @@ public class WatchlistManager extends ObservableModelObject {
 		if (watchlist.getConfiguration().isManuallyConfigured()) {
 			newSecurities.addAll(getManuallyWatchlistSecurities(watchlist.getName()));
 		} else {
-			newSecurities.addAll(watchlist.getConfiguration().getSecuritiesByConfiguration(Activator.getDefault().getAccountManager()));
+			newSecurities.addAll(watchlist.getConfiguration()
+					.getSecuritiesByConfiguration(Activator.getDefault().getAccountManager(), Activator.getDefault().getExchangeRates()));
 		}
 
 		Set<Security> currentSecurities = watchlist.getSecurities();

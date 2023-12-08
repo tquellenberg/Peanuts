@@ -286,7 +286,8 @@ public class DividendStatsView extends ViewPart {
 			}
 		}
 
-		dividendStats = new DividendStats(Activator.getDefault().getAccountManager(), PriceProviderFactory.getInstance(),
+		dividendStats = new DividendStats(Activator.getDefault().getAccountManager(), 
+				PriceProviderFactory.getInstance(Currencies.getInstance().getDefaultCurrency(), Activator.getDefault().getExchangeRates()),
 				Activator.getDefault().getAccountManager());
 		dividendStats.addPropertyChangeListener(dividendStatsChangeListener);
 

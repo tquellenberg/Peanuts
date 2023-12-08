@@ -25,6 +25,7 @@ import de.tomsplayground.peanuts.client.chart.PeanutsDrawingSupplier;
 import de.tomsplayground.peanuts.client.util.UniqueAsyncExecution;
 import de.tomsplayground.peanuts.domain.base.Account;
 import de.tomsplayground.peanuts.domain.base.Inventory;
+import de.tomsplayground.peanuts.domain.currenncy.Currencies;
 import de.tomsplayground.peanuts.domain.process.PriceProviderFactory;
 import de.tomsplayground.peanuts.util.Day;
 
@@ -82,8 +83,10 @@ public class AllAccountsPieView extends ViewPart {
 				i = inventories.get(entry);
 				i.setDate(today);
 			} else {
-				i = new Inventory(entry, PriceProviderFactory.getInstance(), null,
-						 Activator.getDefault().getAccountManager());
+				i = new Inventory(entry, 
+						PriceProviderFactory.getInstance(Currencies.getInstance().getDefaultCurrency(), Activator.getDefault().getExchangeRates()), 
+						null,
+						Activator.getDefault().getAccountManager());
 				inventories.put(entry, i);
 				i.addPropertyChangeListener(accountChangeListener);
 			}

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.util.Day;
+import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public final class SplitAdjustedPriceProvider extends AdjustedPriceProvider {
 
@@ -28,7 +29,7 @@ public final class SplitAdjustedPriceProvider extends AdjustedPriceProvider {
 	IPrice adjust(IPrice price) {
 		BigDecimal splitRatio = getSplitRatio(price.getDay());
 		if (splitRatio.compareTo(BigDecimal.ONE) != 0) {
-			return new AdjustedPrice(price, splitRatio);
+			return new Price(price.getDay(), price.getValue().multiply(splitRatio, PeanutsUtil.MC));
 		}
 		return price;
 	}

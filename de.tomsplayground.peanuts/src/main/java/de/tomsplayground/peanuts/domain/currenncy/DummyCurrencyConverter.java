@@ -12,11 +12,6 @@ public class DummyCurrencyConverter extends CurrencyConverter {
 	}
 
 	@Override
-	public BigDecimal getRatio(Day day) {
-		return BigDecimal.ONE;
-	}
-
-	@Override
 	public BigDecimal convert(BigDecimal value, Day day) {
 		return value;
 	}

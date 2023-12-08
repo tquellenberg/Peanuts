@@ -644,7 +644,8 @@ public class FundamentalDataEditorPart extends EditorPart {
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
-		priceProvider = PriceProviderFactory.getInstance().getSplitAdjustedPriceProvider(security, stockSplits);
+		priceProvider = PriceProviderFactory.getPlainInstance()
+				.getSplitAdjustedPriceProvider(security, stockSplits);
 
 		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
 		FundamentalDatas fundamentalDatas = security.getFundamentalDatas();

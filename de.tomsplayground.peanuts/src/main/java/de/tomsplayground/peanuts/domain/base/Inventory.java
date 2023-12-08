@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -24,6 +28,8 @@ import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzerFactory;
 import de.tomsplayground.peanuts.util.Day;
 
 public class Inventory extends ObservableModelObject {
+
+	private final static Logger log = LoggerFactory.getLogger(Inventory.class);
 
 	private final ConcurrentHashMap<Security, InventoryEntry> entryMap = new ConcurrentHashMap<Security, InventoryEntry>();
 	private final AnalyzerFactory analizerFactory;
@@ -139,9 +145,18 @@ public class Inventory extends ObservableModelObject {
 		return day;
 	}
 
-	public ImmutableSet<Security> getSecurities() {
+	public ImmutableSet<Security> getAllSecurities() {
 		synchronized (entryMap) {
 			return ImmutableSet.copyOf(entryMap.keySet());
+		}
+	}
+	
+	public ImmutableSet<Security> getSecuritiesWithNoneZeroQuantity() {
+		synchronized (entryMap) {
+			List<Security> securities = entryMap.values().stream()
+					.filter(e -> e.getQuantity().signum() != 0)
+					.map(e -> e.getSecurity()).collect(Collectors.toList());
+			return ImmutableSet.copyOf(securities);
 		}
 	}
 
@@ -183,6 +198,10 @@ public class Inventory extends ObservableModelObject {
 				if (priceprovider instanceof ObservableModelObject ob) {
 					ob.addPropertyChangeListener(priceProviderChangeListener);
 					registeredPriceProvider.add(ob);
+				}
+				if (! account.getCurrency().equals(priceprovider.getCurrency())) {
+					log.error("Currency mismatch. Inventory {} PriceProvider {}", account.getCurrency(), priceprovider.getCurrency());
+					throw new IllegalArgumentException("");
 				}
 			}
 			security.addPropertyChangeListener(securityChangeListener);

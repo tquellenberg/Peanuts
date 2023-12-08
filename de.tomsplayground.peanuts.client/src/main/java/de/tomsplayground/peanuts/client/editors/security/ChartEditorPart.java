@@ -173,7 +173,7 @@ public class ChartEditorPart extends EditorPart {
 		setPartName(input.getName());
 		Security security = ((SecurityEditorInput) getEditorInput()).getSecurity();
 		ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(security);
-		priceProvider = PriceProviderFactory.getInstance().getSplitAdjustedPriceProvider(security, stockSplits);
+		priceProvider = PriceProviderFactory.getPlainInstance().getSplitAdjustedPriceProvider(security, stockSplits);
 		if (priceProvider instanceof ObservableModelObject o) {
 			o.addPropertyChangeListener(priceProviderChangeListener);
 		} else {
@@ -314,13 +314,10 @@ public class ChartEditorPart extends EditorPart {
 
 	private BigDecimal getAvgPrice() {
 		Security security = getSecurity();
-		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
-		if (inventory.getSecurities().contains(security)) {
-			InventoryEntry inventoryEntry = inventory.getEntry(security);
-			if (inventoryEntry.getQuantity().signum() == 1) {
-				BigDecimal avgPrice = inventoryEntry.getAvgPrice();
-				return getInventoryCurrencyConverter().convert(avgPrice, de.tomsplayground.peanuts.util.Day.today());
-			}
+		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory(Activator.getDefault().getExchangeRates());
+		if (inventory.getSecuritiesWithNoneZeroQuantity().contains(security)) {
+			BigDecimal avgPrice = inventory.getEntry(security).getAvgPrice();
+			return getInventoryCurrencyConverter().convert(avgPrice, de.tomsplayground.peanuts.util.Day.today());
 		}
 		return null;
 	}
@@ -381,7 +378,7 @@ public class ChartEditorPart extends EditorPart {
 	}
 
 	private void addHighLowAnnotations() {
-		SecurityHighLow securityHighLow = new SecurityHighLow(PriceProviderFactory.getInstance());
+		SecurityHighLow securityHighLow = new SecurityHighLow(PriceProviderFactory.getPlainInstance());
 		HighLowEntry highLow = securityHighLow.getHighLow(getSecurity(), Activator.getDefault().getAccountManager().getStockSplits(getSecurity()));
 		IPriceProvider pp = getChartPriceProvider();
 
@@ -484,7 +481,7 @@ public class ChartEditorPart extends EditorPart {
 	}
 
 	private ImmutableList<InvestmentTransaction> getOrders() {
-		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory();
+		Inventory inventory = Activator.getDefault().getAccountManager().getFullInventory(Activator.getDefault().getExchangeRates());
 		InventoryEntry inventoryEntry = inventory.getEntry(getSecurity());
 		if (inventoryEntry != null) {
 			return inventoryEntry.getTransactions();
@@ -651,7 +648,8 @@ public class ChartEditorPart extends EditorPart {
 		if (compareTo != null && timeChart.getFromDate() != null) {
 			de.tomsplayground.peanuts.util.Day fromDate = timeChart.getFromDate();
 			ImmutableList<StockSplit> stockSplits = Activator.getDefault().getAccountManager().getStockSplits(compareTo);
-			IPriceProvider compareToPriceProvider = PriceProviderFactory.getInstance().getSplitAdjustedPriceProvider(compareTo, stockSplits);
+			IPriceProvider compareToPriceProvider = PriceProviderFactory.getPlainInstance()
+					.getSplitAdjustedPriceProvider(compareTo, stockSplits);
 			if (compareToPriceProvider.getMinDate().after(fromDate)) {
 				fromDate = compareToPriceProvider.getMinDate();
 			}

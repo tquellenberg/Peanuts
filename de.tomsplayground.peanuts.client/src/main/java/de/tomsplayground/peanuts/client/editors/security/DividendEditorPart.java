@@ -217,8 +217,10 @@ public class DividendEditorPart extends EditorPart {
 		
 		AccountManager accountManager = Activator.getDefault().getAccountManager();
 		securityReport.setAccounts(accountManager.getAccounts());
-		securityInventory = new Inventory(securityReport, PriceProviderFactory.getInstance(), new AnalyzerFactory(),
-				 Activator.getDefault().getAccountManager());
+		securityInventory = new Inventory(securityReport, 
+				PriceProviderFactory.getInstance(securityReport.getCurrency(), Activator.getDefault().getExchangeRates()), 
+				new AnalyzerFactory(),
+				Activator.getDefault().getAccountManager());
 
 		currencies = Currencies.getInstance().getCurrenciesWithExchangeSecurity(accountManager);
 	}

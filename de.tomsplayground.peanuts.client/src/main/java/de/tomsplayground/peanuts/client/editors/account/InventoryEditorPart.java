@@ -76,7 +76,6 @@ import de.tomsplayground.peanuts.domain.currenncy.ExchangeRates;
 import de.tomsplayground.peanuts.domain.dividend.SecurityDividendStats;
 import de.tomsplayground.peanuts.domain.fundamental.CurrencyAjustedFundamentalData;
 import de.tomsplayground.peanuts.domain.fundamental.FundamentalData;
-import de.tomsplayground.peanuts.domain.process.CurrencyAdjustedPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.IPriceProviderFactory;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction.Type;
@@ -778,8 +777,7 @@ public class InventoryEditorPart extends EditorPart {
 			}
 		});
 
-		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
-		priceProviderFactory = new CurrencyAdjustedPriceProviderFactory(account.getCurrency(), PriceProviderFactory.getInstance(), exchangeRates);
+		priceProviderFactory = PriceProviderFactory.getInstance(account.getCurrency(), Activator.getDefault().getExchangeRates());
 		inventory = new Inventory(account, priceProviderFactory, new AnalyzerFactory(), Activator.getDefault().getAccountManager());
 		inventory.setDate(date);
 		inventory.addPropertyChangeListener(inventoryChangeListener);

@@ -96,7 +96,8 @@ public class ValueChartEditorPart extends EditorPart {
 		body.setLayout(new GridLayout());
 
 		Account account = getAccount();
-		intervalReport = new TimeIntervalReport(account, TimeIntervalReport.Interval.DAY, PriceProviderFactory.getInstance(), 
+		intervalReport = new TimeIntervalReport(account, TimeIntervalReport.Interval.DAY, 
+				PriceProviderFactory.getInstance(account.getCurrency(), Activator.getDefault().getExchangeRates()), 
 				Activator.getDefault().getAccountManager());
 		intervalReport.addPropertyChangeListener(changeListener);
 
