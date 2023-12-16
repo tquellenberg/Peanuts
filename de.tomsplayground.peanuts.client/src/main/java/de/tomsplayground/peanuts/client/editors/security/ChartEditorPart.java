@@ -219,7 +219,7 @@ public class ChartEditorPart extends EditorPart {
 		for (TimeChart.RANGE r : TimeChart.RANGE.values()) {
 			displayType.add(r.getName());
 		}
-		String chartType = StringUtils.defaultString(security.getConfigurationValue(CHART_TYPE), "all");
+		String chartType = Objects.toString(security.getConfigurationValue(CHART_TYPE), "all");
 		displayType.setText(chartType);
 		timeChart.setChartType(chartType, de.tomsplayground.peanuts.util.Day.today());
 		displayType.addSelectionListener(new SelectionAdapter(){

@@ -1,8 +1,9 @@
 package de.tomsplayground.peanuts.domain.process;
 
+import static java.util.Objects.requireNonNull;
+
 import java.math.BigDecimal;
 
-import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -18,8 +19,8 @@ public final class Price implements IPrice {
 	private final BigDecimal close;
 
 	public Price(Day date, BigDecimal close) {
-		Validate.notNull(date);
-		Validate.notNull(close);
+		requireNonNull(date);
+		requireNonNull(close);
 
 		this.date = date;
 		this.close = close;

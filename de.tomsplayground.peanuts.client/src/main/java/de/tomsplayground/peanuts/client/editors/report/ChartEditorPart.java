@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -102,8 +102,8 @@ public class ChartEditorPart extends EditorPart {
 		body.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
 		body.setLayout(new GridLayout());
 
-		String chartType = StringUtils.defaultString(getReport().getConfigurationValue(CHART_TYPE), "in total");
-		String timerange = StringUtils.defaultString(getReport().getConfigurationValue(TIMERANGE), "all");
+		String chartType = Objects.toString(getReport().getConfigurationValue(CHART_TYPE), "in total");
+		String timerange = Objects.toString(getReport().getConfigurationValue(TIMERANGE), "all");
 		JFreeChart chart = createChart(chartType, timerange);
 		chartFrame = new ChartComposite(body, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

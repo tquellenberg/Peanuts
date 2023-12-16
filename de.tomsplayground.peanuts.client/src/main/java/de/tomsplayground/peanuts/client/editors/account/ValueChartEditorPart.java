@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -101,7 +101,7 @@ public class ValueChartEditorPart extends EditorPart {
 				Activator.getDefault().getAccountManager());
 		intervalReport.addPropertyChangeListener(changeListener);
 
-		String chartType = StringUtils.defaultString(account.getConfigurationValue(CHART_TYPE), "all");
+		String chartType = Objects.toString(account.getConfigurationValue(CHART_TYPE), "all");
 		JFreeChart chart = createChart(chartType);
 		chartFrame = new ChartComposite(body, SWT.NONE, chart, true);
 		chartFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

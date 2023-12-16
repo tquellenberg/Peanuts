@@ -73,7 +73,7 @@ import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class DividendEditorPart extends EditorPart {
 	
-	private static final Range<Integer> TWELVE_MONTH_RANGE = Range.between(0, 365-20);
+	private static final Range<Integer> TWELVE_MONTH_RANGE = Range.of(0, 365-20);
 
 	private boolean dirty;
 

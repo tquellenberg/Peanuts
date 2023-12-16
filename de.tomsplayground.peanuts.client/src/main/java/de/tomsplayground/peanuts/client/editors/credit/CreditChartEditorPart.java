@@ -2,8 +2,8 @@ package de.tomsplayground.peanuts.client.editors.credit;
 
 import java.awt.Color;
 import java.text.SimpleDateFormat;
+import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -75,7 +75,7 @@ public class CreditChartEditorPart extends EditorPart {
 		displayType.add("this year");
 		displayType.add("6 month");
 		displayType.add("1 month");
-		String chartType = StringUtils.defaultString(getCredit().getConfigurationValue(CHART_TYPE), "all");
+		String chartType = Objects.toString(getCredit().getConfigurationValue(CHART_TYPE), "all");
 		displayType.setText(chartType);
 		timeChart.setChartType(chartType, getCredit().getEnd());
 		displayType.addSelectionListener(new SelectionAdapter(){

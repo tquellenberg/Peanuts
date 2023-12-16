@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.domain.fundamental;
 
-import static org.apache.commons.lang3.Validate.notNull;
+import static java.util.Objects.requireNonNull;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -24,8 +24,8 @@ public class AvgFundamentalData {
 	 * Created by {@link FundamentalDatas#getAvgFundamentalData(IPriceProvider, de.tomsplayground.peanuts.domain.currenncy.ExchangeRates)}.
 	 */
 	AvgFundamentalData(Collection<FundamentalData> datas, IPriceProvider priceProvider, CurrencyConverter currencyConverter) {
-		notNull(priceProvider);
-		notNull(currencyConverter);
+		requireNonNull(priceProvider);
+		requireNonNull(currencyConverter);
 		this.priceProvider = priceProvider;
 		this.currencyConverter = currencyConverter;
 		this.datas = new ArrayList<>(datas);
