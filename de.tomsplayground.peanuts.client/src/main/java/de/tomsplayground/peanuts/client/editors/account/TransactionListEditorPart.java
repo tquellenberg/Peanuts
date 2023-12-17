@@ -37,6 +37,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
@@ -145,7 +146,7 @@ public class TransactionListEditorPart extends EditorPart {
 		public AccountLabelProvider(Color red, Account account) {
 			this.red = red;
 			this.account = account;
-			this.boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT);
+			this.boldFont = JFaceResources.getFontRegistry().defaultFontDescriptor().withStyle(SWT.BOLD).setHeight(12).createFont(Display.getCurrent());			
 		}
 
 		@Override
