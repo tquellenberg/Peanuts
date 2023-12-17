@@ -73,7 +73,7 @@ import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class DividendEditorPart extends EditorPart {
 	
-	private static final Range<Integer> TWELVE_MONTH_RANGE = Range.of(0, 365-20);
+	private static final Range<Integer> TWELVE_MONTH_RANGE = Range.of(0, 365-28);
 
 	private boolean dirty;
 
@@ -156,6 +156,11 @@ public class DividendEditorPart extends EditorPart {
 				case 9:
 					return PeanutsUtil.formatPercent(getDividendYoc(twelveMonthTrailingDividends(entry)));
 				case 10:
+					return PeanutsUtil.formatCurrency(getDividend12MonthSum(twelveMonthTrailingDividends(entry)), Currencies.getInstance().getDefaultCurrency());
+				case 11:
+					SumCurrency sumPerShare = getDividend12MonthSumPerShare(twelveMonthTrailingDividends(entry));
+					return PeanutsUtil.formatCurrency(sumPerShare.sum, sumPerShare.currency);
+				case 12:
 					InvestmentTransaction booked = isBooked(entry);
 					if (booked != null) {
 						return PeanutsUtil.formatDate(booked.getDay());
@@ -299,6 +304,16 @@ public class DividendEditorPart extends EditorPart {
 		col.setResizable(true);
 
 		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("12m sum");
+		col.setWidth(100);
+		col.setResizable(true);
+		
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("12m sum per share");
+		col.setWidth(100);
+		col.setResizable(true);
+		
+		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Booked");
 		col.setWidth(100);
 		col.setResizable(true);
@@ -307,7 +322,7 @@ public class DividendEditorPart extends EditorPart {
 				getClass().getCanonicalName()+"."+getEditorInput().getName());
 
 		tableViewer.setColumnProperties(new String[] { "payDay", "dividend", "currency", "numberOfShares", "amount",
-			"amountInDefaultCurrency", "tax", "netto", "booked"});
+			"amountInDefaultCurrency", "tax", "netto", "12monthSum",  "booked"});
 		tableViewer.setCellModifier(new ICellModifier() {
 
 			@Override
@@ -632,10 +647,10 @@ public class DividendEditorPart extends EditorPart {
 	private BigDecimal getDividendYoc(List<Dividend> entries) {
 		BigDecimal yoc = BigDecimal.ZERO;
 		
-		for (Dividend entry : entries) {
-			securityInventory.setDate(entry.getPayDate());
+		for (Dividend divEntry : entries) {
+			securityInventory.setDate(divEntry.getPayDate());
 			InventoryEntry inventoryEntry = securityInventory.getInventoryEntry(getSecurity());
-			BigDecimal quantity = entry.getQuantity();
+			BigDecimal quantity = divEntry.getQuantity();
 			if (quantity == null) {
 				quantity = inventoryEntry.getQuantity();
 			}
@@ -643,15 +658,15 @@ public class DividendEditorPart extends EditorPart {
 				&& inventoryEntry.getAvgPrice() != null
 				&& inventoryEntry.getAvgPrice().compareTo(BigDecimal.ZERO) > 0) {
 
-				BigDecimal amount = entry.getAmountInDefaultCurrency();
+				BigDecimal amount = divEntry.getAmountInDefaultCurrency();
 				if (amount == null) {
-					amount = entry.getAmount();
+					amount = divEntry.getAmount();
 					if (amount == null) {
-						amount = getQuantity(entry).multiply(entry.getAmountPerShare());
+						amount = getQuantity(divEntry).multiply(divEntry.getAmountPerShare());
 					}
 					CurrencyConverter converter = Activator.getDefault().getExchangeRates()
-						.createCurrencyConverter(entry.getCurrency(), Currencies.getInstance().getDefaultCurrency());
-					amount = converter.convert(amount, entry.getPayDate());
+						.createCurrencyConverter(divEntry.getCurrency(), Currencies.getInstance().getDefaultCurrency());
+					amount = converter.convert(amount, divEntry.getPayDate());
 				}
 				yoc = yoc.add(amount
 					.divide(quantity, PeanutsUtil.MC)
@@ -659,6 +674,49 @@ public class DividendEditorPart extends EditorPart {
 			}
 		}
 		return yoc;
+	}
+	
+	private BigDecimal getDividend12MonthSum(List<Dividend> entries) {
+		BigDecimal sum = BigDecimal.ZERO;
+
+		for (Dividend divEntry : entries) {
+			securityInventory.setDate(divEntry.getPayDate());
+			InventoryEntry inventoryEntry = securityInventory.getInventoryEntry(getSecurity());
+			BigDecimal quantity = divEntry.getQuantity();
+			if (quantity == null) {
+				quantity = inventoryEntry.getQuantity();
+			}
+			if (quantity.compareTo(BigDecimal.ZERO) > 0
+				&& inventoryEntry.getAvgPrice() != null
+				&& inventoryEntry.getAvgPrice().compareTo(BigDecimal.ZERO) > 0) {
+
+				BigDecimal amount = divEntry.getAmountInDefaultCurrency();
+				if (amount == null) {
+					amount = divEntry.getAmount();
+					if (amount == null) {
+						amount = getQuantity(divEntry).multiply(divEntry.getAmountPerShare());
+					}
+					CurrencyConverter converter = Activator.getDefault().getExchangeRates()
+						.createCurrencyConverter(divEntry.getCurrency(), Currencies.getInstance().getDefaultCurrency());
+					amount = converter.convert(amount, divEntry.getPayDate());
+				}
+				sum = sum.add(amount);
+			}
+		}
+		return sum;
+	}
+	
+	record SumCurrency (BigDecimal sum, Currency currency) {}
+	
+	private SumCurrency getDividend12MonthSumPerShare(List<Dividend> entries) {
+		BigDecimal sum = BigDecimal.ZERO;
+		Currency currency = null;
+
+		for (Dividend divEntry : entries) {
+			sum = sum.add(divEntry.getAmountPerShare());
+			currency = divEntry.getCurrency();
+		}
+		return new SumCurrency(sum, currency);
 	}
 
 	public void deleteDividendEntries(List<Dividend> data) {
