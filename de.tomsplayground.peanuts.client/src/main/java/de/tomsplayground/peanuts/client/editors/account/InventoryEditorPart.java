@@ -17,7 +17,6 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -474,7 +473,7 @@ public class InventoryEditorPart extends EditorPart {
 		layout.marginWidth = 10;
 		layout.numColumns = 13;
 		banner.setLayout(layout);
-		Font boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT);
+		Font boldFont = Activator.getDefault().getBoldFont();
 
 		Label l = new Label(banner, SWT.WRAP);
 		l.setText("Date:");

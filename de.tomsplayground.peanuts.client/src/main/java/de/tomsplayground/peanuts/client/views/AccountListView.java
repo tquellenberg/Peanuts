@@ -14,7 +14,6 @@ import java.util.Map.Entry;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ColorRegistry;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -196,7 +195,7 @@ public class AccountListView extends ViewPart {
 		layout.marginWidth = 10;
 		layout.numColumns = 2;
 		banner.setLayout(layout);
-		Font boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT);
+		Font boldFont = Activator.getDefault().getBoldFont();
 
 		// Date
 		Label l = new Label(banner, SWT.WRAP);

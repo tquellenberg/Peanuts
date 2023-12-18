@@ -26,6 +26,7 @@ import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
@@ -169,6 +170,8 @@ public class Activator extends AbstractUIPlugin {
 					new FontData(fontData.getName(), 12 , fontData.getStyle())});
 			fontRegistry.put("de.tomsplayground.fonts.small", new FontData[]{
 					new FontData(fontData.getName(), 11 , fontData.getStyle())});
+			fontRegistry.put("de.tomsplayground.fonts.bold", new FontData[]{
+					new FontData(fontData.getName(), 12 , SWT.BOLD)});
 		}
 	}
 
@@ -178,6 +181,14 @@ public class Activator extends AbstractUIPlugin {
 			initFonts();
 		}
 		return fontRegistry.get("de.tomsplayground.fonts.default");
+	}
+	
+	public Font getBoldFont() {
+		FontRegistry fontRegistry = JFaceResources.getFontRegistry();
+		if (! fontRegistry.hasValueFor("de.tomsplayground.fonts.bold")) {
+			initFonts();
+		}
+		return fontRegistry.get("de.tomsplayground.fonts.bold");
 	}
 	
 	public Font getSmallFont() {

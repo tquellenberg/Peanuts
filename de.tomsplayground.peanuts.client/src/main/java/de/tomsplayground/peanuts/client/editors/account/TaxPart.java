@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -168,7 +167,7 @@ public class TaxPart extends EditorPart {
 		layout.marginWidth = 10;
 		layout.numColumns = 3;
 		banner.setLayout(layout);
-		Font boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT);
+		Font boldFont = Activator.getDefault().getBoldFont();
 
 		Label l = new Label(banner, SWT.WRAP);
 		l.setText("Year:");

@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -83,7 +82,7 @@ public class PieEditorPart extends EditorPart {
 		layout.marginWidth = 10;
 		layout.numColumns = 2;
 		banner.setLayout(layout);
-		Font boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT);
+		Font boldFont = Activator.getDefault().getBoldFont();
 
 		Label l = new Label(banner, SWT.WRAP);
 		l.setText("Date:");

@@ -1,6 +1,6 @@
 package de.tomsplayground.peanuts.client.editors.account;
 
-import static de.tomsplayground.peanuts.client.util.MinQuantity.*;
+import static de.tomsplayground.peanuts.client.util.MinQuantity.isNotZero;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -93,7 +92,7 @@ public class InventoryPieEditorPart extends EditorPart {
 		layout.marginWidth = 10;
 		layout.numColumns = 2;
 		banner.setLayout(layout);
-		Font boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT);
+		Font boldFont = Activator.getDefault().getBoldFont();
 
 		Label l = new Label(banner, SWT.WRAP);
 		l.setText("Date:");
