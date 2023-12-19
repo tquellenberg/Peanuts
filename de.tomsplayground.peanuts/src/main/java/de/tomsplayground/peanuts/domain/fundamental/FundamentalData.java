@@ -2,6 +2,7 @@ package de.tomsplayground.peanuts.domain.fundamental;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.Currency;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +21,7 @@ import de.tomsplayground.peanuts.util.PeanutsUtil;
 public class FundamentalData implements Comparable<FundamentalData> {
 
 	private int year;
-	private int ficalYearEndsMonth;
+	private int ficalYearEndsMonth; // 0: Dez, -1: Nov ...., -11: Jan
 	private BigDecimal dividende;
 	private BigDecimal earningsPerShare;
 	private BigDecimal debtEquityRatio;
@@ -94,7 +95,7 @@ public class FundamentalData implements Comparable<FundamentalData> {
 
 	public Day getFiscalStartDay() {
 		if (fiscalStartDay == null) {
-			fiscalStartDay = Day.firstDayOfYear(year).addMonth(getFicalYearEndsMonth());
+			fiscalStartDay = Day.firstDayOfYear(year).addMonth(getFicalYearEndsMonthInt());
 		}
 		return fiscalStartDay;
 	}
@@ -128,11 +129,21 @@ public class FundamentalData implements Comparable<FundamentalData> {
 		return Integer.compare(year, o.year);
 	}
 
-	public int getFicalYearEndsMonth() {
+	private int getFicalYearEndsMonthInt() {
 		return ficalYearEndsMonth;
 	}
+	
+	public Month getFicalYearEndsMonth() {
+		// ficalYearEndsMonth: (0 .. -11) => (Dec ... Jan)
+		return Month.of(12 + ficalYearEndsMonth);
+	}
 
-	public void setFicalYearEndsMonth(int ficalYearEndsMonth) {
+	public void setFicalYearEndsMonth(Month ficalYearEndsMonth) {
+		setFicalYearEndsMonth(-12 + ficalYearEndsMonth.getValue());
+	}
+	
+	private void setFicalYearEndsMonth(int ficalYearEndsMonth) {
+		// ficalYearEndsMonth: (0 .. -11) => (Dec ... Jan)
 		this.ficalYearEndsMonth = ficalYearEndsMonth;
 		this.fiscalStartDay = null;
 		this.fiscalEndDay = null;
@@ -176,8 +187,8 @@ public class FundamentalData implements Comparable<FundamentalData> {
 			setDividende(newData.getDividende());
 		}
 		setEarningsPerShare(newData.getEarningsPerShare());
-		if (newData.getFicalYearEndsMonth() != 0) {
-			setFicalYearEndsMonth(newData.getFicalYearEndsMonth());
+		if (newData.getFicalYearEndsMonthInt() != 0) {
+			setFicalYearEndsMonth(newData.getFicalYearEndsMonthInt());
 		}
 	}
 

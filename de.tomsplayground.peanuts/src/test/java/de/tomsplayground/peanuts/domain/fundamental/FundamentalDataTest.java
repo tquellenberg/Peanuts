@@ -22,7 +22,8 @@ public class FundamentalDataTest {
 	public void testStartEndNov() {
 		FundamentalData fundamentalData = new FundamentalData();
 		fundamentalData.setYear(2017);
-		fundamentalData.setFicalYearEndsMonth(-1);
+		fundamentalData.setFicalYearEndsMonth(Month.NOVEMBER);
+		assertEquals(Month.NOVEMBER, fundamentalData.getFicalYearEndsMonth());
 		assertEquals(Day.of(2016, Month.DECEMBER, 1), fundamentalData.getFiscalStartDay());
 		assertEquals(Day.of(2017, Month.NOVEMBER, 30), fundamentalData.getFiscalEndDay());
 	}
@@ -31,7 +32,8 @@ public class FundamentalDataTest {
 	public void testStartEndMar() {
 		FundamentalData fundamentalData = new FundamentalData();
 		fundamentalData.setYear(2017);
-		fundamentalData.setFicalYearEndsMonth(-10);
+		fundamentalData.setFicalYearEndsMonth(Month.FEBRUARY);
+		assertEquals(Month.FEBRUARY, fundamentalData.getFicalYearEndsMonth());
 		assertEquals(Day.of(2016, Month.MARCH, 1), fundamentalData.getFiscalStartDay());
 		assertEquals(Day.of(2017, Month.FEBRUARY, 28), fundamentalData.getFiscalEndDay());
 	}

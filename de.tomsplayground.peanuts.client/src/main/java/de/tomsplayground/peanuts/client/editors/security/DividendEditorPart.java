@@ -413,7 +413,7 @@ public class DividendEditorPart extends EditorPart {
 				}
 			}
 		});
-		ComboBoxCellEditor currencyCombo = new ComboBoxCellEditor(table, getCurrencyItems(), SWT.READ_ONLY);
+		ComboBoxCellEditor currencyCombo = new ComboBoxCellEditor(table, getCurrencyComboItems(), SWT.READ_ONLY);
 		tableViewer.setCellEditors(new CellEditor[] {new DateCellEditor(table), new TextCellEditor(table), currencyCombo,
 			new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table)});
 
@@ -450,7 +450,7 @@ public class DividendEditorPart extends EditorPart {
 
 	private int getCurrencyPos(Currency currency) {
 		String symbol = currency.getSymbol();
-		String[] currencyItems = getCurrencyItems();
+		String[] currencyItems = getCurrencyComboItems();
 		return ArrayUtils.indexOf(currencyItems, symbol);
 	}
 
@@ -458,7 +458,7 @@ public class DividendEditorPart extends EditorPart {
 		return currencies.get(pos);
 	}
 
-	private String[] getCurrencyItems() {
+	private String[] getCurrencyComboItems() {
 		List<String> items = currencies.stream()
 			.map(c -> c.getSymbol())
 			.collect(Collectors.toList());

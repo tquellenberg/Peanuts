@@ -5,14 +5,18 @@ import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -23,6 +27,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.ComboBoxCellEditor;
 import org.eclipse.jface.viewers.ICellModifier;
 import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -248,7 +253,7 @@ public class FundamentalDataEditorPart extends EditorPart {
 					case 0:
 						return String.valueOf(data.getYear());
 					case 1:
-						return String.valueOf(data.getFicalYearEndsMonth());
+						return data.getFicalYearEndsMonth().getDisplayName(TextStyle.SHORT_STANDALONE, Locale.getDefault());
 					case 2:
 						return PeanutsUtil.formatCurrency(data.getDividende(), null);
 					case 3:
@@ -577,7 +582,8 @@ public class FundamentalDataEditorPart extends EditorPart {
 				if (property.equals("year")) {
 					return String.valueOf(p.getYear());
 				} else if (property.equals("fiscalYear")) {
-					return String.valueOf(p.getFicalYearEndsMonth());
+					// Item position in combo box
+					return p.getFicalYearEndsMonth().getValue()-1;
 				} else if (property.equals("div")) {
 					return PeanutsUtil.formatCurrency(p.getDividende(), null);
 				} else if (property.equals("EPS")) {
@@ -600,9 +606,11 @@ public class FundamentalDataEditorPart extends EditorPart {
 							changed = true;
 						}
 					} else if (property.equals("fiscalYear")) {
-						Integer newFiscalYear = Integer.valueOf((String) value);
-						if (newFiscalYear.intValue() != p.getFicalYearEndsMonth()) {
-							p.setFicalYearEndsMonth(newFiscalYear.intValue());
+						// itemPos: 0..11
+						Integer itemPos = (Integer) value;
+						Month newFiscalYear = Month.of(itemPos+1);
+						if (newFiscalYear != p.getFicalYearEndsMonth()) {
+							p.setFicalYearEndsMonth(newFiscalYear);
 							changed = true;
 						}
 					} else if (property.equals("div")) {
@@ -634,7 +642,8 @@ public class FundamentalDataEditorPart extends EditorPart {
 				}
 			}
 		});
-		tableViewer.setCellEditors(new CellEditor[] {new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table),
+		ComboBoxCellEditor fiscalYearStartCombo = new ComboBoxCellEditor(table, getFiscalYearStartComboItems(), SWT.READ_ONLY);
+		tableViewer.setCellEditors(new CellEditor[] {new TextCellEditor(table), fiscalYearStartCombo, new TextCellEditor(table),
 			new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table),
 			new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table),
 			new TextCellEditor(table)});
@@ -691,6 +700,12 @@ public class FundamentalDataEditorPart extends EditorPart {
 		table.setMenu(menuManager.createContextMenu(table));
 		getSite().registerContextMenu(menuManager, tableViewer);
 		getSite().setSelectionProvider(tableViewer);
+	}
+
+	private String[] getFiscalYearStartComboItems() {
+		return Stream.of(Month.values())
+			.map(m -> m.getDisplayName(TextStyle.SHORT_STANDALONE, Locale.getDefault()))
+			.toArray(String[]::new);
 	}
 
 	private final PropertyChangeListener securityPropertyChangeListener = new UniqueAsyncExecution() {
