@@ -172,6 +172,8 @@ public class Activator extends AbstractUIPlugin {
 					new FontData(fontData.getName(), 11 , fontData.getStyle())});
 			fontRegistry.put("de.tomsplayground.fonts.bold", new FontData[]{
 					new FontData(fontData.getName(), 12 , SWT.BOLD)});
+			fontRegistry.put("de.tomsplayground.fonts.big", new FontData[]{
+					new FontData(fontData.getName(), 18 , fontData.getStyle())});
 		}
 	}
 
@@ -191,6 +193,14 @@ public class Activator extends AbstractUIPlugin {
 		return fontRegistry.get("de.tomsplayground.fonts.bold");
 	}
 	
+	public Font getBigFont() {
+		FontRegistry fontRegistry = JFaceResources.getFontRegistry();
+		if (! fontRegistry.hasValueFor("de.tomsplayground.fonts.big")) {
+			initFonts();
+		}
+		return fontRegistry.get("de.tomsplayground.fonts.big");
+	}
+
 	public Font getSmallFont() {
 		FontRegistry fontRegistry = JFaceResources.getFontRegistry();
 		if (! fontRegistry.hasValueFor("de.tomsplayground.fonts.small")) {

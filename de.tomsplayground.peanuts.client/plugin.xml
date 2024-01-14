@@ -97,6 +97,14 @@
             name="Dividends"
             restorable="true">
       </view>
+      <view
+            category="de.tomsplayground.peanuts.client.category1"
+            class="de.tomsplayground.peanuts.client.dashboard.DashboardView"
+            icon="icons/application_view_tile.png"
+            id="de.tomsplayground.peanuts.client.dashboardView"
+            name="Dashboard"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
