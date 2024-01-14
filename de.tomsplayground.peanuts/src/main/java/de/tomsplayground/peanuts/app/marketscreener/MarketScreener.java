@@ -255,11 +255,13 @@ public class MarketScreener {
 		return new Result(new ArrayList<>(), response);
 	}
 
+	// e.g. '1,250.83'
 	private BigDecimal parseNumber(String r) {
 		r = r.replaceAll("\\s","");
 		r = StringUtils.remove(r, "<b>");
 		r = StringUtils.remove(r, "<\\b>");
-		return new BigDecimal(r.replace(',', '.'));
+		r = StringUtils.remove(r, ",");
+		return new BigDecimal(r);
 	}
 
 }
