@@ -37,6 +37,8 @@ public class Dividend implements Comparable<Dividend> {
 	private BigDecimal amount;
 
 	private BigDecimal amountInDefaultCurrency;
+	
+	private BigDecimal withholdingTaxInDefaultCurrency;
 
 	private BigDecimal taxInDefaultCurrency;
 
@@ -54,6 +56,7 @@ public class Dividend implements Comparable<Dividend> {
 		this.amount = d.amount;
 		this.amountInDefaultCurrency = d.amountInDefaultCurrency;
 		this.taxInDefaultCurrency = d.taxInDefaultCurrency;
+		this.withholdingTaxInDefaultCurrency = d.withholdingTaxInDefaultCurrency;
 		this.security = d.security;
 		this.increase = d.increase;
 		this.change = d.change;
@@ -105,16 +108,30 @@ public class Dividend implements Comparable<Dividend> {
 		this.amountInDefaultCurrency = amountInDefaultCurrency;
 	}
 
+	public BigDecimal getWithholdingTaxInDefaultCurrency() {
+		return withholdingTaxInDefaultCurrency;
+	}
+	public void setWithholdingTaxInDefaultCurrency(BigDecimal withholdingTaxInDefaultCurrency) {
+		this.withholdingTaxInDefaultCurrency = withholdingTaxInDefaultCurrency;
+	}
+
 	public BigDecimal getTaxInDefaultCurrency() {
 		return taxInDefaultCurrency;
 	}
 	public void setTaxInDefaultCurrency(BigDecimal taxInDefaultCurrency) {
 		this.taxInDefaultCurrency = taxInDefaultCurrency;
 	}
+	
+	public BigDecimal getTaxSumInDefaultCurrency() {
+		return defaultIfNull(getWithholdingTaxInDefaultCurrency(), BigDecimal.ZERO)
+				.add(defaultIfNull(getTaxInDefaultCurrency(), BigDecimal.ZERO));
+	}
+
 	public BigDecimal getNettoAmountInDefaultCurrency() {
 		return defaultIfNull(getAmountInDefaultCurrency(), BigDecimal.ZERO)
-			.subtract(defaultIfNull(getTaxInDefaultCurrency(), BigDecimal.ZERO));
+			.subtract(getTaxSumInDefaultCurrency());
 	}
+	
 	public Security getSecurity() {
 		return security;
 	}
@@ -127,13 +144,6 @@ public class Dividend implements Comparable<Dividend> {
 		return payDate.compareTo(o.payDate);
 	}
 
-//	public boolean isIncrease() {
-//		return increase;
-//	}
-//	public void setIncrease(boolean increase) {
-//		this.increase = increase;
-//	}
-	
 	public Change getChange() {
 		if (change == null) {
 			return increase?Change.INCREASE:Change.NONE;

@@ -140,27 +140,33 @@ public class DividendEditorPart extends EditorPart {
 					}
 					return PeanutsUtil.formatCurrency(amount, Currencies.getInstance().getDefaultCurrency());
 				case 6:
+					if (entry.getWithholdingTaxInDefaultCurrency() != null) {
+						return PeanutsUtil.formatCurrency(entry.getWithholdingTaxInDefaultCurrency(), Currencies.getInstance().getDefaultCurrency());
+					} else {
+						return PeanutsUtil.formatCurrency(BigDecimal.ZERO, Currencies.getInstance().getDefaultCurrency());
+					}
+				case 7:
 					if (entry.getTaxInDefaultCurrency() != null) {
 						return PeanutsUtil.formatCurrency(entry.getTaxInDefaultCurrency(), Currencies.getInstance().getDefaultCurrency());
 					} else {
 						return PeanutsUtil.formatCurrency(BigDecimal.ZERO, Currencies.getInstance().getDefaultCurrency());
 					}
-				case 7:
-					if (entry.getTaxInDefaultCurrency() != null && entry.getAmountInDefaultCurrency() != null) {
-						return PeanutsUtil.formatPercent(entry.getTaxInDefaultCurrency().divide(entry.getAmountInDefaultCurrency(), PeanutsUtil.MC));
+				case 8:
+					if (entry.getAmountInDefaultCurrency() != null) {
+						return PeanutsUtil.formatPercent(entry.getTaxSumInDefaultCurrency().divide(entry.getAmountInDefaultCurrency(), PeanutsUtil.MC));
 					} else {
 						return PeanutsUtil.formatPercent(BigDecimal.ZERO);
 					}
-				case 8:
-					return PeanutsUtil.formatCurrency(entry.getNettoAmountInDefaultCurrency(), Currencies.getInstance().getDefaultCurrency());
 				case 9:
-					return PeanutsUtil.formatPercent(getDividendYoc(twelveMonthTrailingDividends(entry)));
+					return PeanutsUtil.formatCurrency(entry.getNettoAmountInDefaultCurrency(), Currencies.getInstance().getDefaultCurrency());
 				case 10:
-					return PeanutsUtil.formatCurrency(getDividend12MonthSum(twelveMonthTrailingDividends(entry)), Currencies.getInstance().getDefaultCurrency());
+					return PeanutsUtil.formatPercent(getDividendYoc(twelveMonthTrailingDividends(entry)));
 				case 11:
+					return PeanutsUtil.formatCurrency(getDividend12MonthSum(twelveMonthTrailingDividends(entry)), Currencies.getInstance().getDefaultCurrency());
+				case 12:
 					SumCurrency sumPerShare = getDividend12MonthSumPerShare(twelveMonthTrailingDividends(entry));
 					return PeanutsUtil.formatCurrency(sumPerShare.sum, sumPerShare.currency);
-				case 12:
+				case 13:
 					InvestmentTransaction booked = isBooked(entry);
 					if (booked != null) {
 						return PeanutsUtil.formatDate(booked.getDay());
@@ -182,8 +188,11 @@ public class DividendEditorPart extends EditorPart {
 				case 5:
 					return entry.getAmountInDefaultCurrency() == null ? Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW) : null;
 				case 6:
+					return entry.getWithholdingTaxInDefaultCurrency() == null ? Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW) : null;
 				case 7:
 					return entry.getTaxInDefaultCurrency() == null ? Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW) : null;
+//				case 8:
+//					return entry.getTaxInDefaultCurrency() == null ? Activator.getDefault().getColorProvider().get(Activator.INACTIVE_ROW) : null;
 			}
 			return null;
 		}
@@ -260,17 +269,17 @@ public class DividendEditorPart extends EditorPart {
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Dividend");
-		col.setWidth(80);
+		col.setWidth(70);
 		col.setResizable(true);
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Currency");
-		col.setWidth(70);
+		col.setWidth(40);
 		col.setResizable(true);
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("# of shares");
-		col.setWidth(70);
+		col.setWidth(50);
 		col.setResizable(true);
 
 		col = new TableColumn(table, SWT.RIGHT);
@@ -284,13 +293,18 @@ public class DividendEditorPart extends EditorPart {
 		col.setResizable(true);
 
 		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Withholding Tax "+Currencies.getInstance().getDefaultCurrency().getSymbol());
+		col.setWidth(100);
+		col.setResizable(true);
+
+		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Tax "+Currencies.getInstance().getDefaultCurrency().getSymbol());
 		col.setWidth(100);
 		col.setResizable(true);
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Tax %");
-		col.setWidth(100);
+		col.setWidth(80);
 		col.setResizable(true);
 
 		col = new TableColumn(table, SWT.RIGHT);
@@ -300,7 +314,7 @@ public class DividendEditorPart extends EditorPart {
 
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("YOC");
-		col.setWidth(100);
+		col.setWidth(80);
 		col.setResizable(true);
 
 		col = new TableColumn(table, SWT.RIGHT);
@@ -315,20 +329,20 @@ public class DividendEditorPart extends EditorPart {
 		
 		col = new TableColumn(table, SWT.RIGHT);
 		col.setText("Booked");
-		col.setWidth(100);
+		col.setWidth(80);
 		col.setResizable(true);
 		
 		new PersistentColumWidth(table, Activator.getDefault().getPreferenceStore(), 
 				getClass().getCanonicalName()+"."+getEditorInput().getName());
 
 		tableViewer.setColumnProperties(new String[] { "payDay", "dividend", "currency", "numberOfShares", "amount",
-			"amountInDefaultCurrency", "tax", "netto", "12monthSum",  "booked"});
+			"amountInDefaultCurrency", "withholdingTax", "tax", "netto", "12monthSum",  "booked"});
 		tableViewer.setCellModifier(new ICellModifier() {
 
 			@Override
 			public boolean canModify(Object element, String property) {
 				return List.of("payDay", "dividend", "currency", "numberOfShares", "amount",
-					"amountInDefaultCurrency", "tax").contains(property);
+					"amountInDefaultCurrency", "withholdingTax", "tax").contains(property);
 			}
 
 			@Override
@@ -346,6 +360,8 @@ public class DividendEditorPart extends EditorPart {
 					return p.getAmount()!=null?PeanutsUtil.formatCurrency(p.getAmount(), null):"";
 				} else if (property.equals("amountInDefaultCurrency")) {
 					return p.getAmountInDefaultCurrency()!=null?PeanutsUtil.formatCurrency(p.getAmountInDefaultCurrency(), null):"";
+				} else if (property.equals("withholdingTax")) {
+					return p.getWithholdingTaxInDefaultCurrency()!=null?PeanutsUtil.formatCurrency(p.getWithholdingTaxInDefaultCurrency(), null):"";
 				} else if (property.equals("tax")) {
 					return p.getTaxInDefaultCurrency()!=null?PeanutsUtil.formatCurrency(p.getTaxInDefaultCurrency(), null):"";
 				}
@@ -399,6 +415,14 @@ public class DividendEditorPart extends EditorPart {
 						}
 						tableViewer.update(p, new String[]{property});
 						markDirty();
+					} else if (property.equals("withholdingTax")) {
+						if (StringUtils.isBlank((String) value)) {
+							p.setWithholdingTaxInDefaultCurrency(null);
+						} else {
+							p.setWithholdingTaxInDefaultCurrency(PeanutsUtil.parseCurrency((String) value));
+						}
+						tableViewer.update(p, new String[]{property});
+						markDirty();
 					} else if (property.equals("tax")) {
 						if (StringUtils.isBlank((String) value)) {
 							p.setTaxInDefaultCurrency(null);
@@ -415,7 +439,8 @@ public class DividendEditorPart extends EditorPart {
 		});
 		ComboBoxCellEditor currencyCombo = new ComboBoxCellEditor(table, getCurrencyComboItems(), SWT.READ_ONLY);
 		tableViewer.setCellEditors(new CellEditor[] {new DateCellEditor(table), new TextCellEditor(table), currencyCombo,
-			new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table)});
+			new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table), new TextCellEditor(table), 
+			new TextCellEditor(table)});
 
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
