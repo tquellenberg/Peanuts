@@ -1,5 +1,6 @@
 package de.tomsplayground.peanuts.client.chart;
 
+import java.time.Month;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -12,12 +13,16 @@ import org.jfree.data.Range;
 import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
 import de.tomsplayground.peanuts.util.Day;
 
 public class TimeChart {
+	
+	private final static Logger log = LoggerFactory.getLogger(TimeChart.class);
 
 	public enum RANGE {
 		ALL("all"),
@@ -59,6 +64,7 @@ public class TimeChart {
 	final private TimeSeriesCollection series;
 	private RANGE type;
 
+	// first collection is used for auto scale of axis
 	public TimeChart(JFreeChart chart, TimeSeriesCollection series) {
 		this.chart = chart;
 		this.series = series;
@@ -72,11 +78,23 @@ public class TimeChart {
 		to = to.addDays(rightOffset());
 
 		Day from = getFromDate();
-		if (from != null) {
-			dateAxis.setRange(from.toDate(), to.toDate());
-		} else {
-			dateAxis.setAutoRange(true);
+		if (from == null) {
+			// first collection is used for auto scale of axis
+			TimeSeries serie = series.getSeries(0);
+			if (serie.isEmpty()) {
+				log.error("TimeSeries is empty");
+				from = Day.today();
+			} else {
+				RegularTimePeriod timePeriod = serie.getTimePeriod(0);
+				if (timePeriod instanceof org.jfree.data.time.Day d) {
+					from = Day.of(d.getYear(), Month.of(d.getMonth()), d.getDayOfMonth());
+				} else {
+					log.error("RegularTimePeriod of type {}", timePeriod.getClass());
+					from = Day.today();
+				}
+			}
 		}
+		dateAxis.setRange(from.toDate(), to.toDate());
 		adjustRangeAxis(plot, from, to);
 	}
 
@@ -107,46 +125,44 @@ public class TimeChart {
 	}
 
 	private void adjustRangeAxis(XYPlot plot, Day from, Day to) {
-		if (plot.getDomainAxis().isAutoRange()) {
-			plot.getRangeAxis().setAutoRange(true);
-		} else {
-			// Calculate min/max for y-axis
-			double max = Double.MIN_VALUE;
-			double min = Double.MAX_VALUE;
-			for (int s = 0; s < series.getSeriesCount(); s++) {
-				TimeSeries serie = series.getSeries(s);
-				@SuppressWarnings("unchecked")
-				Class<RegularTimePeriod> timePeriodClass = serie.getTimePeriodClass();
-				if (! serie.isEmpty()) {
-					int start = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, from.toDate(), TimeZone.getDefault(), Locale.getDefault()));
-					if (start < 0) {
-						start = -start - 1;
-						if (start == serie.getItemCount()) {
-							start = serie.getItemCount() - 1;
-						}
+		// Calculate min/max for y-axis
+		double max = Double.MIN_VALUE;
+		double min = Double.MAX_VALUE;
+		// first collection is used for auto scale of axis
+		TimeSeries serie = series.getSeries(0);
+		System.out.println(serie.getKey());
+		@SuppressWarnings("unchecked")
+		Class<RegularTimePeriod> timePeriodClass = serie.getTimePeriodClass();
+		if (! serie.isEmpty()) {
+			int start = 0;
+			if (from != null) {
+				start = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, from.toDate(), TimeZone.getDefault(), Locale.getDefault()));
+				if (start < 0) {
+					start = -start - 1;
+					if (start == serie.getItemCount()) {
+						start = serie.getItemCount() - 1;
 					}
-					int end = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, to.toDate(), TimeZone.getDefault(), Locale.getDefault()));
-					if (end < 0) {
-						end = - end - 1;
-					}
-					if (end >= serie.getItemCount()) {
-						end = serie.getItemCount() - 1;
-					}
-					for (int i = start; i <= end; i++) {
-						double v = serie.getValue(i).doubleValue();
-						if (v < min) {
-							min = v;
-						}
-						if (v > max) {
-							max = v;
-						}
-					}
-					break;
 				}
 			}
-			if (min < max) {
-				plot.getRangeAxis().setRangeWithMargins(new Range(min, max));
+			int end = serie.getIndex(RegularTimePeriod.createInstance(timePeriodClass, to.toDate(), TimeZone.getDefault(), Locale.getDefault()));
+			if (end < 0) {
+				end = - end - 1;
 			}
+			if (end >= serie.getItemCount()) {
+				end = serie.getItemCount() - 1;
+			}
+			for (int i = start; i <= end; i++) {
+				double v = serie.getValue(i).doubleValue();
+				if (v < min) {
+					min = v;
+				}
+				if (v > max) {
+					max = v;
+				}
+			}
+		}
+		if (min < max) {
+			plot.getRangeAxis().setRangeWithMargins(new Range(min, max));
 		}
 	}
 
