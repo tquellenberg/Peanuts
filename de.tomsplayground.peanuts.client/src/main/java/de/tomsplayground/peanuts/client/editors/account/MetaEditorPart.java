@@ -46,6 +46,7 @@ public class MetaEditorPart extends EditorPart {
 	private FormToolkit toolkit;
 
 	private Text accountName;
+	private Text iban;
 	private CurrencyComboViewer currency;
 	private Combo accountType;
 	private AccountEditor editor;
@@ -84,6 +85,15 @@ public class MetaEditorPart extends EditorPart {
 		accountName = toolkit.createText(sectionClient, "");
 		accountName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		accountName.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				sectionPart.markDirty();
+			}});
+		
+		toolkit.createLabel(sectionClient, "IBAN");
+		iban = toolkit.createText(sectionClient, "");
+		iban.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		iban.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				sectionPart.markDirty();
@@ -133,6 +143,7 @@ public class MetaEditorPart extends EditorPart {
 	protected void setValues() {
 		Account account = ((AccountEditorInput)getEditorInput()).getAccount();
 		accountName.setText(account.getName());
+		iban.setText(account.getIbanReadable());
 		currency.selectCurrency(account.getCurrency());
 		accountType.setText(account.getType().toString());
 		active.setSelection(account.isActive());
@@ -151,6 +162,7 @@ public class MetaEditorPart extends EditorPart {
 	public void doSave(IProgressMonitor monitor) {
 		Account account = ((AccountEditorInput)getEditorInput()).getAccount();
 		account.setName(accountName.getText());
+		account.setIban(iban.getText());
 		String typeName = accountType.getItem(accountType.getSelectionIndex());
 		account.setType(Account.Type.valueOf(typeName));
 		account.setCurrency(currency.getSelectedCurrency());

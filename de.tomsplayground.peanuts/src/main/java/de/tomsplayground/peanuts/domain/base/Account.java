@@ -1,5 +1,9 @@
 package de.tomsplayground.peanuts.domain.base;
 
+import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.deleteWhitespace;
+import static org.apache.commons.lang3.StringUtils.upperCase;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
@@ -9,11 +13,14 @@ import java.util.Comparator;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Iterables;
@@ -32,7 +39,11 @@ import de.tomsplayground.peanuts.util.Day;
 public class Account extends ObservableModelObject implements ITransferLocation, ITransactionProvider,
 	INamedElement, IConfigurable, IDeletable {
 
+
 	private final static Logger log = LoggerFactory.getLogger(Account.class);
+
+	private static final Splitter IBAN_SPLITTER = Splitter.fixedLength(4);
+	private static final Joiner IBAN_READABLE_JOINER = Joiner.on(' ');
 
 	public enum Type {
 		UNKNOWN,
@@ -51,6 +62,7 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	private Type type;
 	private String description;
 	private boolean active;
+	private String iban;
 
 	final private Map<String, String> displayConfiguration = new HashMap<String, String>();
 
@@ -369,5 +381,17 @@ public class Account extends ObservableModelObject implements ITransferLocation,
 	@Override
 	public void setDeleted(boolean deleted) {
 		setActive(! deleted);
+	}
+	
+	public String getIban() {
+		return defaultString(iban);
+	}
+	
+	public String getIbanReadable() {
+		return IBAN_READABLE_JOINER.join(IBAN_SPLITTER.split(getIban()));
+	}
+	
+	public void setIban(String iban) {
+		this.iban = upperCase(deleteWhitespace(defaultString(iban)), Locale.ENGLISH);
 	}
 }
