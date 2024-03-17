@@ -194,6 +194,14 @@ public class AccountManager extends ObservableModelObject implements ISecurityPr
 		reports.add(report);
 		firePropertyChange("report", null, report);
 	}
+	
+	public boolean removeReport(Report report) {
+		boolean result = reports.remove(report);
+		if (result) {
+			firePropertyChange("report", report, null);
+		}
+		return result;
+	}
 
 	public List<Report> getReports() {
 		return Collections.unmodifiableList(reports);

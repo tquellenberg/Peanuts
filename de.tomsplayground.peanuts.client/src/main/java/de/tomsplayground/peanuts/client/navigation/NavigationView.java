@@ -200,8 +200,8 @@ public class NavigationView extends ViewPart {
 			children.remove(child);
 			child.setParent(null);
 			if (child.baseObject instanceof ObservableModelObject model) {
-				model.removePropertyChangeListener(elementChangedListener);
-				model.removePropertyChangeListener(allElementsChangedListener);
+				model.removePropertyChangeListener("name", elementChangedListener);
+				model.removePropertyChangeListener("deleted", allElementsChangedListener);
 			}
 			if (child.baseObject instanceof Security security) {
 				security.removePropertyChangeListener(elementChangedListener);
