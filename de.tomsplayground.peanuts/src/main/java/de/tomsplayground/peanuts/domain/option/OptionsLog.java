@@ -93,10 +93,11 @@ public class OptionsLog {
 				cost = cost.add(getCostOfPosition(pop));
 				pop++;
 			}
-			if (e.assignment) {
+			if (e.assignment && longTrade) {
 				return null;
 			}
-			return new Gain(e.date, cost.add(e.getCostBaseCurrency()), longTrade, e.option, -e.quantity);
+			return new Gain(e.date, cost.add(e.getCostBaseCurrency()), e.pricePerOption, e.commission,
+					longTrade, e.option, -e.quantity);
 		}
 		
 		public boolean isEmpty() {
@@ -116,6 +117,7 @@ public class OptionsLog {
 					return logEntry.getCostBaseCurrency().divide(new BigDecimal(q), PeanutsUtil.MC);
 				}
 			}
+			log.error("Problem in {} {}", option, trades);
 			throw new IllegalArgumentException("");
 		}
 		
@@ -157,7 +159,8 @@ public class OptionsLog {
 		entries.sort((a, b) -> a.date.compareTo(b.date));
 	}
 
-	public record Gain(LocalDateTime d, BigDecimal gain, boolean longTrade, Option option, int quantity) {
+	public record Gain(LocalDateTime d, BigDecimal gain, BigDecimal pricePerOption, BigDecimal commission, 
+			boolean longTrade, Option option, int quantity) {
 	}
 
 	public List<Gain> getGains() {

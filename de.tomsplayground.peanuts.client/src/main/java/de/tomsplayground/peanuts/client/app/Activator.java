@@ -421,6 +421,10 @@ public class Activator extends AbstractUIPlugin {
 	public String getFilename() {
 		return getPreferenceStore().getString(FILENAME_PROPERTY);
 	}
+	
+	public String getFilePath() {
+		return new File(getFilename()).getParent();
+	}
 
 //	public IbConnection getIbConnection() {
 //		return ibConnection;

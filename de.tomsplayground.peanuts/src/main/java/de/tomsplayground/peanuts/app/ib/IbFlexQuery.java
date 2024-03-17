@@ -15,6 +15,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -29,17 +31,20 @@ import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class IbFlexQuery {
 
+	private final static Logger log = LoggerFactory.getLogger(IbFlexQuery.class);
+
 	private static final DateTimeFormatter ibDateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 	private static final DateTimeFormatter ibDateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd;HHmmss");
 
 	private final OptionsLog optionsLog = new OptionsLog();
 
 	public static void main(String[] args) {
-		String filename = "/Users/quelle/Documents/Geld/InteractiveBrokers/FlexQuery_2023.xml";
+		String filename = "/Users/quelle/Nextcloud/Sync/Peanuts/FlexQuery_2024.xml";
 		new IbFlexQuery().readOptionsFromXML(filename);
 	}
 
 	public OptionsLog readOptionsFromXML(String filename) {
+		log.info("Loading {}", filename);
 		Document document;
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -64,7 +69,7 @@ public class IbFlexQuery {
 		BigDecimal winnes = BigDecimal.ZERO;
 		for (Gain gain : gains) {
 			if (gain.longTrade()) {
-				System.out.println(gain);
+				log.info(" - "+gain);
 				if (gain.gain().signum() == 1) {
 					winnes = winnes.add(gain.gain());
 				} else {
@@ -72,9 +77,9 @@ public class IbFlexQuery {
 				}
 			}
 		}
-		System.out.println("Sum of losses: "+ PeanutsUtil.formatCurrency(losses, null));
-		System.out.println("Sum of winnes: "+ PeanutsUtil.formatCurrency(winnes, null));
-		System.out.println("Saldo: "+ PeanutsUtil.formatCurrency(winnes.add(losses), null));
+		log.info("Sum of losses: "+ PeanutsUtil.formatCurrency(losses, null));
+		log.info("Sum of winnes: "+ PeanutsUtil.formatCurrency(winnes, null));
+		log.info("Saldo: "+ PeanutsUtil.formatCurrency(winnes.add(losses), null));
 
 //		readTags(document, "CashTransaction");
 //		readTags(document, "ConversionRate");
@@ -90,7 +95,7 @@ public class IbFlexQuery {
 		case "EXECUTION":
 			break;
 		default:
-			System.err.println("Unknown levelOfDetail: " + levelOfDetail);
+			log.error("Unknown levelOfDetail: " + levelOfDetail);
 		}
 
 		String currency = e.getAttribute("currency");
@@ -100,7 +105,7 @@ public class IbFlexQuery {
 		case "GBP":
 			break;
 		default:
-			System.err.println("Unknown currency: " + currency);
+			log.error("Unknown currency: " + currency);
 		}
 		String ibCommissionCurrency = e.getAttribute("ibCommissionCurrency");
 		switch (ibCommissionCurrency) {
@@ -111,7 +116,7 @@ public class IbFlexQuery {
 		case "EUR":
 			break;
 		default:
-			System.err.println("Unknown ibCommissionCurrency: " + ibCommissionCurrency);
+			log.error("Unknown ibCommissionCurrency: " + ibCommissionCurrency);
 		}
 
 		String dateTime = e.getAttribute("dateTime");
@@ -129,7 +134,7 @@ public class IbFlexQuery {
 		case "SELL":
 			break;
 		default:
-			System.err.println("Unknown buySell: " + buySell);
+			log.error("Unknown buySell: " + buySell);
 		}
 
 		String assetCategory = e.getAttribute("assetCategory");
@@ -152,7 +157,7 @@ public class IbFlexQuery {
 			readCashTrade(e);
 			break;
 		default:
-			System.err.println("Unknown assetCategory: " + assetCategory);
+			log.error("Unknown assetCategory: " + assetCategory);
 		}
 	};
 
@@ -171,9 +176,9 @@ public class IbFlexQuery {
 	private Option readOptionTrade(Element e) {
 		// multiplier
 		Option.Type type = switch (e.getAttribute("putCall")) {
-		case "C" -> Option.Type.Call;
-		case "P" -> Option.Type.Put;
-		default -> null;
+			case "C" -> Option.Type.Call;
+			case "P" -> Option.Type.Put;
+			default -> null;
 		};
 		String underlyingSymbol = e.getAttribute("underlyingSymbol");
 		int underlyingConid = Integer.parseInt(e.getAttribute("underlyingConid"));

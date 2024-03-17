@@ -2,17 +2,21 @@ package de.tomsplayground.peanuts.client.editors.account;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.resource.ColorRegistry;
 import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -26,6 +30,8 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
@@ -52,28 +58,14 @@ import de.tomsplayground.peanuts.util.PeanutsUtil;
 
 public class TaxPart extends EditorPart {
 
-	public class RealizedEarningsTableLabelProvider implements ITableLabelProvider {
+	private final static Logger log = LoggerFactory.getLogger(TaxPart.class);
 
-		@Override
-		public void addListener(ILabelProviderListener listener) {
-		}
+	public class RealizedEarningsTableLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 
-		@Override
-		public void dispose() {
-		}
+		private Color red;
 
-		@Override
-		public boolean isLabelProperty(Object element, String property) {
-			return false;
-		}
-
-		@Override
-		public void removeListener(ILabelProviderListener listener) {
-		}
-
-		@Override
-		public Image getColumnImage(Object element, int columnIndex) {
-			return null;
+		public RealizedEarningsTableLabelProvider(Color red) {
+			this.red = red;
 		}
 
 		@Override
@@ -100,7 +92,13 @@ public class TaxPart extends EditorPart {
 				if (columnIndex == 6) {
 					return PeanutsUtil.formatCurrency(t.getGain(), account.getCurrency());
 				}
-				if (columnIndex == 7 && sumStockValues.containsKey(t)) {
+				if (columnIndex == 7 && lossesStockValues.containsKey(t)) {
+					return PeanutsUtil.formatCurrency(lossesStockValues.get(t), account.getCurrency());
+				}
+				if (columnIndex == 8 && gainsStockValues.containsKey(t)) {
+					return PeanutsUtil.formatCurrency(gainsStockValues.get(t), account.getCurrency());
+				}
+				if (columnIndex == 9 && sumStockValues.containsKey(t)) {
 					return PeanutsUtil.formatCurrency(sumStockValues.get(t), account.getCurrency());
 				}
 			}
@@ -114,13 +112,50 @@ public class TaxPart extends EditorPart {
 				if (columnIndex == 2) {
 					return Integer.toString(gain.quantity());
 				}
+				if (columnIndex == 3) {
+					return PeanutsUtil.formatCurrency(gain.pricePerOption(), Currency.getInstance("USD"));
+				}
+				if (columnIndex == 4) {
+					return PeanutsUtil.formatCurrency(gain.commission(), Currency.getInstance("USD"));
+				}
 				if (columnIndex == 6) {
 					return PeanutsUtil.formatCurrency(gain.gain(), account.getCurrency());
 				}
-				if (columnIndex == 7 && sumOptionsValues.containsKey(gain)) {
+				if (columnIndex == 7 && lossesOptionsValues.containsKey(gain)) {
+					return PeanutsUtil.formatCurrency(lossesOptionsValues.get(gain), account.getCurrency());
+				}
+				if (columnIndex == 8 && gainOptionsValues.containsKey(gain)) {
+					return PeanutsUtil.formatCurrency(gainOptionsValues.get(gain), account.getCurrency());
+				}
+				if (columnIndex == 9 && sumOptionsValues.containsKey(gain)) {
 					return PeanutsUtil.formatCurrency(sumOptionsValues.get(gain), account.getCurrency());
 				}
 			}
+			return null;
+		}
+
+		@Override
+		public Color getForeground(Object element, int columnIndex) {
+			if (element instanceof AnalyzedInvestmentTransaction t) {
+				if (columnIndex == 6 && t.getGain().signum() == -1) {
+					return red;
+				}
+			}
+			if (element instanceof Gain gain) {
+				if (columnIndex == 6 && gain.gain().signum() == -1) {
+					return red;
+				}
+			}
+			return null;
+		}
+
+		@Override
+		public Color getBackground(Object element, int columnIndex) {
+			return null;
+		}
+
+		@Override
+		public Image getColumnImage(Object element, int columnIndex) {
 			return null;
 		}
 	}
@@ -131,7 +166,12 @@ public class TaxPart extends EditorPart {
 
 	private int selectedYear;
 
+	private final Map<AnalyzedInvestmentTransaction, BigDecimal> lossesStockValues = new HashMap<>();
+	private final Map<AnalyzedInvestmentTransaction, BigDecimal> gainsStockValues = new HashMap<>();
 	private final Map<AnalyzedInvestmentTransaction, BigDecimal> sumStockValues = new HashMap<>();
+	
+	private final Map<Gain, BigDecimal> lossesOptionsValues = new HashMap<>();
+	private final Map<Gain, BigDecimal> gainOptionsValues = new HashMap<>();
 	private final Map<Gain, BigDecimal> sumOptionsValues = new HashMap<>();
 
 	private RealizedGain realizedGain;
@@ -250,19 +290,31 @@ public class TaxPart extends EditorPart {
 		col.setWidth(100);
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Gain/Lost");
+		col.setText("Gain/Loss");
 		col.setResizable(true);
 		col.setWidth(100);
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Sum");
+		col.setText("Loss sum");
+		col.setResizable(true);
+		col.setWidth(100);
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Gain sum");
+		col.setResizable(true);
+		col.setWidth(100);
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Total");
 		col.setResizable(true);
 		col.setWidth(100);
 
 		new PersistentColumWidth(table, Activator.getDefault().getPreferenceStore(), 
 				getClass().getCanonicalName()+"."+getEditorInput().getName());
-		
-		tableViewer.setLabelProvider(new RealizedEarningsTableLabelProvider());
+
+		ColorRegistry colorProvider = Activator.getDefault().getColorProvider();
+		Color red = colorProvider.get(Activator.RED);
+		tableViewer.setLabelProvider(new RealizedEarningsTableLabelProvider(red));
 		tableViewer.setContentProvider(new ArrayContentProvider());
 
 		ExchangeRates exchangeRates = Activator.getDefault().getExchangeRates();
@@ -287,15 +339,22 @@ public class TaxPart extends EditorPart {
 		AccountManager accountManager = Activator.getDefault().getAccountManager();
 		SecurityCategoryMapping securityCategoryMapping = accountManager.getSecurityCategoryMapping("Typ");
 
-		BigDecimal sumStocks = BigDecimal.ZERO;
+		BigDecimal lossSum = BigDecimal.ZERO;
+		BigDecimal gainSum = BigDecimal.ZERO;
 		sumStockValues.clear();
 		List<AnalyzedInvestmentTransaction> transToShow = new ArrayList<>();
 		for (AnalyzedInvestmentTransaction t : realizedTransaction) {
 			Security security = t.getSecurity();
 			String category = securityCategoryMapping.getCategory(security);
 			if (StringUtils.equalsAny(category, "Div Aktie", "Aktie") == isStock) {
-				sumStocks = sumStocks.add(t.getGain());
-				sumStockValues.put(t, sumStocks);
+				if (t.getGain().signum() == -1) {
+					lossSum = lossSum.add(t.getGain());
+					lossesStockValues.put(t, lossSum);
+				} else {
+					gainSum = gainSum.add(t.getGain());
+					gainsStockValues.put(t, gainSum);
+				}
+				sumStockValues.put(t, gainSum.add(lossSum));
 				transToShow.add(t);
 			}
 		}
@@ -304,14 +363,23 @@ public class TaxPart extends EditorPart {
 	}
 	
 	private void setOptionsData(boolean longTrade) {
-		String filename = "/Users/quelle/Documents/Geld/InteractiveBrokers/FlexQuery_2023.xml";
+		String filename = Activator.getDefault().getFilePath()+"/FlexQuery_"+selectedYear+".xml";
+		log.info("Loading {}", filename);
 		OptionsLog optionsFromXML = new IbFlexQuery().readOptionsFromXML(filename);
 		List<Gain> gains = optionsFromXML.getGains().stream().filter(g -> g.longTrade() == longTrade).toList();
-		BigDecimal sumStocks = BigDecimal.ZERO;
+		
+		BigDecimal lossSum = BigDecimal.ZERO;
+		BigDecimal gainSum = BigDecimal.ZERO;
 		sumOptionsValues.clear();
 		for (Gain gain : gains) {
-			sumStocks = sumStocks.add(gain.gain());
-			sumOptionsValues.put(gain, sumStocks);
+			if (gain.gain().signum() == -1) {
+				lossSum = lossSum.add(gain.gain());
+				lossesOptionsValues.put(gain, lossSum);
+			} else {
+				gainSum = gainSum.add(gain.gain());
+				gainOptionsValues.put(gain, gainSum);
+			}
+			sumOptionsValues.put(gain, gainSum.add(lossSum));
 		}
 		
 		tableViewer.setInput(gains);

@@ -378,7 +378,7 @@ public class OptionsLogEditorPart extends EditorPart {
 		new PersistentColumWidth(tree, Activator.getDefault().getPreferenceStore(), 
 				getClass().getCanonicalName()+"."+getEditorInput().getName());
 
-		String filename = "/Users/quelle/Documents/Geld/InteractiveBrokers/FlexQuery_2023.xml";
+		String filename = Activator.getDefault().getFilePath()+"/FlexQuery_" + Day.today().year + ".xml";
 		optionsFromXML = new IbFlexQuery().readOptionsFromXML(filename);
 		treeViewer.setInput(optionsFromXML);
 		
