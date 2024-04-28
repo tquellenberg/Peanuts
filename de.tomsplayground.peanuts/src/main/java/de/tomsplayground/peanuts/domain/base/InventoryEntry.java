@@ -12,6 +12,7 @@ import de.tomsplayground.peanuts.domain.process.IPrice;
 import de.tomsplayground.peanuts.domain.process.IPriceProvider;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction;
 import de.tomsplayground.peanuts.domain.process.InvestmentTransaction.Type;
+import de.tomsplayground.peanuts.domain.process.SplitAdjustedPriceProvider;
 import de.tomsplayground.peanuts.domain.process.SplitAdjustedTransactionProvider;
 import de.tomsplayground.peanuts.domain.process.StockSplit;
 import de.tomsplayground.peanuts.domain.reporting.investment.AnalyzedInvestmentTransaction;
@@ -36,7 +37,9 @@ public class InventoryEntry {
 	public InventoryEntry(Security security, Day day, IPriceProvider priceprovider, ImmutableList<StockSplit> stockSplits) {
 		this.security = security;
 		this.day = day;
-		this.priceprovider = priceprovider;
+		this.priceprovider = new SplitAdjustedPriceProvider(priceprovider, stockSplits.stream()
+				.filter(split -> split.getDay().beforeOrEquals(day))
+				.toList());
 		splitAdjustedTransactionProvider = new SplitAdjustedTransactionProvider(stockSplits);
 		splitAdjustedTransactionProvider.setDate(day);
 	}
@@ -109,10 +112,6 @@ public class InventoryEntry {
 			return priceprovider.getPrice(day).getValue().multiply(quantity);
 		}
 		return BigDecimal.ZERO;
-	}
-
-	IPriceProvider getPriceprovider() {
-		return priceprovider;
 	}
 
 	private AnalyzedInvestmentTransaction getLastAnalyzedInvestmentTransaction() {

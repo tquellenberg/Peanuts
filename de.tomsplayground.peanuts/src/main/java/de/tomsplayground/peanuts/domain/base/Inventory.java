@@ -46,7 +46,7 @@ public class Inventory extends ObservableModelObject {
 		public void propertyChange(PropertyChangeEvent evt) {
 			if (evt.getSource() instanceof IPriceProvider p) {
 				for (InventoryEntry entry : getEntries()) {
-					if (entry.getPriceprovider() == p) {
+					if (entry.getSecurity().equals(p.getSecurity())) {
 						firePropertyChange("entry", null, entry);
 						break;
 					}
