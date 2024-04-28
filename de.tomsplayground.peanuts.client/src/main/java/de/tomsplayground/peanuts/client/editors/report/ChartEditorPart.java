@@ -8,7 +8,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.TimeZone;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
@@ -302,8 +304,8 @@ public class ChartEditorPart extends EditorPart {
 		for (BigDecimal v : values) {
 			BigDecimal inventoryValue = iterator.next();
 			de.tomsplayground.peanuts.util.Day cal = dateIterator.next();
-			Day day = new Day(cal.day, cal.getMonth().getValue(), cal.year);
-			s1.add(day, v.add(inventoryValue.subtract(lastInventoryValue)));
+			RegularTimePeriod time = RegularTimePeriod.createInstance(intervalClass, cal.toDate(), TimeZone.getDefault(), Locale.getDefault());
+			s1.add(time, v.add(inventoryValue.subtract(lastInventoryValue)));
 			lastInventoryValue = inventoryValue;
 		}
 		TimeSeriesCollection dataset = new TimeSeriesCollection();
