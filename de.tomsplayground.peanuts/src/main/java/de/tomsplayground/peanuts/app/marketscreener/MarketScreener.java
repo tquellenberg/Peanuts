@@ -34,7 +34,7 @@ public class MarketScreener {
 
 	public static final String CONFIG_KEY_URL = "fourTrasdersUrl";
 
-	public static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36";
+	public static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
 
 	private final static RequestConfig defaultRequestConfig = RequestConfig.custom()
 		.setConnectionRequestTimeout(Timeout.ofSeconds(30))
@@ -46,7 +46,7 @@ public class MarketScreener {
 		.build();
 
 	public static void main(String[] args) {
-		Result result = new MarketScreener().scrapFinancials("https://www.marketscreener.com/quote/stock/THE-GOLDMAN-SACHS-GROUP-I-12831/finances/");
+		Result result = new MarketScreener().scrapFinancials("https://www.marketscreener.com/quote/stock/VERIZON-COMMUNICATIONS-4830/finances/");
 		for (FundamentalData fundamentalData : result.datas) {
 			System.out.println(fundamentalData);
 		}
@@ -139,15 +139,15 @@ public class MarketScreener {
 		try {
 			response = getPage(new URI(financialsUrl));
 			String html = response.content;
-
+//
 //			FileUtils.writeStringToFile(new File("./test.html"), html, Charset.forName("UTF-8"));			
 //			String html = FileUtils.readFileToString(new File("./test.html"), Charset.forName("UTF-8"));
 			
 			HtmlCleaner htmlCleaner = new HtmlCleaner();
 			TagNode tagNode = htmlCleaner.clean(html);
 
-			// Table "Annual Income Statement Data"
-			XPather xPather = new XPather("//table[@id='iseTableA']");
+			// Table "Financial Ratios"
+			XPather xPather = new XPather("//table[@id='financialRatesTable']");
 			Object[] result = xPather.evaluateAgainstNode(tagNode);
 			TagNode incomeTable = null;
 			if (result.length == 0) {
@@ -163,7 +163,7 @@ public class MarketScreener {
 			// Find rows
 			int epsRow = -1;
 			int dividendRow = -1;
-			for (int j = 1; j <= 20; j++) {
+			for (int j = 1; j <= 25; j++) {
 				xPather = new XPather("tbody/tr["+j+"]/td[1]/text()");
 				result = xPather.evaluateAgainstNode(incomeTable);
 				if (result.length == 0) {
@@ -178,6 +178,7 @@ public class MarketScreener {
 					dividendRow = j;
 				}
 			}
+//			log.info("EPS row {} Dividend row {}", epsRow, dividendRow);
 			if (epsRow == -1) {
 				log.error("EPS row not found in table.");
 			}
