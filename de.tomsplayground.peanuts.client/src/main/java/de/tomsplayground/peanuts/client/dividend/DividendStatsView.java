@@ -52,8 +52,6 @@ public class DividendStatsView extends ViewPart {
 
 	public static final String ID = "de.tomsplayground.peanuts.client.dividendStatsView";
 
-	private TableViewer dividendStatsListViewer;
-
 	private final int colWidth1[] = new int[7];
 	private final int colWidth2[] = new int[7];
 	private final int colWidth3[] = new int[7];
@@ -71,6 +69,8 @@ public class DividendStatsView extends ViewPart {
 			}
 		}
 	};
+
+	private TableViewer dividendStatsListViewer;
 
 	private TableViewer oneMonthListViewer;
 
@@ -129,8 +129,9 @@ public class DividendStatsView extends ViewPart {
 		}
 
 		private BigDecimal getSum(DividendMonth divStats) {
-			if (divStats.getFutureYearlyAmount() != null && divStats.getFutureYearlyAmount().compareTo(BigDecimal.ZERO) > 0) {
-				return divStats.getFutureYearlyAmount();
+			BigDecimal futureYearlyAmount = divStats.getFutureYearlyAmount();
+			if (futureYearlyAmount != null && futureYearlyAmount.compareTo(BigDecimal.ZERO) > 0) {
+				return futureYearlyAmount;
 			}
 			return divStats.getYearlyAmount();
 		}
@@ -234,7 +235,9 @@ public class DividendStatsView extends ViewPart {
 					if (futureAmountInDefaultCurrency.signum() == 0) {
 						return "";
 					}
-					return PeanutsUtil.formatCurrency(divStats.getFutureYearlyAmount(), Currencies.getInstance().getDefaultCurrency());
+					BigDecimal futureYearlyAmount = divStats.getFutureYearlyAmount();
+					futureYearlyAmount = futureYearlyAmount.subtract(divStats.getYearlyAmount());
+					return PeanutsUtil.formatCurrency(futureYearlyAmount, Currencies.getInstance().getDefaultCurrency());
 
 				default:
 					break;
@@ -348,13 +351,13 @@ public class DividendStatsView extends ViewPart {
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Amount");
+		col.setText("Paid");
 		col.setWidth((colWidth1[colNum] > 0) ? colWidth1[colNum] : 150);
 		col.setResizable(true);
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Sum in year");
+		col.setText("Paid Sum");
 		col.setWidth((colWidth1[colNum] > 0) ? colWidth1[colNum] : 150);
 		col.setResizable(true);
 		colNum++;
@@ -366,7 +369,7 @@ public class DividendStatsView extends ViewPart {
 		colNum++;
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Netto sum in year");
+		col.setText("Netto Sum");
 		col.setWidth((colWidth1[colNum] > 0) ? colWidth1[colNum] : 150);
 		col.setResizable(true);
 		colNum++;
