@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -21,7 +22,10 @@ public class OptionsLog {
 	private final static Logger log = LoggerFactory.getLogger(OptionsLog.class);
 
 	public static class LogEntry {
+		// Unique executions id
 		private final String execId;
+		// multiple executions can belong to ONE order (can be empty)
+		private final String orderId;
 		private int quantity;
 		private Option option;
 		private BigDecimal pricePerOption;
@@ -30,9 +34,10 @@ public class OptionsLog {
 		private BigDecimal fxRateToBase;
 		private boolean assignment;
 
-		public LogEntry(String execId, int quantity, Option option, BigDecimal pricePerOption, BigDecimal commission,
-				LocalDateTime date, BigDecimal fxRateToBase, boolean assignment) {
+		public LogEntry(String execId, String orderId, int quantity, Option option, BigDecimal pricePerOption, 
+				BigDecimal commission, LocalDateTime date, BigDecimal fxRateToBase, boolean assignment) {
 			this.execId = execId;
+			this.orderId = orderId;
 			this.quantity = quantity;
 			this.option = option;
 			this.pricePerOption = pricePerOption;
@@ -48,17 +53,23 @@ public class OptionsLog {
 		}
 
 		public BigDecimal getCost() {
-			return pricePerOption.multiply(BigDecimal.valueOf(-quantity)).add(commission).setScale(2, RoundingMode.HALF_UP);
+			return pricePerOption.multiply(BigDecimal.valueOf(-quantity)).add(getCommission()).setScale(2, RoundingMode.HALF_UP);
 		}
 
-		public BigDecimal getCostBaseCurrency() {
+		public BigDecimal getCostInBaseCurrency() {
 			return getCost().multiply(fxRateToBase, PeanutsUtil.MC).setScale(2, RoundingMode.HALF_UP);
 		}
 		public LocalDateTime getDate() {
 			return date;
 		}
+		public BigDecimal getCommission() {
+			return commission.setScale(2, RoundingMode.HALF_UP);
+		}
 		public int getQuantity() {
 			return quantity;
+		}
+		public String getOrderId() {
+			return orderId;
 		}
 	}
 
@@ -78,25 +89,28 @@ public class OptionsLog {
 			return trades;
 		}
 		
+		private boolean isOpening(LogEntry e) {
+			return (longTrade && e.quantity > 0) || (!longTrade && e.quantity < 0);
+		}
+		
 		public Gain add(LogEntry e) {
-			if (longTrade && e.quantity > 0) {
+			if (isOpening(e)) {
 				trades.add(e);
 				return null;
 			}
-			if (!longTrade && e.quantity < 0) {
-				trades.add(e);
-				return null;
-			}
+			// Closing trade
 			int quantity = Math.abs(e.quantity);
-			BigDecimal cost = BigDecimal.ZERO;
+			BigDecimal openingCosts = BigDecimal.ZERO;
 			for (int i = 0; i < quantity; i++) {
-				cost = cost.add(getCostOfPosition(pop));
+				openingCosts = openingCosts.add(getCostOfPosition(pop));
 				pop++;
 			}
-			if (e.assignment && longTrade) {
+			if (longTrade && e.assignment) {
 				return null;
 			}
-			return new Gain(e.date, cost.add(e.getCostBaseCurrency()), e.pricePerOption, e.commission,
+			BigDecimal closingCosts = e.getCostInBaseCurrency();
+			BigDecimal gainInBaseCurrency = openingCosts.add(closingCosts);
+			return new Gain(e.date, openingCosts, closingCosts, gainInBaseCurrency, e.pricePerOption, e.getCommission(),
 					longTrade, e.option, -e.quantity);
 		}
 		
@@ -114,7 +128,7 @@ public class OptionsLog {
 				if (pos >= q) {
 					pos = pos - q;
 				} else {
-					return logEntry.getCostBaseCurrency().divide(new BigDecimal(q), PeanutsUtil.MC);
+					return logEntry.getCostInBaseCurrency().divide(new BigDecimal(q), PeanutsUtil.MC);
 				}
 			}
 			log.error("Problem in {} {}", option, trades);
@@ -124,7 +138,7 @@ public class OptionsLog {
 		public BigDecimal getCostBaseCurrency() {
 			BigDecimal cost = BigDecimal.ZERO;
 			for (LogEntry logEntry : trades) {
-				cost = cost.add(logEntry.getCostBaseCurrency());
+				cost = cost.add(logEntry.getCostInBaseCurrency());
 			}
 			return cost;
 		}
@@ -145,21 +159,22 @@ public class OptionsLog {
 	private final List<Gain> gains = new ArrayList<>();
 
 	public void addEntry(int quantity, Option option, BigDecimal pricePerOption, BigDecimal commission,
-			LocalDateTime date, BigDecimal fxRateToBase, boolean assignment, String execId) {
+			LocalDateTime date, BigDecimal fxRateToBase, boolean assignment, String execId, String orderId) {
 		if (StringUtils.isNotBlank(execId)) {
 			for (LogEntry logEntry : entries) {
 				if (logEntry.execId.equals(execId)) {
-					log.info("Opions trade already exists in log: '{}' {}", execId, option);
+					log.error("Opions trade already exists in log: '{}' {}", execId, option);
 					return;
 				}
 			}
 		}
-		LogEntry logEntry = new LogEntry(execId, quantity, option, pricePerOption, commission, date, fxRateToBase, assignment);
+		LogEntry logEntry = new LogEntry(execId, orderId, quantity, option, pricePerOption, commission, 
+				date, fxRateToBase, assignment);
 		entries.add(logEntry);
-		entries.sort((a, b) -> a.date.compareTo(b.date));
 	}
 
-	public record Gain(LocalDateTime d, BigDecimal gain, BigDecimal pricePerOption, BigDecimal commission, 
+	public record Gain(LocalDateTime d, BigDecimal openingCosts, BigDecimal closingCosts,
+			BigDecimal gain, BigDecimal pricePerOption, BigDecimal commission, 
 			boolean longTrade, Option option, int quantity) {
 	}
 
@@ -170,6 +185,9 @@ public class OptionsLog {
 	public void doit() {
 		tradePerOption.clear();
 		gains.clear();
+		
+		joinSplittedExecutions(entries);
+		entries.sort((a, b) -> a.date.compareTo(b.date));
 		
 		for (LogEntry logEntry : entries) {
 			Option option = logEntry.option;
@@ -183,6 +201,40 @@ public class OptionsLog {
 				}
 			} else {
 				tradePerOption.put(option, new TradesPerOption(logEntry));
+			}
+		}
+	}
+
+	private void joinSplittedExecutions(List<LogEntry> entries) {
+		Map<String, List<LogEntry>> collect = entries.stream()
+			.filter(e -> StringUtils.isNotBlank(e.getOrderId()))
+			.collect(Collectors.groupingBy(LogEntry::getOrderId));
+		
+		List<LogEntry> resultList = new ArrayList<>();
+		for (List<LogEntry> logEntries : collect.values()) {
+			if (logEntries.size() > 1) {
+				LogEntry firstLogEntry = logEntries.get(0);
+				entries.remove(firstLogEntry);
+				LogEntry joinedLogEntry = new LogEntry("Joined: "+firstLogEntry.execId, firstLogEntry.orderId, 
+						firstLogEntry.quantity, firstLogEntry.option, BigDecimal.ZERO, firstLogEntry.commission, 
+						firstLogEntry.date, firstLogEntry.fxRateToBase, firstLogEntry.assignment);
+				BigDecimal mixedPrice = firstLogEntry.pricePerOption.multiply(new BigDecimal(firstLogEntry.quantity));
+				for (int i = 1; i < logEntries.size(); i++) {
+					LogEntry additinalLogEntry = logEntries.get(i);
+					if (! firstLogEntry.option.equals(additinalLogEntry.option)) {
+						log.error("ERROR {} {} {}", firstLogEntry.orderId, firstLogEntry.option, additinalLogEntry.option);
+					}
+					entries.remove(additinalLogEntry);
+					mixedPrice = mixedPrice.add(additinalLogEntry.pricePerOption.multiply(new BigDecimal(additinalLogEntry.quantity)));
+					joinedLogEntry.quantity = joinedLogEntry.quantity + additinalLogEntry.quantity;
+					joinedLogEntry.commission = joinedLogEntry.commission.add(additinalLogEntry.commission);
+				}
+				joinedLogEntry.pricePerOption = mixedPrice.divide(new BigDecimal(joinedLogEntry.quantity), PeanutsUtil.MC);
+				entries.add(joinedLogEntry);
+				log.info(" Joined entry: {}", joinedLogEntry);
+			} else {
+				resultList.add(logEntries.get(0));
+				log.info("Single entry {}", logEntries.get(0).getOrderId());
 			}
 		}
 	}

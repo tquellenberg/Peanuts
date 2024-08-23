@@ -78,7 +78,8 @@ public class IbOptions {
 			BigDecimal commission = new BigDecimal(fullExec.getCommissionReport().commission());
 			LocalDateTime dateTime = LocalDateTime.from(TRADE_TIME_PATTERN.parse(trade.time()));
 			// TODO: fxRateToBase
-			optionsLog.addEntry(quantity.intValue()*factor, option, price, commission, dateTime, BigDecimal.ONE, false, trade.execId());
+			optionsLog.addEntry(quantity.intValue()*factor, option, price, commission, dateTime, BigDecimal.ONE, false, 
+					trade.execId(), trade.orderRef());
 		}
 		return options;
 	}

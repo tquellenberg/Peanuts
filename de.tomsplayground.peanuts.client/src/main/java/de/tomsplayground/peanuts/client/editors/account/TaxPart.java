@@ -86,19 +86,19 @@ public class TaxPart extends EditorPart {
 				if (columnIndex == 4) {
 					return PeanutsUtil.formatCurrency(t.getCommission(), account.getCurrency());
 				}
-				if (columnIndex == 5) {
+				if (columnIndex == 6) {
 					return PeanutsUtil.formatCurrency(t.getAmount(), account.getCurrency());
 				}
-				if (columnIndex == 6) {
+				if (columnIndex == 7) {
 					return PeanutsUtil.formatCurrency(t.getGain(), account.getCurrency());
 				}
-				if (columnIndex == 7 && lossesStockValues.containsKey(t)) {
+				if (columnIndex == 8 && lossesStockValues.containsKey(t)) {
 					return PeanutsUtil.formatCurrency(lossesStockValues.get(t), account.getCurrency());
 				}
-				if (columnIndex == 8 && gainsStockValues.containsKey(t)) {
+				if (columnIndex == 9 && gainsStockValues.containsKey(t)) {
 					return PeanutsUtil.formatCurrency(gainsStockValues.get(t), account.getCurrency());
 				}
-				if (columnIndex == 9 && sumStockValues.containsKey(t)) {
+				if (columnIndex == 10 && sumStockValues.containsKey(t)) {
 					return PeanutsUtil.formatCurrency(sumStockValues.get(t), account.getCurrency());
 				}
 			}
@@ -118,16 +118,22 @@ public class TaxPart extends EditorPart {
 				if (columnIndex == 4) {
 					return PeanutsUtil.formatCurrency(gain.commission(), Currency.getInstance("USD"));
 				}
+				if (columnIndex == 5) {
+					return PeanutsUtil.formatCurrency(gain.openingCosts(), account.getCurrency());
+				}				
 				if (columnIndex == 6) {
+					return PeanutsUtil.formatCurrency(gain.closingCosts(), account.getCurrency());
+				}
+				if (columnIndex == 7) {
 					return PeanutsUtil.formatCurrency(gain.gain(), account.getCurrency());
 				}
-				if (columnIndex == 7 && lossesOptionsValues.containsKey(gain)) {
+				if (columnIndex == 8 && lossesOptionsValues.containsKey(gain)) {
 					return PeanutsUtil.formatCurrency(lossesOptionsValues.get(gain), account.getCurrency());
 				}
-				if (columnIndex == 8 && gainOptionsValues.containsKey(gain)) {
+				if (columnIndex == 9 && gainOptionsValues.containsKey(gain)) {
 					return PeanutsUtil.formatCurrency(gainOptionsValues.get(gain), account.getCurrency());
 				}
-				if (columnIndex == 9 && sumOptionsValues.containsKey(gain)) {
+				if (columnIndex == 10 && sumOptionsValues.containsKey(gain)) {
 					return PeanutsUtil.formatCurrency(sumOptionsValues.get(gain), account.getCurrency());
 				}
 			}
@@ -137,12 +143,12 @@ public class TaxPart extends EditorPart {
 		@Override
 		public Color getForeground(Object element, int columnIndex) {
 			if (element instanceof AnalyzedInvestmentTransaction t) {
-				if (columnIndex == 6 && t.getGain().signum() == -1) {
+				if (columnIndex == 7 && t.getGain().signum() == -1) {
 					return red;
 				}
 			}
 			if (element instanceof Gain gain) {
-				if (columnIndex == 6 && gain.gain().signum() == -1) {
+				if (columnIndex == 7 && gain.gain().signum() == -1) {
 					return red;
 				}
 			}
@@ -260,7 +266,7 @@ public class TaxPart extends EditorPart {
 		table.setFont(Activator.getDefault().getNormalFont());
 
 		TableColumn col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Date");
+		col.setText("Closing Date");
 		col.setResizable(true);
 		col.setWidth(100);
 
@@ -285,12 +291,17 @@ public class TaxPart extends EditorPart {
 		col.setWidth(100);
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Saldo");
+		col.setText("Opening");
 		col.setResizable(true);
 		col.setWidth(100);
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Gain/Loss");
+		col.setText("Closing");
+		col.setResizable(true);
+		col.setWidth(100);
+
+		col = new TableColumn(table, SWT.RIGHT);
+		col.setText("Profit/Loss");
 		col.setResizable(true);
 		col.setWidth(100);
 
@@ -300,7 +311,7 @@ public class TaxPart extends EditorPart {
 		col.setWidth(100);
 
 		col = new TableColumn(table, SWT.RIGHT);
-		col.setText("Gain sum");
+		col.setText("Profit sum");
 		col.setResizable(true);
 		col.setWidth(100);
 

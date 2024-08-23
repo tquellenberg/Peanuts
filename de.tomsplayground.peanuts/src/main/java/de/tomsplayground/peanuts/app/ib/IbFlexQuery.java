@@ -125,7 +125,10 @@ public class IbFlexQuery {
 		BigDecimal tradePrice = new BigDecimal(e.getAttribute("tradePrice"));
 		BigDecimal ibCommission = new BigDecimal(e.getAttribute("ibCommission"));
 		BigDecimal fxRateToBase = new BigDecimal(e.getAttribute("fxRateToBase"));
+		// Unique executions id
 		String execId = e.getAttribute("ibExecID");
+		// multiple executions can belong to ONE order
+		String orderId = e.getAttribute("ibOrderID");
 
 		String buySell = e.getAttribute("buySell");
 		switch (buySell) {
@@ -151,7 +154,7 @@ public class IbFlexQuery {
 				tradePrice = tradePrice.multiply(new BigDecimal("100"));
 			}
 			optionsLog.addEntry(quantity.intValue(), option, tradePrice, ibCommission,
-					tradeDateTime, fxRateToBase, assignment, execId);
+					tradeDateTime, fxRateToBase, assignment, execId, orderId);
 			break;
 		case "CASH":
 			readCashTrade(e);
